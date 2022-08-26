@@ -3,9 +3,10 @@
     using Models;
     using Data;
 
-    public class DatabaseAdapter : IDatabaseAdapter
+    public class DatabaseAdapter : IDatabaseAdapter, IDisposable
     {
         private readonly ApplicationDatabaseContext _context;
+        private bool _disposed;
 
         public DatabaseAdapter(ApplicationDatabaseContext context)
         {
@@ -129,6 +130,24 @@
             }
 
             _context.SaveChanges();
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed)
+            {
+                if (disposing)
+                {
+                    _context.Dispose();
+                }
+            }
+            _disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }
