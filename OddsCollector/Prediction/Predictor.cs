@@ -146,11 +146,7 @@ public class Predictor : IPredictor
 
         if (completedEventsCount == 0)
         {
-            return new Statistics
-            {
-                Accuracy = 0,
-                ApproximateEarnings = 0
-            };
+            return new Statistics();
         }
 
         var successfulPredictions = 
@@ -167,10 +163,15 @@ public class Predictor : IPredictor
             
         var failedPredictionsCount = completedEventsCount - successfulPredictionsCount;
 
+        var earningsInPoints = potentialIncome - failedPredictionsCount - successfulPredictionsCount;
+
         return new Statistics
         {
             Accuracy = (double)successfulPredictionsCount / completedEventsCount,
-            ApproximateEarnings = potentialIncome - failedPredictionsCount
+            EarningsInPoints = earningsInPoints,
+            Earnings10Bet = earningsInPoints * 10,
+            Earnings20Bet = earningsInPoints * 20,
+            Earnings50Bet = earningsInPoints * 50
         };
     }
 }
