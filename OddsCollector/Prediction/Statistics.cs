@@ -1,9 +1,8 @@
-﻿namespace OddsCollector.Prediction
-{
-    public class Statistics
-    {
-        public double Accuracy { get; set; }
+﻿namespace OddsCollector.Prediction;
 
-        public double ApproximateEarnings { get; set; }
-    }
+public class Statistics
+{
+    public double Accuracy { get; set; }
+
+    public double ApproximateEarnings { get; set; }
 }

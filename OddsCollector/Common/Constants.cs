@@ -1,7 +1,6 @@
-﻿namespace OddsCollector.Common
+﻿namespace OddsCollector.Common;
+
+public static class Constants
 {
-    public static class Constants
-    {
-        public const string Draw = "Draw";
-    }
+    public const string Draw = "Draw";
 }

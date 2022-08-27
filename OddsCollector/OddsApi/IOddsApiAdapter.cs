@@ -1,11 +1,10 @@
-﻿namespace OddsCollector.OddsApi
+﻿namespace OddsCollector.OddsApi;
+
+using Models;
+
+public interface IOddsApiAdapter
 {
-    using Models;
+    Task<IEnumerable<SportEvent>> GetUpcomingEventsAsync(IEnumerable<string> leagues);
 
-    public interface IOddsApiAdapter
-    {
-        Task<IEnumerable<SportEvent>> GetUpcomingEventsAsync(IEnumerable<string> leagues);
-
-        Task<Dictionary<string, string?>> GetCompletedEventsAsync(IEnumerable<string> leagues);
-    }
+    Task<Dictionary<string, string?>> GetCompletedEventsAsync(IEnumerable<string> leagues);
 }

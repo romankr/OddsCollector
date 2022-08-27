@@ -1,11 +1,10 @@
-﻿namespace OddsCollector.Csv
-{
-    using Prediction;
-    
-    public interface ICsvSaver
-    {
-        void WritePredictions(string? dir, IEnumerable<Prediction>? predictions);
+﻿namespace OddsCollector.Csv;
 
-        void WriteStatistics(string? dir, Statistics? statistics);
-    }
+using Prediction;
+    
+public interface ICsvSaver
+{
+    void WritePredictions(string? dir, IEnumerable<Prediction>? predictions);
+
+    void WriteStatistics(string? dir, Statistics? statistics);
 }

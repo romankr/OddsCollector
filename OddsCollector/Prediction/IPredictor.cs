@@ -1,11 +1,10 @@
-﻿namespace OddsCollector.Prediction
+﻿namespace OddsCollector.Prediction;
+
+using Models;
+
+public interface IPredictor
 {
-    using Models;
+    IEnumerable<Prediction> GetPredictions(IEnumerable<SportEvent> events);
 
-    public interface IPredictor
-    {
-        IEnumerable<Prediction> GetPredictions(IEnumerable<SportEvent> events);
-
-        Statistics GetStatistics(IEnumerable<Prediction> predictions);
-    }
+    Statistics GetStatistics(IEnumerable<Prediction> predictions);
 }
