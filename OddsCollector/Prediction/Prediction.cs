@@ -4,6 +4,8 @@ public class Prediction
 {
     public string? SportEventId { get; set; }
 
+    public DateTime CommenceTime { get; set; }
+
     public string? AwayTeam { get; set; }
 
     public string? HomeTeam { get; set; }

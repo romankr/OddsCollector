@@ -27,7 +27,8 @@ public class Predictor : IPredictor
                 RealOutcome = e.Outcome,
                 SportEventId = e.SportEventId,
                 BestBookmaker = bestOdd.Key,
-                BestScore = bestOdd.Value
+                BestScore = bestOdd.Value,
+                CommenceTime = e.CommenceTime
             };
         }
     }
