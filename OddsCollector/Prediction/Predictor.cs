@@ -171,7 +171,9 @@ public class Predictor : IPredictor
             EarningsInPoints = earningsInPoints,
             Earnings10Bet = earningsInPoints * 10,
             Earnings20Bet = earningsInPoints * 20,
-            Earnings50Bet = earningsInPoints * 50
+            Earnings50Bet = earningsInPoints * 50,
+            NumberOfSuccessfulPredictions = successfulPredictionsCount,
+            TotalNumberOfGames = completedEventsCount
         };
     }
 }
