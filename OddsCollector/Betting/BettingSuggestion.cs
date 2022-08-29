@@ -12,6 +12,8 @@ public class BettingSuggestion
 
     public string? BestBookmaker { get; set; }
 
+    public double AverageScore { get; set; }
+
     public double BestScore { get; set; }
 
     public string? ExpectedOutcome  { get; set; }
