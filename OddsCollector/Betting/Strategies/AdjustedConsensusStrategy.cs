@@ -14,7 +14,7 @@ public class AdjustedConsensusStrategy : IBettingStrategy
         }
 
         var suggestions = 
-            GetSuggestions(events).OrderBy(e => e.CommenceTime).ToList();
+            GetSuggestions(events).ToList();
         
         var statistics = GetStatistics(suggestions);
 
@@ -39,6 +39,11 @@ public class AdjustedConsensusStrategy : IBettingStrategy
         {
             var winner = GetConsensusWinner(e);
             var bestOdd = GetBestOdd(e, winner.Key);
+
+            if (bestOdd.Value <= 1 / (winner.Value - 0.05))
+            {
+                continue;
+            }
 
             yield return new BettingSuggestion {
                 AwayTeam = e.AwayTeam,
@@ -77,17 +82,12 @@ public class AdjustedConsensusStrategy : IBettingStrategy
 
         var dict = new Dictionary<string, double>
         {
-            { Constants.Draw,
-                GetConsensusProbability(sportEvent.Odds.Select(o => o.DrawOdd), 0.057)},
-
-            { sportEvent.HomeTeam,
-                GetConsensusProbability(sportEvent.Odds.Select(o => o.HomeOdd), 0.034)},
-
-            { sportEvent.AwayTeam,
-                GetConsensusProbability(sportEvent.Odds.Select(o => o.AwayOdd), 0.037)}
+            { Constants.Draw, sportEvent.Odds.Select(o => o.DrawOdd).Average() },
+            { sportEvent.HomeTeam, sportEvent.Odds.Select(o => o.HomeOdd).Average() },
+            { sportEvent.AwayTeam, sportEvent.Odds.Select(o => o.AwayOdd).Average() }
         };
 
-        return dict.MaxBy(p => p.Value);
+        return dict.MinBy(p => p.Value);
     }
 
     private static KeyValuePair<string, double> GetBestOdd(SportEvent sportEvent, string winner)
@@ -139,18 +139,6 @@ public class AdjustedConsensusStrategy : IBettingStrategy
         }
 
         return new KeyValuePair<string, double>(odd.Bookmaker, bestScore);
-    }
-
-    private static double GetConsensusProbability(IEnumerable<double> odds, double adjustment)
-    {
-        if (odds is null)
-        {
-            throw new ArgumentNullException(nameof(odds));
-        }
-
-        var average = odds.Average();
-
-        return average == 0 ? 0 : 1 / (average - adjustment);
     }
 
     private static Statistics GetStatistics(IEnumerable<BettingSuggestion> suggestions)

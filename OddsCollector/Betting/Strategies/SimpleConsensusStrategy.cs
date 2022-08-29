@@ -75,17 +75,12 @@ public class SimpleConsensusStrategy : IBettingStrategy
 
         var dict = new Dictionary<string, double>
         {
-            { Constants.Draw,
-                GetConsensusProbability(sportEvent.Odds.Select(o => o.DrawOdd))},
-
-            { sportEvent.HomeTeam,
-                GetConsensusProbability(sportEvent.Odds.Select(o => o.HomeOdd))},
-
-            { sportEvent.AwayTeam,
-                GetConsensusProbability(sportEvent.Odds.Select(o => o.AwayOdd))}
+            { Constants.Draw, sportEvent.Odds.Select(o => o.DrawOdd).Average() },
+            { sportEvent.HomeTeam, sportEvent.Odds.Select(o => o.HomeOdd).Average() },
+            { sportEvent.AwayTeam, sportEvent.Odds.Select(o => o.AwayOdd).Average() }
         };
 
-        return dict.MaxBy(p => p.Value);
+        return dict.MinBy(p => p.Value);
     }
 
     private static KeyValuePair<string, double> GetBestOdd(SportEvent sportEvent, string winner)
@@ -137,18 +132,6 @@ public class SimpleConsensusStrategy : IBettingStrategy
         }
 
         return new KeyValuePair<string, double>(odd.Bookmaker, bestScore);
-    }
-
-    private static double GetConsensusProbability(IEnumerable<double> odds)
-    {
-        if (odds is null)
-        {
-            throw new ArgumentNullException(nameof(odds));
-        }
-
-        var average = odds.Average();
-
-        return average == 0 ? 0 : 1 / average;
     }
 
     private static Statistics GetStatistics(IEnumerable<BettingSuggestion> suggestions)
