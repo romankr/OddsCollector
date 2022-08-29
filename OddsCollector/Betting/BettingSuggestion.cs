@@ -1,6 +1,6 @@
-﻿namespace OddsCollector.Prediction;
+﻿namespace OddsCollector.Betting;
 
-public class Prediction
+public class BettingSuggestion
 {
     public string? SportEventId { get; set; }
 

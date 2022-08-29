@@ -1,4 +1,4 @@
-﻿namespace OddsCollector;
+﻿namespace OddsCollector.Jobs;
 
 using Quartz;
 

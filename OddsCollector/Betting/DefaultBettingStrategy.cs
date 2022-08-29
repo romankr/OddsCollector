@@ -1,17 +1,38 @@
-﻿namespace OddsCollector.Prediction;
+﻿namespace OddsCollector.Betting;
 
 using Common;
 using Models;
 
-public class Predictor : IPredictor
+public class DefaultBettingStrategy : IBettingStrategy
 {
-    public IEnumerable<Prediction> GetPredictions(IEnumerable<SportEvent> events)
+    public string Name => "DefaultBettingStrategy";
+
+    public BettingStrategyResult Evaluate(IEnumerable<SportEvent> events)
     {
         if (events is null)
         {
             throw new ArgumentNullException(nameof(events));
         }
-            
+
+        var suggestions = 
+            GetSuggestions(events).OrderBy(e => e.CommenceTime).ToList();
+        
+        var statistics = GetStatistics(suggestions);
+
+        return new BettingStrategyResult
+        {
+            Suggestions = suggestions,
+            Statistics = statistics
+        };
+    }
+
+    private static IEnumerable<BettingSuggestion> GetSuggestions(IEnumerable<SportEvent> events)
+    {
+        if (events is null)
+        {
+            throw new ArgumentNullException(nameof(events));
+        }
+
         var suitableEvents =
             events.Where(e => e.Odds is not null && e.Odds.Count >= 3);
 
@@ -20,7 +41,7 @@ public class Predictor : IPredictor
             var winner = GetConsensusWinner(e);
             var bestOdd = GetBestOdd(e, winner.Key);
 
-            yield return new Prediction {
+            yield return new BettingSuggestion {
                 AwayTeam = e.AwayTeam,
                 HomeTeam = e.HomeTeam,
                 ExpectedOutcome = winner.Key,
@@ -133,14 +154,14 @@ public class Predictor : IPredictor
         return average == 0 ? 0 : 1 / average;
     }
 
-    public Statistics GetStatistics(IEnumerable<Prediction> predictions)
+    private static Statistics GetStatistics(IEnumerable<BettingSuggestion> suggestions)
     {
-        if (predictions is null)
+        if (suggestions is null)
         {
-            throw new ArgumentNullException(nameof(predictions));
+            throw new ArgumentNullException(nameof(suggestions));
         }
 
-        var computedPredictions = predictions.ToList();
+        var computedPredictions = suggestions.ToList();
             
         var completedEventsCount =
             computedPredictions.Count(p => p.RealOutcome is not null);

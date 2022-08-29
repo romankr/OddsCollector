@@ -1,11 +1,10 @@
 using Microsoft.EntityFrameworkCore;
-using OddsCollector;
+using OddsCollector.Betting;
 using OddsCollector.Csv;
 using OddsCollector.DAL;
 using OddsCollector.Data;
 using OddsCollector.Jobs;
 using OddsCollector.OddsApi;
-using OddsCollector.Prediction;
 using Quartz;
 
 var host = Host.CreateDefaultBuilder(args)
@@ -16,7 +15,7 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddSingleton<IClient, Client>();
         services.AddSingleton<IOddsApiAdapter, OddsApiAdapter>();
         services.AddScoped<IDatabaseAdapter, DatabaseAdapter>();
-        services.AddSingleton<IPredictor, Predictor>();
+        services.AddSingleton<IBettingStrategy, DefaultBettingStrategy>();
         services.AddSingleton<ICsvSaver, CsvSaver>();
 
         services.AddDbContext<ApplicationDatabaseContext>(

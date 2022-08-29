@@ -1,4 +1,4 @@
-﻿namespace OddsCollector.Prediction;
+﻿namespace OddsCollector.Betting;
 
 public class Statistics
 {
