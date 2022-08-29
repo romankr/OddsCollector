@@ -1,12 +1,11 @@
-﻿namespace OddsCollector.Betting;
+﻿namespace OddsCollector.Betting.Strategies;
 
+using Betting;
 using Common;
 using Models;
 
-public class DefaultBettingStrategy : IBettingStrategy
+public class AdjustedConsensusStrategy : IBettingStrategy
 {
-    public string Name => "DefaultBettingStrategy";
-
     public BettingStrategyResult Evaluate(IEnumerable<SportEvent> events)
     {
         if (events is null)
@@ -79,13 +78,13 @@ public class DefaultBettingStrategy : IBettingStrategy
         var dict = new Dictionary<string, double>
         {
             { Constants.Draw,
-                GetConsensusProbability(sportEvent.Odds.Select(o => o.DrawOdd))},
+                GetConsensusProbability(sportEvent.Odds.Select(o => o.DrawOdd), 0.057)},
 
             { sportEvent.HomeTeam,
-                GetConsensusProbability(sportEvent.Odds.Select(o => o.HomeOdd))},
+                GetConsensusProbability(sportEvent.Odds.Select(o => o.HomeOdd), 0.034)},
 
             { sportEvent.AwayTeam,
-                GetConsensusProbability(sportEvent.Odds.Select(o => o.AwayOdd))}
+                GetConsensusProbability(sportEvent.Odds.Select(o => o.AwayOdd), 0.037)}
         };
 
         return dict.MaxBy(p => p.Value);
@@ -142,7 +141,7 @@ public class DefaultBettingStrategy : IBettingStrategy
         return new KeyValuePair<string, double>(odd.Bookmaker, bestScore);
     }
 
-    private static double GetConsensusProbability(IEnumerable<double> odds)
+    private static double GetConsensusProbability(IEnumerable<double> odds, double adjustment)
     {
         if (odds is null)
         {
@@ -151,7 +150,7 @@ public class DefaultBettingStrategy : IBettingStrategy
 
         var average = odds.Average();
 
-        return average == 0 ? 0 : 1 / average;
+        return average == 0 ? 0 : 1 / (average - adjustment);
     }
 
     private static Statistics GetStatistics(IEnumerable<BettingSuggestion> suggestions)

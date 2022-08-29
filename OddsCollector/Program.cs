@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using OddsCollector.Betting;
+using OddsCollector.Betting.Strategies;
 using OddsCollector.Csv;
 using OddsCollector.DAL;
 using OddsCollector.Data;
@@ -15,8 +16,10 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddSingleton<IClient, Client>();
         services.AddSingleton<IOddsApiAdapter, OddsApiAdapter>();
         services.AddScoped<IDatabaseAdapter, DatabaseAdapter>();
-        services.AddSingleton<IBettingStrategy, DefaultBettingStrategy>();
         services.AddSingleton<ICsvSaver, CsvSaver>();
+
+        services.AddSingleton<IBettingStrategy, SimpleConsensusStrategy>();
+        services.AddSingleton<IBettingStrategy, AdjustedConsensusStrategy>();
 
         services.AddDbContext<ApplicationDatabaseContext>(
             options => options.UseSqlServer("name=ConnectionStrings:DefaultConnection"));
@@ -26,8 +29,8 @@ var host = Host.CreateDefaultBuilder(args)
             q.UseMicrosoftDependencyInjectionJobFactory();
             
             q.AddJobConfiguration<OddsCollectorJob>(hostContext.Configuration);
-            q.AddJobConfiguration<ResultCollectorJob>(hostContext.Configuration);
-            q.AddJobConfiguration<CsvGeneratorJob>(hostContext.Configuration);
+            q.AddJobConfiguration<EventResultCollectorJob>(hostContext.Configuration);
+            q.AddJobConfiguration<BettingStrategyEvaluatorJob>(hostContext.Configuration);
         });
 
         services.AddQuartzHostedService(q => {

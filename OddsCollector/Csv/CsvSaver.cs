@@ -28,7 +28,12 @@ public class CsvSaver : ICsvSaver
             throw new ArgumentNullException(nameof(result));
         }
 
-        WriteBettingSuggestions(dir, bettingStrategyName, result.Suggestions);
+        if (result.Suggestions is null)
+        {
+            throw new Exception("Suggestions are null");
+        }
+
+        WriteBettingSuggestions(dir, bettingStrategyName, result.Suggestions.OrderBy(e => e.CommenceTime));
         WriteStatistics(dir, bettingStrategyName, result.Statistics);
     }
 

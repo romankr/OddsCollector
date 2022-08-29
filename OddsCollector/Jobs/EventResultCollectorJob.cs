@@ -7,15 +7,15 @@ using Quartz;
 using System.Threading.Tasks;
 
 [DisallowConcurrentExecution]
-public class ResultCollectorJob : IJob
+public class EventResultCollectorJob : IJob
 {
-    private readonly ILogger<ResultCollectorJob> _logger;
+    private readonly ILogger<EventResultCollectorJob> _logger;
     private readonly IConfiguration _config;
     private readonly IOddsApiAdapter _apiAdapter;
     private readonly IDatabaseAdapter _databaseAdapter;
 
-    public ResultCollectorJob(
-        ILogger<ResultCollectorJob> logger, IConfiguration config, IOddsApiAdapter apiAdapter, IDatabaseAdapter databaseAdapter)
+    public EventResultCollectorJob(
+        ILogger<EventResultCollectorJob> logger, IConfiguration config, IOddsApiAdapter apiAdapter, IDatabaseAdapter databaseAdapter)
     {
         _logger = logger;
         _config = config;
