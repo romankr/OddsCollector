@@ -58,11 +58,11 @@ internal class ConsensusStrategyHelper
         }
 
         var dict = new Dictionary<string, double>
-    {
-        { Constants.Draw, sportEvent.Odds.Select(o => o.DrawOdd).Average() },
-        { sportEvent.HomeTeam, sportEvent.Odds.Select(o => o.HomeOdd).Average() },
-        { sportEvent.AwayTeam, sportEvent.Odds.Select(o => o.AwayOdd).Average() }
-    };
+        {
+            { Constants.Draw, sportEvent.Odds.Select(o => o.DrawOdd).Average() },
+            { sportEvent.HomeTeam, sportEvent.Odds.Select(o => o.HomeOdd).Average() },
+            { sportEvent.AwayTeam, sportEvent.Odds.Select(o => o.AwayOdd).Average() }
+        };
 
         return dict.MinBy(p => p.Value);
     }
