@@ -1,59 +1,11 @@
 ﻿namespace OddsCollector.Betting.Strategies;
 
-using Betting;
 using Common;
 using Models;
 
-public class AdjustedConsensusStrategy : IBettingStrategy
+public class AdjustedConsensusStrategy : SimpleConsensusStrategy
 {
-    public BettingStrategyResult Evaluate(IEnumerable<SportEvent> events)
-    {
-        if (events is null)
-        {
-            throw new ArgumentNullException(nameof(events));
-        }
-
-        var suggestions =
-            GetSuggestions(events).ToList();
-
-        return new BettingStrategyResult
-        {
-            Suggestions = suggestions,
-            Statistics = ConsensusStrategyHelper.GetStatistics(suggestions)
-        };
-    }
-
-    private static IEnumerable<BettingSuggestion> GetSuggestions(IEnumerable<SportEvent> events)
-    {
-        if (events is null)
-        {
-            throw new ArgumentNullException(nameof(events));
-        }
-
-        var suitableEvents =
-            events.Where(e => e.Odds is not null && e.Odds.Count >= 3);
-
-        foreach (var e in suitableEvents)
-        {
-            var winner = GetConsensusWinner(e);
-            var bestOdd = ConsensusStrategyHelper.GetBestOdd(e, winner.Key);
-
-            yield return new BettingSuggestion
-            {
-                AwayTeam = e.AwayTeam,
-                HomeTeam = e.HomeTeam,
-                ExpectedOutcome = winner.Key,
-                RealOutcome = e.Outcome,
-                SportEventId = e.SportEventId,
-                BestBookmaker = bestOdd.Key,
-                AverageScore = winner.Value,
-                BestScore = bestOdd.Value,
-                CommenceTime = e.CommenceTime
-            };
-        }
-    }
-
-    private static KeyValuePair<string, double> GetConsensusWinner(SportEvent sportEvent)
+    protected override KeyValuePair<string, double> GetConsensusWinner(SportEvent sportEvent)
     {
         if (sportEvent is null)
         {

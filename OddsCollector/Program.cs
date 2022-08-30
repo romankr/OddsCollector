@@ -20,6 +20,9 @@ var host = Host.CreateDefaultBuilder(args)
 
         services.AddSingleton<IBettingStrategy, SimpleConsensusStrategy>();
         services.AddSingleton<IBettingStrategy, AdjustedConsensusStrategy>();
+        services.AddSingleton<IBettingStrategy, LaLigaSimpleConsensusStrategy>();
+        services.AddSingleton<IBettingStrategy, EplSimpleConsensusStrategy>();
+        services.AddSingleton<IBettingStrategy, BundesligaSimpleConsensusStrategy>();
 
         services.AddDbContext<ApplicationDatabaseContext>(
             options => options.UseSqlServer("name=ConnectionStrings:DefaultConnection"));
