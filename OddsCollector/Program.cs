@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using OddsCollector.Betting;
-using OddsCollector.Betting.Strategies;
 using OddsCollector.Csv;
 using OddsCollector.DAL;
 using OddsCollector.Data;
@@ -18,11 +17,7 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddScoped<IDatabaseAdapter, DatabaseAdapter>();
         services.AddSingleton<ICsvSaver, CsvSaver>();
 
-        services.AddSingleton<IBettingStrategy, SimpleConsensusStrategy>();
-        services.AddSingleton<IBettingStrategy, AdjustedConsensusStrategy>();
-        services.AddSingleton<IBettingStrategy, LaLigaSimpleConsensusStrategy>();
-        services.AddSingleton<IBettingStrategy, EplSimpleConsensusStrategy>();
-        services.AddSingleton<IBettingStrategy, BundesligaSimpleConsensusStrategy>();
+        services.AddBettingStrategies();
 
         services.AddDbContext<ApplicationDatabaseContext>(
             options => options.UseSqlServer("name=ConnectionStrings:DefaultConnection"));
