@@ -13,7 +13,7 @@ public class OddsApiAdapter : IOddsApiAdapter
     {
         _apiClient = apiClient;
         _logger = logger;
-        _apiKey = config.GetValue<string>("ApiKey");
+        _apiKey = config["OddsApi:ApiKey"];
     }
 
     public async Task<IEnumerable<SportEvent>> GetUpcomingEventsAsync(IEnumerable<string> leagues)

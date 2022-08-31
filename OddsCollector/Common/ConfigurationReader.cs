@@ -9,6 +9,6 @@ public static class ConfigurationReader
             throw new ArgumentNullException(nameof(configuration));
         }
 
-        return configuration.GetSection("Leagues").GetChildren().Select(c => c.Value);
+        return configuration.GetSection("OddsApi:Leagues").GetChildren().Select(c => c.Value);
     }
 }
