@@ -39,13 +39,20 @@ public class BettingStrategyEvaluatorJob : IJob
 
         try
         {
-            var csvPath = _config.GetValue<string>("CsvOutputPath");
+            var csvPath = _config.GetValue<string>("Csv:OutputPath");
+            var generateCsv = _config.GetValue<bool>("Csv:GenerateCsv");
+
             var events = _databaseAdapter.GetEventsWithLatestOdds().ToList();
 
             foreach (var strategy in _strategies)
             {
                 var result = strategy.Evaluate(events);
-                _saver.WriteBettingStrategyResult(csvPath, strategy.GetType().Name, result);
+
+                if (generateCsv)
+                {
+                    _saver.WriteBettingStrategyResult(csvPath, strategy.GetType().Name, result);
+                }
+                
                 _googleSheetsAdapter.CreateReport(strategy.GetType().Name, result);
             }
         }
