@@ -19,13 +19,20 @@ public class GoogleApiAdapter : IGoogleApiAdapter
     private const string DoubleFormat = "N3";
 
     private readonly string _applicationName;
-    private readonly string _emailAddress;
+    private readonly List<string> _emailAddresses;
     private readonly string _credentialFile;
 
     public GoogleApiAdapter(IConfiguration config)
     {
         _applicationName = config["GoogleApi:applicationName"];
-        _emailAddress = config["GoogleApi:emailAddress"];
+
+        _emailAddresses = 
+            config
+                .GetSection("GoogleApi:emailAddresses")
+                .GetChildren()
+                .Select(c => c.Value)
+                .ToList();
+        
         _credentialFile = config["GoogleApi:credentialFile"];
     }
 
@@ -69,15 +76,17 @@ public class GoogleApiAdapter : IGoogleApiAdapter
         var createRequest = service.Files.Create(metadata);
         var file = createRequest.Execute();
 
-        var permission = new Permission
+        foreach (var email in _emailAddresses)
         {
-            EmailAddress = _emailAddress,
-            Type = "user",
-            Role = "writer"
-        };
+            var permissionRequest = service.Permissions.Create(new Permission
+            {
+                EmailAddress = email,
+                Type = "user",
+                Role = "writer"
+            }, file.Id);
 
-        var permissionRequest = service.Permissions.Create(permission, file.Id);
-        permissionRequest.Execute();
+            permissionRequest.Execute();
+        }
 
         return file;
     }
