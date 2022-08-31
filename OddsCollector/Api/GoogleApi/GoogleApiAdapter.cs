@@ -10,6 +10,9 @@ using Google.Apis.Sheets.v4.Data;
 using Google.Apis.Services;
 using System.Reflection;
 
+/// <summary>
+/// Provides access to Google API-s.
+/// </summary>
 public class GoogleApiAdapter : IGoogleApiAdapter
 {
     private const string StatisticsSheetTitle = nameof(Statistics);
@@ -22,8 +25,18 @@ public class GoogleApiAdapter : IGoogleApiAdapter
     private readonly List<string> _emailAddresses;
     private readonly string _credentialFile;
 
+    /// <summary>
+    /// A constructor that is suitable for the dependency injection.
+    /// </summary>
+    /// <param name="config">An <see cref="IConfiguration"/> created by the dependency injection container.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="config"/> is null.</exception>
     public GoogleApiAdapter(IConfiguration config)
     {
+        if (config is null)
+        {
+            throw new ArgumentNullException(nameof(config));
+        }
+
         _applicationName = config["GoogleApi:applicationName"];
 
         _emailAddresses = 
@@ -36,6 +49,14 @@ public class GoogleApiAdapter : IGoogleApiAdapter
         _credentialFile = config["GoogleApi:credentialFile"];
     }
 
+    /// <summary>
+    /// Creates a new Google Sheets document with provided <see cref="BettingStrategyResult"/>.
+    /// </summary>
+    /// <param name="bettingStrategyName">A betting strategy name to use in the file name.</param>
+    /// <param name="result">A <see cref="BettingStrategyResult"/> to be saved as a Google Sheets document.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="bettingStrategyName"/> is null or empty.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="result"/> is null.</exception>
+    /// <remarks>The document is being created in 2 steps. First in Google Drive and only then edited in Google Sheets.</remarks>
     public void CreateReport(string bettingStrategyName, BettingStrategyResult? result)
     {
         if (string.IsNullOrEmpty(bettingStrategyName))
@@ -48,10 +69,17 @@ public class GoogleApiAdapter : IGoogleApiAdapter
             throw new ArgumentNullException(nameof(result));
         }
 
+        // The document must be created in 2 steps. First in Google Drive and only then edited in Google Sheets.
         var file = CreateGoogleDriveDocument(bettingStrategyName);
         PopulateSpreadsheet(file, result);
     }
 
+    /// <summary>
+    /// Creates a new Google Sheets document in Google Drive.
+    /// </summary>
+    /// <param name="bettingStrategyName">A betting strategy name to use in the file name.</param>
+    /// <returns>A newly created <see cref="File"/>.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="bettingStrategyName"/> is null or empty.</exception>
     private File CreateGoogleDriveDocument(string bettingStrategyName)
     {
         if (string.IsNullOrEmpty(bettingStrategyName))
@@ -67,6 +95,7 @@ public class GoogleApiAdapter : IGoogleApiAdapter
             ApplicationName = _applicationName
         });
 
+        // Create a new file with given metadata. This does not include file permissions.
         var metadata = new File
         {
             Name = $"{bettingStrategyName}_{DateUtility.GetTimestamp()}",
@@ -76,14 +105,17 @@ public class GoogleApiAdapter : IGoogleApiAdapter
         var createRequest = service.Files.Create(metadata);
         var file = createRequest.Execute();
 
+        // The file permissions must be granted in a separate request.
         foreach (var email in _emailAddresses)
         {
-            var permissionRequest = service.Permissions.Create(new Permission
-            {
-                EmailAddress = email,
-                Type = "user",
-                Role = "writer"
-            }, file.Id);
+            var permissionRequest = 
+                service.Permissions.Create(
+                new Permission
+                    {
+                        EmailAddress = email,
+                        Type = "user",
+                        Role = "writer"
+                    }, file.Id);
 
             permissionRequest.Execute();
         }
@@ -91,6 +123,12 @@ public class GoogleApiAdapter : IGoogleApiAdapter
         return file;
     }
 
+    /// <summary>
+    /// Populates an existing Google Sheets document.
+    /// </summary>
+    /// <param name="file">An existing <see cref="File"/> in Google Drive.</param>
+    /// <param name="result">A <see cref="BettingStrategyResult"/> to be saved as a Google Sheets document.</param>
+    /// <exception cref="ArgumentNullException">Either <paramref name="file"/> or <paramref name="result"/> are null.</exception>
     private void PopulateSpreadsheet(File? file, BettingStrategyResult? result)
     {
         if (file is null)
@@ -111,6 +149,7 @@ public class GoogleApiAdapter : IGoogleApiAdapter
             ApplicationName = _applicationName
         });
 
+        // Create a new sheet for each property of BettingStrategyResult class.
         var batchUpdateRequest = 
             new BatchUpdateSpreadsheetRequest { Requests = new List<Request>() };
         
@@ -125,6 +164,9 @@ public class GoogleApiAdapter : IGoogleApiAdapter
         var request = service.Spreadsheets.Get(file.Id);
         var response = request.Execute();
 
+        // Remove the default sheet that is always present in a newly created Google Sheets file.
+        // Must be done when there are already some sheets in the file -
+        // Google Sheets API doesn't allow to have 0 sheets in a Google Sheets file.
         var defaultSheet = 
             response.Sheets.FirstOrDefault(s => s.Properties.Title == DefaultSheetTitle);
 
@@ -144,6 +186,8 @@ public class GoogleApiAdapter : IGoogleApiAdapter
             updateRequest.Execute();
         }
 
+        // Populate BettingStrategyResult data.
+        // Betting suggestions first.
         var appendSuggestionsRequest =
             service.Spreadsheets.Values.Append(
                 new ValueRange { Values = MapBettingSuggestions(result.Suggestions) },
@@ -157,6 +201,7 @@ public class GoogleApiAdapter : IGoogleApiAdapter
 
         appendSuggestionsRequest.Execute();
 
+        // Statistics last.
         var appendStatisticsRequest = 
             service.Spreadsheets.Values.Append(
                 new ValueRange { Values = MapStatistics(result.Statistics) }, 
@@ -170,7 +215,20 @@ public class GoogleApiAdapter : IGoogleApiAdapter
 
         appendStatisticsRequest.Execute();
     }
-    
+
+    /// <summary>
+    /// Creates a new instance of <see cref="GoogleCredential"/> object from a JSON file with given scopes.
+    /// </summary>
+    /// <param name="scopes">A list of scopes.</param>
+    /// <returns>A new instance of <see cref="GoogleCredential"/>.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="scopes"/> is null.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="scopes"/> has 0 elements.</exception>
+    /// <remarks>
+    /// A <see cref="GoogleCredential"/> object is required for access to Google API.
+    /// Scopes express the permissions you request users to authorize for your app.
+    /// The JSON file must be obtained from https://console.cloud.google.com/
+    /// (a full list of steps can be found here https://medium.com/@a.marenkov/how-to-get-credentials-for-google-sheets-456b7e88c430).
+    /// </remarks>
     private GoogleCredential GetCredential(string[] scopes)
     {
         if (scopes is null)
@@ -186,6 +244,12 @@ public class GoogleApiAdapter : IGoogleApiAdapter
         return GoogleCredential.FromFile(_credentialFile).CreateScoped(scopes);
     }
 
+    /// <summary>
+    /// Creates a new instance of <see cref="Request"/> that adds a new sheet to an existing Google Sheets document.
+    /// </summary>
+    /// <param name="sheetTitle">A title of the sheet.</param>
+    /// <returns>A new instance of <see cref="Request"/></returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="sheetTitle"/> is null or empty.</exception>
     private static Request CreateAddSheetRequest(string sheetTitle)
     {
         if (string.IsNullOrEmpty(sheetTitle))
@@ -205,6 +269,11 @@ public class GoogleApiAdapter : IGoogleApiAdapter
         };
     }
 
+    /// <summary>
+    /// Creates a list of headers for given object.
+    /// </summary>
+    /// <typeparam name="T">An object type.</typeparam>
+    /// <returns>A list of headers.</returns>
     private static List<object> GetHeaders<T>()
     {
         return typeof(T)
@@ -213,6 +282,12 @@ public class GoogleApiAdapter : IGoogleApiAdapter
             .ToList<object>();
     }
 
+    /// <summary>
+    /// Maps a <see cref="Statistics"/> object to Google Sheets objects.
+    /// </summary>
+    /// <param name="statistics">>A <see cref="Statistics"/> instance.</param>
+    /// <returns>A list of Google Sheets objects.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="statistics"/> is null.</exception>
     private static IList<IList<object>> MapStatistics(Statistics? statistics)
     {
         if (statistics is null)
@@ -238,6 +313,12 @@ public class GoogleApiAdapter : IGoogleApiAdapter
         return result;
     }
 
+    /// <summary>
+    /// Maps a <see cref="BettingSuggestion"/> object to Google Sheets objects.
+    /// </summary>
+    /// <param name="suggestions">A <see cref="BettingSuggestion"/> instance.</param>
+    /// <returns>A list of Google Sheets objects.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="suggestions"/> is null.</exception>
     private static IList<IList<object>> MapBettingSuggestions(IEnumerable<BettingSuggestion>? suggestions)
     {
         if (suggestions is null)
