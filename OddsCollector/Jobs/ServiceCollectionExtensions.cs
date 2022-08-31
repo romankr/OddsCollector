@@ -18,7 +18,7 @@ internal static class ServiceCollectionExtensions
         }
 
         var jobName = typeof(T).Name;
-        var configKey = $"Quartz:{jobName}";
+        var configKey = $"Quartz:{jobName}.Schedule";
         var schedule = config[configKey];
 
         if (string.IsNullOrEmpty(schedule))

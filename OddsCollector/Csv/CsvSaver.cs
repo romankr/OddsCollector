@@ -1,16 +1,12 @@
 ﻿namespace OddsCollector.Csv;
 
-using CsvHelper;
 using Betting;
+using Common;
+using CsvHelper;
 using System.Globalization;
 
 public class CsvSaver : ICsvSaver
 {
-    private static string GetCurrentTimestamp()
-    {
-        return DateTime.Now.ToString("yyyyddMMHHmmssffff");
-    }
-
     public void WriteBettingStrategyResult(string? dir, string bettingStrategyName, BettingStrategyResult? result)
     {
         if (string.IsNullOrEmpty(dir))
@@ -86,7 +82,7 @@ public class CsvSaver : ICsvSaver
             
         EnsureDirectoryExists(dir);
 
-        var filePath = Path.Combine(dir, $"{bettingStrategyName}_suggestions_{GetCurrentTimestamp()}.csv");
+        var filePath = Path.Combine(dir, $"{bettingStrategyName}_suggestions_{DateUtility.GetTimestamp()}.csv");
 
         WriteFile(filePath, suggestions);
     }
@@ -110,7 +106,7 @@ public class CsvSaver : ICsvSaver
         
         EnsureDirectoryExists(dir);
 
-        var filePath = Path.Combine(dir, $"{bettingStrategyName}_statistics_{GetCurrentTimestamp()}.csv");
+        var filePath = Path.Combine(dir, $"{bettingStrategyName}_statistics_{DateUtility.GetTimestamp()}.csv");
 
         WriteFile(filePath, new List<Statistics> { statistics });
     }

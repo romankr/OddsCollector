@@ -2,7 +2,7 @@
 
 using Common;
 using DAL;
-using OddsApi;
+using Api.OddsApi;
 using Quartz;
 using System.Threading.Tasks;
 

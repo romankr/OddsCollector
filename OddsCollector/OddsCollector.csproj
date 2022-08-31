@@ -8,25 +8,27 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="OddsApi\ResponseSamples\completed_games.json" />
-    <Content Remove="OddsApi\ResponseSamples\events_and_odds.json" />
-    <Content Remove="OddsApi\swagger.json" />
+    <Content Remove="Api\OddsApi\ResponseSamples\completed_games.json" />
+    <Content Remove="Api\OddsApi\ResponseSamples\events_and_odds.json" />
+    <Content Remove="Api\OddsApi\swagger.json" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="OddsApi\ResponseSamples\completed_games.json">
+    <None Include="Api\OddsApi\ResponseSamples\completed_games.json">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
-    <None Include="OddsApi\ResponseSamples\events_and_odds.json">
+    <None Include="Api\OddsApi\ResponseSamples\events_and_odds.json">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
-    <None Include="OddsApi\swagger.json">
+    <None Include="Api\OddsApi\swagger.json">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="CsvHelper" Version="28.0.1" />
+    <PackageReference Include="Google.Apis.Drive.v3" Version="1.57.0.2789" />
+    <PackageReference Include="Google.Apis.Sheets.v4" Version="1.57.0.2727" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.8">
       <PrivateAssets>all</PrivateAssets>

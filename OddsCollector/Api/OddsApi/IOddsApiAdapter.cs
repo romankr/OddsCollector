@@ -1,4 +1,4 @@
-﻿namespace OddsCollector.OddsApi;
+﻿namespace OddsCollector.Api.OddsApi;
 
 using Models;
 

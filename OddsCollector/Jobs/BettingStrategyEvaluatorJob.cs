@@ -1,4 +1,6 @@
-﻿namespace OddsCollector.Jobs;
+﻿using OddsCollector.Api.GoogleApi;
+
+namespace OddsCollector.Jobs;
 
 using Betting;
 using Csv;
@@ -13,19 +15,22 @@ public class BettingStrategyEvaluatorJob : IJob
     private readonly IDatabaseAdapter _databaseAdapter;
     private readonly IEnumerable<IBettingStrategy> _strategies;
     private readonly ICsvSaver _saver;
+    private readonly IGoogleApiAdapter _googleSheetsAdapter;
 
     public BettingStrategyEvaluatorJob(
         ILogger<BettingStrategyEvaluatorJob> logger, 
         IConfiguration config, 
         IDatabaseAdapter databaseAdapter, 
         IEnumerable<IBettingStrategy> strategies, 
-        ICsvSaver saver)
+        ICsvSaver saver,
+        IGoogleApiAdapter googleSheetsAdapter)
     {
         _logger = logger;
         _config = config;
         _databaseAdapter = databaseAdapter;
         _saver = saver;
         _strategies = strategies;
+        _googleSheetsAdapter = googleSheetsAdapter;
     }
 
     public Task Execute(IJobExecutionContext context)
@@ -41,6 +46,7 @@ public class BettingStrategyEvaluatorJob : IJob
             {
                 var result = strategy.Evaluate(events);
                 _saver.WriteBettingStrategyResult(csvPath, strategy.GetType().Name, result);
+                _googleSheetsAdapter.CreateReport(strategy.GetType().Name, result);
             }
         }
         catch(Exception ex)
