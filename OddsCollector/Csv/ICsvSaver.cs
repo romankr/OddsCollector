@@ -4,5 +4,5 @@ using Betting;
 
 public interface ICsvSaver
 {
-    Task WriteBettingStrategyResultAsync(string? dir, string bettingStrategyName, BettingStrategyResult result);
+    Task WriteBettingStrategyResultAsync(string bettingStrategyName, BettingStrategyResult result);
 }

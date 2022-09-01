@@ -7,16 +7,24 @@ using System.Globalization;
 
 public class CsvSaver : ICsvSaver
 {
-    public async Task WriteBettingStrategyResultAsync(string? dir, string bettingStrategyName, BettingStrategyResult? result)
-    {
-        if (string.IsNullOrEmpty(dir))
-        {
-            throw new ArgumentOutOfRangeException(nameof(dir), "dir cannot be null or empty");
-        }
+    private readonly string _outputPath;
 
+    public CsvSaver(IConfiguration config)
+    {
+        _outputPath = config.GetValue<string>("Csv:OutputPath");
+
+        if (string.IsNullOrEmpty(_outputPath))
+        {
+            throw new Exception("CSV output path cannot be null or empty.");
+        }
+    }
+    
+    public async Task WriteBettingStrategyResultAsync(string bettingStrategyName, BettingStrategyResult? result)
+    {
         if (string.IsNullOrEmpty(bettingStrategyName))
         {
-            throw new ArgumentOutOfRangeException(nameof(bettingStrategyName), "bettingStrategyName cannot be null or empty");
+            throw new ArgumentOutOfRangeException(nameof(bettingStrategyName), 
+                "bettingStrategyName cannot be null or empty");
         }
 
         if (result is null)
@@ -29,8 +37,11 @@ public class CsvSaver : ICsvSaver
             throw new Exception("Suggestions are null");
         }
 
-        await WriteBettingSuggestionsAsync(dir, bettingStrategyName, result.Suggestions.OrderBy(e => e.CommenceTime));
-        await WriteStatisticsAsync(dir, bettingStrategyName, result.Statistics);
+        await WriteBettingSuggestionsAsync(
+            bettingStrategyName, 
+            result.Suggestions.OrderBy(e => e.CommenceTime));
+        
+        await WriteStatisticsAsync(bettingStrategyName, result.Statistics);
     }
 
     private static void EnsureDirectoryExists(string? dir)
@@ -50,7 +61,8 @@ public class CsvSaver : ICsvSaver
     {
         if (string.IsNullOrEmpty(filePath))
         {
-            throw new ArgumentOutOfRangeException(nameof(filePath), "filePath cannot be null or empty");
+            throw new ArgumentOutOfRangeException(nameof(filePath), 
+                "filePath cannot be null or empty");
         }
 
         if (list is null)
@@ -63,16 +75,12 @@ public class CsvSaver : ICsvSaver
         await csv.WriteRecordsAsync(list);
     }
 
-    private static async Task WriteBettingSuggestionsAsync(string? dir, string bettingStrategyName, IEnumerable<BettingSuggestion>? suggestions)
+    private async Task WriteBettingSuggestionsAsync(string bettingStrategyName, IEnumerable<BettingSuggestion>? suggestions)
     {
-        if (string.IsNullOrEmpty(dir))
-        {
-            throw new ArgumentOutOfRangeException(nameof(dir), "dir cannot be null or empty");
-        }
-
         if (string.IsNullOrEmpty(bettingStrategyName))
         {
-            throw new ArgumentOutOfRangeException(nameof(bettingStrategyName), "bettingStrategyName cannot be null or empty");
+            throw new ArgumentOutOfRangeException(nameof(bettingStrategyName), 
+                "bettingStrategyName cannot be null or empty");
         }
 
         if (suggestions is null)
@@ -80,23 +88,19 @@ public class CsvSaver : ICsvSaver
             throw new ArgumentNullException(nameof(suggestions));
         }
             
-        EnsureDirectoryExists(dir);
+        EnsureDirectoryExists(_outputPath);
 
-        var filePath = Path.Combine(dir, $"{bettingStrategyName}_suggestions_{DateUtility.GetTimestamp()}.csv");
+        var filePath = Path.Combine(_outputPath, $"{bettingStrategyName}_suggestions_{DateUtility.GetTimestamp()}.csv");
 
         await WriteFileAsync(filePath, suggestions);
     }
 
-    private static async Task WriteStatisticsAsync(string? dir, string bettingStrategyName, Statistics? statistics)
+    private  async Task WriteStatisticsAsync(string bettingStrategyName, Statistics? statistics)
     {
-        if (string.IsNullOrEmpty(dir))
-        {
-            throw new ArgumentOutOfRangeException(nameof(dir), "dir cannot be null or empty");
-        }
-
         if (string.IsNullOrEmpty(bettingStrategyName))
         {
-            throw new ArgumentOutOfRangeException(nameof(bettingStrategyName), "bettingStrategyName cannot be null or empty");
+            throw new ArgumentOutOfRangeException(nameof(bettingStrategyName), 
+                "bettingStrategyName cannot be null or empty");
         }
 
         if (statistics is null)
@@ -104,9 +108,9 @@ public class CsvSaver : ICsvSaver
             throw new ArgumentNullException(nameof(statistics));
         }
         
-        EnsureDirectoryExists(dir);
+        EnsureDirectoryExists(_outputPath);
 
-        var filePath = Path.Combine(dir, $"{bettingStrategyName}_statistics_{DateUtility.GetTimestamp()}.csv");
+        var filePath = Path.Combine(_outputPath, $"{bettingStrategyName}_statistics_{DateUtility.GetTimestamp()}.csv");
 
         await WriteFileAsync(filePath, new List<Statistics> { statistics });
     }

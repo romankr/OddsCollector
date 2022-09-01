@@ -38,7 +38,6 @@ public class BettingStrategyEvaluatorJob : IJob
 
         try
         {
-            var csvPath = _config.GetValue<string>("Csv:OutputPath");
             var generateCsv = _config.GetValue<bool>("Csv:GenerateCsv");
             var generateGoogleSheets = _config.GetValue<bool>("GoogleApi:GenerateGoogleSheets");
 
@@ -55,7 +54,7 @@ public class BettingStrategyEvaluatorJob : IJob
 
                 if (generateCsv)
                 {
-                    await _saver.WriteBettingStrategyResultAsync(csvPath, s.GetType().Name, result);
+                    await _saver.WriteBettingStrategyResultAsync(s.GetType().Name, result);
                 }
 
                 if (generateGoogleSheets)

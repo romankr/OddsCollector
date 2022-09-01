@@ -19,6 +19,7 @@ public class OddsApiAdapter : IOddsApiAdapter
     /// <param name="apiClient">An <see cref="IClient"/> instance created by the dependency injection container.</param>
     /// <param name="logger">An <see cref="ILogger"/> instance created by the dependency injection container.</param>
     /// <exception cref="ArgumentNullException">Either <paramref name="config"/> or <paramref name="apiClient"/> or <paramref name="logger"/> is null.</exception>
+    /// <exception cref="Exception">API key is null or empty.</exception>
     public OddsApiAdapter(IConfiguration config, IClient apiClient, ILogger<OddsApiAdapter> logger)
     {
         if (config is null)
@@ -28,7 +29,13 @@ public class OddsApiAdapter : IOddsApiAdapter
 
         _apiClient = apiClient ?? throw new ArgumentNullException(nameof(apiClient));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        
         _apiKey = config["OddsApi:ApiKey"];
+
+        if (string.IsNullOrEmpty(_apiKey))
+        {
+            throw new Exception("API key is null or empty.");
+        }
     }
 
     /// <summary>

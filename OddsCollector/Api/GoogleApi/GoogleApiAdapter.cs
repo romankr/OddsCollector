@@ -22,7 +22,7 @@ public class GoogleApiAdapter : IGoogleApiAdapter
     private const string DoubleFormat = "N3";
 
     private readonly string _applicationName;
-    private readonly List<string> _emailAddresses;
+    private readonly IEnumerable<string> _emailAddresses;
     private readonly string _credentialFile;
 
     /// <summary>
@@ -30,6 +30,12 @@ public class GoogleApiAdapter : IGoogleApiAdapter
     /// </summary>
     /// <param name="config">An <see cref="IConfiguration"/> instance created by the dependency injection container.</param>
     /// <exception cref="ArgumentNullException"><paramref name="config"/> is null.</exception>
+    /// <exception cref="Exception">
+    /// ApplicationName is null or empty or
+    /// Email addresses are null or
+    /// Email addresses are empty or
+    /// Credential file name is null or empty.
+    /// </exception>
     public GoogleApiAdapter(IConfiguration config)
     {
         if (config is null)
@@ -37,16 +43,36 @@ public class GoogleApiAdapter : IGoogleApiAdapter
             throw new ArgumentNullException(nameof(config));
         }
 
-        _applicationName = config["GoogleApi:applicationName"];
+        _applicationName = config["GoogleApi:ApplicationName"];
 
-        _emailAddresses = 
+        if (string.IsNullOrEmpty(_applicationName))
+        {
+            throw new Exception("ApplicationName is null or empty.");
+        }
+
+        _emailAddresses =
             config
-                .GetSection("GoogleApi:emailAddresses")
+                .GetSection("GoogleApi:EmailAddresses")
                 .GetChildren()
                 .Select(c => c.Value)
                 .ToList();
-        
-        _credentialFile = config["GoogleApi:credentialFile"];
+
+        if (_emailAddresses is null)
+        {
+            throw new Exception("Email addresses are null.");
+        }
+
+        if (!_emailAddresses.Any())
+        {
+            throw new Exception("Email addresses are empty.");
+        }
+
+        _credentialFile = config["GoogleApi:CredentialFile"];
+
+        if (string.IsNullOrEmpty(_credentialFile))
+        {
+            throw new Exception("Credential file name is null or empty.");
+        }
     }
 
     /// <summary>
