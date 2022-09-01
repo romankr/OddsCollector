@@ -61,7 +61,7 @@ public class BettingStrategyEvaluatorJob : IJob
 
                 if (generateGoogleSheets)
                 {
-                    _googleSheetsAdapter.CreateReport(strategy.GetType().Name, result);
+                    _googleSheetsAdapter.CreateReportAsync(strategy.GetType().Name, result).GetAwaiter().GetResult();
                 }
             }
         }

@@ -12,5 +12,6 @@ public interface IGoogleApiAdapter
     /// </summary>
     /// <param name="bettingStrategyName">A betting strategy name to use in the file name.</param>
     /// <param name="result">A <see cref="BettingStrategyResult"/> to be saved as a Google Sheets document.</param>
-    void CreateReport(string bettingStrategyName, BettingStrategyResult? result);
+    /// <returns>String Id of the newly created Google Sheets document.</returns>
+    Task<string> CreateReportAsync(string bettingStrategyName, BettingStrategyResult? result);
 }
