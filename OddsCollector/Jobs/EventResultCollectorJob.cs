@@ -1,8 +1,8 @@
 ﻿namespace OddsCollector.Jobs;
 
+using Api.OddsApi;
 using Common;
 using DAL;
-using Api.OddsApi;
 using Quartz;
 using System.Threading.Tasks;
 
@@ -23,14 +23,14 @@ public class EventResultCollectorJob : IJob
         _databaseAdapter = databaseAdapter;
     }
 
-    public Task Execute(IJobExecutionContext context)
+    public async Task Execute(IJobExecutionContext context)
     {
         _logger.LogInformation("Collecting results.");
 
         try
         {
             var leagues = ConfigurationReader.GetLeagues(_config);
-            var events = _apiAdapter.GetCompletedEventsAsync(leagues).GetAwaiter().GetResult();
+            var events = await _apiAdapter.GetCompletedEventsAsync(leagues);
             _databaseAdapter.SaveEventResults(events);
         }
         catch(Exception ex)
@@ -38,6 +38,6 @@ public class EventResultCollectorJob : IJob
             _logger.LogError(ex, "Failed to collect results.");
         }
 
-        return Task.CompletedTask;
+        await Task.CompletedTask;
     }
 }

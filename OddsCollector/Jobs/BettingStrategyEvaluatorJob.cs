@@ -1,7 +1,6 @@
-﻿using OddsCollector.Api.GoogleApi;
+﻿namespace OddsCollector.Jobs;
 
-namespace OddsCollector.Jobs;
-
+using Api.GoogleApi;
 using Betting;
 using Csv;
 using DAL;
@@ -33,7 +32,7 @@ public class BettingStrategyEvaluatorJob : IJob
         _googleSheetsAdapter = googleSheetsAdapter;
     }
 
-    public Task Execute(IJobExecutionContext context)
+    public async Task Execute(IJobExecutionContext context)
     {
         _logger.LogInformation("Evaluating strategies.");
 
@@ -45,31 +44,33 @@ public class BettingStrategyEvaluatorJob : IJob
 
             if (!generateCsv && !generateGoogleSheets)
             {
-                return Task.CompletedTask;
+                await Task.CompletedTask;
             }
 
             var events = _databaseAdapter.GetEventsWithLatestOdds().ToList();
 
-            foreach (var strategy in _strategies)
+            var tasks = _strategies.Select(async s =>
             {
-                var result = strategy.Evaluate(events);
+                var result = s.Evaluate(events);
 
                 if (generateCsv)
                 {
-                    _saver.WriteBettingStrategyResultAsync(csvPath, strategy.GetType().Name, result).GetAwaiter().GetResult();
+                    await _saver.WriteBettingStrategyResultAsync(csvPath, s.GetType().Name, result);
                 }
 
                 if (generateGoogleSheets)
                 {
-                    _googleSheetsAdapter.CreateReportAsync(strategy.GetType().Name, result).GetAwaiter().GetResult();
+                    await _googleSheetsAdapter.CreateReportAsync(s.GetType().Name, result);
                 }
-            }
+            });
+
+            await Task.WhenAll(tasks);
         }
         catch(Exception ex)
         {
             _logger.LogError(ex, "Failed to evaluate strategies.");
         }
 
-        return Task.CompletedTask;
+        await Task.CompletedTask;
     }
 }
