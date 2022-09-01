@@ -28,7 +28,7 @@ public class GoogleApiAdapter : IGoogleApiAdapter
     /// <summary>
     /// A constructor that is suitable for the dependency injection.
     /// </summary>
-    /// <param name="config">An <see cref="IConfiguration"/> created by the dependency injection container.</param>
+    /// <param name="config">An <see cref="IConfiguration"/> instance created by the dependency injection container.</param>
     /// <exception cref="ArgumentNullException"><paramref name="config"/> is null.</exception>
     public GoogleApiAdapter(IConfiguration config)
     {
@@ -124,7 +124,7 @@ public class GoogleApiAdapter : IGoogleApiAdapter
     /// <param name="email">A user e-mail.</param>
     /// <returns>A result <see cref="Task"/>.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="service"/> is null.</exception>
-    /// <exception cref="ArgumentOutOfRangeException">Either <paramref name="fileId"/> or <paramref name="email"/> are null or empty</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Either <paramref name="fileId"/> or <paramref name="email"/> are null or empty.</exception>
     private static async Task SetPermissions(DriveService? service, string fileId, string email)
     {
         if (service is null)
@@ -260,7 +260,7 @@ public class GoogleApiAdapter : IGoogleApiAdapter
     /// <remarks>
     /// A <see cref="GoogleCredential"/> object is required for access to Google API.
     /// Scopes express the permissions you request users to authorize for your app.
-    /// The JSON file must be obtained from https://console.cloud.google.com/
+    /// The JSON file must be obtained from https://console.cloud.google.com/.
     /// (a full list of steps can be found here https://medium.com/@a.marenkov/how-to-get-credentials-for-google-sheets-456b7e88c430).
     /// </remarks>
     private GoogleCredential GetCredential(string[] scopes)
@@ -282,7 +282,7 @@ public class GoogleApiAdapter : IGoogleApiAdapter
     /// Creates a new instance of <see cref="Request"/> that adds a new sheet to an existing Google Sheets document.
     /// </summary>
     /// <param name="sheetTitle">A title of the sheet.</param>
-    /// <returns>A new instance of <see cref="Request"/></returns>
+    /// <returns>A new instance of <see cref="Request"/>.</returns>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="sheetTitle"/> is null or empty.</exception>
     private static Request CreateAddSheetRequest(string sheetTitle)
     {
