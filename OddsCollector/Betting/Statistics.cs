@@ -12,7 +12,7 @@ public class Statistics
 
     public double Earnings50Bet { get; set; }
 
-    public int TotalNumberOfGames { get; set; }
+    public int TotalNumberOfEvents { get; set; }
 
     public int NumberOfSuccessfulPredictions { get; set; }
 }

@@ -106,21 +106,55 @@ public class GoogleApiAdapter : IGoogleApiAdapter
         var file = createRequest.Execute();
 
         // The file permissions must be granted in a separate request.
-        foreach (var email in _emailAddresses)
-        {
-            var permissionRequest = 
-                service.Permissions.Create(
-                new Permission
-                    {
-                        EmailAddress = email,
-                        Type = "user",
-                        Role = "writer"
-                    }, file.Id);
+        var tasks = 
+            _emailAddresses
+                .Select(async e => await SetPermissions(service, file.Id, e))
+                .ToArray();
 
-            permissionRequest.Execute();
-        }
+        Task.WaitAll(tasks);
 
         return file;
+    }
+
+    /// <summary>
+    /// Sets permissions for a given file in Google Drive.
+    /// </summary>
+    /// <param name="service">An instance of <see cref="DriveService"/>.</param>
+    /// <param name="fileId">An Id of a file in Google Drive.</param>
+    /// <param name="email">A user e-mail.</param>
+    /// <returns>A result <see cref="Task"/>.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="service"/> is null.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Either <paramref name="fileId"/> or <paramref name="email"/> are null or empty</exception>
+    private static async Task SetPermissions(DriveService? service, string fileId, string email)
+    {
+        if (service is null)
+        {
+            throw new ArgumentNullException(nameof(service));
+        }
+
+        if (string.IsNullOrEmpty(fileId))
+        {
+            throw new ArgumentOutOfRangeException(nameof(fileId), "fileId cannot be null or empty");
+        }
+
+        if (string.IsNullOrEmpty(email))
+        {
+            throw new ArgumentOutOfRangeException(nameof(email), "bettingStrategyName cannot be null or empty");
+        }
+
+        // fast consequent requests are being blocked by the API.
+        await Task.Delay(100);
+
+        var permissionRequest =
+            service.Permissions.Create(
+                new Permission
+                {
+                    EmailAddress = email,
+                    Type = "user",
+                    Role = "writer"
+                }, fileId);
+
+        await permissionRequest.ExecuteAsync();
     }
 
     /// <summary>
@@ -305,7 +339,7 @@ public class GoogleApiAdapter : IGoogleApiAdapter
                 statistics.Earnings10Bet.ToString(DoubleFormat),
                 statistics.Earnings20Bet.ToString(DoubleFormat),
                 statistics.Earnings50Bet.ToString(DoubleFormat),
-                statistics.TotalNumberOfGames.ToString(),
+                statistics.TotalNumberOfEvents.ToString(),
                 statistics.NumberOfSuccessfulPredictions.ToString()
             }
         };

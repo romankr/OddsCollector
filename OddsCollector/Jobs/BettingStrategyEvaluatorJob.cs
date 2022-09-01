@@ -41,6 +41,12 @@ public class BettingStrategyEvaluatorJob : IJob
         {
             var csvPath = _config.GetValue<string>("Csv:OutputPath");
             var generateCsv = _config.GetValue<bool>("Csv:GenerateCsv");
+            var generateGoogleSheets = _config.GetValue<bool>("GoogleApi:GenerateGoogleSheets");
+
+            if (!generateCsv && !generateGoogleSheets)
+            {
+                return Task.CompletedTask;
+            }
 
             var events = _databaseAdapter.GetEventsWithLatestOdds().ToList();
 
@@ -52,8 +58,11 @@ public class BettingStrategyEvaluatorJob : IJob
                 {
                     _saver.WriteBettingStrategyResult(csvPath, strategy.GetType().Name, result);
                 }
-                
-                _googleSheetsAdapter.CreateReport(strategy.GetType().Name, result);
+
+                if (generateGoogleSheets)
+                {
+                    _googleSheetsAdapter.CreateReport(strategy.GetType().Name, result);
+                }
             }
         }
         catch(Exception ex)

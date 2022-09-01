@@ -183,7 +183,7 @@ public class SimpleConsensusStrategy : IBettingStrategy
             Earnings20Bet = earningsInPoints * 20,
             Earnings50Bet = earningsInPoints * 50,
             NumberOfSuccessfulPredictions = successfulPredictionsCount,
-            TotalNumberOfGames = completedEventsCount
+            TotalNumberOfEvents = completedEventsCount
         };
     }
 }
