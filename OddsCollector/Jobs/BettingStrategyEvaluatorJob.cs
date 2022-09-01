@@ -56,7 +56,7 @@ public class BettingStrategyEvaluatorJob : IJob
 
                 if (generateCsv)
                 {
-                    _saver.WriteBettingStrategyResult(csvPath, strategy.GetType().Name, result);
+                    _saver.WriteBettingStrategyResultAsync(csvPath, strategy.GetType().Name, result).GetAwaiter().GetResult();
                 }
 
                 if (generateGoogleSheets)

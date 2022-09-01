@@ -7,7 +7,7 @@ using System.Globalization;
 
 public class CsvSaver : ICsvSaver
 {
-    public void WriteBettingStrategyResult(string? dir, string bettingStrategyName, BettingStrategyResult? result)
+    public async Task WriteBettingStrategyResultAsync(string? dir, string bettingStrategyName, BettingStrategyResult? result)
     {
         if (string.IsNullOrEmpty(dir))
         {
@@ -29,8 +29,8 @@ public class CsvSaver : ICsvSaver
             throw new Exception("Suggestions are null");
         }
 
-        WriteBettingSuggestions(dir, bettingStrategyName, result.Suggestions.OrderBy(e => e.CommenceTime));
-        WriteStatistics(dir, bettingStrategyName, result.Statistics);
+        await WriteBettingSuggestionsAsync(dir, bettingStrategyName, result.Suggestions.OrderBy(e => e.CommenceTime));
+        await WriteStatisticsAsync(dir, bettingStrategyName, result.Statistics);
     }
 
     private static void EnsureDirectoryExists(string? dir)
@@ -46,7 +46,7 @@ public class CsvSaver : ICsvSaver
         }
     }
 
-    private static void WriteFile<T>(string? filePath, IEnumerable<T>? list)
+    private static async Task WriteFileAsync<T>(string? filePath, IEnumerable<T>? list)
     {
         if (string.IsNullOrEmpty(filePath))
         {
@@ -58,12 +58,12 @@ public class CsvSaver : ICsvSaver
             throw new ArgumentNullException(nameof(list));
         }
 
-        using var writer = new StreamWriter(filePath);
-        using var csv = new CsvWriter(writer, CultureInfo.InvariantCulture);
-        csv.WriteRecords(list);
+        await using var writer = new StreamWriter(filePath);
+        await using var csv = new CsvWriter(writer, CultureInfo.InvariantCulture);
+        await csv.WriteRecordsAsync(list);
     }
 
-    private static void WriteBettingSuggestions(string? dir, string bettingStrategyName, IEnumerable<BettingSuggestion>? suggestions)
+    private static async Task WriteBettingSuggestionsAsync(string? dir, string bettingStrategyName, IEnumerable<BettingSuggestion>? suggestions)
     {
         if (string.IsNullOrEmpty(dir))
         {
@@ -84,10 +84,10 @@ public class CsvSaver : ICsvSaver
 
         var filePath = Path.Combine(dir, $"{bettingStrategyName}_suggestions_{DateUtility.GetTimestamp()}.csv");
 
-        WriteFile(filePath, suggestions);
+        await WriteFileAsync(filePath, suggestions);
     }
 
-    private static void WriteStatistics(string? dir, string bettingStrategyName, Statistics? statistics)
+    private static async Task WriteStatisticsAsync(string? dir, string bettingStrategyName, Statistics? statistics)
     {
         if (string.IsNullOrEmpty(dir))
         {
@@ -108,6 +108,6 @@ public class CsvSaver : ICsvSaver
 
         var filePath = Path.Combine(dir, $"{bettingStrategyName}_statistics_{DateUtility.GetTimestamp()}.csv");
 
-        WriteFile(filePath, new List<Statistics> { statistics });
+        await WriteFileAsync(filePath, new List<Statistics> { statistics });
     }
 }
