@@ -200,9 +200,6 @@ public class GoogleApiAdapter : IGoogleApiAdapter
             throw new ArgumentOutOfRangeException(nameof(email), "bettingStrategyName cannot be null or empty");
         }
 
-        // fast consequent requests are being blocked by the API.
-        await Task.Delay(100);
-
         var permissionRequest =
             service.Permissions.Create(
                 new Permission
