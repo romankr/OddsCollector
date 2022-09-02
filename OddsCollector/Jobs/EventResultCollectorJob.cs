@@ -31,7 +31,7 @@ public class EventResultCollectorJob : IJob
         {
             var leagues = ConfigurationReader.GetLeagues(_config);
             var events = await _apiAdapter.GetCompletedEventsAsync(leagues);
-            _databaseAdapter.SaveEventResults(events);
+            await _databaseAdapter.SaveEventResultsAsync(events);
         }
         catch(Exception ex)
         {

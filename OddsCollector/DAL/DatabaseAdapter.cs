@@ -13,7 +13,7 @@ public class DatabaseAdapter : IDatabaseAdapter, IDisposable
         _context = context;
     }
 
-    public void SaveUpcomingEvents(IEnumerable<SportEvent> events)
+    public async Task SaveUpcomingEventsAsync(IEnumerable<SportEvent> events)
     {
         if (events is null)
         {
@@ -30,12 +30,12 @@ public class DatabaseAdapter : IDatabaseAdapter, IDisposable
         var eventsToSave = upcomingEvents.Where(e => !existingEventIds.Contains(e.SportEventId));
 
         _context.SportEvents.AddRange(eventsToSave);
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
 
-        SaveOdds(upcomingEvents);
+        await SaveOddsAsync(upcomingEvents);
     }
 
-    private void SaveOdds(IEnumerable<SportEvent> events)
+    private async Task SaveOddsAsync(IEnumerable<SportEvent> events)
     {
         if (events is null)
         {
@@ -58,7 +58,7 @@ public class DatabaseAdapter : IDatabaseAdapter, IDisposable
             }
         }
 
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
     }
 
     public IEnumerable<SportEvent> GetEventsWithLatestOdds()
@@ -104,7 +104,7 @@ public class DatabaseAdapter : IDatabaseAdapter, IDisposable
         return result;
     }
 
-    public void SaveEventResults(Dictionary<string, string?> results)
+    public async Task SaveEventResultsAsync(Dictionary<string, string?> results)
     {
         if (results is null)
         {
@@ -129,7 +129,7 @@ public class DatabaseAdapter : IDatabaseAdapter, IDisposable
             _context.Update(sportEvent);
         }
 
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
     }
 
     protected virtual void Dispose(bool disposing)

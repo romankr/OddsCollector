@@ -26,12 +26,12 @@ public class OddsCollectorJob : IJob
     public async Task Execute(IJobExecutionContext context)
     {
         _logger.LogInformation("Collecting odds.");
-            
+         
         try
         {
             var leagues = ConfigurationReader.GetLeagues(_config);
             var events = await _apiAdapter.GetUpcomingEventsAsync(leagues);
-            _databaseAdapter.SaveUpcomingEvents(events);
+            await _databaseAdapter.SaveUpcomingEventsAsync(events);
         }
         catch (Exception ex)
         {

@@ -4,9 +4,9 @@ using Models;
 
 public interface IDatabaseAdapter
 {
-    void SaveUpcomingEvents(IEnumerable<SportEvent> events);
+    Task SaveUpcomingEventsAsync(IEnumerable<SportEvent> events);
 
-    void SaveEventResults(Dictionary<string, string?> results);
+    Task SaveEventResultsAsync(Dictionary<string, string?> results);
 
     IEnumerable<SportEvent> GetEventsWithLatestOdds();
 }
