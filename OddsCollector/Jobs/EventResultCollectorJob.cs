@@ -29,7 +29,13 @@ public class EventResultCollectorJob : IJob
 
         try
         {
-            var leagues = ConfigurationReader.GetLeagues(_config);
+            var leagues = ConfigurationReader.GetLeagues(_config).ToList();
+
+            if (leagues.Count == 0)
+            {
+                throw new Exception("No leagues found.");
+            }
+
             var events = await _apiAdapter.GetCompletedEventsAsync(leagues);
             await _databaseAdapter.SaveEventResultsAsync(events);
         }

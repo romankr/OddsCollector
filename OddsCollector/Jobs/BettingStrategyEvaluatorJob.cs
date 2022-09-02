@@ -2,6 +2,7 @@
 
 using Api.GoogleApi;
 using Betting;
+using Common;
 using Csv;
 using DAL;
 using Quartz;
@@ -38,8 +39,8 @@ public class BettingStrategyEvaluatorJob : IJob
 
         try
         {
-            var generateCsv = _config.GetValue<bool>("Csv:GenerateCsv");
-            var generateGoogleSheets = _config.GetValue<bool>("GoogleApi:GenerateGoogleSheets");
+            var generateCsv = ConfigurationReader.GetGenerateCsv(_config);
+            var generateGoogleSheets = ConfigurationReader.GetGenerateGoogleSheets(_config);
 
             if (!generateCsv && !generateGoogleSheets)
             {

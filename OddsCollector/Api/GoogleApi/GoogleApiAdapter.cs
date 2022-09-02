@@ -24,6 +24,7 @@ public class GoogleApiAdapter : IGoogleApiAdapter
     private readonly string _applicationName;
     private readonly IEnumerable<string> _emailAddresses;
     private readonly string _credentialFile;
+    private readonly bool _enabled;
 
     /// <summary>
     /// A constructor that is suitable for the dependency injection.
@@ -43,12 +44,9 @@ public class GoogleApiAdapter : IGoogleApiAdapter
             throw new ArgumentNullException(nameof(config));
         }
 
-        _applicationName = config["GoogleApi:ApplicationName"];
+        _enabled = ConfigurationReader.GetGenerateGoogleSheets(config);
 
-        if (string.IsNullOrEmpty(_applicationName))
-        {
-            throw new Exception("ApplicationName is null or empty.");
-        }
+        _applicationName = config["GoogleApi:ApplicationName"];
 
         _emailAddresses =
             config
@@ -57,6 +55,18 @@ public class GoogleApiAdapter : IGoogleApiAdapter
                 .Select(c => c.Value)
                 .ToList();
 
+        _credentialFile = config["GoogleApi:CredentialFile"];
+
+        if (!_enabled)
+        {
+            return;
+        }
+
+        if (string.IsNullOrEmpty(_applicationName))
+        {
+            throw new Exception("ApplicationName is null or empty.");
+        }
+        
         if (_emailAddresses is null)
         {
             throw new Exception("Email addresses are null.");
@@ -66,9 +76,7 @@ public class GoogleApiAdapter : IGoogleApiAdapter
         {
             throw new Exception("Email addresses are empty.");
         }
-
-        _credentialFile = config["GoogleApi:CredentialFile"];
-
+        
         if (string.IsNullOrEmpty(_credentialFile))
         {
             throw new Exception("Credential file name is null or empty.");
@@ -83,7 +91,10 @@ public class GoogleApiAdapter : IGoogleApiAdapter
     /// <returns>String Id of the newly created Google Sheets document.</returns>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="bettingStrategyName"/> is null or empty.</exception>
     /// <exception cref="ArgumentNullException"><paramref name="result"/> is null.</exception>
-    /// <exception cref="Exception">No Google Drive document created.</exception>
+    /// <exception cref="Exception">
+    /// Google Document generation is disabled or
+    /// No Google Drive document created.
+    /// </exception>
     /// <remarks>The document is being created in 2 steps. First in Google Drive and only then edited in Google Sheets.</remarks>
     public async Task<string> CreateReportAsync(string bettingStrategyName, BettingStrategyResult? result)
     {
@@ -95,6 +106,11 @@ public class GoogleApiAdapter : IGoogleApiAdapter
         if (result is null)
         {
             throw new ArgumentNullException(nameof(result));
+        }
+
+        if (!_enabled)
+        {
+            throw new Exception("Google Document generation is disabled.");
         }
 
         // The document must be created in 2 steps. First in Google Drive and only then edited in Google Sheets.

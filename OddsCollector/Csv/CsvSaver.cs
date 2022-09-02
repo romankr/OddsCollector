@@ -8,11 +8,23 @@ using System.Globalization;
 public class CsvSaver : ICsvSaver
 {
     private readonly string _outputPath;
+    private readonly bool _enabled;
 
     public CsvSaver(IConfiguration config)
     {
+        if (config is null)
+        {
+            throw new ArgumentNullException(nameof(config));
+        }
+
+        _enabled = ConfigurationReader.GetGenerateCsv(config);
         _outputPath = config.GetValue<string>("Csv:OutputPath");
 
+        if (!_enabled)
+        {
+            return;
+        }
+        
         if (string.IsNullOrEmpty(_outputPath))
         {
             throw new Exception("CSV output path cannot be null or empty.");
@@ -35,6 +47,11 @@ public class CsvSaver : ICsvSaver
         if (result.Suggestions is null)
         {
             throw new Exception("Suggestions are null");
+        }
+
+        if (!_enabled)
+        {
+            throw new Exception("Csv generation is disabled.");
         }
 
         await WriteBettingSuggestionsAsync(

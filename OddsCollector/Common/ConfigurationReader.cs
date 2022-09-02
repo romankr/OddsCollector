@@ -11,4 +11,24 @@ public static class ConfigurationReader
 
         return configuration.GetSection("OddsApi:Leagues").GetChildren().Select(c => c.Value);
     }
+
+    public static bool GetGenerateCsv(IConfiguration configuration)
+    {
+        if (configuration is null)
+        {
+            throw new ArgumentNullException(nameof(configuration));
+        }
+
+        return configuration.GetValue<bool>("Csv:GenerateCsv");
+    }
+
+    public static bool GetGenerateGoogleSheets(IConfiguration configuration)
+    {
+        if (configuration is null)
+        {
+            throw new ArgumentNullException(nameof(configuration));
+        }
+
+        return configuration.GetValue<bool>("GoogleApi:GenerateGoogleSheets");
+    }
 }
