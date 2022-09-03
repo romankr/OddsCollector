@@ -4,8 +4,17 @@ using Betting;
 using Common;
 using Models;
 
+/// <summary>
+/// Strategy that simply calculates consensus outcome from multiple bookmakers.
+/// </summary>
 public class SimpleConsensusStrategy : IBettingStrategy
 {
+    /// <summary>
+    /// Calculates suggestions and effectiveness of the strategy. 
+    /// </summary>
+    /// <param name="events">A list of <see cref="SportEvent"/> to analyze.</param>
+    /// <returns>Suggestions and effectiveness of the strategy in <see cref="BettingStrategyResult"/>.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="events"/> is null.</exception>
     public virtual BettingStrategyResult Evaluate(IEnumerable<SportEvent> events)
     {
         if (events is null)
@@ -22,6 +31,12 @@ public class SimpleConsensusStrategy : IBettingStrategy
         };
     }
 
+    /// <summary>
+    /// Calculates suggestions to be yielded by the strategy.
+    /// </summary>
+    /// <param name="events">A list of <see cref="SportEvent"/> to analyze.</param>
+    /// <returns>A list of <see cref="BettingSuggestion"/>.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="events"/> is null.</exception>
     protected virtual IEnumerable<BettingSuggestion> GetSuggestions(IEnumerable<SportEvent> events)
     {
         if (events is null)
@@ -49,6 +64,13 @@ public class SimpleConsensusStrategy : IBettingStrategy
         }
     }
 
+    /// <summary>
+    /// Filters events before making any suggestions.
+    /// By default any <see cref="SportEvent"/> that has less than 3 odds is being discarded.
+    /// </summary>
+    /// <param name="events">A list of <see cref="SportEvent"/> to filter.</param>
+    /// <returns>A filtered list of <see cref="SportEvent"/>.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="events"/> is null.</exception>
     protected virtual IEnumerable<SportEvent> FilterInitialEvents(IEnumerable<SportEvent> events)
     {
         if (events is null)
@@ -59,6 +81,17 @@ public class SimpleConsensusStrategy : IBettingStrategy
         return events.Where(e => e.Odds is not null && e.Odds.Count >= 3);
     }
 
+    /// <summary>
+    /// Gets consensus winner and average score for given event.
+    /// </summary>
+    /// <param name="sportEvent"><see cref="SportEvent"/> to analyze.</param>
+    /// <returns>A <see cref="KeyValuePair"/> of winner and average score.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="sportEvent"/> is null.</exception>
+    /// <exception cref="Exception">
+    /// Odds cannot be null or empty or
+    /// HomeTeam cannot be null or empty or
+    /// AwayTeam cannot be null or empty.
+    /// </exception>
     protected virtual KeyValuePair<string, double> GetConsensusWinner(SportEvent sportEvent)
     {
         if (sportEvent is null)
@@ -68,17 +101,17 @@ public class SimpleConsensusStrategy : IBettingStrategy
 
         if (sportEvent.Odds is null)
         {
-            throw new Exception("Odds cannot be null or empty");
+            throw new Exception("Odds cannot be null or empty.");
         }
 
         if (string.IsNullOrEmpty(sportEvent.HomeTeam))
         {
-            throw new Exception("HomeTeam cannot be null or empty");
+            throw new Exception("HomeTeam cannot be null or empty.");
         }
 
         if (string.IsNullOrEmpty(sportEvent.AwayTeam))
         {
-            throw new Exception("AwayTeam cannot be null or empty");
+            throw new Exception("AwayTeam cannot be null or empty.");
         }
 
         var dict = new Dictionary<string, double>
@@ -91,6 +124,19 @@ public class SimpleConsensusStrategy : IBettingStrategy
         return dict.MinBy(p => p.Value);
     }
 
+    /// <summary>
+    /// Gets best score and bookmaker for given event.
+    /// </summary>
+    /// <param name="sportEvent">A <see cref="SportEvent"/> instance.</param>
+    /// <param name="winner">A winner.</param>
+    /// <returns>A <see cref="KeyValuePair"/> of bookmaker and score.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="sportEvent"/> is null.</exception>
+    /// <exception cref="ArgumentException"><paramref name="winner"/> cannot be null or empty.</exception>
+    /// <exception cref="Exception">
+    /// Odds cannot be null or empty or
+    /// Failed to find an odd or
+    /// Bookmaker cannot be null or empty.
+    /// </exception>
     protected virtual KeyValuePair<string, double> GetBestOdd(SportEvent sportEvent, string winner)
     {
         if (sportEvent is null)
@@ -100,12 +146,12 @@ public class SimpleConsensusStrategy : IBettingStrategy
 
         if (string.IsNullOrEmpty(winner))
         {
-            throw new ArgumentException("winner cannot be null or empty", nameof(winner));
+            throw new ArgumentException("Winner cannot be null or empty.", nameof(winner));
         }
 
         if (sportEvent.Odds is null)
         {
-            throw new Exception("Odds cannot be null or empty");
+            throw new Exception("Odds cannot be null or empty.");
         }
 
         var bestScore = 0.0;
@@ -131,7 +177,7 @@ public class SimpleConsensusStrategy : IBettingStrategy
 
         if (odd is null)
         {
-            throw new Exception("Failed to find an odd");
+            throw new Exception("Failed to find an odd.");
         }
 
         if (string.IsNullOrEmpty(odd.Bookmaker))
@@ -142,6 +188,12 @@ public class SimpleConsensusStrategy : IBettingStrategy
         return new KeyValuePair<string, double>(odd.Bookmaker, bestScore);
     }
 
+    /// <summary>
+    /// Calculates effectiveness of the strategy.
+    /// </summary>
+    /// <param name="suggestions">List of <see cref="BettingSuggestion"/>.</param>
+    /// <returns>A <see cref="Statistics"/> instance.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="suggestions"/> is null.</exception>
     protected virtual Statistics GetStatistics(IEnumerable<BettingSuggestion> suggestions)
     {
         if (suggestions is null)

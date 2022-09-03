@@ -2,8 +2,16 @@
 
 using Strategies;
 
+/// <summary>
+/// Extension methods for the dependency injection.
+/// </summary>
 internal static class ServiceCollectionExtensions
 {
+    /// <summary>
+    /// Registers betting strategies in the dependency injection.
+    /// </summary>
+    /// <param name="services">A service collection <see cref="IServiceCollection"/>.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="services"/> is null.</exception>
     public static void AddBettingStrategies(this IServiceCollection services)
     {
         if (services is null)
