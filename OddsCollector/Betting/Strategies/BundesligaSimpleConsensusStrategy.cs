@@ -21,6 +21,6 @@ public class BundesligaSimpleConsensusStrategy : SimpleConsensusStrategy
             throw new ArgumentNullException(nameof(events));
         }
 
-        return base.FilterInitialEvents(events).Where(e => e.LeagueId == Constants.BundesligaKey);
+        return base.FilterInitialEvents(events).Where(e => e.LeagueId == "soccer_germany_bundesliga");
     }
 }

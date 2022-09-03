@@ -1,12 +1,12 @@
 ﻿namespace OddsCollector.Common;
 
+/// <summary>
+/// A list of constants that are being used across this project.
+/// </summary>
 public static class Constants
 {
+    /// <summary>
+    /// A string that indicates a draw.
+    /// </summary>
     public const string Draw = "Draw";
-
-    public const string EplKey = "soccer_epl";
-
-    public const string BundesligaKey = "soccer_germany_bundesliga";
-
-    public const string LaLigaKey = "soccer_spain_la_liga";
 }

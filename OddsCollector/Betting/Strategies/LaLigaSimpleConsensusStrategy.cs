@@ -21,6 +21,6 @@ public class LaLigaSimpleConsensusStrategy : SimpleConsensusStrategy
             throw new ArgumentNullException(nameof(events));
         }
 
-        return base.FilterInitialEvents(events).Where(e => e.LeagueId == Constants.LaLigaKey);
+        return base.FilterInitialEvents(events).Where(e => e.LeagueId == "soccer_spain_la_liga");
     }
 }

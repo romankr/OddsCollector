@@ -21,6 +21,6 @@ public class EplSimpleConsensusStrategy : SimpleConsensusStrategy
             throw new ArgumentNullException(nameof(events));
         }
 
-        return base.FilterInitialEvents(events).Where(e => e.LeagueId == Constants.EplKey);
+        return base.FilterInitialEvents(events).Where(e => e.LeagueId == "soccer_epl");
     }
 }
