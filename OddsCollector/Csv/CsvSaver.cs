@@ -5,11 +5,20 @@ using Common;
 using CsvHelper;
 using System.Globalization;
 
+/// <summary>
+/// Writes betting strategy suggestions and effectiveness to CSV files.
+/// </summary>
 public class CsvSaver : ICsvSaver
 {
     private readonly string _outputPath;
     private readonly bool _enabled;
 
+    /// <summary>
+    /// A constructor that is suitable for the dependency injection.
+    /// </summary>
+    /// <param name="config">An <see cref="IConfiguration"/> instance created by the dependency injection container.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="config"/> is null.</exception>
+    /// <exception cref="Exception">CSV output path cannot be null or empty.</exception>
     public CsvSaver(IConfiguration config)
     {
         if (config is null)
@@ -30,13 +39,25 @@ public class CsvSaver : ICsvSaver
             throw new Exception("CSV output path cannot be null or empty.");
         }
     }
-    
+
+    /// <summary>
+    /// Write betting strategy suggestions and effectiveness to CSV files.
+    /// </summary>
+    /// <param name="bettingStrategyName">A betting strategy name.</param>
+    /// <param name="result">Betting strategy suggestions and effectiveness in <see cref="BettingStrategyResult"/>.</param>
+    /// <returns>A <see cref="Task"/>.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="bettingStrategyName"/> cannot be null or empty.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="result"/> is null.</exception>
+    /// <exception cref="Exception">
+    /// Suggestions are null or
+    /// Csv generation is disabled.
+    /// </exception>
     public async Task WriteBettingStrategyResultAsync(string bettingStrategyName, BettingStrategyResult? result)
     {
         if (string.IsNullOrEmpty(bettingStrategyName))
         {
             throw new ArgumentOutOfRangeException(nameof(bettingStrategyName), 
-                "bettingStrategyName cannot be null or empty");
+                "bettingStrategyName cannot be null or empty.");
         }
 
         if (result is null)
@@ -46,7 +67,7 @@ public class CsvSaver : ICsvSaver
 
         if (result.Suggestions is null)
         {
-            throw new Exception("Suggestions are null");
+            throw new Exception("Suggestions are null.");
         }
 
         if (!_enabled)
@@ -61,11 +82,16 @@ public class CsvSaver : ICsvSaver
         await WriteStatisticsAsync(bettingStrategyName, result.Statistics);
     }
 
+    /// <summary>
+    /// Creates directory if it doesn't exist.
+    /// </summary>
+    /// <param name="dir">Directory path.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="dir"/> cannot be null or empty.</exception>
     private static void EnsureDirectoryExists(string? dir)
     {
         if (string.IsNullOrEmpty(dir))
         {
-            throw new ArgumentOutOfRangeException(nameof(dir), "dir cannot be null or empty");
+            throw new ArgumentOutOfRangeException(nameof(dir), "dir cannot be null or empty.");
         }
 
         if (!Directory.Exists(dir))
@@ -74,12 +100,21 @@ public class CsvSaver : ICsvSaver
         }
     }
 
+    /// <summary>
+    /// Writes an object list to a file.
+    /// </summary>
+    /// <typeparam name="T">Type of the objects.</typeparam>
+    /// <param name="filePath">Full path to the file.</param>
+    /// <param name="list">Object list.</param>
+    /// <returns>A <see cref="Task"/>.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="filePath"/> is null or empty.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="list"/> is null.</exception>
     private static async Task WriteFileAsync<T>(string? filePath, IEnumerable<T>? list)
     {
         if (string.IsNullOrEmpty(filePath))
         {
             throw new ArgumentOutOfRangeException(nameof(filePath), 
-                "filePath cannot be null or empty");
+                "filePath cannot be null or empty.");
         }
 
         if (list is null)
@@ -92,12 +127,20 @@ public class CsvSaver : ICsvSaver
         await csv.WriteRecordsAsync(list);
     }
 
+    /// <summary>
+    /// Writes betting suggestions to a file.
+    /// </summary>
+    /// <param name="bettingStrategyName">Betting strategy name.</param>
+    /// <param name="suggestions">A list of <see cref="BettingSuggestion"/>.</param>
+    /// <returns>A <see cref="Task"/>.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="bettingStrategyName"/> is null or empty.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="suggestions"/> is null.</exception>
     private async Task WriteBettingSuggestionsAsync(string bettingStrategyName, IEnumerable<BettingSuggestion>? suggestions)
     {
         if (string.IsNullOrEmpty(bettingStrategyName))
         {
             throw new ArgumentOutOfRangeException(nameof(bettingStrategyName), 
-                "bettingStrategyName cannot be null or empty");
+                "bettingStrategyName cannot be null or empty.");
         }
 
         if (suggestions is null)
@@ -112,12 +155,20 @@ public class CsvSaver : ICsvSaver
         await WriteFileAsync(filePath, suggestions);
     }
 
-    private  async Task WriteStatisticsAsync(string bettingStrategyName, Statistics? statistics)
+    /// <summary>
+    /// Writes betting strategy effectiveness to a file.
+    /// </summary>
+    /// <param name="bettingStrategyName">Betting strategy name.</param>
+    /// <param name="statistics">Betting strategy effectiveness <see cref="Statistics"/>.</param>
+    /// <returns>A <see cref="Task"/>.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="bettingStrategyName"/> is null or empty.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="statistics"/> is null.</exception>
+    private async Task WriteStatisticsAsync(string bettingStrategyName, Statistics? statistics)
     {
         if (string.IsNullOrEmpty(bettingStrategyName))
         {
             throw new ArgumentOutOfRangeException(nameof(bettingStrategyName), 
-                "bettingStrategyName cannot be null or empty");
+                "bettingStrategyName cannot be null or empty.");
         }
 
         if (statistics is null)

@@ -7,7 +7,7 @@ using Models;
 /// Strategy that implements ideas from
 /// "Beating the bookies with their own numbers - and how the online sports betting market is rigged" research papers.
 /// </summary>
-/// <remarks>https://www.researchgate.net/publication/320296375_Beating_the_bookies_with_their_own_numbers_-_and_how_the_online_sports_betting_market_is_rigged</remarks>
+/// <remarks>https://www.researchgate.net/publication/320296375_Beating_the_bookies_with_their_own_numbers_-_and_how_the_online_sports_betting_market_is_rigged.</remarks>
 public class AdjustedConsensusStrategy : SimpleConsensusStrategy
 {
     /// <summary>

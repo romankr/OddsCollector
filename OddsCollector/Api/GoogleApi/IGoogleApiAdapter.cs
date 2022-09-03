@@ -3,7 +3,7 @@
 using Betting;
 
 /// <summary>
-/// Provides access to Google API-s.
+/// Basic interface for classes that use Google API-s.
 /// </summary>
 public interface IGoogleApiAdapter
 {
