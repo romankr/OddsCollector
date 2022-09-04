@@ -3,16 +3,31 @@
 using Models;
 using Data;
 
+/// <summary>
+/// Provides access to odds data.
+/// </summary>
 public class DatabaseAdapter : IDatabaseAdapter, IDisposable
 {
     private readonly ApplicationDatabaseContext _context;
     private bool _disposed;
 
+    /// <summary>
+    /// A constructor that is suitable for the dependency injection.
+    /// </summary>
+    /// <param name="context">An instance of <see cref="ApplicationDatabaseContext"/>.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="context"/> is null.</exception>
     public DatabaseAdapter(ApplicationDatabaseContext context)
     {
-        _context = context;
+        _context = context ?? throw new ArgumentNullException(nameof(context));
     }
 
+    /// <summary>
+    /// Saves a list of upcoming events.
+    /// </summary>
+    /// <param name="events">A list of upcoming events.</param>
+    /// <returns>A <see cref="Task"/>.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="events"/> is null.</exception>
+    /// <exception cref="Exception">SportEvents are null.</exception>
     public async Task SaveUpcomingEventsAsync(IEnumerable<SportEvent> events)
     {
         if (events is null)
@@ -22,7 +37,7 @@ public class DatabaseAdapter : IDatabaseAdapter, IDisposable
 
         if (_context.SportEvents is null)
         {
-            throw new Exception("SportEvents are null");
+            throw new Exception("SportEvents are null.");
         }
 
         var upcomingEvents = events.ToList();
@@ -35,6 +50,13 @@ public class DatabaseAdapter : IDatabaseAdapter, IDisposable
         await SaveOddsAsync(upcomingEvents);
     }
 
+    /// <summary>
+    /// Saves a list of odds from given events.
+    /// </summary>
+    /// <param name="events">A list of events.</param>
+    /// <returns>A <see cref="Task"/>.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="events"/> is null.</exception>
+    /// <exception cref="Exception">No odds for the given event.</exception>
     private async Task SaveOddsAsync(IEnumerable<SportEvent> events)
     {
         if (events is null)
@@ -44,7 +66,10 @@ public class DatabaseAdapter : IDatabaseAdapter, IDisposable
 
         var odds = events.SelectMany(e => e.Odds ?? new List<Odd>());
 
-        if (_context.Odds is null) throw new Exception("Odds are null");
+        if (_context.Odds is null)
+        {
+            throw new Exception("No odds for the given event.");
+        }
 
         foreach (var o in odds)
         {
@@ -61,16 +86,24 @@ public class DatabaseAdapter : IDatabaseAdapter, IDisposable
         await _context.SaveChangesAsync();
     }
 
+    /// <summary>
+    /// Retrieves events with limited number of odds - only the most recent ones.
+    /// </summary>
+    /// <returns>A list of events.</returns>
+    /// <exception cref="Exception">
+    /// There are no sport events available or
+    /// There are no odds available.
+    /// </exception>
     public IEnumerable<SportEvent> GetEventsWithLatestOdds()
     {
         if (_context.SportEvents is null)
         {
-            throw new Exception("SportEvents are null");
+            throw new Exception("There are no sport events available.");
         }
 
         if (_context.Odds is null)
         { 
-            throw new Exception("Odds are null");
+            throw new Exception("There are no odds available.");
         }
 
         var result = _context.SportEvents.ToList();
@@ -104,6 +137,13 @@ public class DatabaseAdapter : IDatabaseAdapter, IDisposable
         return result;
     }
 
+    /// <summary>
+    /// Saves a list of event results.
+    /// </summary>
+    /// <param name="results">A list of event results.</param>
+    /// <returns>A <see cref="Task"/>.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="results"/> is null.</exception>
+    /// <exception cref="Exception">SportEvents are null.</exception>
     public async Task SaveEventResultsAsync(Dictionary<string, string?> results)
     {
         if (results is null)
@@ -113,7 +153,7 @@ public class DatabaseAdapter : IDatabaseAdapter, IDisposable
 
         if (_context.SportEvents is null)
         {
-            throw new Exception("SportEvents are null");
+            throw new Exception("SportEvents are null.");
         }
 
         foreach (var r in results)
@@ -132,6 +172,10 @@ public class DatabaseAdapter : IDatabaseAdapter, IDisposable
         await _context.SaveChangesAsync();
     }
 
+    /// <summary>
+    /// Disposes the object.
+    /// </summary>
+    /// <param name="disposing">Flag indicating whether disposal is in progress or not.</param>
     protected virtual void Dispose(bool disposing)
     {
         if (_disposed)
@@ -144,6 +188,9 @@ public class DatabaseAdapter : IDatabaseAdapter, IDisposable
         _disposed = true;
     }
 
+    /// <summary>
+    /// Disposes the object.
+    /// </summary>
     public void Dispose()
     {
         Dispose(true);

@@ -31,6 +31,7 @@ public class CsvSaver : ICsvSaver
 
         if (!_enabled)
         {
+            // skipping parameter validation.
             return;
         }
         

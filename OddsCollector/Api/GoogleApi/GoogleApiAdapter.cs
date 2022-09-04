@@ -11,7 +11,7 @@ using Google.Apis.Services;
 using System.Reflection;
 
 /// <summary>
-/// Provides access to Google API-s.
+/// Provides access to Google Drive and Google Sheets.
 /// </summary>
 public class GoogleApiAdapter : IGoogleApiAdapter
 {
@@ -59,6 +59,7 @@ public class GoogleApiAdapter : IGoogleApiAdapter
 
         if (!_enabled)
         {
+            // skipping parameter validation.
             return;
         }
 
