@@ -348,7 +348,39 @@ public class GoogleApiAdapter : IGoogleApiAdapter
             file.Id,
             $"{StatisticsSheetTitle}!{DefaultCellRange}");
 
-        var addChartRequest = new AddChartRequest
+        var chartRequest = new BatchUpdateSpreadsheetRequest
+        {
+            Requests = new List<Request>()
+        };
+
+        chartRequest.Requests.Add(new Request
+        {
+            AddChart = GetPredictionsRateChartRequest(suggestionSheet)
+        });
+
+        chartRequest.Requests.Add(new Request
+        {
+            AddChart = GetPredictionsRateDistributionChartRequest(suggestionSheet)
+        });
+
+        var batchChartRequest = service.Spreadsheets.BatchUpdate(chartRequest, file.Id);
+        await batchChartRequest.ExecuteAsync();
+    }
+
+    /// <summary>
+    /// Creates a prediction rate chart from given <see cref="Sheet"/>.
+    /// </summary>
+    /// <param name="suggestionSheet">Data source sheet <see cref="Sheet"/>.</param>
+    /// <returns>A <see cref="AddChartRequest"/> request.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="suggestionSheet"/> is null.</exception>
+    private static AddChartRequest GetPredictionsRateChartRequest(Sheet? suggestionSheet)
+    {
+        if (suggestionSheet is null)
+        {
+            throw new ArgumentNullException(nameof(suggestionSheet));
+        }
+        
+        return new AddChartRequest
         {
             Chart = new EmbeddedChart
             {
@@ -379,7 +411,8 @@ public class GoogleApiAdapter : IGoogleApiAdapter
                             }
                         }),
                         ChartType = "LINE"
-                    }
+                    },
+                    Title = "Successful predictions rate"
                 },
                 Position = new EmbeddedObjectPosition
                 {
@@ -387,19 +420,61 @@ public class GoogleApiAdapter : IGoogleApiAdapter
                 }
             }
         };
+    }
 
-        var chartRequest = new BatchUpdateSpreadsheetRequest
+    /// <summary>
+    /// Creates a prediction rate distribution chart from given <see cref="Sheet"/>.
+    /// </summary>
+    /// <param name="suggestionSheet">Data source sheet <see cref="Sheet"/>.</param>
+    /// <returns>A <see cref="AddChartRequest"/> request.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="suggestionSheet"/> is null.</exception>
+    private static AddChartRequest GetPredictionsRateDistributionChartRequest(Sheet? suggestionSheet)
+    {
+        if (suggestionSheet is null)
         {
-            Requests = new List<Request>()
+            throw new ArgumentNullException(nameof(suggestionSheet));
+        }
+
+        return new AddChartRequest
+        {
+            Chart = new EmbeddedChart
+            {
+                Spec = new ChartSpec
+                {
+                    HistogramChart = new HistogramChartSpec
+                    {
+                        Series = new List<HistogramSeries>
+                        {
+                            new ()
+                            {
+                                Data = new ChartData
+                                {
+                                    SourceRange = new ChartSourceRange
+                                    {
+                                        Sources = new List<GridRange>
+                                        {
+                                            new ()
+                                            {
+                                                SheetId = suggestionSheet.Properties.SheetId,
+                                                StartColumnIndex = 10,
+                                                EndColumnIndex = 11,
+                                                StartRowIndex = 1
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        BucketSize = 0.02
+                    },
+                    Title = "Successful predictions rate distribution"
+                },
+                Position = new EmbeddedObjectPosition
+                {
+                    NewSheet = true
+                }
+            }
         };
-
-        chartRequest.Requests.Add(new Request
-        {
-            AddChart = addChartRequest
-        });
-
-        var batchUpdateReq = service.Spreadsheets.BatchUpdate(chartRequest, file.Id);
-        await batchUpdateReq.ExecuteAsync();
     }
 
     /// <summary>
@@ -562,7 +637,7 @@ public class GoogleApiAdapter : IGoogleApiAdapter
         var result = new List<IList<object>>
         {
             GetHeaders<BettingSuggestion>()
-                .Union(new List<string> { string.Empty, string.Empty })
+                .Union(new List<string> { string.Empty, "Aggregated rate of successful predictions" })
                 .ToList()
         };
 
