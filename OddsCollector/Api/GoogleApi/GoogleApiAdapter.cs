@@ -244,8 +244,7 @@ public class GoogleApiAdapter : IGoogleApiAdapter
     /// Failed to create sheets or
     /// Failed to create get sheets request or
     /// Failed to get a list of sheets or
-    /// Failed to create delete sheet request or
-    /// Failed to create append values request.
+    /// Failed to create delete sheet request.
     /// </exception>
     private async Task PopulateSpreadsheetAsync(File? file, BettingStrategyResult? result)
     {
@@ -309,6 +308,9 @@ public class GoogleApiAdapter : IGoogleApiAdapter
         var defaultSheet = 
             response.Sheets.FirstOrDefault(s => s.Properties.Title == DefaultSheetTitle);
 
+        var suggestionSheet =
+            response.Sheets.First(s => s.Properties.Title == SuggestionsSheetTitle);
+
         if (defaultSheet is not null)
         {
             batchUpdateRequest.Requests.Clear();
@@ -333,42 +335,118 @@ public class GoogleApiAdapter : IGoogleApiAdapter
 
         // Populate BettingStrategyResult data.
         // Betting suggestions first.
-        var appendSuggestionsRequest =
-            service.Spreadsheets.Values.Append(
-                new ValueRange { Values = MapBettingSuggestions(result.Suggestions) },
-                file.Id,
-                $"{SuggestionsSheetTitle}!{DefaultCellRange}");
-
-        if (appendSuggestionsRequest is null)
-        {
-            throw new Exception("Failed to create append values request.");
-        }
-
-        appendSuggestionsRequest.InsertDataOption =
-            SpreadsheetsResource.ValuesResource.AppendRequest.InsertDataOptionEnum.INSERTROWS;
-        appendSuggestionsRequest.ValueInputOption =
-            SpreadsheetsResource.ValuesResource.AppendRequest.ValueInputOptionEnum.RAW;
-
-        await appendSuggestionsRequest.ExecuteAsync();
+        await MakeAppendRequest(
+            service,
+            new ValueRange { Values = MapBettingSuggestions(result.Suggestions) }, 
+            file.Id, 
+            $"{SuggestionsSheetTitle}!{DefaultCellRange}");
 
         // Statistics last.
-        var appendStatisticsRequest = 
-            service.Spreadsheets.Values.Append(
-                new ValueRange { Values = MapStatistics(result.Statistics) }, 
-                file.Id,
-                $"{StatisticsSheetTitle}!{DefaultCellRange}");
+        await MakeAppendRequest(
+            service,
+            new ValueRange { Values = MapStatistics(result.Statistics) },
+            file.Id,
+            $"{StatisticsSheetTitle}!{DefaultCellRange}");
 
-        if (appendStatisticsRequest is null)
+        var addChartRequest = new AddChartRequest
+        {
+            Chart = new EmbeddedChart
+            {
+                Spec = new ChartSpec
+                {
+                    BasicChart = new BasicChartSpec
+                    {
+                        Series = new List<BasicChartSeries>(new List<BasicChartSeries>
+                        {
+                            new ()
+                            {
+                                Series = new ChartData
+                                {
+                                    SourceRange = new ChartSourceRange
+                                    {
+                                        Sources = new List<GridRange>
+                                        {
+                                            new ()
+                                            {
+                                                SheetId = suggestionSheet.Properties.SheetId,
+                                                StartColumnIndex = 10,
+                                                EndColumnIndex = 11,
+                                                StartRowIndex = 1
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }),
+                        ChartType = "LINE"
+                    }
+                },
+                Position = new EmbeddedObjectPosition
+                {
+                    NewSheet = true
+                }
+            }
+        };
+
+        var chartRequest = new BatchUpdateSpreadsheetRequest
+        {
+            Requests = new List<Request>()
+        };
+
+        chartRequest.Requests.Add(new Request
+        {
+            AddChart = addChartRequest
+        });
+
+        var batchUpdateReq = service.Spreadsheets.BatchUpdate(chartRequest, file.Id);
+        await batchUpdateReq.ExecuteAsync();
+    }
+
+    /// <summary>
+    /// Makes a data append request.
+    /// </summary>
+    /// <param name="service">A <see cref="SheetsService"/> instance.</param>
+    /// <param name="body">Data to be inserted as a <see cref="ValueRange"/> instance.</param>
+    /// <param name="fileId">Google Sheet document Id.</param>
+    /// <param name="range">Insertion point.</param>
+    /// <exception cref="ArgumentOutOfRangeException">Either <paramref name="fileId"/> or <paramref name="range"/> are null.</exception>
+    /// <exception cref="ArgumentNullException">Either <paramref name="service"/> or <paramref name="body"/> are null.</exception>
+    /// <exception cref="Exception">Failed to create append values request.</exception>
+    private static async Task MakeAppendRequest(SheetsService service, ValueRange body, string fileId, string range)
+    {
+        if (service is null)
+        {
+            throw new ArgumentNullException(nameof(service));
+        }
+
+        if (body is null)
+        {
+            throw new ArgumentNullException(nameof(body));
+        }
+
+        if (string.IsNullOrEmpty(fileId))
+        {
+            throw new ArgumentOutOfRangeException(nameof(fileId), "fileId cannot be null or empty");
+        }
+
+        if (string.IsNullOrEmpty(range))
+        {
+            throw new ArgumentOutOfRangeException(nameof(range), "range cannot be null or empty");
+        }
+
+        var request = service.Spreadsheets.Values.Append(body, fileId, range);
+
+        if (request is null)
         {
             throw new Exception("Failed to create append values request.");
         }
 
-        appendStatisticsRequest.InsertDataOption = 
+        request.InsertDataOption =
             SpreadsheetsResource.ValuesResource.AppendRequest.InsertDataOptionEnum.INSERTROWS;
-        appendStatisticsRequest.ValueInputOption = 
+        request.ValueInputOption =
             SpreadsheetsResource.ValuesResource.AppendRequest.ValueInputOptionEnum.RAW;
 
-        await appendStatisticsRequest.ExecuteAsync();
+        await request.ExecuteAsync();
     }
 
     /// <summary>
@@ -484,10 +562,20 @@ public class GoogleApiAdapter : IGoogleApiAdapter
         var result = new List<IList<object>>
         {
             GetHeaders<BettingSuggestion>()
+                .Union(new List<string> { string.Empty, string.Empty })
+                .ToList()
         };
+
+        var total = 1;
+        var successful = 0;
 
         foreach (var s in suggestions.OrderBy(s => s.CommenceTime))
         {
+            if (s.RealOutcome is not null && s.ExpectedOutcome == s.RealOutcome)
+            {
+                successful++;
+            }
+
             result.Add(new List<object>
             {
                 s.SportEventId ?? string.Empty,
@@ -498,8 +586,12 @@ public class GoogleApiAdapter : IGoogleApiAdapter
                 s.AverageScore.ToString(DoubleFormat),
                 s.BestScore.ToString(DoubleFormat),
                 s.ExpectedOutcome ?? string.Empty,
-                s.RealOutcome ?? string.Empty
+                s.RealOutcome ?? string.Empty,
+                string.Empty,
+                (s.RealOutcome is not null ? (double)successful / total : null)!
             });
+
+            total++;
         }
 
         return result;
