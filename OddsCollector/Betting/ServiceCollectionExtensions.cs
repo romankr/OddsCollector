@@ -24,5 +24,6 @@ internal static class ServiceCollectionExtensions
         services.AddSingleton<IBettingStrategy, LaLigaSimpleConsensusStrategy>();
         services.AddSingleton<IBettingStrategy, EplSimpleConsensusStrategy>();
         services.AddSingleton<IBettingStrategy, BundesligaSimpleConsensusStrategy>();
+        services.AddSingleton<IBettingStrategy, RandomStrategy>();
     }
 }
