@@ -10,7 +10,7 @@ public interface IDatabaseAdapter
     /// <summary>
     /// Saves a list of upcoming events.
     /// </summary>
-    /// <param name="events">A list of upcoming events.</param>
+    /// <param name="events">The list of upcoming events.</param>
     /// <returns>A <see cref="Task"/>.</returns>
     Task SaveUpcomingEventsAsync(IEnumerable<SportEvent> events);
 
@@ -22,8 +22,8 @@ public interface IDatabaseAdapter
     Task SaveEventResultsAsync(Dictionary<string, string?> results);
 
     /// <summary>
-    /// Retrieves events with limited number of odds - only the most recent ones.
+    /// Retrieves events with most recent odds.
     /// </summary>
-    /// <returns>A list of events.</returns>
+    /// <returns>A list of events <see cref="IEnumerable{SportEvent}"/>.</returns>
     IEnumerable<SportEvent> GetEventsWithLatestOdds();
 }

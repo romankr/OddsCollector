@@ -7,6 +7,9 @@ using Csv;
 using DAL;
 using Quartz;
 
+/// <summary>
+/// Evaluates betting strategies and creates reports in Google Sheets and CSV files.
+/// </summary>
 [DisallowConcurrentExecution]
 public class BettingStrategyEvaluatorJob : IJob
 {
@@ -17,6 +20,15 @@ public class BettingStrategyEvaluatorJob : IJob
     private readonly ICsvSaver _saver;
     private readonly IGoogleApiAdapter _googleSheetsAdapter;
 
+    /// <summary>
+    /// A constructor that is suitable for the dependency injection.
+    /// </summary>
+    /// <param name="logger">An instance of <see cref="ILogger"/>.</param>
+    /// <param name="config">An instance of <see cref="IConfiguration"/>.</param>
+    /// <param name="databaseAdapter">An instance of <see cref="IDatabaseAdapter"/>.</param>
+    /// <param name="strategies">An instance of <see cref="IEnumerable{IBettingStrategy}"/>.</param>
+    /// <param name="saver">An instance of <see cref="ICsvSaver"/>.</param>
+    /// <param name="googleSheetsAdapter">An instance of <see cref="IGoogleApiAdapter"/>.</param>
     public BettingStrategyEvaluatorJob(
         ILogger<BettingStrategyEvaluatorJob> logger, 
         IConfiguration config, 
@@ -25,16 +37,27 @@ public class BettingStrategyEvaluatorJob : IJob
         ICsvSaver saver,
         IGoogleApiAdapter googleSheetsAdapter)
     {
-        _logger = logger;
-        _config = config;
-        _databaseAdapter = databaseAdapter;
-        _saver = saver;
-        _strategies = strategies;
-        _googleSheetsAdapter = googleSheetsAdapter;
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _config = config ?? throw new ArgumentNullException(nameof(config));
+        _databaseAdapter = databaseAdapter ?? throw new ArgumentNullException(nameof(databaseAdapter));
+        _saver = saver ?? throw new ArgumentNullException(nameof(saver));
+        _strategies = strategies ?? throw new ArgumentNullException(nameof(strategies));
+        _googleSheetsAdapter = googleSheetsAdapter ?? throw new ArgumentNullException(nameof(googleSheetsAdapter));
     }
 
+    /// <summary>
+    /// Evaluates betting strategies and creates reports in Google Sheets and CSV files.
+    /// </summary>
+    /// <param name="context">An instance of <see cref="IJobExecutionContext"/>.</param>
+    /// <returns>An instance of <see cref="Task"/>.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="context"/> is null.</exception>
     public async Task Execute(IJobExecutionContext context)
     {
+        if (context is null)
+        {
+            throw new ArgumentNullException(nameof(context));
+        }
+
         _logger.LogInformation("Evaluating strategies.");
 
         try

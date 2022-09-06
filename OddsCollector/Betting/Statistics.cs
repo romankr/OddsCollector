@@ -3,12 +3,12 @@
 public class Statistics
 {
     /// <summary>
-    /// Successful predictions to total ratio.
+    /// Successful predictions ratio.
     /// </summary>
     public double Accuracy { get; set; }
 
     /// <summary>
-    /// Estimated net earnings in score points.
+    /// Estimated net earnings in odds points.
     /// </summary>
     public double EarningsInPoints { get; set; }
 

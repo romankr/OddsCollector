@@ -42,7 +42,7 @@ public class CsvSaver : ICsvSaver
     }
 
     /// <summary>
-    /// Write betting strategy suggestions and effectiveness to CSV files.
+    /// Writes betting strategy suggestions and effectiveness to CSV files.
     /// </summary>
     /// <param name="bettingStrategyName">A betting strategy name.</param>
     /// <param name="result">Betting strategy suggestions and effectiveness in <see cref="BettingStrategyResult"/>.</param>
@@ -51,7 +51,7 @@ public class CsvSaver : ICsvSaver
     /// <exception cref="ArgumentNullException"><paramref name="result"/> is null.</exception>
     /// <exception cref="Exception">
     /// Suggestions are null or
-    /// Csv generation is disabled.
+    /// CSV generation is disabled.
     /// </exception>
     public async Task WriteBettingStrategyResultAsync(string bettingStrategyName, BettingStrategyResult? result)
     {
@@ -73,7 +73,7 @@ public class CsvSaver : ICsvSaver
 
         if (!_enabled)
         {
-            throw new Exception("Csv generation is disabled.");
+            throw new Exception("CSV generation is disabled.");
         }
 
         await WriteBettingSuggestionsAsync(

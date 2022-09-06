@@ -87,7 +87,7 @@ public class DatabaseAdapter : IDatabaseAdapter, IDisposable
     }
 
     /// <summary>
-    /// Retrieves events with limited number of odds - only the most recent ones.
+    /// Retrieves events with most recent odds.
     /// </summary>
     /// <returns>A list of events.</returns>
     /// <exception cref="Exception">

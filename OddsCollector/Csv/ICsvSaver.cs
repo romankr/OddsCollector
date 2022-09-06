@@ -8,7 +8,7 @@ using Betting;
 public interface ICsvSaver
 {
     /// <summary>
-    /// Write betting strategy suggestions and effectiveness to CSV files.
+    /// Writes betting strategy suggestions and effectiveness to CSV files.
     /// </summary>
     /// <param name="bettingStrategyName">A betting strategy name.</param>
     /// <param name="result">Betting strategy suggestions and effectiveness in <see cref="BettingStrategyResult"/>.</param>
