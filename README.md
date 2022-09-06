@@ -1,5 +1,5 @@
 # OddsCollector
-Collects the most recent odds from https://the-odds-api.com/ and makes predictions in CSV format.
+Collects the most recent odds from https://the-odds-api.com/ and makes predictions either in CSV format or as a Google Sheet document.
 
 To run/build add these parameters to appsettings.json and appsettings.Development.json:
 1. Odds API key. You can request it from here https://the-odds-api.com/#get-access
