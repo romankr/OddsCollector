@@ -1,5 +1,6 @@
 ﻿namespace OddsCollector.Betting.Strategies;
 
+using Common;
 using Models;
 
 /// <summary>
@@ -15,10 +16,7 @@ public class BundesligaSimpleConsensusStrategy : SimpleConsensusStrategy
     /// <exception cref="ArgumentNullException"><paramref name="events"/> is null.</exception>
     protected override IEnumerable<SportEvent> FilterInitialEvents(IEnumerable<SportEvent> events)
     {
-        if (events is null)
-        {
-            throw new ArgumentNullException(nameof(events));
-        }
+        ArgumentChecker.NullCheck(events, nameof(events));
 
         return base.FilterInitialEvents(events).Where(e => e.LeagueId == "soccer_germany_bundesliga");
     }

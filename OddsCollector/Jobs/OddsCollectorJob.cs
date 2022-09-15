@@ -31,10 +31,15 @@ public class OddsCollectorJob : IJob
     public OddsCollectorJob(
         ILogger<OddsCollectorJob> logger, IConfiguration config, IOddsApiAdapter apiAdapter, IDatabaseAdapter databaseAdapter)
     {
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _config = config ?? throw new ArgumentNullException(nameof(config));
-        _apiAdapter = apiAdapter ?? throw new ArgumentNullException(nameof(apiAdapter));
-        _databaseAdapter = databaseAdapter ?? throw new ArgumentNullException(nameof(databaseAdapter));
+        ArgumentChecker.NullCheck(logger, nameof(logger));
+        ArgumentChecker.NullCheck(config, nameof(config));
+        ArgumentChecker.NullCheck(apiAdapter, nameof(apiAdapter));
+        ArgumentChecker.NullCheck(databaseAdapter, nameof(databaseAdapter));
+
+        _logger = logger;
+        _config = config;
+        _apiAdapter = apiAdapter;
+        _databaseAdapter = databaseAdapter;
     }
 
     /// <summary>
@@ -45,11 +50,8 @@ public class OddsCollectorJob : IJob
     /// <exception cref="ArgumentNullException"><paramref name="context"/> is null.</exception>
     public async Task Execute(IJobExecutionContext context)
     {
-        if (context is null)
-        {
-            throw new ArgumentNullException(nameof(context));
-        }
-        
+        ArgumentChecker.NullCheck(context, nameof(context));
+
         _logger.LogInformation("Collecting odds.");
          
         try

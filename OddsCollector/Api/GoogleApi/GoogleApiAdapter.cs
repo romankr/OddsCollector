@@ -39,10 +39,7 @@ public class GoogleApiAdapter : IGoogleApiAdapter
     /// </exception>
     public GoogleApiAdapter(IConfiguration config)
     {
-        if (config is null)
-        {
-            throw new ArgumentNullException(nameof(config));
-        }
+        ArgumentChecker.NullCheck(config, nameof(config));
 
         _enabled = ConfigurationReader.GetGenerateGoogleSheets(config);
 
@@ -99,15 +96,8 @@ public class GoogleApiAdapter : IGoogleApiAdapter
     /// <remarks>The document is being created in 2 steps. First in Google Drive and only then edited in Google Sheets.</remarks>
     public async Task<string> CreateReportAsync(string bettingStrategyName, BettingStrategyResult? result)
     {
-        if (string.IsNullOrEmpty(bettingStrategyName))
-        {
-            throw new ArgumentOutOfRangeException(nameof(bettingStrategyName), "bettingStrategyName cannot be null or empty");
-        }
-
-        if (result is null)
-        {
-            throw new ArgumentNullException(nameof(result));
-        }
+        ArgumentChecker.NullOrEmptyCheck(bettingStrategyName, nameof(bettingStrategyName));
+        ArgumentChecker.NullCheck(result, nameof(result));
 
         if (!_enabled)
         {
@@ -140,10 +130,7 @@ public class GoogleApiAdapter : IGoogleApiAdapter
     /// </exception>
     private async Task<File?> CreateGoogleDriveDocumentAsync(string bettingStrategyName)
     {
-        if (string.IsNullOrEmpty(bettingStrategyName))
-        {
-            throw new ArgumentOutOfRangeException(nameof(bettingStrategyName), "bettingStrategyName cannot be null or empty");
-        }
+        ArgumentChecker.NullOrEmptyCheck(bettingStrategyName, nameof(bettingStrategyName));
 
         var scopes = new [] { DriveService.Scope.Drive, DriveService.Scope.DriveFile };
 
@@ -202,20 +189,9 @@ public class GoogleApiAdapter : IGoogleApiAdapter
     /// <exception cref="Exception">Failed to create a permissions request.</exception>
     private static async Task SetPermissionsAsync(DriveService? service, string fileId, string email)
     {
-        if (service is null)
-        {
-            throw new ArgumentNullException(nameof(service));
-        }
-
-        if (string.IsNullOrEmpty(fileId))
-        {
-            throw new ArgumentOutOfRangeException(nameof(fileId), "fileId cannot be null or empty");
-        }
-
-        if (string.IsNullOrEmpty(email))
-        {
-            throw new ArgumentOutOfRangeException(nameof(email), "bettingStrategyName cannot be null or empty");
-        }
+        ArgumentChecker.NullCheck(service, nameof(service));
+        ArgumentChecker.NullOrEmptyCheck(fileId, nameof(fileId));
+        ArgumentChecker.NullOrEmptyCheck(email, nameof(email));
 
         var permissionRequest =
             service.Permissions.Create(
@@ -249,15 +225,8 @@ public class GoogleApiAdapter : IGoogleApiAdapter
     /// </exception>
     private async Task PopulateSpreadsheetAsync(File? file, BettingStrategyResult? result)
     {
-        if (file is null)
-        {
-            throw new ArgumentNullException(nameof(file));
-        }
-
-        if (result is null)
-        {
-            throw new ArgumentNullException(nameof(result));
-        }
+        ArgumentChecker.NullCheck(file, nameof(file));
+        ArgumentChecker.NullCheck(result, nameof(result));
 
         var scopes = new[] { SheetsService.Scope.Spreadsheets };
 
@@ -376,11 +345,8 @@ public class GoogleApiAdapter : IGoogleApiAdapter
     /// <exception cref="ArgumentNullException"><paramref name="suggestionSheet"/> is null.</exception>
     private static AddChartRequest GetPredictionsRateChartRequest(Sheet? suggestionSheet)
     {
-        if (suggestionSheet is null)
-        {
-            throw new ArgumentNullException(nameof(suggestionSheet));
-        }
-        
+        ArgumentChecker.NullCheck(suggestionSheet, nameof(suggestionSheet));
+
         return new AddChartRequest
         {
             Chart = new EmbeddedChart
@@ -431,10 +397,7 @@ public class GoogleApiAdapter : IGoogleApiAdapter
     /// <exception cref="ArgumentNullException"><paramref name="suggestionSheet"/> is null.</exception>
     private static AddChartRequest GetPredictionsRateDistributionChartRequest(Sheet? suggestionSheet)
     {
-        if (suggestionSheet is null)
-        {
-            throw new ArgumentNullException(nameof(suggestionSheet));
-        }
+        ArgumentChecker.NullCheck(suggestionSheet, nameof(suggestionSheet));
 
         return new AddChartRequest
         {
@@ -490,25 +453,10 @@ public class GoogleApiAdapter : IGoogleApiAdapter
     /// <exception cref="Exception">Failed to create append values request.</exception>
     private static async Task MakeAppendRequest(SheetsService service, ValueRange body, string fileId, string range)
     {
-        if (service is null)
-        {
-            throw new ArgumentNullException(nameof(service));
-        }
-
-        if (body is null)
-        {
-            throw new ArgumentNullException(nameof(body));
-        }
-
-        if (string.IsNullOrEmpty(fileId))
-        {
-            throw new ArgumentOutOfRangeException(nameof(fileId), "fileId cannot be null or empty");
-        }
-
-        if (string.IsNullOrEmpty(range))
-        {
-            throw new ArgumentOutOfRangeException(nameof(range), "range cannot be null or empty");
-        }
+        ArgumentChecker.NullCheck(service, nameof(service));
+        ArgumentChecker.NullCheck(body, nameof(body));
+        ArgumentChecker.NullOrEmptyCheck(fileId, nameof(fileId));
+        ArgumentChecker.NullOrEmptyCheck(range, nameof(range));
 
         var request = service.Spreadsheets.Values.Append(body, fileId, range);
 
@@ -540,10 +488,7 @@ public class GoogleApiAdapter : IGoogleApiAdapter
     /// </remarks>
     private GoogleCredential GetCredential(string[] scopes)
     {
-        if (scopes is null)
-        {
-            throw new ArgumentNullException(nameof(scopes));
-        }
+        ArgumentChecker.NullCheck(scopes, nameof(scopes));
 
         if (scopes.Length == 0)
         {
@@ -561,10 +506,7 @@ public class GoogleApiAdapter : IGoogleApiAdapter
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="sheetTitle"/> is null or empty.</exception>
     private static Request CreateAddSheetRequest(string sheetTitle)
     {
-        if (string.IsNullOrEmpty(sheetTitle))
-        {
-            throw new ArgumentOutOfRangeException(nameof(sheetTitle), "sheetTitle cannot be null or empty");
-        }
+        ArgumentChecker.NullOrEmptyCheck(sheetTitle, nameof(sheetTitle));
 
         return new Request
         {
@@ -599,10 +541,7 @@ public class GoogleApiAdapter : IGoogleApiAdapter
     /// <exception cref="ArgumentNullException"><paramref name="statistics"/> is null.</exception>
     private static IList<IList<object>> MapStatistics(Statistics? statistics)
     {
-        if (statistics is null)
-        {
-            throw new ArgumentNullException(nameof(statistics));
-        }
+        ArgumentChecker.NullCheck(statistics, nameof(statistics));
 
         var result = new List<IList<object>>
         {
@@ -630,10 +569,7 @@ public class GoogleApiAdapter : IGoogleApiAdapter
     /// <exception cref="ArgumentNullException"><paramref name="suggestions"/> is null.</exception>
     private static IList<IList<object>> MapBettingSuggestions(IEnumerable<BettingSuggestion>? suggestions)
     {
-        if (suggestions is null)
-        {
-            throw new ArgumentNullException(nameof(suggestions));
-        }
+        ArgumentChecker.NullCheck(suggestions, nameof(suggestions));
 
         var result = new List<IList<object>>
         {

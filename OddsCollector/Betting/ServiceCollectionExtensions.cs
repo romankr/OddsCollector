@@ -1,5 +1,6 @@
 ﻿namespace OddsCollector.Betting;
 
+using Common;
 using Strategies;
 
 /// <summary>
@@ -14,10 +15,7 @@ internal static class ServiceCollectionExtensions
     /// <exception cref="ArgumentNullException"><paramref name="services"/> is null.</exception>
     public static void AddBettingStrategies(this IServiceCollection services)
     {
-        if (services is null)
-        {
-            throw new ArgumentNullException(nameof(services));
-        }
+        ArgumentChecker.NullCheck(services, nameof(services));
 
         services.AddSingleton<IBettingStrategy, SimpleConsensusStrategy>();
         services.AddSingleton<IBettingStrategy, AdjustedConsensusStrategy>();

@@ -1,5 +1,6 @@
 ﻿namespace OddsCollector.Jobs;
 
+using Common;
 using Quartz;
 
 /// <summary>
@@ -19,15 +20,8 @@ internal static class ServiceCollectionExtensions
         this IServiceCollectionQuartzConfigurator quartz, IConfiguration config) 
         where T : IJob
     {
-        if (quartz is null)
-        {
-            throw new ArgumentNullException(nameof(quartz));
-        }
-
-        if (config is null)
-        {
-            throw new ArgumentNullException(nameof(config));
-        }
+        ArgumentChecker.NullCheck(quartz, nameof(quartz));
+        ArgumentChecker.NullCheck(config, nameof(config));
 
         var jobName = typeof(T).Name;
         var configKey = $"Quartz:{jobName}.Schedule";

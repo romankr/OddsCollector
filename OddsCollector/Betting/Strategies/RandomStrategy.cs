@@ -23,10 +23,7 @@ public class RandomStrategy : SimpleConsensusStrategy
     /// </exception>
     protected override KeyValuePair<string, double> GetConsensusWinner(SportEvent sportEvent)
     {
-        if (sportEvent is null)
-        {
-            throw new ArgumentNullException(nameof(sportEvent));
-        }
+        ArgumentChecker.NullCheck(sportEvent, nameof(sportEvent));
 
         if (sportEvent.Odds is null)
         {

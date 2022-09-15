@@ -17,10 +17,7 @@ public class SimpleConsensusStrategy : IBettingStrategy
     /// <exception cref="ArgumentNullException"><paramref name="events"/> is null.</exception>
     public virtual BettingStrategyResult Evaluate(IEnumerable<SportEvent> events)
     {
-        if (events is null)
-        {
-            throw new ArgumentNullException(nameof(events));
-        }
+        ArgumentChecker.NullCheck(events, nameof(events));
 
         var suggestions = GetSuggestions(events).ToList();
 
@@ -39,10 +36,7 @@ public class SimpleConsensusStrategy : IBettingStrategy
     /// <exception cref="ArgumentNullException"><paramref name="events"/> is null.</exception>
     protected virtual IEnumerable<BettingSuggestion> GetSuggestions(IEnumerable<SportEvent> events)
     {
-        if (events is null)
-        {
-            throw new ArgumentNullException(nameof(events));
-        }
+        ArgumentChecker.NullCheck(events, nameof(events));
 
         foreach (var e in FilterInitialEvents(events))
         {
@@ -73,10 +67,7 @@ public class SimpleConsensusStrategy : IBettingStrategy
     /// <exception cref="ArgumentNullException"><paramref name="events"/> is null.</exception>
     protected virtual IEnumerable<SportEvent> FilterInitialEvents(IEnumerable<SportEvent> events)
     {
-        if (events is null)
-        {
-            throw new ArgumentNullException(nameof(events));
-        }
+        ArgumentChecker.NullCheck(events, nameof(events));
 
         return events.Where(e => e.Odds is not null && e.Odds.Count >= 3);
     }
@@ -94,10 +85,7 @@ public class SimpleConsensusStrategy : IBettingStrategy
     /// </exception>
     protected virtual KeyValuePair<string, double> GetConsensusWinner(SportEvent sportEvent)
     {
-        if (sportEvent is null)
-        {
-            throw new ArgumentNullException(nameof(sportEvent));
-        }
+        ArgumentChecker.NullCheck(sportEvent, nameof(sportEvent));
 
         if (sportEvent.Odds is null)
         {
@@ -139,10 +127,7 @@ public class SimpleConsensusStrategy : IBettingStrategy
     /// </exception>
     protected virtual KeyValuePair<string, double> GetBestOdd(SportEvent sportEvent, string winner)
     {
-        if (sportEvent is null)
-        {
-            throw new ArgumentNullException(nameof(sportEvent));
-        }
+        ArgumentChecker.NullCheck(sportEvent, nameof(sportEvent));
 
         if (string.IsNullOrEmpty(winner))
         {
@@ -196,10 +181,7 @@ public class SimpleConsensusStrategy : IBettingStrategy
     /// <exception cref="ArgumentNullException"><paramref name="suggestions"/> is null.</exception>
     protected virtual Statistics GetStatistics(IEnumerable<BettingSuggestion> suggestions)
     {
-        if (suggestions is null)
-        {
-            throw new ArgumentNullException(nameof(suggestions));
-        }
+        ArgumentChecker.NullCheck(suggestions, nameof(suggestions));
 
         var computedPredictions = suggestions.ToList();
 

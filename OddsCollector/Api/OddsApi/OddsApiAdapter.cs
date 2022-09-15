@@ -22,13 +22,12 @@ public class OddsApiAdapter : IOddsApiAdapter
     /// <exception cref="Exception">API key is null or empty.</exception>
     public OddsApiAdapter(IConfiguration config, IClient apiClient, ILogger<OddsApiAdapter> logger)
     {
-        if (config is null)
-        {
-            throw new ArgumentNullException(nameof(config));
-        }
+        ArgumentChecker.NullCheck(config, nameof(config));
+        ArgumentChecker.NullCheck(apiClient, nameof(apiClient));
+        ArgumentChecker.NullCheck(logger, nameof(logger));
 
-        _apiClient = apiClient ?? throw new ArgumentNullException(nameof(apiClient));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _apiClient = apiClient;
+        _logger = logger;
         
         _apiKey = config["OddsApi:ApiKey"];
 
@@ -46,10 +45,7 @@ public class OddsApiAdapter : IOddsApiAdapter
     /// <exception cref="ArgumentNullException"><paramref name="leagues"/> is null.</exception>
     public async Task<IEnumerable<SportEvent>> GetUpcomingEventsAsync(IEnumerable<string> leagues)
     {
-        if (leagues is null)
-        {
-            throw new ArgumentNullException(nameof(leagues));
-        }
+        ArgumentChecker.NullCheck(leagues, nameof(leagues));
 
         var tasks = leagues.Select(async l => 
             await _apiClient.OddsAsync(
@@ -69,10 +65,7 @@ public class OddsApiAdapter : IOddsApiAdapter
     /// <remarks>Check ResponseSamples/events_and_odds.json for the structure.</remarks>
     private static SportEvent ToSportEvent(Anonymous2 input)
     {
-        if (input is null)
-        {
-            throw new ArgumentNullException(nameof(input));
-        }
+        ArgumentChecker.NullCheck(input, nameof(input));
 
         var result = new SportEvent
         {
@@ -99,15 +92,8 @@ public class OddsApiAdapter : IOddsApiAdapter
     /// <remarks>Check ResponseSamples/events_and_odds.json for the structure.</remarks>
     private static IEnumerable<Odd> ToOdds(ICollection<Bookmakers> bookmakers, SportEvent sportEvent, Markets2Key market)
     {
-        if (bookmakers is null)
-        {
-            throw new ArgumentNullException(nameof(bookmakers));
-        }
-
-        if (sportEvent is null)
-        {
-            throw new ArgumentNullException(nameof(sportEvent));
-        }
+        ArgumentChecker.NullCheck(bookmakers, nameof(bookmakers));
+        ArgumentChecker.NullCheck(sportEvent, nameof(sportEvent));
 
         foreach (var bookmaker in bookmakers)
         {
@@ -142,15 +128,8 @@ public class OddsApiAdapter : IOddsApiAdapter
     /// <remarks>Check ResponseSamples/events_and_odds.json for the structure.</remarks>
     private static double GetOutcomeValue(ICollection<Outcome> outcomes, string outcomeType)
     {
-        if (outcomes is null)
-        {
-            throw new ArgumentNullException(nameof(outcomes));
-        }
-
-        if (string.IsNullOrEmpty(outcomeType))
-        {
-            throw new ArgumentException("outcomeType is null or empty", nameof(outcomeType));
-        }
+        ArgumentChecker.NullCheck(outcomes, nameof(outcomes));
+        ArgumentChecker.NullOrEmptyCheck(outcomeType, nameof(outcomeType));
             
         return outcomes.First(o => o.Name == outcomeType).Price;
     }
@@ -164,10 +143,7 @@ public class OddsApiAdapter : IOddsApiAdapter
     /// <remarks>Check ResponseSamples/completed_games.json for the structure.</remarks>
     public async Task<Dictionary<string, string?>> GetCompletedEventsAsync(IEnumerable<string> leagues)
     {
-        if (leagues is null)
-        {
-            throw new ArgumentNullException(nameof(leagues));
-        }
+        ArgumentChecker.NullCheck(leagues, nameof(leagues));
 
         var tasks = leagues.Select(async l => 
             await _apiClient.ScoresAsync(l, _apiKey, 3));
@@ -201,10 +177,7 @@ public class OddsApiAdapter : IOddsApiAdapter
     /// <remarks>Check ResponseSamples/completed_games.json for the structure.</remarks>
     private static string? ToEventResult(Anonymous3 input)
     {
-        if (input is null)
-        {
-            throw new ArgumentNullException(nameof(input));
-        }
+        ArgumentChecker.NullCheck(input, nameof(input));
 
         if (!input.Completed)
         {

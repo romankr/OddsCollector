@@ -37,12 +37,19 @@ public class BettingStrategyEvaluatorJob : IJob
         ICsvSaver saver,
         IGoogleApiAdapter googleSheetsAdapter)
     {
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _config = config ?? throw new ArgumentNullException(nameof(config));
-        _databaseAdapter = databaseAdapter ?? throw new ArgumentNullException(nameof(databaseAdapter));
-        _saver = saver ?? throw new ArgumentNullException(nameof(saver));
-        _strategies = strategies ?? throw new ArgumentNullException(nameof(strategies));
-        _googleSheetsAdapter = googleSheetsAdapter ?? throw new ArgumentNullException(nameof(googleSheetsAdapter));
+        ArgumentChecker.NullCheck(logger, nameof(logger));
+        ArgumentChecker.NullCheck(config, nameof(config));
+        ArgumentChecker.NullCheck(databaseAdapter, nameof(databaseAdapter));
+        ArgumentChecker.NullCheck(saver, nameof(saver));
+        ArgumentChecker.NullCheck(strategies, nameof(strategies));
+        ArgumentChecker.NullCheck(googleSheetsAdapter, nameof(googleSheetsAdapter));
+
+        _logger = logger;
+        _config = config;
+        _databaseAdapter = databaseAdapter;
+        _saver = saver;
+        _strategies = strategies;
+        _googleSheetsAdapter = googleSheetsAdapter;
     }
 
     /// <summary>
@@ -53,10 +60,7 @@ public class BettingStrategyEvaluatorJob : IJob
     /// <exception cref="ArgumentNullException"><paramref name="context"/> is null.</exception>
     public async Task Execute(IJobExecutionContext context)
     {
-        if (context is null)
-        {
-            throw new ArgumentNullException(nameof(context));
-        }
+        ArgumentChecker.NullCheck(context, nameof(context));
 
         _logger.LogInformation("Evaluating strategies.");
 

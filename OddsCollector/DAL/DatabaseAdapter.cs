@@ -1,7 +1,8 @@
 ﻿namespace OddsCollector.DAL;
 
-using Models;
+using Common;
 using Data;
+using Models;
 
 /// <summary>
 /// Provides access to odds data.
@@ -18,7 +19,9 @@ public class DatabaseAdapter : IDatabaseAdapter, IDisposable
     /// <exception cref="ArgumentNullException"><paramref name="context"/> is null.</exception>
     public DatabaseAdapter(ApplicationDatabaseContext context)
     {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
+        ArgumentChecker.NullCheck(context, nameof(context));
+
+        _context = context;
     }
 
     /// <summary>
@@ -30,10 +33,7 @@ public class DatabaseAdapter : IDatabaseAdapter, IDisposable
     /// <exception cref="Exception">SportEvents are null.</exception>
     public async Task SaveUpcomingEventsAsync(IEnumerable<SportEvent> events)
     {
-        if (events is null)
-        {
-            throw new ArgumentNullException(nameof(events));
-        }
+        ArgumentChecker.NullCheck(events, nameof(events));
 
         if (_context.SportEvents is null)
         {
@@ -59,10 +59,7 @@ public class DatabaseAdapter : IDatabaseAdapter, IDisposable
     /// <exception cref="Exception">No odds for the given event.</exception>
     private async Task SaveOddsAsync(IEnumerable<SportEvent> events)
     {
-        if (events is null)
-        {
-            throw new ArgumentNullException(nameof(events));
-        }
+        ArgumentChecker.NullCheck(events, nameof(events));
 
         var odds = events.SelectMany(e => e.Odds ?? new List<Odd>());
 
@@ -146,10 +143,7 @@ public class DatabaseAdapter : IDatabaseAdapter, IDisposable
     /// <exception cref="Exception">SportEvents are null.</exception>
     public async Task SaveEventResultsAsync(Dictionary<string, string?> results)
     {
-        if (results is null)
-        {
-            throw new ArgumentNullException(nameof(results));
-        }
+        ArgumentChecker.NullCheck(results, nameof(results));
 
         if (_context.SportEvents is null)
         {

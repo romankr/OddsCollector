@@ -24,10 +24,7 @@ public class AdjustedConsensusStrategy : SimpleConsensusStrategy
     /// <remarks>Consensus score is being adjusted for all outcome types.</remarks>
     protected override KeyValuePair<string, double> GetConsensusWinner(SportEvent sportEvent)
     {
-        if (sportEvent is null)
-        {
-            throw new ArgumentNullException(nameof(sportEvent));
-        }
+        ArgumentChecker.NullCheck(sportEvent, nameof(sportEvent));
 
         if (sportEvent.Odds is null)
         {
@@ -64,10 +61,7 @@ public class AdjustedConsensusStrategy : SimpleConsensusStrategy
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="adjustment"/> cannot be 0.</exception>
     private static double GetConsensusProbability(IEnumerable<double> odds, double adjustment)
     {
-        if (odds is null)
-        {
-            throw new ArgumentNullException(nameof(odds));
-        }
+        ArgumentChecker.NullCheck(odds, nameof(odds));
 
         if (adjustment == 0)
         {
