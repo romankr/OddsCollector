@@ -44,7 +44,7 @@ public class OddsApiClientTests
     [Test]
     public async Task TestScores()
     {
-        var list = new List<Anonymous3>
+        var scores = new List<Anonymous3>
         {
             new()
             {
@@ -135,7 +135,7 @@ public class OddsApiClientTests
         var adapter = 
             new OddsApiAdapter(
                 GetConfigurationMock().Object,
-                GetOddsApiClientMock(list).Object,
+                GetOddsApiClientMock(scores).Object,
                 GetLoggerMock().Object);
 
         var result = await
@@ -152,7 +152,7 @@ public class OddsApiClientTests
     [Test]
     public async Task TestNullScores()
     {
-        var list = new List<Anonymous3>
+        var scores = new List<Anonymous3>
         {
             new()
             {
@@ -239,7 +239,7 @@ public class OddsApiClientTests
                     new()
                     {
                         Name = "Home_team",
-                        Score = "1"
+                        Score = null
                     }
                 }
             }
@@ -248,7 +248,7 @@ public class OddsApiClientTests
         var adapter =
             new OddsApiAdapter(
                 GetConfigurationMock().Object,
-                GetOddsApiClientMock(list).Object,
+                GetOddsApiClientMock(scores).Object,
                 GetLoggerMock().Object);
 
         await adapter.GetCompletedEventsAsync(new List<string> { "soccer_epl" });
