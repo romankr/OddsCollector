@@ -15,7 +15,10 @@ public static class ConfigurationReader
     {
         ArgumentChecker.NullCheck(configuration, nameof(configuration));
 
-        return configuration.GetSection("OddsApi:Leagues").GetChildren().Select(c => c.Value);
+        return configuration
+            .GetSection("OddsApi:Leagues")
+            .GetChildren()
+            .Select(c => c.Value);
     }
 
     /// <summary>
@@ -42,5 +45,18 @@ public static class ConfigurationReader
         ArgumentChecker.NullCheck(configuration, nameof(configuration));
 
         return configuration.GetValue<bool>("GoogleApi:GenerateGoogleSheets");
+    }
+
+    /// <summary>
+    /// Gets Odds Api key from the configuration file.
+    /// </summary>
+    /// <param name="configuration">An <see cref="IConfiguration"/> instance created by the dependency injection container.</param>
+    /// <returns>Odds Api key.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="configuration"/> is null.</exception>
+    public static string GetOddsApiKey(IConfiguration configuration)
+    {
+        ArgumentChecker.NullCheck(configuration, nameof(configuration));
+
+        return configuration["OddsApi:ApiKey"];
     }
 }

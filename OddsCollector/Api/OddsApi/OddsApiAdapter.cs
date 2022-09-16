@@ -28,8 +28,7 @@ public class OddsApiAdapter : IOddsApiAdapter
 
         _apiClient = apiClient;
         _logger = logger;
-        
-        _apiKey = config["OddsApi:ApiKey"];
+        _apiKey = ConfigurationReader.GetOddsApiKey(config);
 
         if (string.IsNullOrEmpty(_apiKey))
         {

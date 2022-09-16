@@ -18,16 +18,16 @@ public class OddsApiClientTests
         return new Mock<ILogger<OddsApiAdapter>>();
     }
 
-    private static Mock<IConfiguration> GetConfigurationMock()
+    private static Mock<IConfiguration> GetConfigurationMock(string apiKey)
     {
         var result = new Mock<IConfiguration>();
 
-        result.Setup(m => m["OddsApi:ApiKey"]).Returns("somekey");
+        result.Setup(m => m["OddsApi:ApiKey"]).Returns(apiKey);
 
         return result;
     }
 
-    private static Mock<IClient> GetOddsApiClientMock(List<Anonymous3> scores)
+    private static Mock<IClient> GetOddsApiClientMock(ICollection<Anonymous3> scores)
     {
         var result = new Mock<IClient>();
 
@@ -134,7 +134,7 @@ public class OddsApiClientTests
 
         var adapter = 
             new OddsApiAdapter(
-                GetConfigurationMock().Object,
+                GetConfigurationMock("somekey").Object,
                 GetOddsApiClientMock(scores).Object,
                 GetLoggerMock().Object);
 
@@ -247,7 +247,7 @@ public class OddsApiClientTests
 
         var adapter =
             new OddsApiAdapter(
-                GetConfigurationMock().Object,
+                GetConfigurationMock("somekey").Object,
                 GetOddsApiClientMock(scores).Object,
                 GetLoggerMock().Object);
 
@@ -259,7 +259,7 @@ public class OddsApiClientTests
     {
         var adapter =
             new OddsApiAdapter(
-                GetConfigurationMock().Object,
+                GetConfigurationMock("somekey").Object,
                 GetOddsApiClientMock(new List<Anonymous3>()).Object,
                 GetLoggerMock().Object);
 
@@ -271,11 +271,39 @@ public class OddsApiClientTests
     {
         var adapter =
             new OddsApiAdapter(
-                GetConfigurationMock().Object,
+                GetConfigurationMock("somekey").Object,
                 GetOddsApiClientMock(new List<Anonymous3>()).Object,
                 GetLoggerMock().Object);
 
-        Func<Task> act = () => adapter.GetCompletedEventsAsync(null);
-        await act.Should().ThrowAsync<ArgumentNullException>();
+        Func<Task> func = () => adapter.GetCompletedEventsAsync(null);
+        await func.Should().ThrowAsync<ArgumentNullException>();
+    }
+
+    [Test]
+    public void TestEmptyApiKey()
+    {
+        var action = () =>
+        {
+            new OddsApiAdapter(
+                GetConfigurationMock("").Object,
+                GetOddsApiClientMock(new List<Anonymous3>()).Object,
+                GetLoggerMock().Object);
+        };
+
+        action.Should().Throw<Exception>();
+    }
+
+    [Test]
+    public void TestNullApiKey()
+    {
+        var action = () =>
+        {
+            new OddsApiAdapter(
+                GetConfigurationMock(null).Object,
+                GetOddsApiClientMock(new List<Anonymous3>()).Object,
+                GetLoggerMock().Object);
+        };
+
+        action.Should().Throw<Exception>();
     }
 }
