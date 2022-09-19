@@ -19,6 +19,7 @@ var host = Host.CreateDefaultBuilder(args)
 
         services.AddSingleton<IClient, Client>();
         services.AddSingleton<IOddsApiAdapter, OddsApiAdapter>();
+        services.AddSingleton<IOddsApiObjectConverter, OddsApiObjectConverter>();
         services.AddSingleton<ICsvSaver, CsvSaver>();
         services.AddSingleton<IGoogleApiAdapter, GoogleApiAdapter>();
 
