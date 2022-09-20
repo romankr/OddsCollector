@@ -101,18 +101,18 @@ public class OddsApiObjectConverter : IOddsApiObjectConverter
     /// <param name="sportEvent">A <see cref="SportEvent"/> object.</param>
     /// <returns>A <see cref="Odd"/> object.</returns>
     /// <exception cref="ArgumentNullException">Either <paramref name="bookmaker"/> or <paramref name="sportEvent"/> are null.</exception>
-    public Odd ToOdd(Bookmakers bookmaker, SportEvent sportEvent)
+    public Odd ToOdd(Bookmakers? bookmaker, SportEvent? sportEvent)
     {
         ArgumentChecker.NullCheck(bookmaker, nameof(bookmaker));
         ArgumentChecker.NullCheck(sportEvent, nameof(sportEvent));
 
-        var outcomes = GetOutcomes(bookmaker);
+        var outcomes = ToOutcomes(bookmaker!);
 
         return new Odd
         {
-            Bookmaker = bookmaker.Key,
+            Bookmaker = bookmaker!.Key,
             LastUpdate = bookmaker.Last_update,
-            HomeOdd = outcomes[sportEvent.HomeTeam!],
+            HomeOdd = outcomes[sportEvent!.HomeTeam!],
             AwayOdd = outcomes[sportEvent.AwayTeam!],
             DrawOdd = outcomes[Constants.Draw],
             SportEventId = sportEvent.SportEventId
@@ -125,7 +125,7 @@ public class OddsApiObjectConverter : IOddsApiObjectConverter
     /// <param name="bookmaker">A <see cref="Bookmakers"/> object.</param>
     /// <returns>A dictionary with outcomes.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="bookmaker"/> is null.</exception>
-    public Dictionary<string, double> GetOutcomes(Bookmakers bookmaker)
+    public Dictionary<string, double> ToOutcomes(Bookmakers bookmaker)
     {
         ArgumentChecker.NullCheck(bookmaker, nameof(bookmaker));
 

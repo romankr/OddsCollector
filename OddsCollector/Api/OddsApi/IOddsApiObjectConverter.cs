@@ -42,7 +42,7 @@ public interface IOddsApiObjectConverter
     /// </summary>
     /// <param name="bookmaker">A <see cref="Bookmakers"/> object.</param>
     /// <returns>A dictionary with outcomes.</returns>
-    Dictionary<string, double> GetOutcomes(Bookmakers bookmaker);
+    Dictionary<string, double> ToOutcomes(Bookmakers bookmaker);
 
     /// <summary>
     /// Converts completed events.

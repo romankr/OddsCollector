@@ -3,7 +3,7 @@ namespace OddsCollector.Test.Api;
 using Common;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
+using Mocks;
 using Moq;
 using NUnit.Framework;
 using OddsCollector.Api.OddsApi;
@@ -50,15 +50,9 @@ public class OddsApiClientTests
         return result;
     }
 
-    private static Mock<ILogger<T>> GetLoggerMock<T>()
-    {
-        return new Mock<ILogger<T>>();
-    }
-
     private static IOddsApiObjectConverter GetRealOddsApiConverter()
     {
-        var loggerMock = GetLoggerMock<OddsApiObjectConverter>();
-        return new OddsApiObjectConverter(loggerMock.Object);
+        return new OddsApiObjectConverter(TestMocks.GetLoggerMock<OddsApiObjectConverter>().Object);
     }
 
     [Test]
@@ -341,6 +335,31 @@ public class OddsApiClientTests
         odd.DrawOdd.Should().Be(3);
         odd.HomeOdd.Should().Be(2);
         odd.AwayOdd.Should().Be(1);
+    }
+
+    [Test]
+    public async Task TestNoEvents()
+    {
+        var adapter =
+            new OddsApiAdapter(
+                GetConfigurationMock("somekey").Object,
+                GetOddsApiClientMock(new List<Anonymous2>(), new List<Anonymous3>()).Object,
+                GetRealOddsApiConverter());
+
+        await adapter.GetUpcomingEventsAsync(new List<string> { "soccer_epl" });
+    }
+
+    [Test]
+    public async Task TestScoresNullEvents()
+    {
+        var adapter =
+            new OddsApiAdapter(
+                GetConfigurationMock("somekey").Object,
+                GetOddsApiClientMock(new List<Anonymous2>(), new List<Anonymous3>()).Object,
+                GetRealOddsApiConverter());
+
+        Func<Task> func = () => adapter.GetUpcomingEventsAsync(null!);
+        await func.Should().ThrowAsync<ArgumentNullException>();
     }
 
     [Test]
