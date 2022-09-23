@@ -166,7 +166,8 @@ public class OddsApiObjectConverter : IOddsApiObjectConverter
             // don't sacrifice the whole batch in case of a malformed item
             try
             {
-                result.Add(e.Id, ToEventResult(e));
+                var pair = ToEventResult(e);
+                result.Add(pair.Key, pair.Value);
             }
             catch (Exception ex)
             {
@@ -181,15 +182,20 @@ public class OddsApiObjectConverter : IOddsApiObjectConverter
     /// Converts a completed event <see cref="Anonymous3"/> to a result string with the winning team (or draw).
     /// </summary>
     /// <param name="input">A completed event <see cref="Anonymous3"/>.</param>
-    /// <returns>A result string with the winning team (or draw).</returns>
+    /// <returns>A pair of id and result with the winning team (or draw).</returns>
     /// <exception cref="ArgumentNullException"><paramref name="input"/> is null.</exception>
-    public string? ToEventResult(Anonymous3 input)
+    public KeyValuePair<string, string?> ToEventResult(Anonymous3 input)
     {
         ArgumentChecker.NullCheck(input, nameof(input));
 
+        if (string.IsNullOrEmpty(input.Id))
+        {
+            throw new Exception("Id cannot be null");
+        }
+
         if (!input.Completed)
         {
-            return null;
+            return new KeyValuePair<string, string?>(input.Id, null);
         }
 
         var team1 = input.Scores.ElementAt(0);
@@ -197,12 +203,14 @@ public class OddsApiObjectConverter : IOddsApiObjectConverter
 
         if (team1.Score == team2.Score)
         {
-            return Constants.Draw;
+            return new KeyValuePair<string, string?>(input.Id, Constants.Draw);
         }
 
         var score1 = int.Parse(team1.Score);
         var score2 = int.Parse(team2.Score);
 
-        return score1 > score2 ? team1.Name : team2.Name;
+        return score1 > score2 
+            ? new KeyValuePair<string, string?>(input.Id, team1.Name)
+            : new KeyValuePair<string, string?>(input.Id, team2.Name);
     }
 }

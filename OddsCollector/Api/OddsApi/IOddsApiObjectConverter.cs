@@ -62,6 +62,6 @@ public interface IOddsApiObjectConverter
     /// Converts a completed event <see cref="Anonymous3"/> to a result string with the winning team (or draw).
     /// </summary>
     /// <param name="input">A completed event <see cref="Anonymous3"/>.</param>
-    /// <returns>A result string with the winning team (or draw).</returns>
-    string? ToEventResult(Anonymous3 input);
+    /// <returns>A pair of id and result with the winning team (or draw).</returns>
+    public KeyValuePair<string, string?> ToEventResult(Anonymous3 input);
 }

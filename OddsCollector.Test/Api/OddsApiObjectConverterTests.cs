@@ -1,5 +1,6 @@
 ﻿namespace OddsCollector.Test.Api;
 
+using Common;
 using FluentAssertions;
 using Mocks;
 using Models;
@@ -769,8 +770,11 @@ public class OddsApiObjectConverterTests
 
         var result = _converter.ToOutcomes(testData);
 
-        result.Should().ContainSingle(p => p.Key == "AwayTeam").Which.Value.Should().Be(1);
-        result.Should().ContainSingle(p => p.Key == "HomeTeam").Which.Value.Should().Be(2);
+        result.Should().ContainSingle(p => p.Key == "AwayTeam")
+            .Which.Value.Should().Be(1);
+        
+        result.Should().ContainSingle(p => p.Key == "HomeTeam")
+            .Which.Value.Should().Be(2);
     }
 
     [Test]
@@ -844,6 +848,336 @@ public class OddsApiObjectConverterTests
 
         var action = () => { _ = _converter.ToOutcomes(testData); };
         action.Should().Throw<InvalidOperationException> ();
+    }
+
+    [Test]
+    public void TestCompletedEvents()
+    {
+        var test = new List<Anonymous3>
+        {
+            new()
+            {
+                Id = "96c5e6da25184b93d0e8b30361a87d53",
+                Completed = true,
+                Away_team = "AwayTeam",
+                Home_team = "HomeTeam",
+                Scores = new List<ScoreModel>
+                {
+                    new()
+                    {
+                        Name = "AwayTeam",
+                        Score = "4"
+                    },
+                    new()
+                    {
+                        Name = "HomeTeam",
+                        Score = "2"
+                    }
+                }
+            },
+            new()
+            {
+                Id = "b8776637057325ea7faf2ab37b6e0bb0",
+                Completed = true,
+                Away_team = "AwayTeam",
+                Home_team = "HomeTeam",
+                Scores = new List<ScoreModel>
+                {
+                    new()
+                    {
+                        Name = "AwayTeam",
+                        Score = "2"
+                    },
+                    new()
+                    {
+                        Name = "HomeTeam",
+                        Score = "3"
+                    }
+                }
+            },
+            new()
+            {
+                Id = "b8776637057325ea7faf2ab37b6e0cc0",
+                Completed = true,
+                Away_team = "AwayTeam",
+                Home_team = "HomeTeam",
+                Scores = new List<ScoreModel>
+                {
+                    new()
+                    {
+                        Name = "AwayTeam",
+                        Score = "test"
+                    },
+                    new()
+                    {
+                        Name = "HomeTeam",
+                        Score = "3"
+                    }
+                }
+            }
+        };
+
+        var result = _converter.ToCompletedEvents(test);
+        
+        result.Should().HaveCount(2);
+
+        var first = result.First();
+
+        first.Key.Should().BeOneOf(new [] { "96c5e6da25184b93d0e8b30361a87d53", "b8776637057325ea7faf2ab37b6e0bb0" });
+        first.Value.Should().BeOneOf(new[] { "AwayTeam", "HomeTeam" });
+
+        var last = result.Last();
+
+        last.Key.Should().BeOneOf(new[] { "96c5e6da25184b93d0e8b30361a87d53", "b8776637057325ea7faf2ab37b6e0bb0" });
+        last.Value.Should().BeOneOf(new[] { "AwayTeam", "HomeTeam" });
+    }
+
+    [Test]
+    public void TestCompletedEventsNull()
+    {
+        var action = () => { _ = _converter.ToCompletedEvents((List<Anonymous3>[])null!); };
+        action.Should().Throw<ArgumentNullException>();
+    }
+
+    [Test]
+    public void TestCompletedEventsNull2()
+    {
+        var action = () => { _ = _converter.ToCompletedEvents((List<Anonymous3>)null!); };
+        action.Should().Throw<ArgumentNullException>();
+    }
+
+    [Test]
+    public void TestEventResultFirstScoreNotANumber()
+    {
+        var test = new Anonymous3
+        {
+            Id = "96c5e6da25184b93d0e8b30361a87d53",
+            Completed = true,
+            Away_team = "AwayTeam",
+            Home_team = "HomeTeam",
+            Scores = new List<ScoreModel>
+            {
+                new()
+                {
+                    Name = "AwayTeam",
+                    Score = "test"
+                },
+                new()
+                {
+                    Name = "HomeTeam",
+                    Score = "4"
+                }
+            }
+        };
+
+        var action = () => { _ = _converter.ToEventResult(test); };
+        action.Should().Throw<FormatException>();
+    }
+
+    [Test]
+    public void TestEventResultSecondScoreNotANumber()
+    {
+        var test = new Anonymous3
+        {
+            Id = "96c5e6da25184b93d0e8b30361a87d53",
+            Completed = true,
+            Away_team = "AwayTeam",
+            Home_team = "HomeTeam",
+            Scores = new List<ScoreModel>
+            {
+                new()
+                {
+                    Name = "AwayTeam",
+                    Score = "3"
+                },
+                new()
+                {
+                    Name = "HomeTeam",
+                    Score = "test"
+                }
+            }
+        };
+
+        var action = () => { _ = _converter.ToEventResult(test); };
+        action.Should().Throw<FormatException>();
+    }
+
+    [Test]
+    public void TestEventResultHomeTeam()
+    {
+        var test = new Anonymous3
+        {
+            Id = "96c5e6da25184b93d0e8b30361a87d53",
+            Completed = true,
+            Away_team = "AwayTeam",
+            Home_team = "HomeTeam",
+            Scores = new List<ScoreModel>
+            {
+                new()
+                {
+                    Name = "AwayTeam",
+                    Score = "3"
+                },
+                new()
+                {
+                    Name = "HomeTeam",
+                    Score = "4"
+                }
+            }
+        };
+
+        var result = _converter.ToEventResult(test);
+        result.Key.Should().Be("96c5e6da25184b93d0e8b30361a87d53");
+        result.Value.Should().Be("HomeTeam");
+    }
+
+    [Test]
+    public void TestEventResultAwayTeam()
+    {
+        var test = new Anonymous3
+        {
+            Id = "96c5e6da25184b93d0e8b30361a87d53",
+            Completed = true,
+            Away_team = "AwayTeam",
+            Home_team = "HomeTeam",
+            Scores = new List<ScoreModel>
+            {
+                new()
+                {
+                    Name = "AwayTeam",
+                    Score = "3"
+                },
+                new()
+                {
+                    Name = "HomeTeam",
+                    Score = "2"
+                }
+            }
+        };
+
+        var result = _converter.ToEventResult(test);
+        result.Key.Should().Be("96c5e6da25184b93d0e8b30361a87d53");
+        result.Value.Should().Be("AwayTeam");
+    }
+
+    [Test]
+    public void TestEventResultIsDraw()
+    {
+        var test = new Anonymous3
+        {
+            Id = "96c5e6da25184b93d0e8b30361a87d53",
+            Completed = true,
+            Away_team = "AwayTeam",
+            Home_team = "HomeTeam",
+            Scores = new List<ScoreModel>
+            {
+                new()
+                {
+                    Name = "AwayTeam",
+                    Score = "2"
+                },
+                new()
+                {
+                    Name = "HomeTeam",
+                    Score = "2"
+                }
+            }
+        };
+
+        var result = _converter.ToEventResult(test);
+        result.Key.Should().Be("96c5e6da25184b93d0e8b30361a87d53");
+        result.Value.Should().Be(Constants.Draw);
+    }
+
+    [Test]
+    public void TestEventResultNullOutcomes()
+    {
+        var test = new Anonymous3
+        {
+            Id = "96c5e6da25184b93d0e8b30361a87d53",
+            Completed = true,
+            Away_team = "AwayTeam",
+            Home_team = "HomeTeam",
+            Scores = null
+        };
+
+        var action = () => { _ = _converter.ToEventResult(test); };
+        action.Should().Throw<ArgumentNullException>();
+    }
+
+    [Test]
+    public void TestEventResultNoOutcomes()
+    {
+        var test = new Anonymous3
+        {
+            Id = "96c5e6da25184b93d0e8b30361a87d53",
+            Completed = true,
+            Away_team = "AwayTeam",
+            Home_team = "HomeTeam",
+            Scores = new List<ScoreModel>()
+        };
+
+        var action = () => { _ = _converter.ToEventResult(test); };
+        action.Should().Throw<ArgumentOutOfRangeException>();
+    }
+
+    [Test]
+    public void TestEventResultOneOutcome()
+    {
+        var test = new Anonymous3
+        {
+            Id = "96c5e6da25184b93d0e8b30361a87d53",
+            Completed = true,
+            Away_team = "AwayTeam",
+            Home_team = "HomeTeam",
+            Scores = new List<ScoreModel>
+            {
+                new()
+                {
+                    Name = "AwayTeam",
+                    Score = "2"
+                }
+            }
+        };
+
+        var action = () => { _ = _converter.ToEventResult(test); };
+        action.Should().Throw<ArgumentOutOfRangeException>();
+    }
+
+    [Test]
+    public void TestEventResultNotCompleted()
+    {
+        var test = new Anonymous3
+        {
+            Id = "96c5e6da25184b93d0e8b30361a87d53",
+            Completed = false,
+            Away_team = "AwayTeam",
+            Home_team = "HomeTeam",
+            Scores = new List<ScoreModel>
+            {
+                new()
+                {
+                    Name = "AwayTeam",
+                    Score = "2"
+                },
+                new()
+                {
+                    Name = "AwayTeam",
+                    Score = "3"
+                }
+            }
+        };
+
+        var result = _converter.ToEventResult(test);
+        result.Key.Should().Be("96c5e6da25184b93d0e8b30361a87d53");
+        result.Value.Should().BeNull();
+    }
+
+    [Test]
+    public void TestEventResultOutcomeNull()
+    {
+        var action = () => { _ = _converter.ToEventResult(null!); };
+        action.Should().Throw<ArgumentNullException>();
     }
 
     [Test]
