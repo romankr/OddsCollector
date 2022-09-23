@@ -166,7 +166,7 @@ public class OddsApiObjectConverter : IOddsApiObjectConverter
             // don't sacrifice the whole batch in case of a malformed item
             try
             {
-                var pair = ToEventResult(e);
+                var pair = ToEventResultPair(e);
                 result.Add(pair.Key, pair.Value);
             }
             catch (Exception ex)
@@ -184,7 +184,7 @@ public class OddsApiObjectConverter : IOddsApiObjectConverter
     /// <param name="input">A completed event <see cref="Anonymous3"/>.</param>
     /// <returns>A pair of id and result with the winning team (or draw).</returns>
     /// <exception cref="ArgumentNullException"><paramref name="input"/> is null.</exception>
-    public KeyValuePair<string, string?> ToEventResult(Anonymous3 input)
+    public KeyValuePair<string, string?> ToEventResultPair(Anonymous3 input)
     {
         ArgumentChecker.NullCheck(input, nameof(input));
 
@@ -198,19 +198,29 @@ public class OddsApiObjectConverter : IOddsApiObjectConverter
             return new KeyValuePair<string, string?>(input.Id, null);
         }
 
-        var team1 = input.Scores.ElementAt(0);
-        var team2 = input.Scores.ElementAt(1);
+        var score1 = ToScorePair(input.Scores.ElementAt(0));
+        var score2 = ToScorePair(input.Scores.ElementAt(1));
 
-        if (team1.Score == team2.Score)
+        if (score1.Value == score2.Value)
         {
             return new KeyValuePair<string, string?>(input.Id, Constants.Draw);
         }
 
-        var score1 = int.Parse(team1.Score);
-        var score2 = int.Parse(team2.Score);
+        return score1.Value > score2.Value
+            ? new KeyValuePair<string, string?>(input.Id, score1.Key)
+            : new KeyValuePair<string, string?>(input.Id, score2.Key);
+    }
 
-        return score1 > score2 
-            ? new KeyValuePair<string, string?>(input.Id, team1.Name)
-            : new KeyValuePair<string, string?>(input.Id, team2.Name);
+    /// <summary>
+    /// Converts <see cref="ScoreModel"/> to a score pair object.
+    /// </summary>
+    /// <param name="score">A <see cref="ScoreModel"/> object.</param>
+    /// <returns>A score pair object.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="score"/> is null.</exception>
+    public KeyValuePair<string, int> ToScorePair(ScoreModel score)
+    {
+        ArgumentChecker.NullCheck(score, nameof(score));
+
+        return new KeyValuePair<string, int>(score.Name, int.Parse(score.Score));
     }
 }

@@ -970,7 +970,7 @@ public class OddsApiObjectConverterTests
             }
         };
 
-        var action = () => { _ = _converter.ToEventResult(test); };
+        var action = () => { _ = _converter.ToEventResultPair(test); };
         action.Should().Throw<FormatException>();
     }
 
@@ -998,7 +998,7 @@ public class OddsApiObjectConverterTests
             }
         };
 
-        var action = () => { _ = _converter.ToEventResult(test); };
+        var action = () => { _ = _converter.ToEventResultPair(test); };
         action.Should().Throw<FormatException>();
     }
 
@@ -1026,7 +1026,7 @@ public class OddsApiObjectConverterTests
             }
         };
 
-        var result = _converter.ToEventResult(test);
+        var result = _converter.ToEventResultPair(test);
         result.Key.Should().Be("96c5e6da25184b93d0e8b30361a87d53");
         result.Value.Should().Be("HomeTeam");
     }
@@ -1055,7 +1055,7 @@ public class OddsApiObjectConverterTests
             }
         };
 
-        var result = _converter.ToEventResult(test);
+        var result = _converter.ToEventResultPair(test);
         result.Key.Should().Be("96c5e6da25184b93d0e8b30361a87d53");
         result.Value.Should().Be("AwayTeam");
     }
@@ -1084,7 +1084,7 @@ public class OddsApiObjectConverterTests
             }
         };
 
-        var result = _converter.ToEventResult(test);
+        var result = _converter.ToEventResultPair(test);
         result.Key.Should().Be("96c5e6da25184b93d0e8b30361a87d53");
         result.Value.Should().Be(Constants.Draw);
     }
@@ -1101,7 +1101,7 @@ public class OddsApiObjectConverterTests
             Scores = null
         };
 
-        var action = () => { _ = _converter.ToEventResult(test); };
+        var action = () => { _ = _converter.ToEventResultPair(test); };
         action.Should().Throw<ArgumentNullException>();
     }
 
@@ -1117,7 +1117,7 @@ public class OddsApiObjectConverterTests
             Scores = new List<ScoreModel>()
         };
 
-        var action = () => { _ = _converter.ToEventResult(test); };
+        var action = () => { _ = _converter.ToEventResultPair(test); };
         action.Should().Throw<ArgumentOutOfRangeException>();
     }
 
@@ -1140,7 +1140,7 @@ public class OddsApiObjectConverterTests
             }
         };
 
-        var action = () => { _ = _converter.ToEventResult(test); };
+        var action = () => { _ = _converter.ToEventResultPair(test); };
         action.Should().Throw<ArgumentOutOfRangeException>();
     }
 
@@ -1168,7 +1168,7 @@ public class OddsApiObjectConverterTests
             }
         };
 
-        var result = _converter.ToEventResult(test);
+        var result = _converter.ToEventResultPair(test);
         result.Key.Should().Be("96c5e6da25184b93d0e8b30361a87d53");
         result.Value.Should().BeNull();
     }
@@ -1176,7 +1176,41 @@ public class OddsApiObjectConverterTests
     [Test]
     public void TestEventResultOutcomeNull()
     {
-        var action = () => { _ = _converter.ToEventResult(null!); };
+        var action = () => { _ = _converter.ToEventResultPair(null!); };
+        action.Should().Throw<ArgumentNullException>();
+    }
+
+    [Test]
+    public void TestScorePair()
+    {
+        var score = new ScoreModel
+        {
+            Name = "HomeTeam",
+            Score = "1"
+        };
+
+        var result = _converter.ToScorePair(score);
+        result.Key.Should().Be("HomeTeam");
+        result.Value.Should().Be(1);
+    }
+
+    [Test]
+    public void TestScorePairInvalidNumber()
+    {
+        var score = new ScoreModel
+        {
+            Name = "HomeTeam",
+            Score = "test"
+        };
+
+        var action = () => { _ = _converter.ToScorePair(score); };
+        action.Should().Throw<FormatException>();
+    }
+
+    [Test]
+    public void TestScorePairNull()
+    {
+        var action = () => { _ = _converter.ToScorePair(null!); };
         action.Should().Throw<ArgumentNullException>();
     }
 
