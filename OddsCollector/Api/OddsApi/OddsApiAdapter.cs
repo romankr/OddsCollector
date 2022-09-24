@@ -30,10 +30,7 @@ public class OddsApiAdapter : IOddsApiAdapter
         _converter = converter;
         _apiKey = ConfigurationReader.GetOddsApiKey(config);
 
-        if (string.IsNullOrEmpty(_apiKey))
-        {
-            throw new Exception("API key is null or empty.");
-        }
+        ValueChecker.NullOrEmptyCheck(_apiKey, "apiKey");
     }
 
     /// <summary>

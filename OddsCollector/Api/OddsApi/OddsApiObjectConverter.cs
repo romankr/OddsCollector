@@ -188,10 +188,7 @@ public class OddsApiObjectConverter : IOddsApiObjectConverter
     {
         ArgumentChecker.NullCheck(input, nameof(input));
 
-        if (string.IsNullOrEmpty(input.Id))
-        {
-            throw new Exception("Id cannot be null");
-        }
+        ValueChecker.NullOrEmptyCheck(input.Id, "Id");
 
         if (!input.Completed)
         {
