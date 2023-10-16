@@ -1,6 +1,6 @@
-using OddsCollector.Common.Scheduler;
-using OddsCollector.OddsApiService.Client;
-using OddsCollector.OddsApiService.Jobs;
+﻿using OddsCollector.Common.Scheduler;
+using OddsCollector.Service.OddsApi.Client;
+using OddsCollector.Service.OddsApi.Jobs;
 using Quartz;
 
 var host = Host.CreateDefaultBuilder(args)
@@ -9,8 +9,6 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddHttpClient<Client>();
         services.AddSingleton<IClient, Client>();
         services.AddSingleton<IOddsClient, OddsClient>();
-        services.AddSingleton<IConverter, Converter>();
-        services.AddSingleton<IDefaultParameters, DefaultParameters>();
 
         services.AddQuartz(q =>
         {
@@ -25,4 +23,4 @@ var host = Host.CreateDefaultBuilder(args)
     })
     .Build();
 
-await host.RunAsync();
+host.Run();

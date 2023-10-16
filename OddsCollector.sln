@@ -7,9 +7,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OddsCollector", "OddsCollec
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OddsCollector.Test", "OddsCollector.Test\OddsCollector.Test.csproj", "{E0566EB1-9056-4C7C-9450-1D8E53BA2CF2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OddsCollector.OddsApiService", "OddsCollector.OddsApiService\OddsCollector.OddsApiService.csproj", "{E5233579-5E6B-45C6-A193-6AE8C73DAD77}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OddsCollector.Service.OddsApi", "OddsCollector.Service.OddsApi\OddsCollector.Service.OddsApi.csproj", "{E5233579-5E6B-45C6-A193-6AE8C73DAD77}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OddsCollector.Common", "OddsCollector.Common\OddsCollector.Common.csproj", "{A4E8E9AE-BDB6-4D3D-BACB-E19943EEBE21}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OddsCollector.Common", "OddsCollector.Common\OddsCollector.Common.csproj", "{A4E8E9AE-BDB6-4D3D-BACB-E19943EEBE21}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OddsCollector.Service.Prediction", "OddsCollector.Service.Prediction\OddsCollector.Service.Prediction.csproj", "{C2ACB3B2-A630-4FBA-9801-53FA7299C16D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{A4E8E9AE-BDB6-4D3D-BACB-E19943EEBE21}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A4E8E9AE-BDB6-4D3D-BACB-E19943EEBE21}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A4E8E9AE-BDB6-4D3D-BACB-E19943EEBE21}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C2ACB3B2-A630-4FBA-9801-53FA7299C16D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C2ACB3B2-A630-4FBA-9801-53FA7299C16D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C2ACB3B2-A630-4FBA-9801-53FA7299C16D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C2ACB3B2-A630-4FBA-9801-53FA7299C16D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

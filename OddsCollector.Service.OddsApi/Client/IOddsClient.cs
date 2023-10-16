@@ -1,6 +1,6 @@
-﻿namespace OddsCollector.OddsApiService.Client;
+﻿using OddsCollector.Common.ExchangeContracts;
 
-using OddsCollector.Common.ExchangeContracts;
+namespace OddsCollector.Service.OddsApi.Client;
 
 internal interface IOddsClient
 {

@@ -1,7 +1,5 @@
 ﻿namespace OddsCollector.Common.Scheduler;
 
-using System;
-
 public class MissingScheduleException : Exception
 {
     public MissingScheduleException()

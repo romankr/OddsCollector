@@ -2,11 +2,11 @@
 
 public class UpcomingEvent
 {
-    public string? Id { get; set; }
-    public DateTime? CommenceTime { get; set; }
-    public DateTime? Timestamp { get; set; }
-    public string? HomeTeam { get; set; }
-    public string? AwayTeam { get; set; }
-    public IEnumerable<Odd?>? Odds { get; set; }
-    public Guid? TraceId { get; set; }
+    public string? AwayTeam { get; init; }
+    public DateTime? CommenceTime { get; init; }
+    public string? HomeTeam { get; init; }
+    public string? Id { get; init; }
+    public IEnumerable<Odd?>? Odds { get; init; }
+    public DateTime? Timestamp { get; init; }
+    public Guid? TraceId { get; init; }
 }

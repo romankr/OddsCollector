@@ -1,8 +1,6 @@
-﻿namespace OddsCollector.OddsApiService.Client;
+﻿namespace OddsCollector.Service.OddsApi.Client;
 
-using System;
-
-internal class EmptyApiKeyException : Exception
+public class EmptyApiKeyException : Exception
 {
     public EmptyApiKeyException()
     {

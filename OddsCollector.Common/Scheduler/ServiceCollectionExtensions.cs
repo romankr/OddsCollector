@@ -1,22 +1,31 @@
-﻿namespace OddsCollector.Common.Scheduler;
-
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Quartz;
+
+namespace OddsCollector.Common.Scheduler;
 
 public static class ServiceCollectionExtensions
 {
-    public static void AddJobConfiguration<T>(
-        this IServiceCollectionQuartzConfigurator? quartz, IConfiguration? config)
+    public static void AddJobConfiguration<T>(this IServiceCollectionQuartzConfigurator? quartz, IConfiguration? config)
         where T : IJob
     {
-        if (quartz is null) throw new ArgumentNullException(nameof(quartz));
-        if (config is null) throw new ArgumentNullException(nameof(config));
+        if (quartz is null)
+        {
+            throw new ArgumentNullException(nameof(quartz));
+        }
+
+        if (config is null)
+        {
+            throw new ArgumentNullException(nameof(config));
+        }
 
         var jobName = typeof(T).Name;
         var configKey = $"Quartz:{jobName}.Schedule";
         var schedule = config[configKey];
 
-        if (string.IsNullOrEmpty(schedule)) throw new MissingScheduleException($"No schedule at {configKey}");
+        if (string.IsNullOrEmpty(schedule))
+        {
+            throw new MissingScheduleException($"No schedule at {configKey}");
+        }
 
         var jobKey = new JobKey(jobName);
         quartz.AddJob<T>(o => o.WithIdentity(jobKey));
