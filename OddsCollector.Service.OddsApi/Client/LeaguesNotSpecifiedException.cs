@@ -1,8 +1,6 @@
-﻿namespace OddsCollector.OddsApiService.Client;
+﻿namespace OddsCollector.Service.OddsApi.Client;
 
-using System;
-
-internal class LeaguesNotSpecifiedException : Exception
+public class LeaguesNotSpecifiedException : Exception
 {
     public LeaguesNotSpecifiedException()
     {

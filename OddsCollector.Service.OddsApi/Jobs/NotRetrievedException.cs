@@ -1,6 +1,6 @@
-﻿namespace OddsCollector.OddsApiService.Jobs;
+﻿namespace OddsCollector.Service.OddsApi.Jobs;
 
-internal class NotRetrievedException : Exception
+public class NotRetrievedException : Exception
 {
     public NotRetrievedException()
     {

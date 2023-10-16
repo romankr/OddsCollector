@@ -1,0 +1,601 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "The Odds API",
+    "description": "To access the API, get a free API key from https://the-odds-api.com",
+    "version": "4"
+  },
+  "tags": [
+    {
+      "name": "sports",
+      "description": "Get a list of in-season sports.",
+      "externalDocs": {
+        "description": "Find out more",
+        "url": "https://the-odds-api.com/liveapi/guides/v4/#get-sports"
+      }
+    },
+    {
+      "name": "odds",
+      "description": "Recent odds from a range of bookmakers for a given sport. Includes odds for upcoming and live games.",
+      "externalDocs": {
+        "description": "Find out more",
+        "url": "https://the-odds-api.com/liveapi/guides/v4/#get-odds"
+      }
+    }
+  ],
+  "servers": [
+    {
+      "url": "https://api.the-odds-api.com"
+    }
+  ],
+  "paths": {
+    "/v4/sports": {
+      "get": {
+        "tags": [
+          "sports"
+        ],
+        "description": "A successful response includes a list of available sports and tournaments",
+        "parameters": [
+          {
+            "name": "apiKey",
+            "required": true,
+            "description": "Get an API key at https://the-odds-api.com/#get-access",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "example": "abcdefg1234567890"
+          },
+          {
+            "name": "all",
+            "required": false,
+            "description": "When excluded, only recently updated (in-season) sports appear. Include this paramter to see all available sports",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            },
+            "example": true,
+            "allowEmptyValue": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns a list of available sports. Use the sport \"key\" in the /odds request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "description": "A list of sports",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "key": {
+                        "$ref": "#/components/schemas/SportKey"
+                      },
+                      "active": {
+                        "example": true,
+                        "type": "boolean",
+                        "description": "Indicates if the sport is in season"
+                      },
+                      "group": {
+                        "example": "American Football",
+                        "type": "string",
+                        "description": "A broader grouping"
+                      },
+                      "description": {
+                        "example": "US Football",
+                        "type": "string",
+                        "description": "A brief description of the sport. Subject to change (for example, if sponsors change)"
+                      },
+                      "title": {
+                        "$ref": "#/components/schemas/SportTitle"
+                      },
+                      "has_outrights": {
+                        "example": false,
+                        "type": "boolean",
+                        "description": "Indicates if the sport has outrights markets."
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "x-requests-remaining": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "The number of requests remaining until the quota resets"
+              },
+              "x-requests-used": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "The number of requests used since the last quota reset"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated or unauthorized. The API key might be missing or invalid (unauthenticated), or it might at its usage limit (unauthorized). The repsonse body will contain more info"
+          },
+          "422": {
+            "description": "One or more of the query params are invalid. The repsonse body will contain more info"
+          },
+          "429": {
+            "description": "The request was throttled because requests are being sent too frequently"
+          },
+          "500": {
+            "description": "Internal error"
+          }
+        },
+        "servers": [
+          {
+            "url": "https://api.the-odds-api.com"
+          }
+        ]
+      },
+      "servers": [
+        {
+          "url": "https://api.the-odds-api.com"
+        }
+      ]
+    },
+    "/v4/sports/{sport}/odds": {
+      "get": {
+        "tags": [
+          "odds"
+        ],
+        "description": "Returns list of live and upcoming games for a given sport, showing bookmaker odds for the specified region and markets",
+        "parameters": [
+          {
+            "name": "sport",
+            "required": true,
+            "description": "sport key for which to return games and odds. This is obtained from the /sports endpoint",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "example": "americanfootball_nfl"
+          },
+          {
+            "name": "apiKey",
+            "required": true,
+            "description": "Access key (40 characters). Get an API key at https://the-odds-api.com/#get-access",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "example": "abc123ABC456abc123ABC456abc123ABC456abc1"
+          },
+          {
+            "name": "regions",
+            "required": true,
+            "description": "Determines which bookmakers appear in the response. Multiple regions can be specified if comma delimited. Each region will count as 1 request against the usage quota for each market. Most use cases will only need to specify one region. For a list of bookmakers by region, see https://the-odds-api.com/sports-odds-data/bookmaker-apis.html",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "uk",
+                "us",
+                "eu",
+                "au"
+              ]
+            },
+            "example": "us"
+          },
+          {
+            "name": "markets",
+            "required": false,
+            "description": "The odds market to return. Multiple markets can be specified if comma delimited. Defaults to h2h (head to head / moneyline). Outrights only avaialable for select sports. Note each market counts as 1 request against the usage quota.",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "h2h",
+                "spreads",
+                "totals",
+                "outrights",
+                "h2h_lay"
+              ],
+              "default": "h2h"
+            },
+            "example": "h2h,spreads"
+          },
+          {
+            "name": "dateFormat",
+            "required": false,
+            "description": "Format of returned timestamps. Can be iso (ISO8601) or unix timestamp (seconds since epoch)",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "iso",
+                "unix"
+              ],
+              "default": "iso"
+            },
+            "example": "iso"
+          },
+          {
+            "name": "oddsFormat",
+            "required": false,
+            "description": "Format of returned odds",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "decimal",
+                "american"
+              ],
+              "default": "decimal"
+            },
+            "example": "decimal"
+          },
+          {
+            "name": "eventIds",
+            "required": false,
+            "description": "Comma-separated game ids. Filters the response to only return games for the specified game ids, provided those games have not expired",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "bookmakers",
+            "required": false,
+            "description": "Comma-separated list of bookmakers to be returned. If both `bookmakers` and `regions` are specified, `bookmakers` takes precendence. Bookmakers can be from any region. Every group of 10 bookmakers counts as 1 request. For example for a single market, specifying up to 10 bookmakers counts as 1 request. Specifying between 11 and 20 bookmakers counts as 2 requests",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of live and upcoming games for the specified sport, including odds from bookmakers in the specific region for the specified market",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "description": "A list of live and upcoming games",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "$ref": "#/components/schemas/MatchId"
+                      },
+                      "sport_key": {
+                        "$ref": "#/components/schemas/SportKey"
+                      },
+                      "sport_title": {
+                        "$ref": "#/components/schemas/SportTitle"
+                      },
+                      "commence_time": {
+                        "$ref": "#/components/schemas/CommenceTime"
+                      },
+                      "home_team": {
+                        "$ref": "#/components/schemas/HomeTeam"
+                      },
+                      "away_team": {
+                        "$ref": "#/components/schemas/AwayTeam"
+                      },
+                      "bookmakers": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "key": {
+                              "description": "A unique slug (key) of the bookmaker",
+                              "example": "draftkings",
+                              "type": "string"
+                            },
+                            "title": {
+                              "description": "A formatted title of the bookmaker",
+                              "example": "DraftKings",
+                              "type": "string"
+                            },
+                            "last_update": {
+                              "description": "A timestamp of when the bookmaker's odds were last captured. Will be an integer if dateFormat=unix, otherwise it will be a string",
+                              "example": "2020-01-01T14:45:13Z",
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "markets": {
+                              "type": "array",
+                              "description": "The included market depends on the specified 'markets' GET param. NOTE Allow for the addition of new market types in future.",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "key": {
+                                    "type": "string",
+                                    "enum": [
+                                      "h2h",
+                                      "spreads",
+                                      "totals",
+                                      "outrights",
+                                      "h2h_lay"
+                                    ],
+                                    "description": "The name of the odds market",
+                                    "example": "h2h"
+                                  },
+                                  "outcomes": {
+                                    "type": "array",
+                                    "items": {
+                                      "$ref": "#/components/schemas/Outcome"
+                                    },
+                                    "example": [
+                                      {
+                                        "name": "Houston Texans",
+                                        "price": 2.23
+                                      },
+                                      {
+                                        "name": "Kansas City Chiefs",
+                                        "price": 1.45
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "x-requests-remaining": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "The number of requests remaining until the quota resets"
+              },
+              "x-requests-used": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "The number of requests used since the last quota reset"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated or unauthorized. The API key might be missing or invalid (unauthenticated), or it might at its usage limit (unauthorized). The repsonse body will contain more info"
+          },
+          "422": {
+            "description": "One or more of the query params are invalid. The repsonse body will contain more info"
+          },
+          "429": {
+            "description": "Requests are being sent too frequently - the request was throttled"
+          },
+          "500": {
+            "description": "Internal error"
+          }
+        },
+        "servers": [
+          {
+            "url": "https://api.the-odds-api.com"
+          }
+        ]
+      },
+      "servers": [
+        {
+          "url": "https://api.the-odds-api.com"
+        }
+      ]
+    },
+    "/v4/sports/{sport}/scores": {
+      "get": {
+        "tags": [
+          "scores"
+        ],
+        "description": "Returns list of live and upcoming games for a given sport, and optionally recently completed games. Live and completed games will contain scores",
+        "parameters": [
+          {
+            "name": "sport",
+            "required": true,
+            "description": "sport key for which to return games and odds",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "example": "americanfootball_nfl"
+          },
+          {
+            "name": "apiKey",
+            "required": true,
+            "description": "Access key (40 characters). Get an API key at https://the-odds-api.com/#get-access",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "daysFrom",
+            "required": false,
+            "description": "The number of days in the past from which to return completed games. Valid values are integers from `1` to `3`. If this field is missing, only live and upcoming games are returned.",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "example": 3
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of live and upcoming games for the specified sport, and optionally recently completed games. Scores will be included for live and recently completed games.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "description": "A list of live, upcoming and optionally recently completed games",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "$ref": "#/components/schemas/MatchId"
+                      },
+                      "sport_key": {
+                        "$ref": "#/components/schemas/SportKey"
+                      },
+                      "sport_title": {
+                        "$ref": "#/components/schemas/SportTitle"
+                      },
+                      "commence_time": {
+                        "$ref": "#/components/schemas/CommenceTime"
+                      },
+                      "completed": {
+                        "type": "boolean",
+                        "description": "true if the game has finished, otherwise false"
+                      },
+                      "home_team": {
+                        "$ref": "#/components/schemas/HomeTeam"
+                      },
+                      "away_team": {
+                        "$ref": "#/components/schemas/AwayTeam"
+                      },
+                      "scores": {
+                        "type": "array",
+                        "description": "A list of teams and their scores. List will be empty if game has not started.",
+                        "items": {
+                          "$ref": "#/components/schemas/ScoreModel"
+                        },
+                        "example": [
+                          {
+                            "name": "Houston Texans",
+                            "score": "20"
+                          },
+                          {
+                            "name": "Kansas City Chiefs",
+                            "score": "34"
+                          }
+                        ],
+                        "nullable": true
+                      },
+                      "last_update": {
+                        "type": "string",
+                        "description": "ISO8601 datetime of when the scores were last updated. Will be null if game has not started",
+                        "example": "2020-01-03T01:10:00Z",
+                        "nullable": true
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "x-requests-remaining": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "The number of requests remaining until the quota resets"
+              },
+              "x-requests-used": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "The number of requests used since the last quota reset"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated or unauthorized. The API key might be missing or invalid (unauthenticated), or it might at its usage limit (unauthorized). The repsonse body will contain more info"
+          },
+          "422": {
+            "description": "One or more of the query params are invalid. The repsonse body will contain more info"
+          },
+          "429": {
+            "description": "Requests are being sent too frequently - the request was throttled"
+          },
+          "500": {
+            "description": "Internal error"
+          }
+        },
+        "servers": [
+          {
+            "url": "https://api.the-odds-api.com"
+          }
+        ]
+      },
+      "servers": [
+        {
+          "url": "https://api.the-odds-api.com"
+        }
+      ]
+    }
+  },
+  "components": {
+    "schemas": {
+      "Outcome": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Houston Texans",
+            "description": "A label of the outcome. For totals markets, this can be 'Over' or 'Under'. For all other markets, this will be the name of the team or participant, or 'Draw'"
+          },
+          "price": {
+            "type": "number",
+            "example": 2.23,
+            "description": "The odds of the outcome. The format is determined by the oddsFormat query param. The format is decimal by default."
+          },
+          "points": {
+            "type": "number",
+            "example": 20.5,
+            "nullable": true,
+            "description": "The handicap or points of the outcome, only applicable to spreads and totals markets (this property will be missing for h2h and outrights markets)"
+          }
+        }
+      },
+      "MatchId": {
+        "example": "e912304de2b2ce35b473ce2ecd3d1502",
+        "type": "string",
+        "description": "A unique 32 character identifier for the event."
+      },
+      "SportKey": {
+        "example": "americanfootball_nfl",
+        "type": "string",
+        "description": "A unique slug for the sport. Use this as the \"sport\" param in /odds requests"
+      },
+      "SportTitle": {
+        "example": "NFL",
+        "type": "string",
+        "description": "A presentable title of the sport. Occassionally this value can change, for example if a league undergoes a name change or change in sponsorship."
+      },
+      "CommenceTime": {
+        "example": "2020-01-02T23:10:00Z",
+        "type": "string",
+        "description": "The match start time (ISO 8601 formatted). This will be unix timestamp integer if the dateFormat query param is set to dateFormat=unix.",
+        "format": "date-time"
+      },
+      "HomeTeam": {
+        "example": "Houston Texans",
+        "type": "string",
+        "description": "The home team. If home/away is not applicable for the sport (such as MMA and Tennis), it will be one of the participants. Null for outrights (futures) events.",
+        "nullable": true
+      },
+      "AwayTeam": {
+        "example": "Kansas City Chiefs",
+        "type": "string",
+        "description": "The away team. If home/away is not applicable for the sport (such as MMA and Tennis), it will be one of the participants. Null for outrights (futures) events.",
+        "nullable": true
+      },
+      "ScoreModel": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "example": "Houston Texans",
+            "type": "string",
+            "description": "The participant name"
+          },
+          "score": {
+            "example": "20",
+            "type": "string",
+            "description": "The most recent score for the participant"
+          }
+        }
+      }
+    }
+  }
+}
