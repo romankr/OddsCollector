@@ -25,7 +25,7 @@ internal sealed class AdjustedConsensusStrategy : SimpleConsensusStrategy
             throw new ArgumentOutOfRangeException(nameof(homeTeam), $"{nameof(homeTeam)} is null or empty");
         }
 
-        return CalculateScores(odds.ToList(), awayTeam, homeTeam).MaxBy(p => p.Value).Key;
+        return CalculateScores(odds, awayTeam, homeTeam).MaxBy(p => p.Value).Key;
     }
 
     protected override Dictionary<string, double?> CalculateScores(IEnumerable<Odd?> odds, string awayTeam,
