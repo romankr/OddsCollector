@@ -1,11 +1,29 @@
-﻿using Quartz;
+﻿using System.Diagnostics.CodeAnalysis;
+using Quartz;
 
 namespace OddsCollector.Service.Notification.Jobs;
 
-internal class NotificationJob : IJob
+[DisallowConcurrentExecution]
+[SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes")]
+[SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
+internal sealed class NotificationJob : IJob
 {
-    public Task Execute(IJobExecutionContext context)
+    private readonly IPredictionsProcessor _processor;
+
+    public NotificationJob(IPredictionsProcessor processor)
     {
-        throw new NotImplementedException();
+        _processor = processor;
+    }
+
+    public async Task Execute(IJobExecutionContext context)
+    {
+        if (context is null)
+        {
+            throw new ArgumentNullException(nameof(context));
+        }
+
+        await _processor.StartProcessingAsync().ConfigureAwait(false);
+
+        await Task.CompletedTask.ConfigureAwait(false);
     }
 }

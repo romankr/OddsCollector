@@ -1,4 +1,5 @@
-﻿using OddsCollector.Common.ExchangeContracts;
+﻿using System.Diagnostics.CodeAnalysis;
+using OddsCollector.Common.ServiceBus.Models;
 
 namespace OddsCollector.Service.Prediction.Strategies;
 
@@ -6,6 +7,8 @@ namespace OddsCollector.Service.Prediction.Strategies;
 ///     Based on this article
 ///     https://www.researchgate.net/publication/320296375_Beating_the_bookies_with_their_own_numbers_-_and_how_the_online_sports_betting_market_is_rigged.
 /// </remarks>
+[SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes")]
+[SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
 internal sealed class AdjustedConsensusStrategy : SimpleConsensusStrategy
 {
     protected override string PredictWinner(IEnumerable<Odd?>? odds, string? awayTeam, string? homeTeam)

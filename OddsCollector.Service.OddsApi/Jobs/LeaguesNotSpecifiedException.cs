@@ -1,4 +1,4 @@
-﻿namespace OddsCollector.Service.OddsApi.Client;
+﻿namespace OddsCollector.Service.OddsApi.Jobs;
 
 public class LeaguesNotSpecifiedException : Exception
 {

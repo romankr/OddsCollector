@@ -1,4 +1,4 @@
-﻿using OddsCollector.Common.ExchangeContracts;
+﻿using OddsCollector.Common.ServiceBus.Models;
 
 namespace OddsCollector.Service.Prediction.Strategies;
 
