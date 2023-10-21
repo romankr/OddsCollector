@@ -1,15 +1,14 @@
-﻿using OddsCollector.Common.ExchangeContracts;
+﻿using OddsCollector.Common.ServiceBus.Models;
 
 namespace OddsCollector.Service.Prediction.Strategies;
 
 internal class SimpleConsensusStrategy : IPredictionStrategy
 {
-    public virtual IEnumerable<EventPrediction> GetPredictions(IEnumerable<UpcomingEvent?>? upcomingEvents,
-        DateTime? timestamp)
+    public virtual EventPrediction GetPrediction(UpcomingEvent? upcomingEvent, DateTime? timestamp)
     {
-        if (upcomingEvents is null)
+        if (upcomingEvent is null)
         {
-            throw new ArgumentNullException(nameof(upcomingEvents));
+            throw new ArgumentNullException(nameof(upcomingEvent));
         }
 
         if (timestamp is null)
@@ -17,7 +16,7 @@ internal class SimpleConsensusStrategy : IPredictionStrategy
             throw new ArgumentNullException(nameof(timestamp));
         }
 
-        return upcomingEvents.Select(e => MakePrediction(e, timestamp.Value));
+        return MakePrediction(upcomingEvent, timestamp.Value);
     }
 
     protected virtual EventPrediction MakePrediction(UpcomingEvent? upcomingEvent, DateTime timestamp)

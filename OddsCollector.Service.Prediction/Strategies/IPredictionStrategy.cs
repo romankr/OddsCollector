@@ -1,8 +1,8 @@
-﻿using OddsCollector.Common.ExchangeContracts;
+﻿using OddsCollector.Common.ServiceBus.Models;
 
 namespace OddsCollector.Service.Prediction.Strategies;
 
 internal interface IPredictionStrategy
 {
-    IEnumerable<EventPrediction> GetPredictions(IEnumerable<UpcomingEvent?>? upcomingEvents, DateTime? timestamp);
+    EventPrediction GetPrediction(UpcomingEvent? upcomingEvent, DateTime? timestamp);
 }

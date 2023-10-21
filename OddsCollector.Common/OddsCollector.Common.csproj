@@ -9,6 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Azure.Identity" Version="1.10.3"/>
+    <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.16.2"/>
     <PackageReference Include="Quartz" Version="3.7.0"/>
     <PackageReference Include="Quartz.Extensions.Hosting" Version="3.7.0"/>
   </ItemGroup>

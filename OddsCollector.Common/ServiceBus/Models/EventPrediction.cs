@@ -1,4 +1,4 @@
-﻿namespace OddsCollector.Common.ExchangeContracts;
+﻿namespace OddsCollector.Common.ServiceBus.Models;
 
 public class EventPrediction
 {

@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-using OddsCollector.Common.ExchangeContracts;
+using OddsCollector.Common.ServiceBus.Models;
 
 namespace OddsCollector.Service.OddsApi.Client;
 
@@ -14,11 +14,9 @@ internal sealed class OddsClient : IOddsClient
     private const OddsFormat DecimalOddsFormat = OddsFormat.Decimal;
     private const Regions EuropeanRegion = Regions.Eu;
     private const string ApiKeyName = "OddsApi:ApiKey";
-    private const string LeaguesKeyName = "OddsApi:Leagues";
     private const int DaysFromToday = 3;
     private readonly string _apiKey;
     private readonly IClient _client;
-    private readonly IEnumerable<string> _leagues;
 
     public OddsClient(IConfiguration? config, IClient? client)
     {
@@ -30,31 +28,25 @@ internal sealed class OddsClient : IOddsClient
         }
 
         _apiKey = GetApiKey(config);
-        _leagues = GetLeagues(config);
     }
 
-    public async Task<IEnumerable<UpcomingEvent>> GetUpcomingEventsAsync()
+    public async Task<IEnumerable<UpcomingEvent>> GetUpcomingEventsAsync(string league)
     {
-        return await MakeCall(GetUpcomingEventsAsync, _leagues).ConfigureAwait(false);
+        return await MakeCall(GetUpcomingEventsAsync, league).ConfigureAwait(false);
     }
 
-    public async Task<IEnumerable<EventResult>> GetEventResultsAsync()
+    public async Task<IEnumerable<EventResult>> GetEventResultsAsync(string league)
     {
-        return await MakeCall(GetEventResultsAsync, _leagues).ConfigureAwait(false);
+        return await MakeCall(GetEventResultsAsync, league).ConfigureAwait(false);
     }
 
     private static async Task<IEnumerable<T>> MakeCall<T>(Func<string, Guid, DateTime, Task<IEnumerable<T>>> call,
-        IEnumerable<string> leagues)
+        string league)
     {
         var traceId = Guid.NewGuid();
         var timestamp = DateTime.UtcNow;
 
-        var tasks = leagues.Select(async l =>
-            await call(l, traceId, timestamp).ConfigureAwait(false));
-
-        var result = await Task.WhenAll(tasks).ConfigureAwait(false);
-
-        return result.SelectMany(e => e);
+        return await call(league, traceId, timestamp).ConfigureAwait(false);
     }
 
     private async Task<IEnumerable<UpcomingEvent>> GetUpcomingEventsAsync(string league, Guid traceId,
@@ -83,23 +75,6 @@ internal sealed class OddsClient : IOddsClient
         }
 
         return key;
-    }
-
-    private static IEnumerable<string> GetLeagues(IConfiguration configuration)
-    {
-        var leagues = configuration
-            .GetSection(LeaguesKeyName)
-            .GetChildren()
-            .Select(c => c.Value)
-            .Where(v => !string.IsNullOrEmpty(v))
-            .ToList();
-
-        if (leagues.Count == 0)
-        {
-            throw new LeaguesNotSpecifiedException($"{LeaguesKeyName} property doesn't have any leagues");
-        }
-
-        return leagues!;
     }
 
     private static IEnumerable<UpcomingEvent> ToUpcomingEvents(ICollection<Anonymous2>? events, Guid traceId,
