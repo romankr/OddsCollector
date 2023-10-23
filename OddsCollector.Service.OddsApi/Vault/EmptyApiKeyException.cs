@@ -1,4 +1,4 @@
-﻿namespace OddsCollector.Service.OddsApi.Client;
+﻿namespace OddsCollector.Service.OddsApi.Vault;
 
 public class EmptyApiKeyException : Exception
 {

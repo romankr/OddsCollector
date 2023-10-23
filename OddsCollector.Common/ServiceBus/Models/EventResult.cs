@@ -1,6 +1,6 @@
 ﻿namespace OddsCollector.Common.ServiceBus.Models;
 
-public class EventResult
+public class EventResult : IHasTraceId, IHasTimestamp
 {
     public DateTime? CommenceTime { get; init; }
     public string? Id { get; init; }

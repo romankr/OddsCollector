@@ -2,6 +2,7 @@
 using OddsCollector.Common.ServiceBus;
 using OddsCollector.Service.OddsApi.Client;
 using OddsCollector.Service.OddsApi.Jobs;
+using OddsCollector.Service.OddsApi.Vault;
 using Quartz;
 
 var host = Host.CreateDefaultBuilder(args)
@@ -11,6 +12,7 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddSingleton<IClient, Client>();
         services.AddSingleton<IOddsClient, OddsClient>();
         services.AddSingleton(ServiceBusCreator.GetServiceBusClient(context.Configuration));
+        services.AddSingleton<IKeyVault, KeyVault>();
 
         services.AddQuartz(q =>
         {
