@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using OddsCollector.Common.ServiceBus.Models;
+using OddsCollector.Service.OddsApi.Vault;
 
 namespace OddsCollector.Service.OddsApi.Client;
 
@@ -13,21 +14,14 @@ internal sealed class OddsClient : IOddsClient
     private const Markets2Key HeadToHeadMarketKey = Markets2Key.H2h;
     private const OddsFormat DecimalOddsFormat = OddsFormat.Decimal;
     private const Regions EuropeanRegion = Regions.Eu;
-    private const string ApiKeyName = "OddsApi:ApiKey";
     private const int DaysFromToday = 3;
-    private readonly string _apiKey;
     private readonly IClient _client;
+    private readonly IKeyVault _keyVault;
 
-    public OddsClient(IConfiguration? config, IClient? client)
+    public OddsClient(IClient? client, IKeyVault? keyVault)
     {
         _client = client ?? throw new ArgumentNullException(nameof(client));
-
-        if (config is null)
-        {
-            throw new ArgumentNullException(nameof(config));
-        }
-
-        _apiKey = GetApiKey(config);
+        _keyVault = keyVault ?? throw new ArgumentNullException(nameof(keyVault));
     }
 
     public async Task<IEnumerable<UpcomingEvent>> GetUpcomingEventsAsync(string league)
@@ -42,6 +36,7 @@ internal sealed class OddsClient : IOddsClient
 
     private static async Task<IEnumerable<T>> MakeCall<T>(Func<string, Guid, DateTime, Task<IEnumerable<T>>> call,
         string league)
+        where T : IHasTraceId, IHasTimestamp
     {
         var traceId = Guid.NewGuid();
         var timestamp = DateTime.UtcNow;
@@ -52,7 +47,7 @@ internal sealed class OddsClient : IOddsClient
     private async Task<IEnumerable<UpcomingEvent>> GetUpcomingEventsAsync(string league, Guid traceId,
         DateTime timestamp)
     {
-        var events = await _client.OddsAsync(league, _apiKey, EuropeanRegion, HeadToHeadMarket,
+        var events = await _client.OddsAsync(league, _keyVault.GetOddsApiKey(), EuropeanRegion, HeadToHeadMarket,
             IsoDateFormat, DecimalOddsFormat, null, null).ConfigureAwait(false);
 
         return ToUpcomingEvents(events, traceId, timestamp);
@@ -60,21 +55,9 @@ internal sealed class OddsClient : IOddsClient
 
     private async Task<IEnumerable<EventResult>> GetEventResultsAsync(string league, Guid traceId, DateTime timestamp)
     {
-        var results = await _client.ScoresAsync(league, _apiKey, DaysFromToday).ConfigureAwait(false);
+        var results = await _client.ScoresAsync(league, _keyVault.GetOddsApiKey(), DaysFromToday).ConfigureAwait(false);
 
         return ToCompletedEvents(results, traceId, timestamp);
-    }
-
-    private static string GetApiKey(IConfiguration configuration)
-    {
-        var key = configuration[ApiKeyName];
-
-        if (string.IsNullOrEmpty(key))
-        {
-            throw new EmptyApiKeyException($"{ApiKeyName} property is null or empty.");
-        }
-
-        return key;
     }
 
     private static IEnumerable<UpcomingEvent> ToUpcomingEvents(ICollection<Anonymous2>? events, Guid traceId,

@@ -1,6 +1,6 @@
 ﻿namespace OddsCollector.Common.ServiceBus.Models;
 
-public class UpcomingEvent
+public class UpcomingEvent : IHasTraceId, IHasTimestamp
 {
     public string? AwayTeam { get; init; }
     public DateTime? CommenceTime { get; init; }

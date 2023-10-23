@@ -1,6 +1,6 @@
 ﻿namespace OddsCollector.Common.ServiceBus.Models;
 
-public class EventPrediction
+public class EventPrediction : IHasTraceId, IHasTimestamp
 {
     public Odd? BestOdd { get; init; }
     public string? Id { get; init; }
