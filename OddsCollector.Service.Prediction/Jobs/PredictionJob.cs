@@ -1,11 +1,9 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using OddsCollector.Service.Prediction.ServiceBus;
 using Quartz;
 
 namespace OddsCollector.Service.Prediction.Jobs;
 
 [DisallowConcurrentExecution]
-[SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes")]
-[SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
 internal sealed class PredictionJob : IJob
 {
     private readonly IUpcomingEventsProcessor _processor;
@@ -22,7 +20,7 @@ internal sealed class PredictionJob : IJob
             throw new ArgumentNullException(nameof(context));
         }
 
-        await _processor.StartProcessingAsync().ConfigureAwait(false);
+        await _processor.StartProcessingAsync(context.CancellationToken).ConfigureAwait(false);
 
         await Task.CompletedTask.ConfigureAwait(false);
     }

@@ -1,11 +1,13 @@
 ﻿using Microsoft.Extensions.Configuration;
+using OddsCollector.Common.Configuration;
 using Quartz;
 
 namespace OddsCollector.Common.Scheduler;
 
 public static class ServiceCollectionExtensions
 {
-    public static void AddJobConfiguration<T>(this IServiceCollectionQuartzConfigurator? quartz, IConfiguration? config)
+    public static void AddJobConfiguration<T>(this IServiceCollectionQuartzConfigurator? quartz,
+        IConfiguration? configuration)
         where T : IJob
     {
         if (quartz is null)
@@ -13,18 +15,18 @@ public static class ServiceCollectionExtensions
             throw new ArgumentNullException(nameof(quartz));
         }
 
-        if (config is null)
+        if (configuration is null)
         {
-            throw new ArgumentNullException(nameof(config));
+            throw new ArgumentNullException(nameof(configuration));
         }
 
         var jobName = typeof(T).Name;
-        var configKey = $"Quartz:{jobName}.Schedule";
-        var schedule = config[configKey];
+        var schedules = configuration.GetRequiredSection<QuartzOptions>().Schedules;
+        var schedule = schedules[jobName];
 
         if (string.IsNullOrEmpty(schedule))
         {
-            throw new MissingScheduleException($"No schedule at {configKey}");
+            throw new ConfigurationException($"No schedule for {jobName} job");
         }
 
         var jobKey = new JobKey(jobName);

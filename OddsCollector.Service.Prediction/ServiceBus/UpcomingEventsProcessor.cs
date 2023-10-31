@@ -1,15 +1,14 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using Azure.Messaging.ServiceBus;
+﻿using Azure.Messaging.ServiceBus;
 using Newtonsoft.Json;
+using OddsCollector.Common.Configuration;
+using OddsCollector.Common.ServiceBus;
 using OddsCollector.Common.ServiceBus.Configuration;
 using OddsCollector.Common.ServiceBus.Models;
 using OddsCollector.Service.Prediction.Strategies;
 
-namespace OddsCollector.Service.Prediction.Jobs;
+namespace OddsCollector.Service.Prediction.ServiceBus;
 
-[SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes")]
-[SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
-internal sealed partial class UpcomingEventsProcessor : IUpcomingEventsProcessor
+internal sealed class UpcomingEventsProcessor : IUpcomingEventsProcessor
 {
     private readonly ServiceBusClient _client;
     private readonly string _eventPredictionsQueue;
@@ -23,11 +22,11 @@ internal sealed partial class UpcomingEventsProcessor : IUpcomingEventsProcessor
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _strategy = strategy ?? throw new ArgumentNullException(nameof(strategy));
         _client = client ?? throw new ArgumentNullException(nameof(client));
-        _eventPredictionsQueue = ServiceBusConfiguration.GetEventPredictionsQueueName(configuration);
-        _upcomingEventsQueue = ServiceBusConfiguration.GetUpcomingEventsQueueName(configuration);
+        _eventPredictionsQueue = configuration.GetRequiredSection<ServiceBusOptions>().EventPredictionsQueue;
+        _upcomingEventsQueue = configuration.GetRequiredSection<ServiceBusOptions>().UpcomingEventsQueue;
     }
 
-    public async Task StartProcessingAsync()
+    public async Task StartProcessingAsync(CancellationToken token)
     {
         var processor = _client.CreateProcessor(_upcomingEventsQueue, new ServiceBusProcessorOptions());
 
@@ -35,13 +34,13 @@ internal sealed partial class UpcomingEventsProcessor : IUpcomingEventsProcessor
         {
             processor.ProcessMessageAsync += MessageHandler;
 
-            processor.ProcessErrorAsync += ErrorHandler;
+            processor.ProcessErrorAsync += args => DefaultHandlers.ErrorHandler(_logger, args);
 
-            await processor.StartProcessingAsync().ConfigureAwait(false);
+            await processor.StartProcessingAsync(token).ConfigureAwait(false);
 
-            await Task.Delay(1000).ConfigureAwait(false);
+            await Task.Delay(1000, token).ConfigureAwait(false);
 
-            await processor.StopProcessingAsync().ConfigureAwait(false);
+            await processor.StopProcessingAsync(token).ConfigureAwait(false);
         }
         finally
         {
@@ -67,7 +66,7 @@ internal sealed partial class UpcomingEventsProcessor : IUpcomingEventsProcessor
 
         if (!messageBatch.TryAddMessage(new ServiceBusMessage(serialized)))
         {
-            LogError($"The message {serialized} is too large to fit in the batch.");
+            _logger.LogError("The message {Body} is too large to fit in the batch.", serialized);
         }
 
         try
@@ -81,13 +80,4 @@ internal sealed partial class UpcomingEventsProcessor : IUpcomingEventsProcessor
 
         await args.CompleteMessageAsync(args.Message).ConfigureAwait(false);
     }
-
-    private Task ErrorHandler(ProcessErrorEventArgs args)
-    {
-        LogError(args.Exception.ToString());
-        return Task.CompletedTask;
-    }
-
-    [LoggerMessage(EventId = 2, Level = LogLevel.Error, Message = "Error {Result}")]
-    public partial void LogError(string result);
 }

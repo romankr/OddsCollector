@@ -1,13 +1,14 @@
 ﻿using Azure.Identity;
 using Azure.Messaging.ServiceBus;
 using Microsoft.Extensions.Configuration;
+using OddsCollector.Common.Configuration;
 using OddsCollector.Common.ServiceBus.Configuration;
 
 namespace OddsCollector.Common.ServiceBus;
 
-public static class ServiceBusCreator
+public static class ServiceBusClientFactory
 {
-    public static ServiceBusClient GetServiceBusClient(IConfiguration? configuration)
+    public static ServiceBusClient CreateServiceBusClient(IConfiguration? configuration)
     {
         if (configuration == null)
         {
@@ -16,7 +17,7 @@ public static class ServiceBusCreator
 
         var clientOptions = new ServiceBusClientOptions { TransportType = ServiceBusTransportType.AmqpWebSockets };
 
-        var name = ServiceBusConfiguration.GetServiceBusName(configuration);
+        var name = configuration.GetRequiredSection<ServiceBusOptions>().Name;
 
         return new ServiceBusClient($"{name}.servicebus.windows.net", new DefaultAzureCredential(), clientOptions);
     }

@@ -2,5 +2,5 @@
 
 internal interface IKeyVault
 {
-    string GetOddsApiKey();
+    Task<string> GetOddsApiKey(CancellationToken token);
 }

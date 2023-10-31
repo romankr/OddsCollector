@@ -1,30 +1,16 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using Azure.Messaging.ServiceBus;
-using OddsCollector.Common.ServiceBus.Configuration;
-using OddsCollector.Service.OddsApi.Client;
+﻿using OddsCollector.Service.OddsApi.Processor;
 using Quartz;
 
 namespace OddsCollector.Service.OddsApi.Jobs;
 
 [DisallowConcurrentExecution]
-[SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes")]
-[SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
-internal sealed class UpcomingEventsJob : OddsJobBase, IJob
+internal sealed class UpcomingEventsJob : IJob
 {
-    private readonly IEnumerable<string> _leagues;
-    private readonly ILogger<UpcomingEventsJob> _logger;
-    private readonly IOddsClient _oddsClient;
-    private readonly string _queueName;
-    private readonly ServiceBusClient _serviceBusClient;
+    private readonly IEventProcessor _processor;
 
-    public UpcomingEventsJob(ILogger<UpcomingEventsJob>? logger, IConfiguration? configuration, IOddsClient? oddsClient,
-        ServiceBusClient? serviceBusClient)
+    public UpcomingEventsJob(IEventProcessor? processor)
     {
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _oddsClient = oddsClient ?? throw new ArgumentNullException(nameof(oddsClient));
-        _serviceBusClient = serviceBusClient ?? throw new ArgumentNullException(nameof(serviceBusClient));
-        _queueName = ServiceBusConfiguration.GetUpcomingEventsQueueName(configuration);
-        _leagues = GetLeagues(configuration);
+        _processor = processor ?? throw new ArgumentNullException(nameof(processor));
     }
 
     public async Task Execute(IJobExecutionContext? context)
@@ -34,11 +20,7 @@ internal sealed class UpcomingEventsJob : OddsJobBase, IJob
             throw new ArgumentNullException(nameof(context));
         }
 
-        foreach (var league in _leagues)
-        {
-            await Execute(league, _oddsClient.GetUpcomingEventsAsync, _serviceBusClient, _queueName, _logger)
-                .ConfigureAwait(false);
-        }
+        await _processor.GetUpcomingEvents(context.CancellationToken).ConfigureAwait(false);
 
         await Task.CompletedTask.ConfigureAwait(false);
     }

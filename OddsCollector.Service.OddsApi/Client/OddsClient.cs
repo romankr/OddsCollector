@@ -1,12 +1,9 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
+﻿using System.Globalization;
 using OddsCollector.Common.ServiceBus.Models;
 using OddsCollector.Service.OddsApi.Vault;
 
 namespace OddsCollector.Service.OddsApi.Client;
 
-[SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes")]
-[SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
 internal sealed class OddsClient : IOddsClient
 {
     private const DateFormat IsoDateFormat = DateFormat.Iso;
@@ -24,39 +21,42 @@ internal sealed class OddsClient : IOddsClient
         _keyVault = keyVault ?? throw new ArgumentNullException(nameof(keyVault));
     }
 
-    public async Task<IEnumerable<UpcomingEvent>> GetUpcomingEventsAsync(string league)
+    public async Task<IEnumerable<UpcomingEvent>> GetUpcomingEventsAsync(string league, CancellationToken token)
     {
-        return await MakeCall(GetUpcomingEventsAsync, league).ConfigureAwait(false);
+        return await MakeCall(GetUpcomingEventsAsync, league, token).ConfigureAwait(false);
     }
 
-    public async Task<IEnumerable<EventResult>> GetEventResultsAsync(string league)
+    public async Task<IEnumerable<EventResult>> GetEventResultsAsync(string league, CancellationToken token)
     {
-        return await MakeCall(GetEventResultsAsync, league).ConfigureAwait(false);
+        return await MakeCall(GetEventResultsAsync, league, token).ConfigureAwait(false);
     }
 
-    private static async Task<IEnumerable<T>> MakeCall<T>(Func<string, Guid, DateTime, Task<IEnumerable<T>>> call,
-        string league)
+    private static async Task<IEnumerable<T>> MakeCall<T>(
+        Func<string, Guid, DateTime, CancellationToken, Task<IEnumerable<T>>> call,
+        string league, CancellationToken token)
         where T : IHasTraceId, IHasTimestamp
     {
         var traceId = Guid.NewGuid();
         var timestamp = DateTime.UtcNow;
 
-        return await call(league, traceId, timestamp).ConfigureAwait(false);
+        return await call(league, traceId, timestamp, token).ConfigureAwait(false);
     }
 
     private async Task<IEnumerable<UpcomingEvent>> GetUpcomingEventsAsync(string league, Guid traceId,
-        DateTime timestamp)
+        DateTime timestamp, CancellationToken token)
     {
-        var events = await _client.OddsAsync(league, _keyVault.GetOddsApiKey(), EuropeanRegion, HeadToHeadMarket,
-            IsoDateFormat, DecimalOddsFormat, null, null).ConfigureAwait(false);
-
+        var events = await _client.OddsAsync(league, await _keyVault.GetOddsApiKey(token).ConfigureAwait(false),
+                EuropeanRegion, HeadToHeadMarket, IsoDateFormat, DecimalOddsFormat, null, null, token)
+            .ConfigureAwait(false);
         return ToUpcomingEvents(events, traceId, timestamp);
     }
 
-    private async Task<IEnumerable<EventResult>> GetEventResultsAsync(string league, Guid traceId, DateTime timestamp)
+    private async Task<IEnumerable<EventResult>> GetEventResultsAsync(string league, Guid traceId, DateTime timestamp,
+        CancellationToken token)
     {
-        var results = await _client.ScoresAsync(league, _keyVault.GetOddsApiKey(), DaysFromToday).ConfigureAwait(false);
-
+        var results = await _client
+            .ScoresAsync(league, await _keyVault.GetOddsApiKey(token).ConfigureAwait(false), DaysFromToday, token)
+            .ConfigureAwait(false);
         return ToCompletedEvents(results, traceId, timestamp);
     }
 

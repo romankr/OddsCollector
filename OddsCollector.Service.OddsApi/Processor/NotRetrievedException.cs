@@ -1,4 +1,4 @@
-﻿namespace OddsCollector.Service.OddsApi.Jobs;
+﻿namespace OddsCollector.Service.OddsApi.Processor;
 
 public class NotRetrievedException : Exception
 {
