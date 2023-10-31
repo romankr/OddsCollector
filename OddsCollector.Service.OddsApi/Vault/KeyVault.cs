@@ -1,53 +1,51 @@
 ﻿using Azure.Core;
 using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
+using OddsCollector.Common.Configuration;
 
 namespace OddsCollector.Service.OddsApi.Vault;
 
-internal class KeyVault : IKeyVault
+internal sealed class KeyVault : IKeyVault
 {
     private const string ApiKeyName = "OddsApiKey";
-    private const string KeyVaultNameKey = "KeyVault:Name";
     private readonly SecretClient _client;
 
     public KeyVault(IConfiguration? configuration)
     {
-        var options = new SecretClientOptions()
+        if (configuration == null)
         {
-            Retry = {
-                Delay= TimeSpan.FromSeconds(2),
+            throw new ArgumentNullException(nameof(configuration));
+        }
+
+        var options = new SecretClientOptions
+        {
+            Retry =
+            {
+                Delay = TimeSpan.FromSeconds(2),
                 MaxDelay = TimeSpan.FromSeconds(16),
                 MaxRetries = 5,
                 Mode = RetryMode.Exponential
             }
         };
 
-        if (configuration == null) throw new ArgumentNullException(nameof(configuration));
+        var vault = configuration.GetRequiredSection<KeyVaultOptions>().Name;
 
         _client = new SecretClient(
-            new Uri($"https://{GetApiKey(configuration)}.vault.azure.net/"),
+            new Uri($"https://{vault}.vault.azure.net/"),
             new DefaultAzureCredential(),
             options);
     }
 
-    public string GetOddsApiKey()
+    public async Task<string> GetOddsApiKey(CancellationToken token)
     {
-        var secret = _client.GetSecret(ApiKeyName) ?? throw new EmptyApiKeyException("Got empty response");
+        var secret = await _client.GetSecretAsync(ApiKeyName, cancellationToken: token).ConfigureAwait(false) ??
+                     throw new VaultException($"Failed to fetch {ApiKeyName} key from vault");
 
-        if (string.IsNullOrEmpty(secret.Value.Value)) throw new EmptyApiKeyException("Secret has no value");
-
-        return secret.Value.Value;
-    }
-
-    private static string GetApiKey(IConfiguration configuration)
-    {
-        var key = configuration[KeyVaultNameKey];
-
-        if (string.IsNullOrEmpty(key))
+        if (string.IsNullOrEmpty(secret.Value.Value))
         {
-            throw new VaultNameKeyException($"{KeyVaultNameKey} property is null or empty.");
+            throw new VaultException($"{ApiKeyName} is null or empty");
         }
 
-        return key;
+        return secret.Value.Value;
     }
 }
