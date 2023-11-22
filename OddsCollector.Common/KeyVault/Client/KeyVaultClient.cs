@@ -1,8 +1,4 @@
-﻿using Azure.Core;
-using Azure.Identity;
-using Azure.Security.KeyVault.Secrets;
-using Microsoft.Extensions.Options;
-using OddsCollector.Common.KeyVault.Configuration;
+﻿using Azure.Security.KeyVault.Secrets;
 
 namespace OddsCollector.Common.KeyVault.Client;
 
@@ -11,40 +7,25 @@ public class KeyVaultClient : IKeyVaultClient
     private const string ApiKeyName = "OddsApiKey";
     private readonly SecretClient _client;
 
-    public KeyVaultClient(IOptions<KeyVaultOptions> keyVaultOptions)
+    public KeyVaultClient(SecretClient? client)
     {
-        if (keyVaultOptions is null)
-        {
-            throw new ArgumentNullException(nameof(keyVaultOptions));
-        }
-
-        var secrectOptions = new SecretClientOptions
-        {
-            Retry =
-            {
-                Delay = TimeSpan.FromSeconds(2),
-                MaxDelay = TimeSpan.FromSeconds(16),
-                MaxRetries = 5,
-                Mode = RetryMode.Exponential
-            }
-        };
-
-        _client = new SecretClient(
-            new Uri($"https://{keyVaultOptions.Value.Name}.vault.azure.net/"),
-            new DefaultAzureCredential(),
-            secrectOptions);
+        _client = client ?? throw new ArgumentNullException(nameof(client));
     }
 
     public async Task<string> GetOddsApiKey()
     {
-        var secret = await _client.GetSecretAsync(ApiKeyName).ConfigureAwait(false) ??
-                     throw new KeyVaultException($"Failed to fetch {ApiKeyName} key from vault");
+        var response = await _client.GetSecretAsync(ApiKeyName).ConfigureAwait(false);
 
-        if (string.IsNullOrEmpty(secret.Value.Value))
+        if (response?.Value is null)
         {
-            throw new KeyVaultException($"{ApiKeyName} is null or empty");
+            throw new KeyVaultException(ApiKeyName, $"Failed to fetch {ApiKeyName} key from KeyVault");
         }
 
-        return secret.Value.Value;
+        if (string.IsNullOrEmpty(response.Value.Value))
+        {
+            throw new KeyVaultException(ApiKeyName, $"Secret {ApiKeyName} is null or empty");
+        }
+
+        return response.Value.Value;
     }
 }

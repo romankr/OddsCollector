@@ -20,123 +20,96 @@ internal sealed class AdjustedConsensusStrategy : IPredictionStrategy
             throw new ArgumentNullException(nameof(timestamp));
         }
 
-        return MakePrediction(upcomingEvent, timestamp.Value);
+        var score = GetWinner(upcomingEvent.Odds, upcomingEvent.AwayTeam, upcomingEvent.HomeTeam);
+
+        return new EventPredictionBuilder()
+            .SetAwayTeam(upcomingEvent.AwayTeam)
+            .SetHomeTeam(upcomingEvent.HomeTeam)
+            .SetCommenceTime(upcomingEvent.CommenceTime)
+            .SetStrategy(nameof(AdjustedConsensusStrategy))
+            .SetId(upcomingEvent.Id)
+            .SetTimestamp(timestamp)
+            .SetTraceId(upcomingEvent.TraceId)
+            .SetWinner(score.Name)
+            .SetBookmaker(score.Bookmaker)
+            .Instance;
     }
 
-    private static EventPrediction MakePrediction(UpcomingEvent upcomingEvent, DateTime timestamp)
+    private static StrategyScore GetWinner(IEnumerable<Odd> odds, string awayTeam, string homeTeam)
     {
-        var winner = PredictWinner(upcomingEvent.Odds, upcomingEvent.AwayTeam, upcomingEvent.HomeTeam);
-        var odd = GetBestOdd(upcomingEvent.Odds, winner, upcomingEvent.AwayTeam, upcomingEvent.HomeTeam);
+        var enumerated = odds.ToList();
 
-        return new EventPrediction
+        if (!enumerated.Any())
         {
-            Id = upcomingEvent.Id,
-            Timestamp = timestamp,
-            TraceId = upcomingEvent.TraceId,
-            Winner = winner,
-            Bookmaker = odd?.Bookmaker,
-            Strategy = nameof(AdjustedConsensusStrategy),
-            CommenceTime = upcomingEvent?.CommenceTime,
-            AwayTeam = upcomingEvent?.AwayTeam,
-            HomeTeam = upcomingEvent?.HomeTeam
-        };
-    }
-
-    private static string PredictWinner(IEnumerable<Odd?>? odds, string? awayTeam, string? homeTeam)
-    {
-        if (odds is null)
-        {
-            throw new ArgumentNullException(nameof(odds));
+            throw new ArgumentException($"{nameof(odds)} cannot be empty", nameof(odds));
         }
 
         if (string.IsNullOrEmpty(awayTeam))
         {
-            throw new ArgumentOutOfRangeException(nameof(awayTeam), $"{nameof(awayTeam)} is null or empty");
+            throw new ArgumentException($"{nameof(awayTeam)} is null or empty", nameof(awayTeam));
         }
 
         if (string.IsNullOrEmpty(homeTeam))
         {
-            throw new ArgumentOutOfRangeException(nameof(homeTeam), $"{nameof(homeTeam)} is null or empty");
+            throw new ArgumentException($"{nameof(homeTeam)} is null or empty", nameof(homeTeam));
         }
 
-        return CalculateScores(odds, awayTeam, homeTeam).MaxBy(p => p.Value).Key;
-    }
-
-    private static Dictionary<string, double?> CalculateScores(IEnumerable<Odd?> odds, string awayTeam, string homeTeam)
-    {
-        var enumeratedOdds = odds.ToList();
-
-        return new Dictionary<string, double?>
+        var scores = new List<StrategyScore>
         {
-            { Constants.Draw, CalculateAdjustedScore(enumeratedOdds, Draw, 0.057) },
-            { awayTeam, CalculateAdjustedScore(enumeratedOdds, AwayTeamWins, 0.034) },
-            { homeTeam, CalculateAdjustedScore(enumeratedOdds, HomeTeamWins, 0.037) }
+            new() { Name = Constants.Draw, Odd = CalculateAdjustedScore(enumerated, Draw, 0.057) },
+            new() { Name = awayTeam, Odd = CalculateAdjustedScore(enumerated, AwayTeamWins, 0.034) },
+            new() { Name = homeTeam, Odd = CalculateAdjustedScore(enumerated, HomeTeamWins, 0.037) }
         };
+
+        var winner = scores.MaxBy(p => p.Odd);
+
+        winner!.Bookmaker = GetBestOdd(enumerated, winner.Name, awayTeam, homeTeam).Bookmaker;
+
+        return winner;
     }
 
-    private static double? CalculateAdjustedScore(IEnumerable<Odd?> odds, Func<Odd?, double?> filter, double adjustment)
+    private static double CalculateAdjustedScore(IEnumerable<Odd> odds, Func<Odd, double> filter, double adjustment)
     {
         var average = odds.Select(filter).Average();
         return average == 0 ? 0 : (1 / average) - adjustment;
     }
 
-    private static Odd? GetBestOdd(IEnumerable<Odd?>? odds, string winner, string? awayTeam, string? homeTeam)
+    private static Odd GetBestOdd(IEnumerable<Odd> odds, string winner, string awayTeam, string homeTeam)
     {
-        if (odds is null)
-        {
-            throw new ArgumentNullException(nameof(odds));
-        }
+        var enumerated = odds.ToList();
 
-        if (string.IsNullOrEmpty(awayTeam))
-        {
-            throw new ArgumentOutOfRangeException(nameof(awayTeam), $"{nameof(awayTeam)} is null or empty");
-        }
-
-        if (string.IsNullOrEmpty(homeTeam))
-        {
-            throw new ArgumentOutOfRangeException(nameof(homeTeam), $"{nameof(homeTeam)} is null or empty");
-        }
+        IEnumerable<Odd> filtered = new List<Odd>();
 
         if (winner == Constants.Draw)
         {
-            return GetBestOdd(odds, Draw);
+            filtered = enumerated.OrderByDescending(Draw);
         }
 
-        return winner == awayTeam ? GetBestOdd(odds, AwayTeamWins) : GetBestOdd(odds, HomeTeamWins);
-    }
-
-    private static Odd? GetBestOdd(IEnumerable<Odd?> odds, Func<Odd?, double?> filter)
-    {
-        return odds.OrderByDescending(filter).First();
-    }
-
-    private static double? Draw(Odd? odd)
-    {
-        if (odd is null)
+        if (winner == awayTeam)
         {
-            throw new ArgumentNullException(nameof(odd));
+            filtered = enumerated.OrderByDescending(AwayTeamWins);
         }
 
+        if (winner == homeTeam)
+        {
+            filtered = enumerated.OrderByDescending(HomeTeamWins);
+        }
+
+        return filtered.FirstOrDefault()!;
+    }
+
+    private static double Draw(Odd odd)
+    {
         return odd.Draw;
     }
 
-    private static double? AwayTeamWins(Odd? odd)
+    private static double AwayTeamWins(Odd odd)
     {
-        if (odd is null)
-        {
-            throw new ArgumentNullException(nameof(odd));
-        }
-
         return odd.Away;
     }
 
-    private static double? HomeTeamWins(Odd? odd)
+    private static double HomeTeamWins(Odd odd)
     {
-        if (odd is null)
-        {
-            throw new ArgumentNullException(nameof(odd));
-        }
-
         return odd.Home;
     }
 }

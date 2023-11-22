@@ -9,11 +9,13 @@ namespace OddsCollector.Functions.Notification.CommunicationServices;
 
 internal sealed class EmailSender : IEmailSender
 {
+    private readonly EmailClient _client;
     private readonly EmailSenderOptions _options;
 
-    public EmailSender(IOptions<EmailSenderOptions> options)
+    public EmailSender(IOptions<EmailSenderOptions>? options, EmailClient? client)
     {
-        _options = options.Value;
+        _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
+        _client = client ?? throw new ArgumentNullException(nameof(client));
     }
 
     public async Task SendEmailAsync(IEnumerable<EventPrediction?> predictions)
@@ -25,9 +27,8 @@ internal sealed class EmailSender : IEmailSender
 
         var content = JsonSerializer.Serialize(predictions, new JsonSerializerOptions { WriteIndented = true });
 
-        var client = new EmailClient(_options.Connection);
-
-        await client.SendAsync(WaitUntil.Completed, _options.SenderAddress, _options.RecipientAddress, _options.Subject,
+        await _client.SendAsync(WaitUntil.Completed, _options.SenderAddress, _options.RecipientAddress,
+            _options.Subject,
             content).ConfigureAwait(false);
 
         await Task.CompletedTask.ConfigureAwait(false);

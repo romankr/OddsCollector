@@ -1,8 +1,6 @@
 ﻿using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
-using Microsoft.Extensions.Options;
 using OddsCollector.Common.Models;
-using OddsCollector.Functions.Notification.CosmosDb.Configuration;
 
 namespace OddsCollector.Functions.Notification.CosmosDb;
 
@@ -10,13 +8,12 @@ internal sealed class CosmosDbClient : ICosmosDbClient
 {
     private readonly Container _container;
 
-    public CosmosDbClient(IOptions<CosmosDbOptions> options)
+    public CosmosDbClient(Container? container)
     {
-        var client = new CosmosClient(options.Value.Connection);
-        _container = client.GetContainer(options.Value.Database, options.Value.Container);
+        _container = container ?? throw new ArgumentNullException(nameof(container));
     }
 
-    public async Task<IEnumerable<EventPrediction?>> GetEventPredictionsAsync()
+    public async Task<IEnumerable<EventPrediction>> GetEventPredictionsAsync()
     {
         var queryable = _container.GetItemLinqQueryable<EventPrediction>();
 

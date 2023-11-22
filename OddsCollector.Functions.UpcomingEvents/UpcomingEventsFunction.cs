@@ -1,19 +1,20 @@
-﻿using Microsoft.Azure.Functions.Worker;
-using Microsoft.Extensions.Options;
+﻿using System.Runtime.CompilerServices;
+using Microsoft.Azure.Functions.Worker;
 using OddsCollector.Common.Models;
 using OddsCollector.Common.OddsApi.Client;
-using OddsCollector.Common.OddsApi.Configuration;
+
+[assembly: InternalsVisibleTo("OddsCollector.Functions.UpcomingEvents.Tests")]
+// DynamicProxyGenAssembly2 is a temporary assembly built by mocking systems that use CastleProxy
+[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
 
 namespace OddsCollector.Functions.UpcomingEvents;
 
-public class UpcomingEventsFunction
+internal sealed class UpcomingEventsFunction
 {
-    private readonly IOddsClient _client;
-    private readonly HashSet<string> _leagues;
+    private readonly IOddsApiClient _client;
 
-    public UpcomingEventsFunction(IOptions<OddsApiOptions> options, IOddsClient? client)
+    public UpcomingEventsFunction(IOddsApiClient? client)
     {
-        _leagues = options.Value.Leagues;
         _client = client ?? throw new ArgumentNullException(nameof(client));
     }
 
@@ -21,6 +22,6 @@ public class UpcomingEventsFunction
     [ServiceBusOutput("%ServiceBus:Queue%", Connection = "ServiceBus:Connection")]
     public async Task<UpcomingEvent[]> Run([TimerTrigger("%TimerInterval%")] TimerInfo myTimer)
     {
-        return (await _client.GetUpcomingEventsAsync(_leagues).ConfigureAwait(false)).ToArray();
+        return (await _client.GetUpcomingEventsAsync(Guid.NewGuid(), DateTime.UtcNow).ConfigureAwait(false)).ToArray();
     }
 }

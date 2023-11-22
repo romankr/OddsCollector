@@ -1,19 +1,20 @@
-﻿using Microsoft.Azure.Functions.Worker;
-using Microsoft.Extensions.Options;
+﻿using System.Runtime.CompilerServices;
+using Microsoft.Azure.Functions.Worker;
 using OddsCollector.Common.Models;
 using OddsCollector.Common.OddsApi.Client;
-using OddsCollector.Common.OddsApi.Configuration;
+
+[assembly: InternalsVisibleTo("OddsCollector.Functions.EventResults.Tests")]
+// DynamicProxyGenAssembly2 is a temporary assembly built by mocking systems that use CastleProxy
+[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
 
 namespace OddsCollector.Functions.EventResults;
 
-public class EventResultsFunction
+internal sealed class EventResultsFunction
 {
-    private readonly IOddsClient _client;
-    private readonly HashSet<string> _leagues;
+    private readonly IOddsApiClient _client;
 
-    public EventResultsFunction(IOptions<OddsApiOptions> options, IOddsClient? client)
+    public EventResultsFunction(IOddsApiClient? client)
     {
-        _leagues = options.Value.Leagues;
         _client = client ?? throw new ArgumentNullException(nameof(client));
     }
 
@@ -21,6 +22,6 @@ public class EventResultsFunction
     [CosmosDBOutput("%CosmosDb:Database%", "%CosmosDb:Container%", Connection = "CosmosDb:Connection")]
     public async Task<EventResult[]> Run([TimerTrigger("%TimerInterval%")] TimerInfo myTimer)
     {
-        return (await _client.GetEventResultsAsync(_leagues).ConfigureAwait(false)).ToArray();
+        return (await _client.GetEventResultsAsync(Guid.NewGuid(), DateTime.UtcNow).ConfigureAwait(false)).ToArray();
     }
 }
