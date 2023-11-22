@@ -14,6 +14,7 @@
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.16.2"/>
     <PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="2.21.0"/>
     <PackageReference Include="Microsoft.Azure.Functions.Worker.ApplicationInsights" Version="1.1.0"/>
+    <PackageReference Include="Moq" Version="4.20.69"/>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\OddsCollector.Common\OddsCollector.Common.csproj"/>
