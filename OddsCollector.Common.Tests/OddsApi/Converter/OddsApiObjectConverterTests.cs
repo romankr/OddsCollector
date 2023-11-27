@@ -15,11 +15,11 @@ internal sealed class OddsApiObjectConverterTests
         var timestamp = DateTime.UtcNow;
         var traceId = Guid.NewGuid();
 
-        var rawUpcomingEvents = new List<Anonymous2>
-        {
+        List<Anonymous2> rawUpcomingEvents =
+        [
             new TestAnonymous2Builder().SetDefaults().Instance,
             new TestAnonymous2Builder().SetDefaults().SetId("1766194919f1cbfbd846576434f0499b").Instance
-        };
+        ];
 
         var upcomingEvents = converter.ToUpcomingEvents(rawUpcomingEvents, traceId, timestamp).ToList();
 
@@ -75,7 +75,7 @@ internal sealed class OddsApiObjectConverterTests
         var timestamp = DateTime.UtcNow;
         var traceId = Guid.NewGuid();
 
-        var rawUpcomingEvents = new List<Anonymous2>();
+        List<Anonymous2> rawUpcomingEvents = [];
 
         var upcomingEvents = converter.ToUpcomingEvents(rawUpcomingEvents, traceId, timestamp);
 
@@ -100,7 +100,7 @@ internal sealed class OddsApiObjectConverterTests
     {
         var converter = new OddsApiObjectConverter();
 
-        var rawUpcomingEvents = new List<Anonymous2> { null! };
+        List<Anonymous2> rawUpcomingEvents = [null!];
 
         var action = () =>
         {
@@ -115,10 +115,9 @@ internal sealed class OddsApiObjectConverterTests
     {
         var converter = new OddsApiObjectConverter();
 
-        var rawUpcomingEvents = new List<Anonymous2>
-        {
+        List<Anonymous2> rawUpcomingEvents = [
             new TestAnonymous2Builder().SetDefaults().SetBookmakers(null).Instance
-        };
+        ];
 
         var action = () =>
         {
@@ -134,10 +133,9 @@ internal sealed class OddsApiObjectConverterTests
     {
         var converter = new OddsApiObjectConverter();
 
-        var rawUpcomingEvents = new List<Anonymous2>
-        {
+        List<Anonymous2> rawUpcomingEvents = [
             new TestAnonymous2Builder().SetDefaults().SetAwayTeam(awayTeam).Instance
-        };
+        ];
 
         var action = () =>
         {
@@ -153,10 +151,10 @@ internal sealed class OddsApiObjectConverterTests
     {
         var converter = new OddsApiObjectConverter();
 
-        var rawUpcomingEvents = new List<Anonymous2>
-        {
+        List<Anonymous2> rawUpcomingEvents =
+        [
             new TestAnonymous2Builder().SetDefaults().SetHomeTeam(homeTeam).Instance
-        };
+        ];
 
         var action = () =>
         {
@@ -172,31 +170,30 @@ internal sealed class OddsApiObjectConverterTests
     {
         var converter = new OddsApiObjectConverter();
 
-        var rawUpcomingEvents = new List<Anonymous2>
-        {
+        List<Anonymous2> rawUpcomingEvents =
+        [
             new TestAnonymous2Builder().SetDefaults().SetBookmakers(
-                new List<Bookmakers>
-                {
+                 [
                     new()
                     {
                         Key = bookmaker,
-                        Markets = new List<Markets2>
-                        {
+                        Markets =
+                        [
                             new()
                             {
                                 Key = Markets2Key.H2h,
-                                Outcomes = new List<Outcome>
-                                {
+                                Outcomes =
+                                [
                                     new() { Name = "Liverpool", Price = 4.08 },
                                     new() { Name = "Manchester City", Price = 1.7 },
                                     new() { Name = "Draw", Price = 3.82 }
-                                }
+                                ]
                             }
-                        }
+                        ]
                     }
-                }
+                ]
             ).Instance
-        };
+        ];
 
         var action = () =>
         {
@@ -211,12 +208,12 @@ internal sealed class OddsApiObjectConverterTests
     {
         var converter = new OddsApiObjectConverter();
 
-        var rawUpcomingEvents = new List<Anonymous2>
-        {
+        List<Anonymous2> rawUpcomingEvents =
+        [
             new TestAnonymous2Builder().SetDefaults().SetBookmakers(
-                new List<Bookmakers> { new() { Key = "onexbet", Markets = null } }
+                [new() { Key = "onexbet", Markets = null }]
             ).Instance
-        };
+        ];
 
         var action = () =>
         {
@@ -231,31 +228,30 @@ internal sealed class OddsApiObjectConverterTests
     {
         var converter = new OddsApiObjectConverter();
 
-        var rawUpcomingEvents = new List<Anonymous2>
-        {
+        List<Anonymous2> rawUpcomingEvents =
+        [
             new TestAnonymous2Builder().SetDefaults().SetBookmakers(
-                new List<Bookmakers>
-                {
+                [
                     new()
                     {
                         Key = "onexbet",
-                        Markets = new List<Markets2>
-                        {
+                        Markets =
+                        [
                             new()
                             {
                                 Key = null,
-                                Outcomes = new List<Outcome>
-                                {
+                                Outcomes =
+                                [
                                     new() { Name = "Liverpool", Price = 4.33 },
                                     new() { Name = "Manchester City", Price = 1.7 },
                                     new() { Name = "Draw", Price = 4.33 }
-                                }
+                                ]
                             }
-                        }
+                        ]
                     }
-                }
+                ]
             ).Instance
-        };
+        ];
 
         var action = () =>
         {
@@ -270,12 +266,12 @@ internal sealed class OddsApiObjectConverterTests
     {
         var converter = new OddsApiObjectConverter();
 
-        var rawUpcomingEvents = new List<Anonymous2>
-        {
+        List<Anonymous2> rawUpcomingEvents =
+        [
             new TestAnonymous2Builder().SetDefaults().SetBookmakers(
-                new List<Bookmakers> { new() { Key = "onexbet", Markets = new List<Markets2>() } }
+                [new() { Key = "onexbet", Markets = [] }]
             ).Instance
-        };
+        ];
 
         var action = () =>
         {
@@ -290,19 +286,17 @@ internal sealed class OddsApiObjectConverterTests
     {
         var converter = new OddsApiObjectConverter();
 
-        var rawUpcomingEvents = new List<Anonymous2>
-        {
+        List<Anonymous2> rawUpcomingEvents = [
             new TestAnonymous2Builder().SetDefaults().SetBookmakers(
-                new List<Bookmakers>
-                {
+                 [
                     new()
                     {
                         Key = "onexbet",
-                        Markets = new List<Markets2> { new() { Key = Markets2Key.H2h, Outcomes = null } }
+                        Markets = [new() { Key = Markets2Key.H2h, Outcomes = null }]
                     }
-                }
+                 ]
             ).Instance
-        };
+        ];
 
         var action = () =>
         {
@@ -317,22 +311,19 @@ internal sealed class OddsApiObjectConverterTests
     {
         var converter = new OddsApiObjectConverter();
 
-        var rawUpcomingEvents = new List<Anonymous2>
-        {
+        List<Anonymous2> rawUpcomingEvents = [
             new TestAnonymous2Builder().SetDefaults().SetBookmakers(
-                new List<Bookmakers>
-                {
+                 [
                     new()
                     {
                         Key = "onexbet",
-                        Markets = new List<Markets2>
-                        {
-                            new() { Key = Markets2Key.H2h, Outcomes = new List<Outcome>() }
-                        }
+                        Markets = [
+                            new() { Key = Markets2Key.H2h, Outcomes = [] }
+                        ]
                     }
-                }
+                 ]
             ).Instance
-        };
+        ];
 
         var action = () =>
         {
@@ -347,30 +338,26 @@ internal sealed class OddsApiObjectConverterTests
     {
         var converter = new OddsApiObjectConverter();
 
-        var rawUpcomingEvents = new List<Anonymous2>
-        {
+        List<Anonymous2> rawUpcomingEvents = [
             new TestAnonymous2Builder().SetDefaults().SetBookmakers(
-                new List<Bookmakers>
-                {
+                 [
                     new()
                     {
                         Key = "onexbet",
-                        Markets = new List<Markets2>
-                        {
+                        Markets = [
                             new()
                             {
                                 Key = Markets2Key.H2h,
-                                Outcomes = new List<Outcome>
-                                {
+                                Outcomes = [
                                     new() { Name = "Manchester City", Price = 1.7 },
                                     new() { Name = "Draw", Price = 4.33 }
-                                }
+                                ]
                             }
-                        }
+                        ]
                     }
-                }
+                 ]
             ).Instance
-        };
+        ];
 
         var action = () =>
         {
@@ -385,31 +372,28 @@ internal sealed class OddsApiObjectConverterTests
     {
         var converter = new OddsApiObjectConverter();
 
-        var rawUpcomingEvents = new List<Anonymous2>
-        {
+        List<Anonymous2> rawUpcomingEvents =
+        [
             new TestAnonymous2Builder().SetDefaults().SetBookmakers(
-                new List<Bookmakers>
-                {
+                [
                     new()
                     {
                         Key = "onexbet",
-                        Markets = new List<Markets2>
-                        {
+                        Markets = [
                             new()
                             {
                                 Key = Markets2Key.H2h,
-                                Outcomes = new List<Outcome>
-                                {
+                                Outcomes = [
                                     new() { Name = "Liverpool", Price = 4.08 },
                                     new() { Name = "Manchester City", Price = null },
                                     new() { Name = "Draw", Price = 3.82 }
-                                }
+                                ]
                             }
-                        }
+                        ]
                     }
-                }
+                ]
             ).Instance
-        };
+        ];
 
         var action = () =>
         {
@@ -424,31 +408,27 @@ internal sealed class OddsApiObjectConverterTests
     {
         var converter = new OddsApiObjectConverter();
 
-        var rawUpcomingEvents = new List<Anonymous2>
-        {
+        List<Anonymous2> rawUpcomingEvents = [
             new TestAnonymous2Builder().SetDefaults().SetBookmakers(
-                new List<Bookmakers>
-                {
+                 [
                     new()
                     {
                         Key = "onexbet",
-                        Markets = new List<Markets2>
-                        {
+                        Markets = [
                             new()
                             {
                                 Key = Markets2Key.H2h,
-                                Outcomes = new List<Outcome>
-                                {
+                                Outcomes = [
                                     new() { Name = "Liverpool", Price = null },
                                     new() { Name = "Manchester City", Price = 1.7 },
                                     new() { Name = "Draw", Price = 3.82 }
-                                }
+                                ]
                             }
-                        }
+                        ]
                     }
-                }
+                 ]
             ).Instance
-        };
+        ];
 
         var action = () =>
         {
@@ -463,31 +443,27 @@ internal sealed class OddsApiObjectConverterTests
     {
         var converter = new OddsApiObjectConverter();
 
-        var rawUpcomingEvents = new List<Anonymous2>
-        {
+        List<Anonymous2> rawUpcomingEvents = [
             new TestAnonymous2Builder().SetDefaults().SetBookmakers(
-                new List<Bookmakers>
-                {
+                 [
                     new()
                     {
                         Key = "onexbet",
-                        Markets = new List<Markets2>
-                        {
+                        Markets = [
                             new()
                             {
                                 Key = Markets2Key.H2h,
-                                Outcomes = new List<Outcome>
-                                {
+                                Outcomes = [
                                     new() { Name = "Liverpool", Price = 4.08 },
                                     new() { Name = "Manchester City", Price = 1.7 },
                                     new() { Name = "Draw", Price = null }
-                                }
+                                ]
                             }
-                        }
+                        ]
                     }
-                }
+                 ]
             ).Instance
-        };
+        ];
 
         var action = () =>
         {
@@ -505,21 +481,20 @@ internal sealed class OddsApiObjectConverterTests
         var timestamp = DateTime.UtcNow;
         var traceId = Guid.NewGuid();
 
-        var rawEventResults = new List<Anonymous3>
-        {
-            new TestAnonymous3Builder().SetDefaults().SetScores(new List<ScoreModel>
-            {
-                new() { Name = "Manchester City", Score = "1" }, new() { Name = "Liverpool", Score = "0" }
-            }).Instance,
-            new TestAnonymous3Builder().SetDefaults().SetScores(new List<ScoreModel>
-            {
-                new() { Name = "Manchester City", Score = "0" }, new() { Name = "Liverpool", Score = "1" }
-            }).Instance,
-            new TestAnonymous3Builder().SetDefaults().SetScores(new List<ScoreModel>
-            {
-                new() { Name = "Manchester City", Score = "1" }, new() { Name = "Liverpool", Score = "1" }
-            }).Instance
-        };
+        List<Anonymous3> rawEventResults = [
+            new TestAnonymous3Builder().SetDefaults().SetScores([
+                new() { Name = "Manchester City", Score = "1" },
+                new() { Name = "Liverpool", Score = "0" }
+            ]).Instance,
+            new TestAnonymous3Builder().SetDefaults().SetScores([
+                new() { Name = "Manchester City", Score = "0" },
+                new() { Name = "Liverpool", Score = "1" }
+            ]).Instance,
+            new TestAnonymous3Builder().SetDefaults().SetScores([
+                new() { Name = "Manchester City", Score = "1" },
+                new() { Name = "Liverpool", Score = "1" }
+            ]).Instance
+        ];
 
         var results = converter.ToEventResults(rawEventResults, traceId, timestamp).ToList();
 
@@ -561,7 +536,7 @@ internal sealed class OddsApiObjectConverterTests
         var timestamp = DateTime.UtcNow;
         var traceId = Guid.NewGuid();
 
-        var rawEventResults = new List<Anonymous3>();
+        List<Anonymous3> rawEventResults = [];
 
         var eventResults = converter.ToEventResults(rawEventResults, traceId, timestamp);
 
@@ -583,11 +558,10 @@ internal sealed class OddsApiObjectConverterTests
     {
         var converter = new OddsApiObjectConverter();
 
-        var rawEventResults = new List<Anonymous3>
-        {
+        List<Anonymous3> rawEventResults = [
             new TestAnonymous3Builder().SetDefaults().SetCompleted(null).Instance,
             new TestAnonymous3Builder().SetDefaults().SetCompleted(false).Instance
-        };
+        ];
 
         var results = converter.ToEventResults(rawEventResults, Guid.NewGuid(), DateTime.UtcNow);
 
@@ -599,10 +573,9 @@ internal sealed class OddsApiObjectConverterTests
     {
         var converter = new OddsApiObjectConverter();
 
-        var rawEventResults = new List<Anonymous3>
-        {
+        List<Anonymous3> rawEventResults = [
             new TestAnonymous3Builder().SetDefaults().SetScores(null).Instance
-        };
+        ];
 
         var action = () =>
         {
@@ -618,10 +591,9 @@ internal sealed class OddsApiObjectConverterTests
     {
         var converter = new OddsApiObjectConverter();
 
-        var rawEventResults = new List<Anonymous3>
-        {
+        List<Anonymous3> rawEventResults = [
             new TestAnonymous3Builder().SetDefaults().SetHomeTeam(homeTeam).Instance
-        };
+        ];
 
         var action = () =>
         {
@@ -637,10 +609,9 @@ internal sealed class OddsApiObjectConverterTests
     {
         var converter = new OddsApiObjectConverter();
 
-        var rawEventResults = new List<Anonymous3>
-        {
+        List<Anonymous3> rawEventResults = [
             new TestAnonymous3Builder().SetDefaults().SetAwayTeam(awayTeam).Instance
-        };
+        ];
 
         var action = () =>
         {
@@ -656,13 +627,12 @@ internal sealed class OddsApiObjectConverterTests
     {
         var converter = new OddsApiObjectConverter();
 
-        var rawEventResults = new List<Anonymous3>
-        {
-            new TestAnonymous3Builder().SetDefaults().SetScores(new List<ScoreModel>
-            {
-                new() { Name = name, Score = "1" }, new() { Name = name, Score = "1" }
-            }).Instance
-        };
+        List<Anonymous3> rawEventResults = [
+            new TestAnonymous3Builder().SetDefaults().SetScores([
+                new() { Name = name, Score = "1" },
+                new() { Name = name, Score = "1" }
+            ]).Instance
+        ];
 
         var action = () =>
         {
@@ -678,13 +648,12 @@ internal sealed class OddsApiObjectConverterTests
     {
         var converter = new OddsApiObjectConverter();
 
-        var rawEventResults = new List<Anonymous3>
-        {
-            new TestAnonymous3Builder().SetDefaults().SetScores(new List<ScoreModel>
-            {
-                new() { Name = "Manchester City", Score = score }, new() { Name = "Liverpool", Score = score }
-            }).Instance
-        };
+        List<Anonymous3> rawEventResults = [
+            new TestAnonymous3Builder().SetDefaults().SetScores([
+                new() { Name = "Manchester City", Score = score },
+                new() { Name = "Liverpool", Score = score }
+            ]).Instance
+        ];
 
         var action = () =>
         {
@@ -699,15 +668,13 @@ internal sealed class OddsApiObjectConverterTests
     {
         var converter = new OddsApiObjectConverter();
 
-        var rawEventResults = new List<Anonymous3>
-        {
-            new TestAnonymous3Builder().SetDefaults().SetScores(new List<ScoreModel>
-            {
+        List<Anonymous3> rawEventResults = [
+            new TestAnonymous3Builder().SetDefaults().SetScores([
                 new() { Name = "Manchester City", Score = "1" },
                 new() { Name = "Liverpool", Score = "1" },
                 new() { Name = "Liverpool", Score = "1" }
-            }).Instance
-        };
+            ]).Instance
+        ];
 
         var action = () =>
         {
@@ -722,15 +689,13 @@ internal sealed class OddsApiObjectConverterTests
     {
         var converter = new OddsApiObjectConverter();
 
-        var rawEventResults = new List<Anonymous3>
-        {
-            new TestAnonymous3Builder().SetDefaults().SetScores(new List<ScoreModel>
-            {
+        List<Anonymous3> rawEventResults = [
+            new TestAnonymous3Builder().SetDefaults().SetScores([
                 new() { Name = "Manchester City", Score = "1" },
                 new() { Name = "Liverpool", Score = "0" },
                 new() { Name = "Nottingham Forest", Score = "1" }
-            }).Instance
-        };
+            ]).Instance
+        ];
 
         var result = converter.ToEventResults(rawEventResults, Guid.NewGuid(), DateTime.UtcNow).ToList();
 
@@ -744,13 +709,11 @@ internal sealed class OddsApiObjectConverterTests
     {
         var converter = new OddsApiObjectConverter();
 
-        var rawEventResults = new List<Anonymous3>
-        {
-            new TestAnonymous3Builder().SetDefaults().SetScores(new List<ScoreModel>
-            {
+        List<Anonymous3> rawEventResults = [
+            new TestAnonymous3Builder().SetDefaults().SetScores([
                 new() { Name = "Manchester City", Score = "1" }
-            }).Instance
-        };
+            ]).Instance
+        ];
 
         var action = () =>
         {
@@ -765,13 +728,11 @@ internal sealed class OddsApiObjectConverterTests
     {
         var converter = new OddsApiObjectConverter();
 
-        var rawEventResults = new List<Anonymous3>
-        {
-            new TestAnonymous3Builder().SetDefaults().SetScores(new List<ScoreModel>
-            {
+        List<Anonymous3> rawEventResults = [
+            new TestAnonymous3Builder().SetDefaults().SetScores([
                 new() { Name = "Liverpool", Score = "1" }
-            }).Instance
-        };
+            ]).Instance
+        ];
 
         var action = () =>
         {

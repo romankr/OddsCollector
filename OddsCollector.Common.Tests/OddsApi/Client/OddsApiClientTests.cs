@@ -16,7 +16,7 @@ internal sealed class OddsApiClientTests
     public void Constructor_WithValidDependencies_ReturnsNewInstance()
     {
         var optionsStub = Substitute.For<IOptions<OddsApiClientOptions>>();
-        optionsStub.Value.Returns(new OddsApiClientOptions { Leagues = new HashSet<string>() });
+        optionsStub.Value.Returns(new OddsApiClientOptions { Leagues = [] });
         var webApiClientStub = Substitute.For<IClient>();
         var keyVaultClientStub = Substitute.For<IKeyVaultClient>();
         var converterStub = Substitute.For<IOddsApiObjectConverter>();
@@ -62,7 +62,7 @@ internal sealed class OddsApiClientTests
     public void Constructor_WithNullWebApiClient_ThrowsException()
     {
         var optionsStub = Substitute.For<IOptions<OddsApiClientOptions>>();
-        optionsStub.Value.Returns(new OddsApiClientOptions { Leagues = new HashSet<string>() });
+        optionsStub.Value.Returns(new OddsApiClientOptions { Leagues = [] });
         var keyVaultClientStub = Substitute.For<IKeyVaultClient>();
         var converterStub = Substitute.For<IOddsApiObjectConverter>();
 
@@ -78,7 +78,7 @@ internal sealed class OddsApiClientTests
     public void Constructor_WithNullKeyVaultClient_ThrowsException()
     {
         var optionsStub = Substitute.For<IOptions<OddsApiClientOptions>>();
-        optionsStub.Value.Returns(new OddsApiClientOptions { Leagues = new HashSet<string>() });
+        optionsStub.Value.Returns(new OddsApiClientOptions { Leagues = [] });
         var webApiClientStub = Substitute.For<IClient>();
         var converterStub = Substitute.For<IOddsApiObjectConverter>();
 
@@ -94,7 +94,7 @@ internal sealed class OddsApiClientTests
     public void Constructor_WithNullConverter_ThrowsException()
     {
         var optionsStub = Substitute.For<IOptions<OddsApiClientOptions>>();
-        optionsStub.Value.Returns(new OddsApiClientOptions { Leagues = new HashSet<string>() });
+        optionsStub.Value.Returns(new OddsApiClientOptions { Leagues = [] });
         var webApiClientStub = Substitute.For<IClient>();
         var keyVaultClientStub = Substitute.For<IKeyVaultClient>();
 
@@ -109,7 +109,7 @@ internal sealed class OddsApiClientTests
     [Test]
     public async Task GetUpcomingEventsAsync_WithLeagues_ReturnsUpcomingEvents()
     {
-        ICollection<Anonymous2> rawUpcomingEvents = new HashSet<Anonymous2> { new() };
+        ICollection<Anonymous2> rawUpcomingEvents = [new()];
         var webApiClientMock = Substitute.For<IClient>();
         webApiClientMock
             .OddsAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<Regions>(), Arg.Any<Markets>(),
@@ -117,7 +117,7 @@ internal sealed class OddsApiClientTests
             .Returns(Task.FromResult(rawUpcomingEvents));
 
         // ReSharper disable once CollectionNeverUpdated.Local
-        var upcomingEvents = new List<UpcomingEvent>();
+        List<UpcomingEvent> upcomingEvents = [];
         var converterMock = Substitute.For<IOddsApiObjectConverter>();
         converterMock.ToUpcomingEvents(Arg.Any<ICollection<Anonymous2>?>(), Arg.Any<Guid>(), Arg.Any<DateTime>())
             .Returns(new List<UpcomingEvent>());
@@ -128,7 +128,7 @@ internal sealed class OddsApiClientTests
 
         const string league = nameof(league);
         var optionsStub = Substitute.For<IOptions<OddsApiClientOptions>>();
-        optionsStub.Value.Returns(new OddsApiClientOptions { Leagues = new HashSet<string> { league } });
+        optionsStub.Value.Returns(new OddsApiClientOptions { Leagues = [league] });
 
         var oddsClient = new OddsApiClient(optionsStub, webApiClientMock, keyVaultClientStub, converterMock);
 
@@ -163,20 +163,20 @@ internal sealed class OddsApiClientTests
     [Test]
     public async Task GetEventResultsAsync_WithLeagues_ReturnsEventResults()
     {
-        ICollection<Anonymous3> rawEventResults = new HashSet<Anonymous3> { new() };
+        ICollection<Anonymous3> rawEventResults = [new()];
         var webApiClientMock = Substitute.For<IClient>();
         webApiClientMock.ScoresAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<int?>())
             .Returns(Task.FromResult(rawEventResults));
 
         // ReSharper disable once CollectionNeverUpdated.Local
-        var eventResults = new List<EventResult>();
+        List<EventResult> eventResults = [];
         var converterMock = Substitute.For<IOddsApiObjectConverter>();
         converterMock.ToEventResults(Arg.Any<ICollection<Anonymous3>?>(), Arg.Any<Guid>(), Arg.Any<DateTime>())
             .Returns(eventResults);
 
         const string league = nameof(league);
         var optionsStub = Substitute.For<IOptions<OddsApiClientOptions>>();
-        optionsStub.Value.Returns(new OddsApiClientOptions { Leagues = new HashSet<string> { league } });
+        optionsStub.Value.Returns(new OddsApiClientOptions { Leagues = [league] });
 
         const string secretValue = nameof(secretValue);
         var keyVaultClientStub = Substitute.For<IKeyVaultClient>();

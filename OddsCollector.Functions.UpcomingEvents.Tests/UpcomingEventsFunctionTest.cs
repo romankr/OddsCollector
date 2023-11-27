@@ -32,7 +32,7 @@ internal class UpcomingEventsFunctionTest
     [Test]
     public async Task Run_WithValidTimer_ReturnsEventResults()
     {
-        IEnumerable<UpcomingEvent> expectedEventResults = new List<UpcomingEvent>();
+        IEnumerable<UpcomingEvent> expectedEventResults = [];
 
         var clientStub = Substitute.For<IOddsApiClient>();
         clientStub.GetUpcomingEventsAsync(Arg.Any<Guid>(), Arg.Any<DateTime>())

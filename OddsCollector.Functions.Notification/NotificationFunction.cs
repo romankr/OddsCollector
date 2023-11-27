@@ -9,16 +9,10 @@ using OddsCollector.Functions.Notification.CosmosDb;
 
 namespace OddsCollector.Functions.Notification;
 
-internal sealed class NotificationFunction
+internal sealed class NotificationFunction(IEmailSender? sender, ICosmosDbClient? client)
 {
-    private readonly ICosmosDbClient _client;
-    private readonly IEmailSender _sender;
-
-    public NotificationFunction(IEmailSender? sender, ICosmosDbClient? client)
-    {
-        _sender = sender ?? throw new ArgumentNullException(nameof(sender));
-        _client = client ?? throw new ArgumentNullException(nameof(client));
-    }
+    private readonly ICosmosDbClient _client = client ?? throw new ArgumentNullException(nameof(client));
+    private readonly IEmailSender _sender = sender ?? throw new ArgumentNullException(nameof(sender));
 
     [Function(nameof(NotificationFunction))]
     public async Task Run([TimerTrigger("%TimerInterval%")] TimerInfo timer)

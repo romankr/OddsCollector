@@ -9,14 +9,9 @@ using OddsCollector.Common.OddsApi.Client;
 
 namespace OddsCollector.Functions.EventResults;
 
-internal sealed class EventResultsFunction
+internal sealed class EventResultsFunction(IOddsApiClient? client)
 {
-    private readonly IOddsApiClient _client;
-
-    public EventResultsFunction(IOddsApiClient? client)
-    {
-        _client = client ?? throw new ArgumentNullException(nameof(client));
-    }
+    private readonly IOddsApiClient _client = client ?? throw new ArgumentNullException(nameof(client));
 
     [Function(nameof(EventResultsFunction))]
     [CosmosDBOutput("%CosmosDb:Database%", "%CosmosDb:Container%", Connection = "CosmosDb:Connection")]

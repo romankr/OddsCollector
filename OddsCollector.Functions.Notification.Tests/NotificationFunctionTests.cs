@@ -52,7 +52,7 @@ internal class NotificationFunctionTests
     {
         var timer = new TimerInfo();
 
-        IEnumerable<EventPrediction> predictons = new List<EventPrediction>();
+        IEnumerable<EventPrediction> predictons = [];
         var cosmosDbClientMock = Substitute.For<ICosmosDbClient>();
         cosmosDbClientMock.GetEventPredictionsAsync().Returns(Task.FromResult(predictons));
 

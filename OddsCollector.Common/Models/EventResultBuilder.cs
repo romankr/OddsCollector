@@ -6,10 +6,7 @@ public class EventResultBuilder
 
     public EventResultBuilder SetId(string? id)
     {
-        if (string.IsNullOrEmpty(id))
-        {
-            throw new ArgumentException($"{nameof(id)} cannot be null or empty", nameof(id));
-        }
+        ArgumentException.ThrowIfNullOrEmpty(id);
 
         Instance.Id = id;
 
@@ -18,10 +15,7 @@ public class EventResultBuilder
 
     public EventResultBuilder SetWinner(string? winner)
     {
-        if (string.IsNullOrEmpty(winner))
-        {
-            throw new ArgumentException($"{nameof(winner)} cannot be null or empty", nameof(winner));
-        }
+        ArgumentException.ThrowIfNullOrEmpty(winner);
 
         Instance.Winner = winner;
 
@@ -30,10 +24,7 @@ public class EventResultBuilder
 
     public EventResultBuilder SetCommenceTime(DateTime? commenceTime)
     {
-        if (commenceTime is null)
-        {
-            throw new ArgumentNullException(nameof(commenceTime));
-        }
+        ArgumentNullException.ThrowIfNull(commenceTime);
 
         Instance.CommenceTime = commenceTime.Value;
 
@@ -42,10 +33,7 @@ public class EventResultBuilder
 
     public EventResultBuilder SetTimestamp(DateTime? timestamp)
     {
-        if (timestamp is null)
-        {
-            throw new ArgumentNullException(nameof(timestamp));
-        }
+        ArgumentNullException.ThrowIfNull(timestamp);
 
         Instance.Timestamp = timestamp.Value;
 
@@ -54,10 +42,7 @@ public class EventResultBuilder
 
     public EventResultBuilder SetTraceId(Guid? traceId)
     {
-        if (traceId is null)
-        {
-            throw new ArgumentNullException(nameof(traceId));
-        }
+        ArgumentNullException.ThrowIfNull(traceId);
 
         Instance.TraceId = traceId.Value;
 

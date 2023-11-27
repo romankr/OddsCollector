@@ -6,10 +6,7 @@ public class EventPredictionBuilder
 
     public EventPredictionBuilder SetAwayTeam(string? awayTeam)
     {
-        if (string.IsNullOrEmpty(awayTeam))
-        {
-            throw new ArgumentException($"{nameof(awayTeam)} cannot be null or empty", nameof(awayTeam));
-        }
+        ArgumentException.ThrowIfNullOrEmpty(awayTeam);
 
         Instance.AwayTeam = awayTeam;
 
@@ -18,10 +15,7 @@ public class EventPredictionBuilder
 
     public EventPredictionBuilder SetBookmaker(string? bookmaker)
     {
-        if (string.IsNullOrEmpty(bookmaker))
-        {
-            throw new ArgumentException($"{nameof(bookmaker)} cannot be null or empty", nameof(bookmaker));
-        }
+        ArgumentException.ThrowIfNullOrEmpty(bookmaker);
 
         Instance.Bookmaker = bookmaker;
 
@@ -30,10 +24,7 @@ public class EventPredictionBuilder
 
     public EventPredictionBuilder SetCommenceTime(DateTime? commenceTime)
     {
-        if (commenceTime is null)
-        {
-            throw new ArgumentNullException(nameof(commenceTime));
-        }
+        ArgumentNullException.ThrowIfNull(commenceTime);
 
         Instance.CommenceTime = commenceTime.Value;
 
@@ -42,10 +33,7 @@ public class EventPredictionBuilder
 
     public EventPredictionBuilder SetHomeTeam(string? homeTeam)
     {
-        if (string.IsNullOrEmpty(homeTeam))
-        {
-            throw new ArgumentException($"{nameof(homeTeam)} cannot be null or empty", nameof(homeTeam));
-        }
+        ArgumentException.ThrowIfNullOrEmpty(homeTeam);
 
         Instance.HomeTeam = homeTeam;
 
@@ -54,10 +42,7 @@ public class EventPredictionBuilder
 
     public EventPredictionBuilder SetId(string? id)
     {
-        if (string.IsNullOrEmpty(id))
-        {
-            throw new ArgumentException($"{nameof(id)} cannot be null or empty", nameof(id));
-        }
+        ArgumentException.ThrowIfNullOrEmpty(id);
 
         Instance.Id = id;
 
@@ -66,10 +51,7 @@ public class EventPredictionBuilder
 
     public EventPredictionBuilder SetStrategy(string? strategy)
     {
-        if (string.IsNullOrEmpty(strategy))
-        {
-            throw new ArgumentException($"{nameof(strategy)} cannot be null or empty", nameof(strategy));
-        }
+        ArgumentException.ThrowIfNullOrEmpty(strategy);
 
         Instance.Strategy = strategy;
 
@@ -78,10 +60,7 @@ public class EventPredictionBuilder
 
     public EventPredictionBuilder SetTimestamp(DateTime? timestamp)
     {
-        if (timestamp is null)
-        {
-            throw new ArgumentNullException(nameof(timestamp));
-        }
+        ArgumentNullException.ThrowIfNull(timestamp);
 
         Instance.Timestamp = timestamp.Value;
 
@@ -90,10 +69,7 @@ public class EventPredictionBuilder
 
     public EventPredictionBuilder SetTraceId(Guid? traceId)
     {
-        if (traceId is null)
-        {
-            throw new ArgumentNullException(nameof(traceId));
-        }
+        ArgumentNullException.ThrowIfNull(traceId);
 
         Instance.TraceId = traceId.Value;
 
@@ -102,10 +78,7 @@ public class EventPredictionBuilder
 
     public EventPredictionBuilder SetWinner(string? winner)
     {
-        if (string.IsNullOrEmpty(winner))
-        {
-            throw new ArgumentException($"{nameof(winner)} cannot be null or empty", nameof(winner));
-        }
+        ArgumentException.ThrowIfNullOrEmpty(winner);
 
         Instance.Winner = winner;
 

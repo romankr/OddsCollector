@@ -10,10 +10,10 @@ internal sealed class TestAnonymous3Builder
     public const string DefaultId = "4acd8f2675ca847ba33eea3664f6c0bb";
     public static readonly DateTime DefaultCommenceTime = new(2023, 11, 25, 12, 30, 0);
 
-    public static readonly ICollection<ScoreModel> DefaultScores = new List<ScoreModel>
-    {
-        new() { Name = "Manchester City", Score = "1" }, new() { Name = "Liverpool", Score = "0" }
-    };
+    public static readonly ICollection<ScoreModel> DefaultScores = [
+        new() { Name = "Manchester City", Score = "1" },
+        new() { Name = "Liverpool", Score = "0" }
+    ];
 
     public Anonymous3 Instance { get; } = new();
 

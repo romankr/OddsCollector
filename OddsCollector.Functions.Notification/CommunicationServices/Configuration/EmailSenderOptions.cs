@@ -12,31 +12,21 @@ internal sealed class EmailSenderOptions
 
     public void SetRecipientAddress(string? recipientAddress)
     {
-        if (string.IsNullOrEmpty(recipientAddress))
-        {
-            throw new ArgumentException($"{nameof(recipientAddress)} cannot be null or empty",
-                nameof(recipientAddress));
-        }
+        ArgumentException.ThrowIfNullOrEmpty(recipientAddress);
 
         RecipientAddress = recipientAddress;
     }
 
     public void SetSenderAddress(string? senderAddress)
     {
-        if (string.IsNullOrEmpty(senderAddress))
-        {
-            throw new ArgumentException($"{nameof(senderAddress)} cannot be null or empty", nameof(senderAddress));
-        }
+        ArgumentException.ThrowIfNullOrEmpty(senderAddress);
 
         SenderAddress = senderAddress;
     }
 
     public void SetSubject(string? subject)
     {
-        if (string.IsNullOrEmpty(subject))
-        {
-            throw new ArgumentException($"{nameof(subject)} cannot be null or empty", nameof(subject));
-        }
+        ArgumentException.ThrowIfNullOrEmpty(subject);
 
         Subject = subject;
     }

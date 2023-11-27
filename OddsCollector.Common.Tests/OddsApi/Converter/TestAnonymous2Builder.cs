@@ -9,43 +9,38 @@ internal class TestAnonymous2Builder
     public const string DefaultId = "4acd8f2675ca847ba33eea3664f6c0bb";
     public static readonly DateTime DefaultCommenceTime = new(2023, 11, 25, 12, 30, 0);
 
-    public static readonly ICollection<Bookmakers> DefaultBookmakers = new List<Bookmakers>
-    {
+    public static readonly ICollection<Bookmakers> DefaultBookmakers = [
         new()
         {
             Key = "betclic",
-            Markets = new List<Markets2>
-            {
+            Markets = [
                 new()
                 {
                     Key = Markets2Key.H2h,
-                    Outcomes = new List<Outcome>
-                    {
+                    Outcomes = [
                         new() { Name = "Liverpool", Price = 4.08 },
                         new() { Name = "Manchester City", Price = 1.7 },
                         new() { Name = "Draw", Price = 3.82 }
-                    }
+                    ]
                 }
-            }
+            ]
         },
         new()
         {
             Key = "sport888",
-            Markets = new List<Markets2>
-            {
+            Markets = [
                 new()
                 {
                     Key = Markets2Key.H2h,
-                    Outcomes = new List<Outcome>
-                    {
+                    Outcomes = [
                         new() { Name = "Liverpool", Price = 4.33 },
                         new() { Name = "Manchester City", Price = 1.7 },
                         new() { Name = "Draw", Price = 4.33 }
-                    }
+                    ]
                 }
-            }
+            ]
         }
-    };
+    ];
 
     public Anonymous2 Instance { get; } = new();
 

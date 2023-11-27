@@ -55,8 +55,7 @@ internal class EmailSenderTests
     [Test]
     public async Task SendEmailAsync_WithValidOptions_SendsEmails()
     {
-        var predictions = new List<EventPrediction>
-        {
+        List<EventPrediction> predictions = [
             new()
             {
                 AwayTeam = "away",
@@ -69,7 +68,7 @@ internal class EmailSenderTests
                 TraceId = Guid.NewGuid(),
                 Winner = "winner"
             }
-        };
+        ];
 
         const string recipientAddress = "test@example.com";
         const string senderAddress = "test2@example.com";
@@ -78,7 +77,9 @@ internal class EmailSenderTests
         var optionsStub = Substitute.For<IOptions<EmailSenderOptions>>();
         optionsStub.Value.Returns(new EmailSenderOptions
         {
-            RecipientAddress = recipientAddress, SenderAddress = senderAddress, Subject = subject
+            RecipientAddress = recipientAddress,
+            SenderAddress = senderAddress,
+            Subject = subject
         });
 
         var clientMock = Substitute.For<EmailClient>();

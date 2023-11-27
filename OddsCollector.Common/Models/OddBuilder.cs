@@ -6,10 +6,7 @@ public class OddBuilder
 
     public OddBuilder SetBookmaker(string? bookmaker)
     {
-        if (string.IsNullOrEmpty(bookmaker))
-        {
-            throw new ArgumentException($"{nameof(bookmaker)} cannot be null or empty", nameof(bookmaker));
-        }
+        ArgumentException.ThrowIfNullOrEmpty(bookmaker);
 
         Instance.Bookmaker = bookmaker;
 
@@ -18,10 +15,7 @@ public class OddBuilder
 
     public OddBuilder SetAway(double? away)
     {
-        if (away is null)
-        {
-            throw new ArgumentNullException(nameof(away));
-        }
+        ArgumentNullException.ThrowIfNull(away);
 
         Instance.Away = away.Value;
 
@@ -30,10 +24,7 @@ public class OddBuilder
 
     public OddBuilder SetDraw(double? draw)
     {
-        if (draw is null)
-        {
-            throw new ArgumentNullException(nameof(draw));
-        }
+        ArgumentNullException.ThrowIfNull(draw);
 
         Instance.Draw = draw.Value;
 
@@ -42,10 +33,7 @@ public class OddBuilder
 
     public OddBuilder SetHome(double? home)
     {
-        if (home is null)
-        {
-            throw new ArgumentNullException(nameof(home));
-        }
+        ArgumentNullException.ThrowIfNull(home);
 
         Instance.Home = home.Value;
 

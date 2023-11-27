@@ -9,14 +9,9 @@ using OddsCollector.Common.OddsApi.Client;
 
 namespace OddsCollector.Functions.UpcomingEvents;
 
-internal sealed class UpcomingEventsFunction
+internal sealed class UpcomingEventsFunction(IOddsApiClient? client)
 {
-    private readonly IOddsApiClient _client;
-
-    public UpcomingEventsFunction(IOddsApiClient? client)
-    {
-        _client = client ?? throw new ArgumentNullException(nameof(client));
-    }
+    private readonly IOddsApiClient _client = client ?? throw new ArgumentNullException(nameof(client));
 
     [Function(nameof(UpcomingEventsFunction))]
     [ServiceBusOutput("%ServiceBus:Queue%", Connection = "ServiceBus:Connection")]

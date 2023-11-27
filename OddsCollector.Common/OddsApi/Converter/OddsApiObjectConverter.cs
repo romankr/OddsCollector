@@ -11,20 +11,14 @@ public class OddsApiObjectConverter : IOddsApiObjectConverter
     public IEnumerable<UpcomingEvent> ToUpcomingEvents(ICollection<Anonymous2>? events, Guid traceId,
         DateTime timestamp)
     {
-        if (events is null)
-        {
-            throw new ArgumentNullException(nameof(events));
-        }
+        ArgumentNullException.ThrowIfNull(events);
 
         return events.Select(e => ToUpcomingEvent(e, traceId, timestamp));
     }
 
     public IEnumerable<EventResult> ToEventResults(ICollection<Anonymous3>? events, Guid traceId, DateTime timestamp)
     {
-        if (events is null)
-        {
-            throw new ArgumentNullException(nameof(events));
-        }
+        ArgumentNullException.ThrowIfNull(events);
 
         return events
             .Where(r => r.Completed != null && r.Completed.Value)
@@ -33,10 +27,7 @@ public class OddsApiObjectConverter : IOddsApiObjectConverter
 
     private static UpcomingEvent ToUpcomingEvent(Anonymous2? upcomingEvent, Guid traceId, DateTime timestamp)
     {
-        if (upcomingEvent is null)
-        {
-            throw new ArgumentNullException(nameof(upcomingEvent));
-        }
+        ArgumentNullException.ThrowIfNull(upcomingEvent);
 
         return new UpcomingEventBuilder()
             .SetAwayTeam(upcomingEvent.Away_team)
@@ -53,32 +44,23 @@ public class OddsApiObjectConverter : IOddsApiObjectConverter
 
     private static IEnumerable<Odd> ToOdds(ICollection<Bookmakers>? bookmakers, string awayTeam, string homeTeam)
     {
-        if (bookmakers is null)
-        {
-            throw new ArgumentNullException(nameof(bookmakers));
-        }
+        ArgumentNullException.ThrowIfNull(bookmakers);
 
         return bookmakers.Select(b => ToOdd(b, awayTeam, homeTeam));
     }
 
     private static Odd ToOdd(Bookmakers bookmakers, string awayTeam, string homeTeam)
     {
-        if (bookmakers is null)
-        {
-            throw new ArgumentNullException(nameof(bookmakers));
-        }
+        ArgumentNullException.ThrowIfNull(bookmakers);
 
         return ToOdd(bookmakers.Markets, bookmakers.Key, awayTeam, homeTeam);
     }
 
     private static Odd ToOdd(ICollection<Markets2>? markets, string? bookmaker, string awayTeam, string homeTeam)
     {
-        if (markets is null)
-        {
-            throw new ArgumentNullException(nameof(markets));
-        }
+        ArgumentNullException.ThrowIfNull(markets);
 
-        if (!markets.Any())
+        if (markets.Count == 0)
         {
             throw new ArgumentException($"{nameof(markets)} cannot be empty", nameof(markets));
         }
@@ -88,20 +70,14 @@ public class OddsApiObjectConverter : IOddsApiObjectConverter
 
     private static Odd ToOdd(Markets2? markets, string? bookmaker, string awayTeam, string homeTeam)
     {
-        if (markets is null)
-        {
-            throw new ArgumentNullException(nameof(markets));
-        }
+        ArgumentNullException.ThrowIfNull(markets);
 
         return ToOdd(markets.Outcomes, bookmaker, awayTeam, homeTeam);
     }
 
     private static Odd ToOdd(ICollection<Outcome>? outcomes, string? bookmaker, string awayTeam, string homeTeam)
     {
-        if (outcomes is null)
-        {
-            throw new ArgumentNullException(nameof(outcomes));
-        }
+        ArgumentNullException.ThrowIfNull(outcomes);
 
         return new OddBuilder()
             .SetBookmaker(bookmaker)
@@ -112,14 +88,11 @@ public class OddsApiObjectConverter : IOddsApiObjectConverter
 
     private static double? GetScore(IEnumerable<Outcome> outcomes, string oddType)
     {
-        if (outcomes is null)
-        {
-            throw new ArgumentException($"{nameof(outcomes)} is null", nameof(outcomes));
-        }
+        ArgumentNullException.ThrowIfNull(outcomes);
 
         var matches = outcomes.Where(o => o.Name == oddType).ToList();
 
-        if (matches is null || !matches.Any())
+        if (matches is null || matches.Count == 0)
         {
             throw new ArgumentException($"{nameof(outcomes)} doesn't have data for {oddType}", nameof(outcomes));
         }
@@ -145,25 +118,15 @@ public class OddsApiObjectConverter : IOddsApiObjectConverter
 
     private static string GetWinner(ICollection<ScoreModel>? scores, string? awayTeam, string? homeTeam)
     {
-        if (scores is null)
-        {
-            throw new ArgumentNullException(nameof(scores));
-        }
+        ArgumentNullException.ThrowIfNull(scores);
 
         if (scores.Count < 2)
         {
             throw new ArgumentException($"{nameof(scores)} must have at least 2 elements", nameof(scores));
         }
 
-        if (string.IsNullOrEmpty(awayTeam))
-        {
-            throw new ArgumentException($"{nameof(awayTeam)} is null or empty", nameof(awayTeam));
-        }
-
-        if (string.IsNullOrEmpty(homeTeam))
-        {
-            throw new ArgumentException($"{nameof(homeTeam)} is null or empty", nameof(homeTeam));
-        }
+        ArgumentException.ThrowIfNullOrEmpty(awayTeam);
+        ArgumentException.ThrowIfNullOrEmpty(homeTeam);
 
         var d = scores.Select(s => ToKeyValuePair(s.Name, s.Score)).ToDictionary(p => p.Key, p => p.Value);
 
@@ -172,33 +135,23 @@ public class OddsApiObjectConverter : IOddsApiObjectConverter
 
     private static KeyValuePair<string, int> ToKeyValuePair(string? name, string? score)
     {
-        if (string.IsNullOrEmpty(name))
-        {
-            throw new ArgumentException($"{nameof(name)} is null or empty", nameof(name));
-        }
-
-        if (string.IsNullOrEmpty(score))
-        {
-            throw new ArgumentException($"{nameof(score)} is null or empty", nameof(score));
-        }
+        ArgumentException.ThrowIfNullOrEmpty(name);
+        ArgumentException.ThrowIfNullOrEmpty(score);
 
         return new KeyValuePair<string, int>(name, int.Parse(score, CultureInfo.InvariantCulture));
     }
 
-    private static string GetWinner(IReadOnlyDictionary<string, int> scores, string awayTeam, string homeTeam)
+    private static string GetWinner(Dictionary<string, int> scores, string awayTeam, string homeTeam)
     {
-        if (!scores.ContainsKey(awayTeam))
+        if (!scores.TryGetValue(awayTeam, out var awayScore))
         {
             throw new ArgumentException($"{nameof(scores)} don't have data for {awayTeam}", nameof(scores));
         }
 
-        if (!scores.ContainsKey(homeTeam))
+        if (!scores.TryGetValue(homeTeam, out var homeScore))
         {
             throw new ArgumentException($"{nameof(scores)} don't have data for {homeTeam}", nameof(scores));
         }
-
-        var awayScore = scores[awayTeam];
-        var homeScore = scores[homeTeam];
 
         if (awayScore == homeScore)
         {
