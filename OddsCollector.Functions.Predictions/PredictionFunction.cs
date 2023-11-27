@@ -10,14 +10,9 @@ using OddsCollector.Functions.Predictions.Strategies;
 
 namespace OddsCollector.Functions.Predictions;
 
-internal sealed class PredictionFunction
+internal sealed class PredictionFunction(IPredictionStrategy? strategy)
 {
-    private readonly IPredictionStrategy _strategy;
-
-    public PredictionFunction(IPredictionStrategy? strategy)
-    {
-        _strategy = strategy ?? throw new ArgumentNullException(nameof(strategy));
-    }
+    private readonly IPredictionStrategy _strategy = strategy ?? throw new ArgumentNullException(nameof(strategy));
 
     [Function(nameof(PredictionFunction))]
     [CosmosDBOutput("%CosmosDb:Database%", "%CosmosDb:Container%", Connection = "CosmosDb:Connection")]

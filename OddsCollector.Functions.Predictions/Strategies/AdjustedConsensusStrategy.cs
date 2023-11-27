@@ -10,15 +10,8 @@ internal sealed class AdjustedConsensusStrategy : IPredictionStrategy
 {
     public EventPrediction GetPrediction(UpcomingEvent? upcomingEvent, DateTime? timestamp)
     {
-        if (upcomingEvent is null)
-        {
-            throw new ArgumentNullException(nameof(upcomingEvent));
-        }
-
-        if (timestamp is null)
-        {
-            throw new ArgumentNullException(nameof(timestamp));
-        }
+        ArgumentNullException.ThrowIfNull(upcomingEvent);
+        ArgumentNullException.ThrowIfNull(timestamp);
 
         var score = GetWinner(upcomingEvent.Odds, upcomingEvent.AwayTeam, upcomingEvent.HomeTeam);
 
@@ -39,27 +32,19 @@ internal sealed class AdjustedConsensusStrategy : IPredictionStrategy
     {
         var enumerated = odds.ToList();
 
-        if (!enumerated.Any())
+        if (enumerated.Count == 0)
         {
             throw new ArgumentException($"{nameof(odds)} cannot be empty", nameof(odds));
         }
 
-        if (string.IsNullOrEmpty(awayTeam))
-        {
-            throw new ArgumentException($"{nameof(awayTeam)} is null or empty", nameof(awayTeam));
-        }
+        ArgumentException.ThrowIfNullOrEmpty(awayTeam);
+        ArgumentException.ThrowIfNullOrEmpty(homeTeam);
 
-        if (string.IsNullOrEmpty(homeTeam))
-        {
-            throw new ArgumentException($"{nameof(homeTeam)} is null or empty", nameof(homeTeam));
-        }
-
-        var scores = new List<StrategyScore>
-        {
+        List<StrategyScore> scores = [
             new() { Name = Constants.Draw, Odd = CalculateAdjustedScore(enumerated, Draw, 0.057) },
             new() { Name = awayTeam, Odd = CalculateAdjustedScore(enumerated, AwayTeamWins, 0.034) },
             new() { Name = homeTeam, Odd = CalculateAdjustedScore(enumerated, HomeTeamWins, 0.037) }
-        };
+        ];
 
         var winner = scores.MaxBy(p => p.Odd);
 
@@ -78,7 +63,7 @@ internal sealed class AdjustedConsensusStrategy : IPredictionStrategy
     {
         var enumerated = odds.ToList();
 
-        IEnumerable<Odd> filtered = new List<Odd>();
+        IEnumerable<Odd> filtered = [];
 
         if (winner == Constants.Draw)
         {

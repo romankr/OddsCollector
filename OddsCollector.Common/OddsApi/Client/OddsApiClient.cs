@@ -7,30 +7,22 @@ using OddsCollector.Common.OddsApi.WebApi;
 
 namespace OddsCollector.Common.OddsApi.Client;
 
-public class OddsApiClient : IOddsApiClient
+public class OddsApiClient(IOptions<OddsApiClientOptions>? options, IClient? webApiClient,
+    IKeyVaultClient? keyVaultClient, IOddsApiObjectConverter? objectConverter) : IOddsApiClient
 {
     private const DateFormat IsoDateFormat = DateFormat.Iso;
     private const Markets HeadToHeadMarket = Markets.H2h;
     private const OddsFormat DecimalOddsFormat = OddsFormat.Decimal;
     private const Regions EuropeanRegion = Regions.Eu;
     private const int DaysFromToday = 3;
-    private readonly IKeyVaultClient _keyVaultClient;
-    private readonly IOddsApiObjectConverter _objectConverter;
-    private readonly OddsApiClientOptions _options;
-    private readonly IClient _webApiClient;
-
-    public OddsApiClient(IOptions<OddsApiClientOptions>? options, IClient? webApiClient,
-        IKeyVaultClient? keyVaultClient, IOddsApiObjectConverter? objectConverter)
-    {
-        _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
-        _webApiClient = webApiClient ?? throw new ArgumentNullException(nameof(webApiClient));
-        _keyVaultClient = keyVaultClient ?? throw new ArgumentNullException(nameof(keyVaultClient));
-        _objectConverter = objectConverter ?? throw new ArgumentNullException(nameof(objectConverter));
-    }
+    private readonly IKeyVaultClient _keyVaultClient = keyVaultClient ?? throw new ArgumentNullException(nameof(keyVaultClient));
+    private readonly IOddsApiObjectConverter _objectConverter = objectConverter ?? throw new ArgumentNullException(nameof(objectConverter));
+    private readonly OddsApiClientOptions _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
+    private readonly IClient _webApiClient = webApiClient ?? throw new ArgumentNullException(nameof(webApiClient));
 
     public async Task<IEnumerable<UpcomingEvent>> GetUpcomingEventsAsync(Guid traceId, DateTime timestamp)
     {
-        var result = new List<UpcomingEvent>();
+        List<UpcomingEvent> result = [];
 
         foreach (var league in _options.Leagues)
         {
@@ -46,7 +38,7 @@ public class OddsApiClient : IOddsApiClient
 
     public async Task<IEnumerable<EventResult>> GetEventResultsAsync(Guid traceId, DateTime timestamp)
     {
-        var result = new List<EventResult>();
+        List<EventResult> result = [];
 
         foreach (var league in _options.Leagues)
         {

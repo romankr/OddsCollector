@@ -4,14 +4,9 @@ using OddsCollector.Common.Models;
 
 namespace OddsCollector.Functions.Notification.CosmosDb;
 
-internal sealed class CosmosDbClient : ICosmosDbClient
+internal sealed class CosmosDbClient(Container? container) : ICosmosDbClient
 {
-    private readonly Container _container;
-
-    public CosmosDbClient(Container? container)
-    {
-        _container = container ?? throw new ArgumentNullException(nameof(container));
-    }
+    private readonly Container _container = container ?? throw new ArgumentNullException(nameof(container));
 
     public async Task<IEnumerable<EventPrediction>> GetEventPredictionsAsync()
     {
@@ -19,10 +14,10 @@ internal sealed class CosmosDbClient : ICosmosDbClient
 
         // cosmosdb doesn't support grouping
         var matches = from prediction in queryable
-            where prediction.CommenceTime >= DateTime.UtcNow
-            select prediction;
+                      where prediction.CommenceTime >= DateTime.UtcNow
+                      select prediction;
 
-        var cosmosdbresult = new List<EventPrediction>();
+        List<EventPrediction> cosmosdbresult = [];
 
         using FeedIterator<EventPrediction> feed = matches.ToFeedIterator();
 

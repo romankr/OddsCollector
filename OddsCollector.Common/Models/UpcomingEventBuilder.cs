@@ -6,10 +6,7 @@ public class UpcomingEventBuilder
 
     public UpcomingEventBuilder SetAwayTeam(string? awayTeam)
     {
-        if (string.IsNullOrEmpty(awayTeam))
-        {
-            throw new ArgumentException($"{nameof(awayTeam)} cannot be null or empty", nameof(awayTeam));
-        }
+        ArgumentException.ThrowIfNullOrEmpty(awayTeam);
 
         Instance.AwayTeam = awayTeam;
 
@@ -18,10 +15,7 @@ public class UpcomingEventBuilder
 
     public UpcomingEventBuilder SetCommenceTime(DateTime? commenceTime)
     {
-        if (commenceTime is null)
-        {
-            throw new ArgumentNullException(nameof(commenceTime));
-        }
+        ArgumentNullException.ThrowIfNull(commenceTime);
 
         Instance.CommenceTime = commenceTime.Value;
 
@@ -30,10 +24,7 @@ public class UpcomingEventBuilder
 
     public UpcomingEventBuilder SetHomeTeam(string? homeTeam)
     {
-        if (string.IsNullOrEmpty(homeTeam))
-        {
-            throw new ArgumentException($"{nameof(homeTeam)} cannot be null or empty", nameof(homeTeam));
-        }
+        ArgumentException.ThrowIfNullOrEmpty(homeTeam);
 
         Instance.HomeTeam = homeTeam;
 
@@ -42,10 +33,7 @@ public class UpcomingEventBuilder
 
     public UpcomingEventBuilder SetId(string? id)
     {
-        if (string.IsNullOrEmpty(id))
-        {
-            throw new ArgumentException($"{nameof(id)} cannot be null or empty", nameof(id));
-        }
+        ArgumentException.ThrowIfNullOrEmpty(id);
 
         Instance.Id = id;
 
@@ -54,10 +42,7 @@ public class UpcomingEventBuilder
 
     public UpcomingEventBuilder SetTimestamp(DateTime? timestamp)
     {
-        if (timestamp is null)
-        {
-            throw new ArgumentNullException(nameof(timestamp));
-        }
+        ArgumentNullException.ThrowIfNull(timestamp);
 
         Instance.Timestamp = timestamp.Value;
 
@@ -66,6 +51,8 @@ public class UpcomingEventBuilder
 
     public UpcomingEventBuilder SetTraceId(Guid? traceId)
     {
+        ArgumentNullException.ThrowIfNull(traceId);
+
         if (traceId is null)
         {
             throw new ArgumentNullException(nameof(traceId));
@@ -78,10 +65,7 @@ public class UpcomingEventBuilder
 
     public UpcomingEventBuilder SetOdds(IEnumerable<Odd>? odds)
     {
-        if (odds is null)
-        {
-            throw new ArgumentNullException(nameof(odds));
-        }
+        ArgumentNullException.ThrowIfNull(odds);
 
         Instance.Odds = odds;
 

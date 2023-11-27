@@ -45,7 +45,7 @@ internal class PredictionFunctionTests
             Id = "4acd8f2675ca847ba33eea3664f6c0bb",
             TraceId = Guid.NewGuid(),
             Timestamp = DateTime.Now,
-            Odds = new List<Odd> { new() { Away = 4.08, Bookmaker = "betclic", Draw = 3.82, Home = 1.7 } }
+            Odds = [new() { Away = 4.08, Bookmaker = "betclic", Draw = 3.82, Home = 1.7 }]
         };
 
         var expectedPrediction = new EventPrediction
@@ -62,7 +62,7 @@ internal class PredictionFunctionTests
         };
 
         var serialized = Encoding.ASCII.GetBytes(JsonSerializer.Serialize(upcomingEvent))
-            .Select(x => new ReadOnlyMemory<byte>(new[] { x }));
+            .Select(x => new ReadOnlyMemory<byte>([x]));
 
         var ampqmessage = new AmqpMessageBody(serialized);
 

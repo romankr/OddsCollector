@@ -8,10 +8,7 @@ public static class SecretClientFactory
 {
     public static SecretClient CreateSecretClient(string? vaultName)
     {
-        if (string.IsNullOrEmpty(vaultName))
-        {
-            throw new ArgumentException($"{nameof(vaultName)} cannot be null or empty", nameof(vaultName));
-        }
+        ArgumentException.ThrowIfNullOrEmpty(vaultName);
 
         return new SecretClient(
             new Uri($"https://{vaultName}.vault.azure.net/"),

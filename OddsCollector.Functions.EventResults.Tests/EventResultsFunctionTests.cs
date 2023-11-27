@@ -32,7 +32,7 @@ internal sealed class EventResultsFunctionTests
     [Test]
     public async Task Run_WithValidTimer_ReturnsEventResults()
     {
-        IEnumerable<EventResult> expectedEventResults = new List<EventResult>();
+        IEnumerable<EventResult> expectedEventResults = [];
 
         var clientStub = Substitute.For<IOddsApiClient>();
         clientStub.GetEventResultsAsync(Arg.Any<Guid>(), Arg.Any<DateTime>())

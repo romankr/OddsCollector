@@ -2,15 +2,10 @@
 
 namespace OddsCollector.Common.KeyVault.Client;
 
-public class KeyVaultClient : IKeyVaultClient
+public class KeyVaultClient(SecretClient? client) : IKeyVaultClient
 {
     private const string ApiKeyName = "OddsApiKey";
-    private readonly SecretClient _client;
-
-    public KeyVaultClient(SecretClient? client)
-    {
-        _client = client ?? throw new ArgumentNullException(nameof(client));
-    }
+    private readonly SecretClient _client = client ?? throw new ArgumentNullException(nameof(client));
 
     public async Task<string> GetOddsApiKey()
     {
