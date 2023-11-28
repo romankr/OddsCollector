@@ -1,7 +1,6 @@
 ﻿using FluentAssertions;
 using Microsoft.Azure.Functions.Worker;
 using NSubstitute;
-using NUnit.Framework;
 using OddsCollector.Common.Models;
 using OddsCollector.Functions.Notification.CommunicationServices;
 using OddsCollector.Functions.Notification.CosmosDb;

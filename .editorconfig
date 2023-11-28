@@ -130,10 +130,3 @@ csharp_preserve_single_line_blocks = true
 [*.vb]
 # Modifier preferences
 visual_basic_preferred_modifier_order = Partial, Default, Private, Protected, Public, Friend, NotOverridable, Overridable, MustOverride, Overloads, Overrides, MustInherit, NotInheritable, Static, Shared, Shadows, ReadOnly, WriteOnly, Dim, Const, WithEvents, Widening, Narrowing, Custom, Async:suggestion
-
-# turned off rules
-[*.{cs,vb}]
-# there is no need for high-performance logging at the moment
-dotnet_diagnostic.CA1848.severity = none
-# DI everywhere
-dotnet_diagnostic.CA1812.severity = none

@@ -1,7 +1,6 @@
 ﻿using FluentAssertions;
 using Microsoft.Azure.Cosmos;
 using NSubstitute;
-using NUnit.Framework;
 using OddsCollector.Functions.Notification.CosmosDb;
 
 namespace OddsCollector.Functions.Notification.Tests.CosmosDb;

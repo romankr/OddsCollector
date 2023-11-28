@@ -1,5 +1,4 @@
 ﻿using FluentAssertions;
-using NUnit.Framework;
 using OddsCollector.Functions.Notification.CommunicationServices.Configuration;
 
 namespace OddsCollector.Functions.Notification.Tests.CommunicationServices;
