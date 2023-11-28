@@ -3,6 +3,7 @@ using OddsCollector.Common.KeyVault.Secrets;
 
 namespace OddsCollector.Common.Tests.KeyVault.Secrets;
 
+[Parallelizable(ParallelScope.All)]
 internal sealed class SecretClientFactoryTests
 {
     [Test]

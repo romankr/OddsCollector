@@ -11,6 +11,7 @@ using OddsCollector.Functions.Predictions.Strategies;
 
 namespace OddsCollector.Functions.Predictions.Tests;
 
+[Parallelizable(ParallelScope.All)]
 internal class PredictionFunctionTests
 {
     [Test]

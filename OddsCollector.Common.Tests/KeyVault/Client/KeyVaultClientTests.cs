@@ -6,6 +6,7 @@ using OddsCollector.Common.KeyVault.Client;
 
 namespace OddsCollector.Common.Tests.KeyVault.Client;
 
+[Parallelizable(ParallelScope.All)]
 internal sealed class KeyVaultClientTests
 {
     [Test]

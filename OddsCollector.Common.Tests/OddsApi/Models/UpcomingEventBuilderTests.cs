@@ -3,6 +3,7 @@ using OddsCollector.Common.Models;
 
 namespace OddsCollector.Common.Tests.OddsApi.Models;
 
+[Parallelizable(ParallelScope.All)]
 internal class UpcomingEventBuilderTests
 {
     [Test]
