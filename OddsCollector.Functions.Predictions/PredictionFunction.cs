@@ -16,16 +16,21 @@ internal sealed class PredictionFunction(IPredictionStrategy? strategy)
 
     [Function(nameof(PredictionFunction))]
     [CosmosDBOutput("%CosmosDb:Database%", "%CosmosDb:Container%", Connection = "CosmosDb:Connection")]
-    public async Task<EventPrediction> Run(
-        [ServiceBusTrigger("%ServiceBus:Queue%", Connection = "ServiceBus:Connection")]
-        ServiceBusReceivedMessage message, ServiceBusMessageActions messageActions, CancellationToken cancellationToken)
+    public async Task<EventPrediction[]> Run(
+        [ServiceBusTrigger("%ServiceBus:Queue%", Connection = "ServiceBus:Connection", IsBatched = true)]
+        ServiceBusReceivedMessage[] messages, ServiceBusMessageActions messageActions, CancellationToken cancellationToken)
     {
-        var upcomingEvent = message.Body.ToObjectFromJson<UpcomingEvent>();
+        EventPrediction[] predictions = new EventPrediction[messages.Length];
 
-        var prediction = _strategy.GetPrediction(upcomingEvent, DateTime.UtcNow);
+        for (int i = 0; i < messages.Length; i++)
+        {
+            var upcomingEvent = messages[i].Body.ToObjectFromJson<UpcomingEvent>();
 
-        await messageActions.CompleteMessageAsync(message, cancellationToken).ConfigureAwait(false);
+            predictions[i] = _strategy.GetPrediction(upcomingEvent, DateTime.UtcNow);
 
-        return prediction;
+            await messageActions.CompleteMessageAsync(messages[i], cancellationToken).ConfigureAwait(false);
+        }
+
+        return predictions;
     }
 }
