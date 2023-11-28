@@ -15,8 +15,8 @@ internal sealed class UpcomingEventsFunction(IOddsApiClient? client)
 
     [Function(nameof(UpcomingEventsFunction))]
     [ServiceBusOutput("%ServiceBus:Queue%", Connection = "ServiceBus:Connection")]
-    public async Task<UpcomingEvent[]> Run([TimerTrigger("%TimerInterval%")] TimerInfo myTimer)
+    public async Task<UpcomingEvent[]> Run([TimerTrigger("%TimerInterval%")] TimerInfo myTimer, CancellationToken cancellationToken)
     {
-        return (await _client.GetUpcomingEventsAsync(Guid.NewGuid(), DateTime.UtcNow).ConfigureAwait(false)).ToArray();
+        return (await _client.GetUpcomingEventsAsync(Guid.NewGuid(), DateTime.UtcNow, cancellationToken).ConfigureAwait(false)).ToArray();
     }
 }

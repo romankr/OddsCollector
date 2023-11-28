@@ -54,15 +54,17 @@ internal class NotificationFunctionTests
 
         IEnumerable<EventPrediction> predictons = [];
         var cosmosDbClientMock = Substitute.For<ICosmosDbClient>();
-        cosmosDbClientMock.GetEventPredictionsAsync().Returns(Task.FromResult(predictons));
+        cosmosDbClientMock.GetEventPredictionsAsync(Arg.Any<CancellationToken>()).Returns(Task.FromResult(predictons));
 
         var emailSenderMock = Substitute.For<IEmailSender>();
 
         var function = new NotificationFunction(emailSenderMock, cosmosDbClientMock);
 
-        await function.Run(timer).ConfigureAwait(false);
+        var token = new CancellationToken();
 
-        await emailSenderMock.Received().SendEmailAsync(predictons);
-        await cosmosDbClientMock.Received().GetEventPredictionsAsync();
+        await function.Run(timer, token).ConfigureAwait(false);
+
+        await emailSenderMock.Received().SendEmailAsync(predictons, token);
+        await cosmosDbClientMock.Received().GetEventPredictionsAsync(token);
     }
 }

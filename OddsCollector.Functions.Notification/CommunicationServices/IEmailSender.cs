@@ -4,5 +4,5 @@ namespace OddsCollector.Functions.Notification.CommunicationServices;
 
 internal interface IEmailSender
 {
-    Task SendEmailAsync(IEnumerable<EventPrediction?> predictions);
+    Task SendEmailAsync(IEnumerable<EventPrediction?> predictions, CancellationToken cancellationToken);
 }

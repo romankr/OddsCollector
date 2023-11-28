@@ -13,15 +13,15 @@ internal sealed class EmailSender(IOptions<EmailSenderOptions>? options, EmailCl
     private readonly EmailSenderOptions _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
     private static readonly JsonSerializerOptions _serializerOptions = new() { WriteIndented = true };
 
-    public async Task SendEmailAsync(IEnumerable<EventPrediction?> predictions)
+    public async Task SendEmailAsync(IEnumerable<EventPrediction?> predictions, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(predictions);
 
         var content = JsonSerializer.Serialize(predictions, _serializerOptions);
 
-        await _client.SendAsync(WaitUntil.Completed, _options.SenderAddress, _options.RecipientAddress,
-            _options.Subject,
-            content).ConfigureAwait(false);
+        await _client.SendAsync(
+            WaitUntil.Completed, _options.SenderAddress, _options.RecipientAddress, _options.Subject,
+            content, cancellationToken: cancellationToken).ConfigureAwait(false);
 
         await Task.CompletedTask.ConfigureAwait(false);
     }

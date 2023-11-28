@@ -86,7 +86,9 @@ internal class EmailSenderTests
 
         var sender = new EmailSender(optionsStub, clientMock);
 
-        await sender.SendEmailAsync(predictions).ConfigureAwait(false);
+        var token = new CancellationToken();
+
+        await sender.SendEmailAsync(predictions, token).ConfigureAwait(false);
 
         var received = clientMock.ReceivedCalls().ToList();
 
@@ -104,6 +106,7 @@ internal class EmailSenderTests
         firstReceivedArguments[1].Should().Be(senderAddress);
         firstReceivedArguments[2].Should().Be(recipientAddress);
         firstReceivedArguments[3].Should().Be(subject);
+        firstReceivedArguments[6].Should().Be(token);
 
         var deserialized = JsonSerializer.Deserialize<List<EventPrediction>>((string)firstReceivedArguments[4]!);
 

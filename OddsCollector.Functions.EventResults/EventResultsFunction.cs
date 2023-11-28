@@ -15,8 +15,8 @@ internal sealed class EventResultsFunction(IOddsApiClient? client)
 
     [Function(nameof(EventResultsFunction))]
     [CosmosDBOutput("%CosmosDb:Database%", "%CosmosDb:Container%", Connection = "CosmosDb:Connection")]
-    public async Task<EventResult[]> Run([TimerTrigger("%TimerInterval%")] TimerInfo myTimer)
+    public async Task<EventResult[]> Run([TimerTrigger("%TimerInterval%")] TimerInfo myTimer, CancellationToken cancellationToken)
     {
-        return (await _client.GetEventResultsAsync(Guid.NewGuid(), DateTime.UtcNow).ConfigureAwait(false)).ToArray();
+        return (await _client.GetEventResultsAsync(Guid.NewGuid(), DateTime.UtcNow, cancellationToken).ConfigureAwait(false)).ToArray();
     }
 }

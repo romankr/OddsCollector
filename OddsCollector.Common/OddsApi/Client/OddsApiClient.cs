@@ -20,7 +20,7 @@ public class OddsApiClient(IOptions<OddsApiClientOptions>? options, IClient? web
     private readonly OddsApiClientOptions _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
     private readonly IClient _webApiClient = webApiClient ?? throw new ArgumentNullException(nameof(webApiClient));
 
-    public async Task<IEnumerable<UpcomingEvent>> GetUpcomingEventsAsync(Guid traceId, DateTime timestamp)
+    public async Task<IEnumerable<UpcomingEvent>> GetUpcomingEventsAsync(Guid traceId, DateTime timestamp, CancellationToken cancellationToken)
     {
         List<UpcomingEvent> result = [];
 
@@ -28,7 +28,7 @@ public class OddsApiClient(IOptions<OddsApiClientOptions>? options, IClient? web
         {
             var events = await _webApiClient.OddsAsync(league,
                 await _keyVaultClient.GetOddsApiKey().ConfigureAwait(false),
-                EuropeanRegion, HeadToHeadMarket, IsoDateFormat, DecimalOddsFormat, null, null).ConfigureAwait(false);
+                EuropeanRegion, HeadToHeadMarket, IsoDateFormat, DecimalOddsFormat, null, null, cancellationToken).ConfigureAwait(false);
 
             result.AddRange(_objectConverter.ToUpcomingEvents(events, traceId, timestamp));
         }
@@ -36,14 +36,14 @@ public class OddsApiClient(IOptions<OddsApiClientOptions>? options, IClient? web
         return result;
     }
 
-    public async Task<IEnumerable<EventResult>> GetEventResultsAsync(Guid traceId, DateTime timestamp)
+    public async Task<IEnumerable<EventResult>> GetEventResultsAsync(Guid traceId, DateTime timestamp, CancellationToken cancellationToken)
     {
         List<EventResult> result = [];
 
         foreach (var league in _options.Leagues)
         {
             var results = await _webApiClient
-                .ScoresAsync(league, await _keyVaultClient.GetOddsApiKey().ConfigureAwait(false), DaysFromToday)
+                .ScoresAsync(league, await _keyVaultClient.GetOddsApiKey().ConfigureAwait(false), DaysFromToday, cancellationToken)
                 .ConfigureAwait(false);
 
             result.AddRange(_objectConverter.ToEventResults(results, traceId, timestamp));

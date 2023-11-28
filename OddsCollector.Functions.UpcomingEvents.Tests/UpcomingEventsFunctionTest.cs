@@ -36,14 +36,14 @@ internal class UpcomingEventsFunctionTest
         IEnumerable<UpcomingEvent> expectedEventResults = [];
 
         var clientStub = Substitute.For<IOddsApiClient>();
-        clientStub.GetUpcomingEventsAsync(Arg.Any<Guid>(), Arg.Any<DateTime>())
+        clientStub.GetUpcomingEventsAsync(Arg.Any<Guid>(), Arg.Any<DateTime>(), Arg.Any<CancellationToken>())
             .Returns(Task.FromResult(expectedEventResults));
 
         var function = new UpcomingEventsFunction(clientStub);
 
         var timerStub = Substitute.For<TimerInfo>();
 
-        var eventResults = await function.Run(timerStub);
+        var eventResults = await function.Run(timerStub, new CancellationToken());
 
         eventResults.Should().NotBeNull().And.BeEquivalentTo(expectedEventResults);
     }
