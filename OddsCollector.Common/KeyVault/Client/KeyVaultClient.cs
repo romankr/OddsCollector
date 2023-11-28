@@ -1,4 +1,5 @@
-﻿using Azure.Security.KeyVault.Secrets;
+﻿using Azure;
+using Azure.Security.KeyVault.Secrets;
 
 namespace OddsCollector.Common.KeyVault.Client;
 
@@ -11,16 +12,27 @@ public class KeyVaultClient(SecretClient? client) : IKeyVaultClient
     {
         var response = await _client.GetSecretAsync(ApiKeyName).ConfigureAwait(false);
 
-        if (response?.Value is null)
-        {
-            throw new KeyVaultException(ApiKeyName, $"Failed to fetch {ApiKeyName} key from KeyVault");
-        }
+        return GetSecretValue(response);
+    }
 
-        if (string.IsNullOrEmpty(response.Value.Value))
-        {
-            throw new KeyVaultException(ApiKeyName, $"Secret {ApiKeyName} is null or empty");
-        }
+    private static string GetSecretValue(Response<KeyVaultSecret> response)
+    {
+        ArgumentNullException.ThrowIfNull(response);
 
-        return response.Value.Value;
+        return GetValue(response.Value);
+    }
+
+    private static string GetValue(KeyVaultSecret secret)
+    {
+        ArgumentNullException.ThrowIfNull(secret);
+
+        return GetNotEmptyString(secret.Value);
+    }
+
+    private static string GetNotEmptyString(string value)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(value);
+
+        return value;
     }
 }

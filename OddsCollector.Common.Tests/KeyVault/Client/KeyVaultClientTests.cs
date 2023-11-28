@@ -65,14 +65,12 @@ internal sealed class KeyVaultClientTests
 
         Action action = () => client.GetOddsApiKey().GetAwaiter().GetResult();
 
-        action.Should().Throw<KeyVaultException>().Which.KeyName.Should().Be(keyName);
+        action.Should().Throw<ArgumentException>().WithParameterName("value");
     }
 
     [Test]
     public void GetOddsApiKey_WithNullResponse_ThrowsException()
     {
-        const string keyName = "OddsApiKey";
-
         var responseStub = Substitute.For<Response<KeyVaultSecret>>();
         responseStub.Value.Returns(null as KeyVaultSecret);
 
@@ -83,6 +81,6 @@ internal sealed class KeyVaultClientTests
 
         Action action = () => client.GetOddsApiKey().GetAwaiter().GetResult();
 
-        action.Should().Throw<KeyVaultException>().Which.KeyName.Should().Be(keyName);
+        action.Should().Throw<ArgumentNullException>().WithParameterName("secret");
     }
 }
