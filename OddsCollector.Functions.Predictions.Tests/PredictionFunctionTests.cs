@@ -79,10 +79,12 @@ internal class PredictionFunctionTests
 
         var function = new PredictionFunction(strategyStub);
 
-        var prediction = await function.Run(receivedmessage, actionsMock).ConfigureAwait(false);
+        var token = new CancellationToken();
+
+        var prediction = await function.Run(receivedmessage, actionsMock, token).ConfigureAwait(false);
 
         prediction.Should().NotBeNull().And.Be(expectedPrediction);
 
-        await actionsMock.Received(Quantity.Exactly(1)).CompleteMessageAsync(Arg.Any<ServiceBusReceivedMessage>());
+        await actionsMock.Received(Quantity.Exactly(1)).CompleteMessageAsync(receivedmessage, token);
     }
 }

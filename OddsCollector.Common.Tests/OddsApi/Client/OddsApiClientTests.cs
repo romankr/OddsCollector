@@ -114,7 +114,7 @@ internal sealed class OddsApiClientTests
         var webApiClientMock = Substitute.For<IClient>();
         webApiClientMock
             .OddsAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<Regions>(), Arg.Any<Markets>(),
-                Arg.Any<DateFormat>(), Arg.Any<OddsFormat>(), Arg.Any<string>(), Arg.Any<string>())
+                Arg.Any<DateFormat>(), Arg.Any<OddsFormat>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
             .Returns(Task.FromResult(rawUpcomingEvents));
 
         // ReSharper disable once CollectionNeverUpdated.Local
@@ -135,13 +135,14 @@ internal sealed class OddsApiClientTests
 
         var traceId = Guid.NewGuid();
         var timestamp = DateTime.UtcNow;
+        var token = new CancellationToken();
 
-        var results = await oddsClient.GetUpcomingEventsAsync(traceId, timestamp);
+        var results = await oddsClient.GetUpcomingEventsAsync(traceId, timestamp, token);
 
         results.Should().NotBeNull().And.Equal(upcomingEvents);
 
         await webApiClientMock.Received()
-            .OddsAsync(league, secretValue, Regions.Eu, Markets.H2h, DateFormat.Iso, OddsFormat.Decimal, null, null)
+            .OddsAsync(league, secretValue, Regions.Eu, Markets.H2h, DateFormat.Iso, OddsFormat.Decimal, null, null, token)
             .ConfigureAwait(false);
 
         var received = converterMock.ReceivedCalls().ToList();
@@ -166,7 +167,7 @@ internal sealed class OddsApiClientTests
     {
         ICollection<Anonymous3> rawEventResults = [new()];
         var webApiClientMock = Substitute.For<IClient>();
-        webApiClientMock.ScoresAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<int?>())
+        webApiClientMock.ScoresAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<int?>(), Arg.Any<CancellationToken>())
             .Returns(Task.FromResult(rawEventResults));
 
         // ReSharper disable once CollectionNeverUpdated.Local
@@ -187,12 +188,13 @@ internal sealed class OddsApiClientTests
 
         var traceId = Guid.NewGuid();
         var timestamp = DateTime.UtcNow;
+        var token = new CancellationToken();
 
-        var results = await oddsClient.GetEventResultsAsync(traceId, timestamp);
+        var results = await oddsClient.GetEventResultsAsync(traceId, timestamp, token);
 
         results.Should().NotBeNull().And.Equal(eventResults);
 
-        await webApiClientMock.Received().ScoresAsync(league, secretValue, 3).ConfigureAwait(false);
+        await webApiClientMock.Received().ScoresAsync(league, secretValue, 3, token).ConfigureAwait(false);
 
         var received = converterMock.ReceivedCalls().ToList();
 

@@ -15,9 +15,9 @@ internal sealed class NotificationFunction(IEmailSender? sender, ICosmosDbClient
     private readonly IEmailSender _sender = sender ?? throw new ArgumentNullException(nameof(sender));
 
     [Function(nameof(NotificationFunction))]
-    public async Task Run([TimerTrigger("%TimerInterval%")] TimerInfo timer)
+    public async Task Run([TimerTrigger("%TimerInterval%")] TimerInfo timer, CancellationToken cancellationToken)
     {
-        var predictions = await _client.GetEventPredictionsAsync().ConfigureAwait(false);
-        await _sender.SendEmailAsync(predictions).ConfigureAwait(false);
+        var predictions = await _client.GetEventPredictionsAsync(cancellationToken).ConfigureAwait(false);
+        await _sender.SendEmailAsync(predictions, cancellationToken).ConfigureAwait(false);
     }
 }

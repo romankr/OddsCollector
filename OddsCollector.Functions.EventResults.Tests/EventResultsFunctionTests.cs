@@ -36,14 +36,16 @@ internal sealed class EventResultsFunctionTests
         IEnumerable<EventResult> expectedEventResults = [];
 
         var clientStub = Substitute.For<IOddsApiClient>();
-        clientStub.GetEventResultsAsync(Arg.Any<Guid>(), Arg.Any<DateTime>())
+        clientStub.GetEventResultsAsync(Arg.Any<Guid>(), Arg.Any<DateTime>(), Arg.Any<CancellationToken>())
             .Returns(Task.FromResult(expectedEventResults));
 
         var function = new EventResultsFunction(clientStub);
 
         var timerStub = Substitute.For<TimerInfo>();
 
-        var eventResults = await function.Run(timerStub);
+        var token = new CancellationToken();
+
+        var eventResults = await function.Run(timerStub, token);
 
         eventResults.Should().NotBeNull().And.BeEquivalentTo(expectedEventResults);
     }

@@ -4,5 +4,5 @@ namespace OddsCollector.Functions.Notification.CosmosDb;
 
 internal interface ICosmosDbClient
 {
-    Task<IEnumerable<EventPrediction>> GetEventPredictionsAsync();
+    Task<IEnumerable<EventPrediction>> GetEventPredictionsAsync(CancellationToken cancellationToken);
 }

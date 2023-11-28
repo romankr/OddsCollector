@@ -8,7 +8,7 @@ internal sealed class CosmosDbClient(Container? container) : ICosmosDbClient
 {
     private readonly Container _container = container ?? throw new ArgumentNullException(nameof(container));
 
-    public async Task<IEnumerable<EventPrediction>> GetEventPredictionsAsync()
+    public async Task<IEnumerable<EventPrediction>> GetEventPredictionsAsync(CancellationToken cancellationToken)
     {
         var queryable = _container.GetItemLinqQueryable<EventPrediction>();
 
@@ -23,7 +23,7 @@ internal sealed class CosmosDbClient(Container? container) : ICosmosDbClient
 
         while (feed.HasMoreResults)
         {
-            var response = await feed.ReadNextAsync().ConfigureAwait(false);
+            var response = await feed.ReadNextAsync(cancellationToken).ConfigureAwait(false);
 
             cosmosdbresult.AddRange(response);
         }
