@@ -1,5 +1,4 @@
 ﻿using FluentAssertions;
-using Microsoft.Azure.Functions.Worker;
 using NSubstitute;
 using OddsCollector.Common.Models;
 using OddsCollector.Functions.Notification.CommunicationServices;
@@ -50,8 +49,6 @@ internal class NotificationFunctionTests
     [Test]
     public async Task Run_WithTimer_SendsEmails()
     {
-        var timer = new TimerInfo();
-
         IEnumerable<EventPrediction> predictons = [];
         var cosmosDbClientMock = Substitute.For<ICosmosDbClient>();
         cosmosDbClientMock.GetEventPredictionsAsync(Arg.Any<CancellationToken>()).Returns(Task.FromResult(predictons));
@@ -62,7 +59,7 @@ internal class NotificationFunctionTests
 
         var token = new CancellationToken();
 
-        await function.Run(timer, token).ConfigureAwait(false);
+        await function.Run(token).ConfigureAwait(false);
 
         await emailSenderMock.Received().SendEmailAsync(predictons, token);
         await cosmosDbClientMock.Received().GetEventPredictionsAsync(token);
