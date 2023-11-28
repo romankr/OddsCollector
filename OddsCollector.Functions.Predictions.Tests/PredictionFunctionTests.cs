@@ -69,8 +69,8 @@ internal class PredictionFunctionTests
 
         var ampqannotatedmessage = new AmqpAnnotatedMessage(ampqmessage);
 
-        var receivedmessage =
-            ServiceBusReceivedMessage.FromAmqpMessage(ampqannotatedmessage, new BinaryData(Array.Empty<byte>()));
+        ServiceBusReceivedMessage[] receivedmessages =
+            [ServiceBusReceivedMessage.FromAmqpMessage(ampqannotatedmessage, new BinaryData(Array.Empty<byte>()))];
 
         var actionsMock = Substitute.For<ServiceBusMessageActions>();
 
@@ -81,10 +81,11 @@ internal class PredictionFunctionTests
 
         var token = new CancellationToken();
 
-        var prediction = await function.Run(receivedmessage, actionsMock, token).ConfigureAwait(false);
+        var prediction = await function.Run(receivedmessages, actionsMock, token).ConfigureAwait(false);
 
-        prediction.Should().NotBeNull().And.Be(expectedPrediction);
+        prediction.Should().NotBeNull().And.HaveCount(1);
+        prediction[0].Should().NotBeNull().And.Be(expectedPrediction);
 
-        await actionsMock.Received(Quantity.Exactly(1)).CompleteMessageAsync(receivedmessage, token);
+        await actionsMock.Received(Quantity.Exactly(1)).CompleteMessageAsync(receivedmessages[0], token);
     }
 }
