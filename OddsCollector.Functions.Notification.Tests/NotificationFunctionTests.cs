@@ -7,6 +7,7 @@ using OddsCollector.Functions.Notification.CosmosDb;
 
 namespace OddsCollector.Functions.Notification.Tests;
 
+[Parallelizable(ParallelScope.All)]
 internal class NotificationFunctionTests
 {
     [Test]

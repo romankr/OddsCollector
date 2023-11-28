@@ -3,6 +3,7 @@ using OddsCollector.Common.OddsApi.Configuration;
 
 namespace OddsCollector.Common.Tests.OddsApi.Configuration;
 
+[Parallelizable(ParallelScope.All)]
 internal sealed class OddsApiOptionsTests
 {
     [Test]

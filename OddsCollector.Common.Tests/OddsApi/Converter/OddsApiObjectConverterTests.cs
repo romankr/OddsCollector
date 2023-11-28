@@ -5,6 +5,7 @@ using OddsCollector.Common.OddsApi.WebApi;
 
 namespace OddsCollector.Common.Tests.OddsApi.Converter;
 
+[Parallelizable(ParallelScope.All)]
 internal sealed class OddsApiObjectConverterTests
 {
     [Test]

@@ -10,6 +10,7 @@ using OddsCollector.Common.OddsApi.WebApi;
 
 namespace OddsCollector.Common.Tests.OddsApi.Client;
 
+[Parallelizable(ParallelScope.All)]
 internal sealed class OddsApiClientTests
 {
     [Test]

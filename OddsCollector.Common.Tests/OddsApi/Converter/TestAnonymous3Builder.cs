@@ -2,6 +2,7 @@
 
 namespace OddsCollector.Common.Tests.OddsApi.Converter;
 
+[Parallelizable(ParallelScope.All)]
 internal sealed class TestAnonymous3Builder
 {
     public const string DefaultAwayTeam = "Liverpool";

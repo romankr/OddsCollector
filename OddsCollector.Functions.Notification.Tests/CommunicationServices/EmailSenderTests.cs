@@ -10,6 +10,7 @@ using OddsCollector.Functions.Notification.CommunicationServices.Configuration;
 
 namespace OddsCollector.Functions.Notification.Tests.CommunicationServices;
 
+[Parallelizable(ParallelScope.All)]
 internal class EmailSenderTests
 {
     [Test]

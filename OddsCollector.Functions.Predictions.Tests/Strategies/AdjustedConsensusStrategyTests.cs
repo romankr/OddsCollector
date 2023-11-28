@@ -4,6 +4,7 @@ using OddsCollector.Functions.Predictions.Strategies;
 
 namespace OddsCollector.Functions.Predictions.Tests.Strategies;
 
+[Parallelizable(ParallelScope.All)]
 internal class AdjustedConsensusStrategyTests
 {
     [Test]

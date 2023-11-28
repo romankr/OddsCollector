@@ -4,15 +4,15 @@ namespace OddsCollector.Common.Models;
 
 public class EventPrediction
 {
-    // duplicating information to avoid complex queries to cosmosdb
+    // duplicating information to avoid complex cosmosdb queries
     public string AwayTeam { get; set; } = string.Empty;
 
     public string Bookmaker { get; set; } = string.Empty;
 
-    // duplicating information to avoid complex queries to cosmosdb
+    // duplicating information to avoid complex cosmosdb queries
     public DateTime CommenceTime { get; set; } = DateTime.MinValue;
 
-    // duplicating information to avoid complex queries to cosmosdb
+    // duplicating information to avoid complex cosmosdb queries
     public string HomeTeam { get; set; } = string.Empty;
 
     // fix for cosmosdb

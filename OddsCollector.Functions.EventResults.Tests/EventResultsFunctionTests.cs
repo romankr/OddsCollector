@@ -6,6 +6,7 @@ using OddsCollector.Common.OddsApi.Client;
 
 namespace OddsCollector.Functions.EventResults.Tests;
 
+[Parallelizable(ParallelScope.All)]
 internal sealed class EventResultsFunctionTests
 {
     [Test]
