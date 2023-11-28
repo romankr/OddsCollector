@@ -1,5 +1,4 @@
 ﻿using FluentAssertions;
-using Microsoft.Azure.Functions.Worker;
 using NSubstitute;
 using OddsCollector.Common.Models;
 using OddsCollector.Common.OddsApi.Client;
@@ -41,9 +40,7 @@ internal class UpcomingEventsFunctionTest
 
         var function = new UpcomingEventsFunction(clientStub);
 
-        var timerStub = Substitute.For<TimerInfo>();
-
-        var eventResults = await function.Run(timerStub, new CancellationToken());
+        var eventResults = await function.Run(new CancellationToken());
 
         eventResults.Should().NotBeNull().And.BeEquivalentTo(expectedEventResults);
     }

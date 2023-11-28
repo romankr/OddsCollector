@@ -1,5 +1,4 @@
 ﻿using FluentAssertions;
-using Microsoft.Azure.Functions.Worker;
 using NSubstitute;
 using OddsCollector.Common.Models;
 using OddsCollector.Common.OddsApi.Client;
@@ -41,11 +40,9 @@ internal sealed class EventResultsFunctionTests
 
         var function = new EventResultsFunction(clientStub);
 
-        var timerStub = Substitute.For<TimerInfo>();
-
         var token = new CancellationToken();
 
-        var eventResults = await function.Run(timerStub, token);
+        var eventResults = await function.Run(token);
 
         eventResults.Should().NotBeNull().And.BeEquivalentTo(expectedEventResults);
     }
