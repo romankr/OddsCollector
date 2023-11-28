@@ -1,5 +1,4 @@
 ﻿using FluentAssertions;
-using NUnit.Framework;
 using OddsCollector.Functions.Notification.CosmosDb;
 
 namespace OddsCollector.Functions.Notification.Tests.CosmosDb;

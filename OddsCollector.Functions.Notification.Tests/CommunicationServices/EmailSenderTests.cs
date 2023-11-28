@@ -4,7 +4,6 @@ using Azure.Communication.Email;
 using FluentAssertions;
 using Microsoft.Extensions.Options;
 using NSubstitute;
-using NUnit.Framework;
 using OddsCollector.Common.Models;
 using OddsCollector.Functions.Notification.CommunicationServices;
 using OddsCollector.Functions.Notification.CommunicationServices.Configuration;
