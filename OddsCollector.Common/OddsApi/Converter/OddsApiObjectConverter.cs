@@ -37,14 +37,16 @@ public class OddsApiObjectConverter : IOddsApiObjectConverter
             .SetTimestamp(timestamp)
             .SetTraceId(traceId)
             .SetOdds(
-                ToOdds(upcomingEvent.Bookmakers, upcomingEvent.Away_team!, upcomingEvent.Home_team!).ToList()
+                ToOdds(upcomingEvent.Bookmakers, upcomingEvent.Away_team, upcomingEvent.Home_team).ToList()
             )
             .Instance;
     }
 
-    private static IEnumerable<Odd> ToOdds(ICollection<Bookmakers>? bookmakers, string awayTeam, string homeTeam)
+    private static IEnumerable<Odd> ToOdds(ICollection<Bookmakers>? bookmakers, string? awayTeam, string? homeTeam)
     {
         ArgumentNullException.ThrowIfNull(bookmakers);
+        ArgumentException.ThrowIfNullOrEmpty(awayTeam);
+        ArgumentException.ThrowIfNullOrEmpty(homeTeam);
 
         return bookmakers.Select(b => ToOdd(b, awayTeam, homeTeam));
     }
