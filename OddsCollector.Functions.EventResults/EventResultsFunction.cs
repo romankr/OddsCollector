@@ -1,5 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Logging;
 using OddsCollector.Common.Models;
 using OddsCollector.Common.OddsApi.Client;
 
@@ -9,14 +10,25 @@ using OddsCollector.Common.OddsApi.Client;
 
 namespace OddsCollector.Functions.EventResults;
 
-internal sealed class EventResultsFunction(IOddsApiClient? client)
+internal sealed class EventResultsFunction(ILogger<EventResultsFunction>? logger, IOddsApiClient? client)
 {
     private readonly IOddsApiClient _client = client ?? throw new ArgumentNullException(nameof(client));
+    private readonly ILogger<EventResultsFunction> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
     [Function(nameof(EventResultsFunction))]
     [CosmosDBOutput("%CosmosDb:Database%", "%CosmosDb:Container%", Connection = "CosmosDb:Connection")]
     public async Task<EventResult[]> Run([TimerTrigger("%TimerInterval%")] CancellationToken cancellationToken)
     {
-        return (await _client.GetEventResultsAsync(Guid.NewGuid(), DateTime.UtcNow, cancellationToken).ConfigureAwait(false)).ToArray();
+        try
+        {
+            return (await _client.GetEventResultsAsync(Guid.NewGuid(), DateTime.UtcNow, cancellationToken)
+                .ConfigureAwait(false)).ToArray();
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception, "Failed to get event results");
+        }
+
+        return [];
     }
 }
