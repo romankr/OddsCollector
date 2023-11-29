@@ -147,8 +147,7 @@ internal sealed class OddsApiClientTests
 
         var received = converterMock.ReceivedCalls().ToList();
 
-        received.Should().NotBeNull();
-        received.Should().HaveCount(1);
+        received.Should().NotBeNull().And.HaveCount(1);
 
         var firstReceived = received.First();
 
