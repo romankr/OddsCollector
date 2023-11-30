@@ -4,7 +4,7 @@ using OddsCollector.Common.OddsApi.Configuration;
 using OddsCollector.Common.OddsApi.Converter;
 using OddsCollector.Common.OddsApi.WebApi;
 
-namespace OddsCollector.Common.OddsApi.Client;
+namespace OddsCollector.Common.OddsApi;
 
 public class OddsApiClient(IOptions<OddsApiClientOptions>? options, IClient? webApiClient,
     IOddsApiObjectConverter? objectConverter) : IOddsApiClient

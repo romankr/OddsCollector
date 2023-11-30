@@ -2,12 +2,12 @@
 using Microsoft.Extensions.Options;
 using NSubstitute;
 using OddsCollector.Common.Models;
-using OddsCollector.Common.OddsApi.Client;
+using OddsCollector.Common.OddsApi;
 using OddsCollector.Common.OddsApi.Configuration;
 using OddsCollector.Common.OddsApi.Converter;
 using OddsCollector.Common.OddsApi.WebApi;
 
-namespace OddsCollector.Common.Tests.OddsApi.Client;
+namespace OddsCollector.Common.Tests.OddsApi;
 
 [Parallelizable(ParallelScope.All)]
 internal sealed class OddsApiClientTests

@@ -2,7 +2,7 @@
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using OddsCollector.Common.Models;
-using OddsCollector.Common.OddsApi.Client;
+using OddsCollector.Common.OddsApi;
 
 [assembly: InternalsVisibleTo("OddsCollector.Functions.UpcomingEvents.Tests")]
 // DynamicProxyGenAssembly2 is a temporary assembly built by mocking systems that use CastleProxy
