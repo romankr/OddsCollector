@@ -1,8 +1,6 @@
 ﻿using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using OddsCollector.Common.KeyVault.Client;
-using OddsCollector.Common.KeyVault.Secrets;
 using OddsCollector.Common.OddsApi.Client;
 using OddsCollector.Common.OddsApi.Configuration;
 using OddsCollector.Common.OddsApi.Converter;
@@ -15,16 +13,12 @@ var host = new HostBuilder()
         services.Configure<OddsApiClientOptions>(o =>
         {
             // workaround for https://github.com/MicrosoftDocs/azure-docs/issues/32962
-            o.SetLeagues(Environment.GetEnvironmentVariable("OddsApiClient:Leagues"));
+            o.AddLeagues(Environment.GetEnvironmentVariable("OddsApiClient:Leagues"));
+            o.SetApiKey(Environment.GetEnvironmentVariable("KeyVault:Name"));
         });
         services.AddHttpClient<Client>();
         services.AddSingleton<IClient, Client>();
         services.AddSingleton<IOddsApiObjectConverter, OddsApiObjectConverter>();
-        services.AddSingleton(
-            // workaround for https://github.com/MicrosoftDocs/azure-docs/issues/32962
-            SecretClientFactory.CreateSecretClient(Environment.GetEnvironmentVariable("KeyVault:Name"))
-        );
-        services.AddSingleton<IKeyVaultClient, KeyVaultClient>();
         services.AddSingleton<IOddsApiClient, OddsApiClient>();
         services.AddApplicationInsightsTelemetryWorkerService();
         services.ConfigureFunctionsApplicationInsights();
