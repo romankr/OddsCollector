@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 using OddsCollector.Common.Models;
-using OddsCollector.Common.OddsApi.Client;
+using OddsCollector.Common.OddsApi;
 
 namespace OddsCollector.Functions.UpcomingEvents.Tests;
 

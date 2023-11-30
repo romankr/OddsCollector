@@ -1,6 +1,6 @@
 ﻿using OddsCollector.Common.Models;
 
-namespace OddsCollector.Common.OddsApi.Client;
+namespace OddsCollector.Common.OddsApi;
 
 public interface IOddsApiClient
 {
