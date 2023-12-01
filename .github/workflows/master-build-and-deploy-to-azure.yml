@@ -1,0 +1,126 @@
+# Docs for the Azure Web Apps Deploy action: https://github.com/azure/functions-action
+# More GitHub Actions for Azure: https://github.com/Azure/actions
+
+name: Build and deploy to Azure
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+env:
+  UPCOMING_EVENTS_FUNCTION_PACKAGE_PATH: 'OddsCollector.Functions.UpcomingEvents'
+  EVENT_RESULTS_FUNCTION_PACKAGE_PATH: 'OddsCollector.Functions.EventResults'
+  PREDICTIONS_FUNCTION_PACKAGE_PATH: 'OddsCollector.Functions.Predictions'
+  NOTIFICATION_FUNCTION_PACKAGE_PATH: 'OddsCollector.Functions.Notification'
+  DOTNET_VERSION: '8.0.x'
+
+jobs:
+  build-and-deploy-upcoming-events:
+    runs-on: windows-latest
+    steps:
+      - name: 'Checkout GitHub Action'
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: 'Resolve Project Dependencies Using Dotnet'
+        shell: pwsh
+        run: |
+          pushd './${{ env.UPCOMING_EVENTS_FUNCTION_PACKAGE_PATH }}'
+          dotnet build --configuration Release --output ./output
+          popd
+
+      - name: 'Run Azure Functions Action'
+        uses: Azure/functions-action@v1
+        id: fa
+        with:
+          app-name: 'oddscollector-upcoming-events'
+          slot-name: 'Production'
+          package: '${{ env.UPCOMING_EVENTS_FUNCTION_PACKAGE_PATH }}/output'
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_83DC6CCA847446E686FEDD7CA3F82BC4 }}
+
+  build-and-deploy-event-results:
+    runs-on: windows-latest
+    steps:
+      - name: 'Checkout GitHub Action'
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: 'Resolve Project Dependencies Using Dotnet'
+        shell: pwsh
+        run: |
+          pushd './${{ env.EVENT_RESULTS_FUNCTION_PACKAGE_PATH }}'
+          dotnet build --configuration Release --output ./output
+          popd
+
+      - name: 'Run Azure Functions Action'
+        uses: Azure/functions-action@v1
+        id: fa
+        with:
+          app-name: 'oddscollector-event-results'
+          slot-name: 'Production'
+          package: '${{ env.EVENT_RESULTS_FUNCTION_PACKAGE_PATH }}/output'
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_ADAF7561B02647A59DBEB1790452FBA3 }}
+
+  build-and-deploy-predictions:
+    runs-on: windows-latest
+    steps:
+      - name: 'Checkout GitHub Action'
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: 'Resolve Project Dependencies Using Dotnet'
+        shell: pwsh
+        run: |
+          pushd './${{ env.PREDICTIONS_FUNCTION_PACKAGE_PATH }}'
+          dotnet build --configuration Release --output ./output
+          popd
+
+      - name: 'Run Azure Functions Action'
+        uses: Azure/functions-action@v1
+        id: fa
+        with:
+          app-name: 'oddscollector-predictions'
+          slot-name: 'Production'
+          package: '${{ env.PREDICTIONS_FUNCTION_PACKAGE_PATH }}/output'
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_6D01928543324191A154A059A20C08F6 }}
+
+  build-and-deploy-notification:
+    runs-on: windows-latest
+    steps:
+      - name: 'Checkout GitHub Action'
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: 'Resolve Project Dependencies Using Dotnet'
+        shell: pwsh
+        run: |
+          pushd './${{ env.NOTIFICATION_FUNCTION_PACKAGE_PATH }}'
+          dotnet build --configuration Release --output ./output
+          popd
+
+      - name: 'Run Azure Functions Action'
+        uses: Azure/functions-action@v1
+        id: fa
+        with:
+          app-name: 'oddscollector-notification'
+          slot-name: 'Production'
+          package: '${{ env.NOTIFICATION_FUNCTION_PACKAGE_PATH }}/output'
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_3C41A87CE3DC4B03A71A681D0D5F43BA }}
