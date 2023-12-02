@@ -1,9 +1,0 @@
-{
-  "profiles": {
-    "OddsCollector.Functions.UpcomingEvents": {
-      "commandName": "Project",
-      "commandLineArgs": "--port 7204",
-      "launchBrowser": false
-    }
-  }
-}
