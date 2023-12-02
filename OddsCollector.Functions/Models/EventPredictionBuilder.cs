@@ -1,6 +1,6 @@
 ﻿namespace OddsCollector.Functions.Models;
 
-public class EventPredictionBuilder
+internal class EventPredictionBuilder
 {
     public EventPrediction Instance { get; } = new();
 

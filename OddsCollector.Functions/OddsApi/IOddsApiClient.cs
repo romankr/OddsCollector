@@ -2,8 +2,11 @@
 
 namespace OddsCollector.Functions.OddsApi;
 
-public interface IOddsApiClient
+internal interface IOddsApiClient
 {
-    Task<IEnumerable<UpcomingEvent>> GetUpcomingEventsAsync(Guid traceId, DateTime timestamp, CancellationToken cancellationToken);
-    Task<IEnumerable<EventResult>> GetEventResultsAsync(Guid traceId, DateTime timestamp, CancellationToken cancellationToken);
+    Task<IEnumerable<UpcomingEvent>> GetUpcomingEventsAsync(Guid traceId, DateTime timestamp,
+        CancellationToken cancellationToken);
+
+    Task<IEnumerable<EventResult>> GetEventResultsAsync(Guid traceId, DateTime timestamp,
+        CancellationToken cancellationToken);
 }

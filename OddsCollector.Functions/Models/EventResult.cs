@@ -2,7 +2,7 @@
 
 namespace OddsCollector.Functions.Models;
 
-public class EventResult
+internal class EventResult
 {
     public DateTime CommenceTime { get; set; } = DateTime.MinValue;
 

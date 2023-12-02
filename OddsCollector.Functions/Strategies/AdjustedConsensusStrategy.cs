@@ -40,10 +40,11 @@ internal sealed class AdjustedConsensusStrategy : IPredictionStrategy
         ArgumentException.ThrowIfNullOrEmpty(awayTeam);
         ArgumentException.ThrowIfNullOrEmpty(homeTeam);
 
-        List<StrategyScore> scores = [
-            new() { Name = Constants.Draw, Odd = CalculateAdjustedScore(enumerated, Draw, 0.057) },
-            new() { Name = awayTeam, Odd = CalculateAdjustedScore(enumerated, AwayTeamWins, 0.034) },
-            new() { Name = homeTeam, Odd = CalculateAdjustedScore(enumerated, HomeTeamWins, 0.037) }
+        List<StrategyScore> scores =
+        [
+            new StrategyScore { Name = Constants.Draw, Odd = CalculateAdjustedScore(enumerated, Draw, 0.057) },
+            new StrategyScore { Name = awayTeam, Odd = CalculateAdjustedScore(enumerated, AwayTeamWins, 0.034) },
+            new StrategyScore { Name = homeTeam, Odd = CalculateAdjustedScore(enumerated, HomeTeamWins, 0.037) }
         ];
 
         var winner = scores.MaxBy(p => p.Odd);
@@ -56,7 +57,7 @@ internal sealed class AdjustedConsensusStrategy : IPredictionStrategy
     private static double CalculateAdjustedScore(IEnumerable<Odd> odds, Func<Odd, double> filter, double adjustment)
     {
         var average = odds.Select(filter).Average();
-        return average == 0 ? 0 : 1 / average - adjustment;
+        return average == 0 ? 0 : (1 / average) - adjustment;
     }
 
     private static Odd GetBestOdd(IEnumerable<Odd> odds, string winner, string awayTeam, string homeTeam)

@@ -1,6 +1,6 @@
 ﻿namespace OddsCollector.Functions.Models;
 
-public class UpcomingEvent
+internal class UpcomingEvent
 {
     public string AwayTeam { get; set; } = string.Empty;
     public DateTime CommenceTime { get; set; } = DateTime.MinValue;

@@ -1,6 +1,6 @@
 ﻿namespace OddsCollector.Functions.OddsApi.Configuration;
 
-public class OddsApiClientOptions
+internal class OddsApiClientOptions
 {
     public HashSet<string> Leagues { get; init; } = [];
 
