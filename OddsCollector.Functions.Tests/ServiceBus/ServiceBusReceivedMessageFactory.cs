@@ -1,0 +1,21 @@
+﻿using System.Text;
+using System.Text.Json;
+using Azure.Core.Amqp;
+using Azure.Messaging.ServiceBus;
+
+namespace OddsCollector.Functions.Tests.ServiceBus;
+
+internal static class ServiceBusReceivedMessageFactory
+{
+    public static ServiceBusReceivedMessage CreateFromObject(object obj)
+    {
+        var serialized = Encoding.ASCII.GetBytes(JsonSerializer.Serialize(obj))
+            .Select(x => new ReadOnlyMemory<byte>([x]));
+
+        var ampqMessage = new AmqpMessageBody(serialized);
+
+        var ampqAnnotatedMessage = new AmqpAnnotatedMessage(ampqMessage);
+
+        return ServiceBusReceivedMessage.FromAmqpMessage(ampqAnnotatedMessage, new BinaryData(Array.Empty<byte>()));
+    }
+}

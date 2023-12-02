@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "OddsCollector.Functions": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7270",
+      "launchBrowser": false
+    }
+  }
+}
