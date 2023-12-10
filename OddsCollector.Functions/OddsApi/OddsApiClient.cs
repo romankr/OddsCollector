@@ -7,9 +7,9 @@ using OddsCollector.Functions.OddsApi.WebApi;
 namespace OddsCollector.Functions.OddsApi;
 
 internal class OddsApiClient(
-    IOptions<OddsApiClientOptions>? options,
-    IClient? webApiClient,
-    IOddsApiObjectConverter? objectConverter) : IOddsApiClient
+    IOptions<OddsApiClientOptions> options,
+    IClient webApiClient,
+    IOddsApiObjectConverter objectConverter) : IOddsApiClient
 {
     private const DateFormat IsoDateFormat = DateFormat.Iso;
     private const Markets HeadToHeadMarket = Markets.H2h;
@@ -17,24 +17,18 @@ internal class OddsApiClient(
     private const Regions EuropeanRegion = Regions.Eu;
     private const int DaysFromToday = 3;
 
-    private readonly IOddsApiObjectConverter _objectConverter =
-        objectConverter ?? throw new ArgumentNullException(nameof(objectConverter));
-
-    private readonly OddsApiClientOptions _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
-    private readonly IClient _webApiClient = webApiClient ?? throw new ArgumentNullException(nameof(webApiClient));
-
     public async Task<IEnumerable<UpcomingEvent>> GetUpcomingEventsAsync(Guid traceId, DateTime timestamp,
         CancellationToken cancellationToken)
     {
         List<UpcomingEvent> result = [];
 
-        foreach (var league in _options.Leagues)
+        foreach (var league in options.Value.Leagues)
         {
-            var events = await _webApiClient.OddsAsync(league, _options.ApiKey,
+            var events = await webApiClient.OddsAsync(league, options.Value.ApiKey,
                     EuropeanRegion, HeadToHeadMarket, IsoDateFormat, DecimalOddsFormat, null, null, cancellationToken)
                 .ConfigureAwait(false);
 
-            result.AddRange(_objectConverter.ToUpcomingEvents(events, traceId, timestamp));
+            result.AddRange(objectConverter.ToUpcomingEvents(events, traceId, timestamp));
         }
 
         return result;
@@ -45,13 +39,13 @@ internal class OddsApiClient(
     {
         List<EventResult> result = [];
 
-        foreach (var league in _options.Leagues)
+        foreach (var league in options.Value.Leagues)
         {
             var results =
-                await _webApiClient.ScoresAsync(league, _options.ApiKey, DaysFromToday, cancellationToken)
+                await webApiClient.ScoresAsync(league, options.Value.ApiKey, DaysFromToday, cancellationToken)
                     .ConfigureAwait(false);
 
-            result.AddRange(_objectConverter.ToEventResults(results, traceId, timestamp));
+            result.AddRange(objectConverter.ToEventResults(results, traceId, timestamp));
         }
 
         return result;

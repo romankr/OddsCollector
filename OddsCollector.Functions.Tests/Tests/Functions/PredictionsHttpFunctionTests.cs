@@ -13,27 +13,6 @@ namespace OddsCollector.Functions.Tests.Tests.Functions;
 internal class PredictionsHttpFunctionTests
 {
     [Test]
-    public void Constructor_WithValidDependencies_ReturnsNewInstance()
-    {
-        var loggerStub = Substitute.For<ILogger<PredictionsHttpFunction>>();
-
-        var function = new PredictionsHttpFunction(loggerStub);
-
-        function.Should().NotBeNull();
-    }
-
-    [Test]
-    public void Constructor_WithNullLogger_ThrowsException()
-    {
-        var action = () =>
-        {
-            _ = new PredictionsHttpFunction(null);
-        };
-
-        action.Should().Throw<ArgumentNullException>().WithParameterName("logger");
-    }
-
-    [Test]
     public void Run_WithValidArguments_ReturnsValidResponse()
     {
         var loggerStub = Substitute.For<ILogger<PredictionsHttpFunction>>();

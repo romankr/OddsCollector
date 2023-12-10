@@ -5,11 +5,8 @@ using OddsCollector.Functions.OddsApi;
 
 namespace OddsCollector.Functions.Functions;
 
-internal class EventResultsFunction(ILogger<EventResultsFunction>? logger, IOddsApiClient? client)
+internal class EventResultsFunction(ILogger<EventResultsFunction> logger, IOddsApiClient client)
 {
-    private readonly IOddsApiClient _client = client ?? throw new ArgumentNullException(nameof(client));
-    private readonly ILogger<EventResultsFunction> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-
     [Function(nameof(EventResultsFunction))]
     [CosmosDBOutput("%CosmosDb:Database%", "%CosmosDb:EventResultsContainer%", Connection = "CosmosDb:Connection")]
     public async Task<EventResult[]> Run(
@@ -18,12 +15,12 @@ internal class EventResultsFunction(ILogger<EventResultsFunction>? logger, IOdds
     {
         try
         {
-            return (await _client.GetEventResultsAsync(Guid.NewGuid(), DateTime.UtcNow, cancellationToken)
+            return (await client.GetEventResultsAsync(Guid.NewGuid(), DateTime.UtcNow, cancellationToken)
                 .ConfigureAwait(false)).ToArray();
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, "Failed to get event results");
+            logger.LogError(exception, "Failed to get event results");
         }
 
         return [];

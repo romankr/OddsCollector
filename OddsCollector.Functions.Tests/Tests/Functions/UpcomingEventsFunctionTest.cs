@@ -10,43 +10,6 @@ namespace OddsCollector.Functions.Tests.Tests.Functions;
 internal class UpcomingEventsFunctionTest
 {
     [Test]
-    public void Constructor_WithValidDependencies_ReturnsNewInstance()
-    {
-        var loggerStub = Substitute.For<ILogger<UpcomingEventsFunction>>();
-        var clientStub = Substitute.For<IOddsApiClient>();
-
-        var function = new UpcomingEventsFunction(loggerStub, clientStub);
-
-        function.Should().NotBeNull();
-    }
-
-    [Test]
-    public void Constructor_WithNullLogger_ThrowsException()
-    {
-        var clientStub = Substitute.For<IOddsApiClient>();
-
-        var action = () =>
-        {
-            _ = new UpcomingEventsFunction(null, clientStub);
-        };
-
-        action.Should().Throw<ArgumentNullException>().WithParameterName("logger");
-    }
-
-    [Test]
-    public void Constructor_WithNullOddsClient_ThrowsException()
-    {
-        var loggerStub = Substitute.For<ILogger<UpcomingEventsFunction>>();
-
-        var action = () =>
-        {
-            _ = new UpcomingEventsFunction(loggerStub, null);
-        };
-
-        action.Should().Throw<ArgumentNullException>().WithParameterName("client");
-    }
-
-    [Test]
     public async Task Run_WithValidParameters_ReturnsEventResults()
     {
         IEnumerable<UpcomingEvent> expectedEventResults = new List<UpcomingEvent>();

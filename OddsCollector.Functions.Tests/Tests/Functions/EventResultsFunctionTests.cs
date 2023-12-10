@@ -10,43 +10,6 @@ namespace OddsCollector.Functions.Tests.Tests.Functions;
 internal sealed class EventResultsFunctionTests
 {
     [Test]
-    public void Constructor_WithValidDependencies_ReturnsNewInstance()
-    {
-        var loggerStub = Substitute.For<ILogger<EventResultsFunction>>();
-        var clientStub = Substitute.For<IOddsApiClient>();
-
-        var function = new EventResultsFunction(loggerStub, clientStub);
-
-        function.Should().NotBeNull();
-    }
-
-    [Test]
-    public void Constructor_WithNullOddsClient_ThrowsException()
-    {
-        var loggerStub = Substitute.For<ILogger<EventResultsFunction>>();
-
-        var action = () =>
-        {
-            _ = new EventResultsFunction(loggerStub, null);
-        };
-
-        action.Should().Throw<ArgumentNullException>().WithParameterName("client");
-    }
-
-    [Test]
-    public void Constructor_WithNullLogger_ThrowsException()
-    {
-        var clientStub = Substitute.For<IOddsApiClient>();
-
-        var action = () =>
-        {
-            _ = new EventResultsFunction(null, clientStub);
-        };
-
-        action.Should().Throw<ArgumentNullException>().WithParameterName("logger");
-    }
-
-    [Test]
     public async Task Run_WithValidParameters_ReturnsEventResults()
     {
         IEnumerable<EventResult> expectedEventResults = new List<EventResult>();

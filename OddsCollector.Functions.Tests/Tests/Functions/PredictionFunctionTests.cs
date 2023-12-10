@@ -14,43 +14,6 @@ namespace OddsCollector.Functions.Tests.Tests.Functions;
 internal class PredictionFunctionTests
 {
     [Test]
-    public void Constructor_WithValidDependencies_ReturnsNewInstance()
-    {
-        var loggerStub = Substitute.For<ILogger<PredictionFunction>>();
-        var strategyStub = Substitute.For<IPredictionStrategy>();
-
-        var function = new PredictionFunction(loggerStub, strategyStub);
-
-        function.Should().NotBeNull();
-    }
-
-    [Test]
-    public void Constructor_WithNullLogger_ThrowsException()
-    {
-        var strategyStub = Substitute.For<IPredictionStrategy>();
-
-        var action = () =>
-        {
-            _ = new PredictionFunction(null, strategyStub);
-        };
-
-        action.Should().Throw<ArgumentNullException>().WithParameterName("logger");
-    }
-
-    [Test]
-    public void Constructor_WithNullStrategy_ThrowsException()
-    {
-        var loggerStub = Substitute.For<ILogger<PredictionFunction>>();
-
-        var action = () =>
-        {
-            _ = new PredictionFunction(loggerStub, null);
-        };
-
-        action.Should().Throw<ArgumentNullException>().WithParameterName("strategy");
-    }
-
-    [Test]
     public async Task Run_WithValidServiceBusMessage_ReturnsEventPrediction()
     {
         var loggerStub = Substitute.For<ILogger<PredictionFunction>>();

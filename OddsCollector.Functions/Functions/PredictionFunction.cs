@@ -6,11 +6,8 @@ using OddsCollector.Functions.Strategies;
 
 namespace OddsCollector.Functions.Functions;
 
-internal class PredictionFunction(ILogger<PredictionFunction>? logger, IPredictionStrategy? strategy)
+internal class PredictionFunction(ILogger<PredictionFunction> logger, IPredictionStrategy strategy)
 {
-    private readonly ILogger<PredictionFunction> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    private readonly IPredictionStrategy _strategy = strategy ?? throw new ArgumentNullException(nameof(strategy));
-
     [Function(nameof(PredictionFunction))]
     [CosmosDBOutput("%CosmosDb:Database%", "%CosmosDb:EventPredictionsContainer%", Connection = "CosmosDb:Connection")]
     public async Task<EventPrediction[]> Run(
@@ -26,7 +23,7 @@ internal class PredictionFunction(ILogger<PredictionFunction>? logger, IPredicti
             {
                 var upcomingEvent = message.Body.ToObjectFromJson<UpcomingEvent>();
 
-                var prediction = _strategy.GetPrediction(upcomingEvent, DateTime.UtcNow);
+                var prediction = strategy.GetPrediction(upcomingEvent, DateTime.UtcNow);
 
                 predictions.Add(prediction);
 
@@ -34,7 +31,7 @@ internal class PredictionFunction(ILogger<PredictionFunction>? logger, IPredicti
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, "Failed to convert message with id {Id}", message.MessageId);
+                logger.LogError(exception, "Failed to convert message with id {Id}", message.MessageId);
             }
         }
 

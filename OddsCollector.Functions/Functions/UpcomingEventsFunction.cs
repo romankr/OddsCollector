@@ -5,13 +5,8 @@ using OddsCollector.Functions.OddsApi;
 
 namespace OddsCollector.Functions.Functions;
 
-internal class UpcomingEventsFunction(ILogger<UpcomingEventsFunction>? logger, IOddsApiClient? client)
+internal class UpcomingEventsFunction(ILogger<UpcomingEventsFunction> logger, IOddsApiClient client)
 {
-    private readonly IOddsApiClient _client = client ?? throw new ArgumentNullException(nameof(client));
-
-    private readonly ILogger<UpcomingEventsFunction>
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-
     [Function(nameof(UpcomingEventsFunction))]
     [ServiceBusOutput("%ServiceBus:Queue%", Connection = "ServiceBus:Connection")]
     public async Task<UpcomingEvent[]> Run(
@@ -20,12 +15,12 @@ internal class UpcomingEventsFunction(ILogger<UpcomingEventsFunction>? logger, I
     {
         try
         {
-            return (await _client.GetUpcomingEventsAsync(Guid.NewGuid(), DateTime.UtcNow, cancellationToken)
+            return (await client.GetUpcomingEventsAsync(Guid.NewGuid(), DateTime.UtcNow, cancellationToken)
                 .ConfigureAwait(false)).ToArray();
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, "Failed to get upcoming events");
+            logger.LogError(exception, "Failed to get upcoming events");
         }
 
         return [];

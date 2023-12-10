@@ -7,12 +7,9 @@ using OddsCollector.Functions.Models;
 
 namespace OddsCollector.Functions.Functions;
 
-internal class PredictionsHttpFunction(ILogger<PredictionsHttpFunction>? logger)
+internal class PredictionsHttpFunction(ILogger<PredictionsHttpFunction> logger)
 {
     private static readonly JsonSerializerOptions SerializerOptions = new() { WriteIndented = true };
-
-    private readonly ILogger<PredictionsHttpFunction> _logger =
-        logger ?? throw new ArgumentNullException(nameof(logger));
 
     [Function(nameof(PredictionsHttpFunction))]
     public HttpResponseData Run(
@@ -40,7 +37,7 @@ internal class PredictionsHttpFunction(ILogger<PredictionsHttpFunction>? logger)
         {
             const string message = "Failed to return predictions";
 
-            _logger.LogError(exception, message);
+            logger.LogError(exception, message);
 
             return CreateResponse(HttpStatusCode.InternalServerError, request, message);
         }
