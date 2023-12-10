@@ -1,4 +1,5 @@
 ﻿using OddsCollector.Functions.Models;
+using OddsCollector.Functions.Tests.Data;
 
 namespace OddsCollector.Functions.Tests.Tests.OddsApi.Models;
 
@@ -16,45 +17,37 @@ internal class OddBuilderTests
     [Test]
     public void Instance_WithValidBookmaker_ReturnsValidInstance()
     {
-        const string bookmaker = nameof(bookmaker);
-
-        var result = new OddBuilder().SetBookmaker(bookmaker).Instance;
+        var result = new OddBuilder().SetBookmaker(SampleEvent.Bookmaker1).Instance;
 
         result.Should().NotBeNull();
-        result.Bookmaker.Should().NotBeNull().And.Be(bookmaker);
+        result.Bookmaker.Should().NotBeNull().And.Be(SampleEvent.Bookmaker1);
     }
 
     [Test]
     public void SetAway_WithValidAway_ReturnsValidInstance()
     {
-        const double away = 1.1;
-
-        var result = new OddBuilder().SetAway(away).Instance;
+        var result = new OddBuilder().SetAway(SampleEvent.AwayOdd1).Instance;
 
         result.Should().NotBeNull();
-        result.Away.Should().Be(away);
+        result.Away.Should().Be(SampleEvent.AwayOdd1);
     }
 
     [Test]
     public void SetDraw_WithValidDraw_ReturnsValidInstance()
     {
-        const double draw = 1.1;
-
-        var result = new OddBuilder().SetDraw(draw).Instance;
+        var result = new OddBuilder().SetDraw(SampleEvent.DrawOdd1).Instance;
 
         result.Should().NotBeNull();
-        result.Draw.Should().Be(draw);
+        result.Draw.Should().Be(SampleEvent.DrawOdd1);
     }
 
     [Test]
     public void SetHome_WithValidHome_ReturnsValidInstance()
     {
-        const double home = 1.1;
-
-        var result = new OddBuilder().SetHome(home).Instance;
+        var result = new OddBuilder().SetHome(SampleEvent.HomeOdd1).Instance;
 
         result.Should().NotBeNull();
-        result.Home.Should().Be(home);
+        result.Home.Should().Be(SampleEvent.HomeOdd1);
     }
 
     [TestCase("")]

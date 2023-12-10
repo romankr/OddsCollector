@@ -1,4 +1,5 @@
 ﻿using OddsCollector.Functions.Models;
+using OddsCollector.Functions.Tests.Data;
 
 namespace OddsCollector.Functions.Tests.Tests.OddsApi.Models;
 
@@ -16,137 +17,109 @@ internal class EventPredictionBuilderTests
     [Test]
     public void Instance_WithFullParameterList_ReturnsValidInstance()
     {
-        const string bookmaker = nameof(bookmaker);
-        const string winner = nameof(winner);
-        const string awayTeam = nameof(awayTeam);
-        const string homeTeam = nameof(homeTeam);
-        const string id = nameof(id);
-        const string strategy = nameof(strategy);
-        var commenceTime = DateTime.UtcNow;
-        var timestamp = DateTime.UtcNow;
-        var traceId = Guid.NewGuid();
-
         var result = new EventPredictionBuilder()
-            .SetBookmaker(bookmaker)
-            .SetWinner(winner)
-            .SetAwayTeam(awayTeam)
-            .SetHomeTeam(homeTeam)
-            .SetId(id)
-            .SetStrategy(strategy)
-            .SetCommenceTime(commenceTime)
-            .SetTimestamp(timestamp)
-            .SetTraceId(traceId)
+            .SetBookmaker(SampleEvent.Bookmaker1)
+            .SetWinner(SampleEvent.Winner)
+            .SetAwayTeam(SampleEvent.AwayTeam)
+            .SetHomeTeam(SampleEvent.HomeTeam)
+            .SetId(SampleEvent.Id)
+            .SetStrategy(SampleEvent.Strategy)
+            .SetCommenceTime(SampleEvent.CommenceTime)
+            .SetTimestamp(SampleEvent.Timestamp)
+            .SetTraceId(SampleEvent.TraceId)
             .Instance;
 
         result.Should().NotBeNull();
-        result.Bookmaker.Should().NotBeNull().And.Be(bookmaker);
-        result.Winner.Should().NotBeNull().And.Be(winner);
-        result.AwayTeam.Should().NotBeNull().And.Be(awayTeam);
-        result.HomeTeam.Should().NotBeNull().And.Be(homeTeam);
-        result.Id.Should().NotBeNull().And.Be(id);
-        result.Strategy.Should().NotBeNull().And.Be(strategy);
-        result.CommenceTime.Should().Be(commenceTime);
-        result.Timestamp.Should().Be(timestamp);
-        result.TraceId.Should().Be(traceId);
+        result.Bookmaker.Should().NotBeNull().And.Be(SampleEvent.Bookmaker1);
+        result.Winner.Should().NotBeNull().And.Be(SampleEvent.Winner);
+        result.AwayTeam.Should().NotBeNull().And.Be(SampleEvent.AwayTeam);
+        result.HomeTeam.Should().NotBeNull().And.Be(SampleEvent.HomeTeam);
+        result.Id.Should().NotBeNull().And.Be(SampleEvent.Id);
+        result.Strategy.Should().NotBeNull().And.Be(SampleEvent.Strategy);
+        result.CommenceTime.Should().Be(SampleEvent.CommenceTime);
+        result.Timestamp.Should().Be(SampleEvent.Timestamp);
+        result.TraceId.Should().Be(SampleEvent.TraceId);
     }
 
     [Test]
     public void SetBookmaker_WithValidBookmaker_ReturnsValidInstance()
     {
-        const string bookmaker = nameof(bookmaker);
-
-        var result = new EventPredictionBuilder().SetBookmaker(bookmaker).Instance;
+        var result = new EventPredictionBuilder().SetBookmaker(SampleEvent.Bookmaker1).Instance;
 
         result.Should().NotBeNull();
-        result.Bookmaker.Should().NotBeNull().And.Be(bookmaker);
+        result.Bookmaker.Should().NotBeNull().And.Be(SampleEvent.Bookmaker1);
     }
 
     [Test]
     public void SetWinner_WithValidWinner_ReturnsValidInstance()
     {
-        const string winner = nameof(winner);
-
-        var result = new EventPredictionBuilder().SetWinner(winner).Instance;
+        var result = new EventPredictionBuilder().SetWinner(SampleEvent.Winner).Instance;
 
         result.Should().NotBeNull();
-        result.Winner.Should().NotBeNull().And.Be(winner);
+        result.Winner.Should().NotBeNull().And.Be(SampleEvent.Winner);
     }
 
     [Test]
     public void SetAwayTeam_WithValidAwayTeam_ReturnsValidInstance()
     {
-        const string awayTeam = nameof(awayTeam);
-
-        var result = new EventPredictionBuilder().SetAwayTeam(awayTeam).Instance;
+        var result = new EventPredictionBuilder().SetAwayTeam(SampleEvent.AwayTeam).Instance;
 
         result.Should().NotBeNull();
-        result.AwayTeam.Should().NotBeNull().And.Be(awayTeam);
+        result.AwayTeam.Should().NotBeNull().And.Be(SampleEvent.AwayTeam);
     }
 
     [Test]
     public void SetHomeTeam_WithValidHomeTeam_ReturnsValidInstance()
     {
-        const string homeTeam = nameof(homeTeam);
-
-        var result = new EventPredictionBuilder().SetHomeTeam(homeTeam).Instance;
+        var result = new EventPredictionBuilder().SetHomeTeam(SampleEvent.HomeTeam).Instance;
 
         result.Should().NotBeNull();
-        result.HomeTeam.Should().NotBeNull().And.Be(homeTeam);
+        result.HomeTeam.Should().NotBeNull().And.Be(SampleEvent.HomeTeam);
     }
 
     [Test]
     public void SetId_WithValidId_ReturnsValidInstance()
     {
-        const string id = nameof(id);
-
-        var result = new EventPredictionBuilder().SetId(id).Instance;
+        var result = new EventPredictionBuilder().SetId(SampleEvent.Id).Instance;
 
         result.Should().NotBeNull();
-        result.Id.Should().NotBeNull().And.Be(id);
+        result.Id.Should().NotBeNull().And.Be(SampleEvent.Id);
     }
 
     [Test]
     public void SetStrategy_WithValidStrategy_ReturnsValidInstance()
     {
-        const string strategy = nameof(strategy);
-
-        var result = new EventPredictionBuilder().SetStrategy(strategy).Instance;
+        var result = new EventPredictionBuilder().SetStrategy(SampleEvent.Strategy).Instance;
 
         result.Should().NotBeNull();
-        result.Strategy.Should().NotBeNull().And.Be(strategy);
+        result.Strategy.Should().NotBeNull().And.Be(SampleEvent.Strategy);
     }
 
     [Test]
     public void SetCommenceTime_WithValidCommenceTime_ReturnsValidInstance()
     {
-        var commenceTime = DateTime.Now;
-
-        var result = new EventPredictionBuilder().SetCommenceTime(commenceTime).Instance;
+        var result = new EventPredictionBuilder().SetCommenceTime(SampleEvent.CommenceTime).Instance;
 
         result.Should().NotBeNull();
-        result.CommenceTime.Should().Be(commenceTime);
+        result.CommenceTime.Should().Be(SampleEvent.CommenceTime);
     }
 
     [Test]
     public void SetTimestamp_WithValidTimestamp_ReturnsValidInstance()
     {
-        var timestamp = DateTime.Now;
-
-        var result = new EventPredictionBuilder().SetTimestamp(timestamp).Instance;
+        var result = new EventPredictionBuilder().SetTimestamp(SampleEvent.Timestamp).Instance;
 
         result.Should().NotBeNull();
-        result.Timestamp.Should().Be(timestamp);
+        result.Timestamp.Should().Be(SampleEvent.Timestamp);
     }
 
     [Test]
     public void SetTraceId_WithValidTraceId_ReturnsValidInstance()
     {
-        var traceId = Guid.NewGuid();
-
-        var result = new EventPredictionBuilder().SetTraceId(traceId).Instance;
+        var result = new EventPredictionBuilder().SetTraceId(SampleEvent.TraceId).Instance;
 
         result.Should().NotBeNull();
-        result.TraceId.Should().Be(traceId);
+        result.TraceId.Should().Be(SampleEvent.TraceId);
     }
 
     [TestCase("")]

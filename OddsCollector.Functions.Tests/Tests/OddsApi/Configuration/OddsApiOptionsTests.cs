@@ -3,7 +3,7 @@
 namespace OddsCollector.Functions.Tests.Tests.OddsApi.Configuration;
 
 [Parallelizable(ParallelScope.All)]
-internal sealed class OddsApiOptionsTests
+internal class OddsApiOptionsTests
 {
     [Test]
     public void SetLeagues_WithValidLeague_ReturnsThisLeague()

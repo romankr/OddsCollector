@@ -1,4 +1,5 @@
 ﻿using OddsCollector.Functions.Models;
+using OddsCollector.Functions.Tests.Data;
 
 namespace OddsCollector.Functions.Tests.Tests.OddsApi.Models;
 
@@ -16,81 +17,65 @@ internal class EventResultBuilderTests
     [Test]
     public void Instance_WithFullParameterList_ReturnsValidInstance()
     {
-        const string winner = nameof(winner);
-        const string id = nameof(id);
-        var commenceTime = DateTime.UtcNow;
-        var timestamp = DateTime.UtcNow;
-        var traceId = Guid.NewGuid();
-
         var result = new EventResultBuilder()
-            .SetWinner(winner)
-            .SetId(id)
-            .SetCommenceTime(commenceTime)
-            .SetTimestamp(timestamp)
-            .SetTraceId(traceId)
+            .SetWinner(SampleEvent.Winner)
+            .SetId(SampleEvent.Id)
+            .SetCommenceTime(SampleEvent.CommenceTime)
+            .SetTimestamp(SampleEvent.Timestamp)
+            .SetTraceId(SampleEvent.TraceId)
             .Instance;
 
         result.Should().NotBeNull();
-        result.Winner.Should().NotBeNull().And.Be(winner);
-        result.Id.Should().NotBeNull().And.Be(id);
-        result.CommenceTime.Should().Be(commenceTime);
-        result.Timestamp.Should().Be(timestamp);
-        result.TraceId.Should().Be(traceId);
+        result.Winner.Should().NotBeNull().And.Be(SampleEvent.Winner);
+        result.Id.Should().NotBeNull().And.Be(SampleEvent.Id);
+        result.CommenceTime.Should().Be(SampleEvent.CommenceTime);
+        result.Timestamp.Should().Be(SampleEvent.Timestamp);
+        result.TraceId.Should().Be(SampleEvent.TraceId);
     }
 
     [Test]
     public void SetWinner_WithValidWinner_ReturnsValidInstance()
     {
-        const string winner = nameof(winner);
-
-        var result = new EventResultBuilder().SetWinner(winner).Instance;
+        var result = new EventResultBuilder().SetWinner(SampleEvent.Winner).Instance;
 
         result.Should().NotBeNull();
-        result.Winner.Should().NotBeNull().And.Be(winner);
+        result.Winner.Should().NotBeNull().And.Be(SampleEvent.Winner);
     }
 
     [Test]
     public void SetId_WithValidId_ReturnsValidInstance()
     {
-        const string id = nameof(id);
-
-        var result = new EventResultBuilder().SetId(id).Instance;
+        var result = new EventResultBuilder().SetId(SampleEvent.Id).Instance;
 
         result.Should().NotBeNull();
-        result.Id.Should().NotBeNull().And.Be(id);
+        result.Id.Should().NotBeNull().And.Be(SampleEvent.Id);
     }
 
     [Test]
     public void SetCommenceTime_WithValidCommenceTime_ReturnsValidInstance()
     {
-        var commenceTime = DateTime.Now;
-
-        var result = new EventResultBuilder().SetCommenceTime(commenceTime).Instance;
+        var result = new EventResultBuilder().SetCommenceTime(SampleEvent.CommenceTime).Instance;
 
         result.Should().NotBeNull();
-        result.CommenceTime.Should().Be(commenceTime);
+        result.CommenceTime.Should().Be(SampleEvent.CommenceTime);
     }
 
     [Test]
     public void SetTimestamp_WithValidTimestamp_ReturnsValidInstance()
     {
-        var timestamp = DateTime.Now;
-
-        var result = new EventResultBuilder().SetTimestamp(timestamp).Instance;
+        var result = new EventResultBuilder().SetTimestamp(SampleEvent.Timestamp).Instance;
 
         result.Should().NotBeNull();
-        result.Timestamp.Should().Be(timestamp);
+        result.Timestamp.Should().Be(SampleEvent.Timestamp);
     }
 
     [Test]
     public void SetTraceId_WithValidTraceId_ReturnsValidInstance()
     {
-        var traceId = Guid.NewGuid();
-
-        var result = new EventResultBuilder().SetTraceId(traceId).Instance;
+        var result = new EventResultBuilder().SetTraceId(SampleEvent.TraceId).Instance;
 
         result.Should().NotBeNull();
-        result.TraceId.Should().Be(traceId);
+        result.TraceId.Should().Be(SampleEvent.TraceId);
     }
 
     [TestCase("")]

@@ -5,7 +5,7 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using OddsCollector.Functions.Functions;
 using OddsCollector.Functions.Models;
-using OddsCollector.Functions.Tests.Common.Models;
+using OddsCollector.Functions.Tests.Data;
 
 namespace OddsCollector.Functions.Tests.Tests.Functions;
 
@@ -37,11 +37,11 @@ internal class PredictionsHttpFunctionTests
 
         var predictions = new[]
         {
-            new EventPredictionBuilder().SetDefaults().SetCommenceTime(timestamp.AddDays(-2)).Instance,
-            new EventPredictionBuilder().SetDefaults()
+            new EventPredictionBuilder().SetSampleData().SetCommenceTime(timestamp.AddDays(-2)).Instance,
+            new EventPredictionBuilder().SetSampleData()
                 .SetCommenceTime(timestamp.AddDays(2))
                 .SetTimestamp(timestamp.AddDays(-2)).Instance,
-            new EventPredictionBuilder().SetDefaults()
+            new EventPredictionBuilder().SetSampleData()
                 .SetCommenceTime(timestamp.AddDays(2))
                 .SetTimestamp(timestamp.AddDays(2)).Instance
         };

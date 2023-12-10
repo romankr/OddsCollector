@@ -5,8 +5,8 @@ using NSubstitute.ReceivedExtensions;
 using OddsCollector.Functions.Functions;
 using OddsCollector.Functions.Models;
 using OddsCollector.Functions.Strategies;
-using OddsCollector.Functions.Tests.Common.Models;
-using OddsCollector.Functions.Tests.Common.ServiceBus;
+using OddsCollector.Functions.Tests.Data;
+using OddsCollector.Functions.Tests.ServiceBus;
 
 namespace OddsCollector.Functions.Tests.Tests.Functions;
 
@@ -18,9 +18,9 @@ internal class PredictionFunctionTests
     {
         var loggerStub = Substitute.For<ILogger<PredictionFunction>>();
 
-        var upcomingEvent = new UpcomingEventBuilder().SetDefaults().Instance;
+        var upcomingEvent = new UpcomingEventBuilder().SetSampleData().Instance;
 
-        var expectedPrediction = new EventPredictionBuilder().SetDefaults().Instance;
+        var expectedPrediction = new EventPredictionBuilder().SetSampleData().Instance;
 
         ServiceBusReceivedMessage[] receivedMessages =
             [ServiceBusReceivedMessageFactory.CreateFromObject(upcomingEvent)];
@@ -47,12 +47,12 @@ internal class PredictionFunctionTests
     {
         var loggerMock = Substitute.For<ILogger<PredictionFunction>>();
 
-        var goodUpcomingEvent = new UpcomingEventBuilder().SetDefaults().Instance;
+        var goodUpcomingEvent = new UpcomingEventBuilder().SetSampleData().Instance;
 
-        var badUpcomingEvent = new UpcomingEventBuilder().SetDefaults()
-            .SetAwayTeam(UpcomingEventBuilderExtensions.DefaultHomeTeam).Instance;
+        var badUpcomingEvent = new UpcomingEventBuilder().SetSampleData()
+            .SetAwayTeam(SampleEvent.HomeTeam).Instance;
 
-        var expectedPrediction = new EventPredictionBuilder().SetDefaults().Instance;
+        var expectedPrediction = new EventPredictionBuilder().SetSampleData().Instance;
 
         ServiceBusReceivedMessage[] receivedMessages =
         [

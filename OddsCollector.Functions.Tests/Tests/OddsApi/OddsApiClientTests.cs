@@ -8,7 +8,7 @@ using OddsCollector.Functions.OddsApi.WebApi;
 namespace OddsCollector.Functions.Tests.Tests.OddsApi;
 
 [Parallelizable(ParallelScope.All)]
-internal sealed class OddsApiClientTests
+internal class OddsApiClientTests
 {
     [Test]
     public async Task GetUpcomingEventsAsync_WithLeagues_ReturnsUpcomingEvents()

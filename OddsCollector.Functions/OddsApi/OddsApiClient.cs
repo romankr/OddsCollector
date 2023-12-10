@@ -8,8 +8,8 @@ namespace OddsCollector.Functions.OddsApi;
 
 internal class OddsApiClient(
     IOptions<OddsApiClientOptions> options,
-    IClient webApiClient,
-    IOddsApiObjectConverter objectConverter) : IOddsApiClient
+    IClient client,
+    IOddsApiObjectConverter converter) : IOddsApiClient
 {
     private const DateFormat IsoDateFormat = DateFormat.Iso;
     private const Markets HeadToHeadMarket = Markets.H2h;
@@ -24,11 +24,11 @@ internal class OddsApiClient(
 
         foreach (var league in options.Value.Leagues)
         {
-            var events = await webApiClient.OddsAsync(league, options.Value.ApiKey,
+            var events = await client.OddsAsync(league, options.Value.ApiKey,
                     EuropeanRegion, HeadToHeadMarket, IsoDateFormat, DecimalOddsFormat, null, null, cancellationToken)
                 .ConfigureAwait(false);
 
-            result.AddRange(objectConverter.ToUpcomingEvents(events, traceId, timestamp));
+            result.AddRange(converter.ToUpcomingEvents(events, traceId, timestamp));
         }
 
         return result;
@@ -42,10 +42,10 @@ internal class OddsApiClient(
         foreach (var league in options.Value.Leagues)
         {
             var results =
-                await webApiClient.ScoresAsync(league, options.Value.ApiKey, DaysFromToday, cancellationToken)
+                await client.ScoresAsync(league, options.Value.ApiKey, DaysFromToday, cancellationToken)
                     .ConfigureAwait(false);
 
-            result.AddRange(objectConverter.ToEventResults(results, traceId, timestamp));
+            result.AddRange(converter.ToEventResults(results, traceId, timestamp));
         }
 
         return result;

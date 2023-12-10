@@ -1,6 +1,6 @@
 ﻿using OddsCollector.Functions.Models;
 using OddsCollector.Functions.Strategies;
-using OddsCollector.Functions.Tests.Common.Models;
+using OddsCollector.Functions.Tests.Data;
 
 namespace OddsCollector.Functions.Tests.Tests.Strategies;
 
@@ -10,108 +10,100 @@ internal class AdjustedConsensusStrategyTests
     [Test]
     public void GetPrediction_WithUpcomingEventWithWinningHomeTeam_ReturnsPrediction()
     {
-        var upcomingEvent = new UpcomingEventBuilder().SetDefaults().Instance;
-
-        var timestamp = DateTime.Now;
+        var upcomingEvent = new UpcomingEventBuilder().SetSampleData().Instance;
 
         var strategy = new AdjustedConsensusStrategy();
 
-        var prediction = strategy.GetPrediction(upcomingEvent, timestamp);
+        var prediction = strategy.GetPrediction(upcomingEvent, SampleEvent.Timestamp);
 
         prediction.Should().NotBeNull();
-        prediction.AwayTeam.Should().NotBeNull().And.Be(UpcomingEventBuilderExtensions.DefaultAwayTeam);
-        prediction.Bookmaker.Should().NotBeNull().And.Be(OddsBuilderExtensions.DefaultBookmaker1);
-        prediction.CommenceTime.Should().Be(UpcomingEventBuilderExtensions.DefaultCommenceTime);
-        prediction.HomeTeam.Should().NotBeNull().And.Be(UpcomingEventBuilderExtensions.DefaultHomeTeam);
-        prediction.Id.Should().NotBeNull().And.Be(UpcomingEventBuilderExtensions.DefaultId);
-        prediction.Strategy.Should().NotBeNull().And.Be(nameof(AdjustedConsensusStrategy));
-        prediction.Timestamp.Should().Be(timestamp);
-        prediction.TraceId.Should().Be(UpcomingEventBuilderExtensions.DefaultTraceId);
-        prediction.Winner.Should().NotBeNull().And.Be(UpcomingEventBuilderExtensions.DefaultHomeTeam);
+        prediction.AwayTeam.Should().NotBeNull().And.Be(SampleEvent.AwayTeam);
+        prediction.Bookmaker.Should().NotBeNull().And.Be(SampleEvent.Bookmaker1);
+        prediction.CommenceTime.Should().Be(SampleEvent.CommenceTime);
+        prediction.HomeTeam.Should().NotBeNull().And.Be(SampleEvent.HomeTeam);
+        prediction.Id.Should().NotBeNull().And.Be(SampleEvent.Id);
+        prediction.Strategy.Should().NotBeNull().And.Be(SampleEvent.Strategy);
+        prediction.Timestamp.Should().Be(SampleEvent.Timestamp);
+        prediction.TraceId.Should().Be(SampleEvent.TraceId);
+        prediction.Winner.Should().NotBeNull().And.Be(SampleEvent.HomeTeam);
     }
 
     [Test]
     public void GetPrediction_WithUpcomingEventWithWinningAwayTeam_ReturnsPrediction()
     {
-        var upcomingEvent = new UpcomingEventBuilder().SetDefaults().SetOdds(new List<Odd>
+        var upcomingEvent = new UpcomingEventBuilder().SetSampleData().SetOdds(new List<Odd>
         {
-            new() { Away = 1.8, Bookmaker = OddsBuilderExtensions.DefaultBookmaker1, Draw = 3.82, Home = 4.08 },
-            new() { Away = 1.7, Bookmaker = OddsBuilderExtensions.DefaultBookmaker2, Draw = 4.33, Home = 4.33 },
-            new() { Away = 1.67, Bookmaker = OddsBuilderExtensions.DefaultBookmaker3, Draw = 4.5, Home = 4.5 }
+            new OddBuilder().SetSampleData1().SetAway(SampleEvent.HomeOdd1).SetHome(SampleEvent.AwayOdd1).Instance,
+            new OddBuilder().SetSampleData2().SetAway(SampleEvent.HomeOdd2).SetHome(SampleEvent.AwayOdd2).Instance,
+            new OddBuilder().SetSampleData3().SetAway(SampleEvent.HomeOdd3).SetHome(SampleEvent.AwayOdd3).Instance
         }).Instance;
-
-        var timestamp = DateTime.Now;
 
         var strategy = new AdjustedConsensusStrategy();
 
-        var prediction = strategy.GetPrediction(upcomingEvent, timestamp);
+        var prediction = strategy.GetPrediction(upcomingEvent, SampleEvent.Timestamp);
 
         prediction.Should().NotBeNull();
-        prediction.AwayTeam.Should().NotBeNull().And.Be(UpcomingEventBuilderExtensions.DefaultAwayTeam);
-        prediction.Bookmaker.Should().NotBeNull().And.Be(OddsBuilderExtensions.DefaultBookmaker1);
-        prediction.CommenceTime.Should().Be(UpcomingEventBuilderExtensions.DefaultCommenceTime);
-        prediction.HomeTeam.Should().NotBeNull().And.Be(UpcomingEventBuilderExtensions.DefaultHomeTeam);
-        prediction.Id.Should().NotBeNull().And.Be(UpcomingEventBuilderExtensions.DefaultId);
-        prediction.Strategy.Should().NotBeNull().And.Be(nameof(AdjustedConsensusStrategy));
-        prediction.Timestamp.Should().Be(timestamp);
-        prediction.TraceId.Should().Be(UpcomingEventBuilderExtensions.DefaultTraceId);
-        prediction.Winner.Should().NotBeNull().And.Be(UpcomingEventBuilderExtensions.DefaultAwayTeam);
+        prediction.AwayTeam.Should().NotBeNull().And.Be(SampleEvent.AwayTeam);
+        prediction.Bookmaker.Should().NotBeNull().And.Be(SampleEvent.Bookmaker1);
+        prediction.CommenceTime.Should().Be(SampleEvent.CommenceTime);
+        prediction.HomeTeam.Should().NotBeNull().And.Be(SampleEvent.HomeTeam);
+        prediction.Id.Should().NotBeNull().And.Be(SampleEvent.Id);
+        prediction.Strategy.Should().NotBeNull().And.Be(SampleEvent.Strategy);
+        prediction.Timestamp.Should().Be(SampleEvent.Timestamp);
+        prediction.TraceId.Should().Be(SampleEvent.TraceId);
+        prediction.Winner.Should().NotBeNull().And.Be(SampleEvent.AwayTeam);
     }
 
     [Test]
     public void GetPrediction_WithUpcomingEventWithDraw_ReturnsPrediction()
     {
-        var upcomingEvent = new UpcomingEventBuilder().SetDefaults().SetOdds(new List<Odd>
+        var upcomingEvent = new UpcomingEventBuilder().SetSampleData().SetOdds(new List<Odd>
         {
-            new() { Away = 3.82, Bookmaker = OddsBuilderExtensions.DefaultBookmaker1, Draw = 1.8, Home = 4.08 },
-            new() { Away = 4.33, Bookmaker = OddsBuilderExtensions.DefaultBookmaker2, Draw = 1.7, Home = 4.33 },
-            new() { Away = 4.5, Bookmaker = OddsBuilderExtensions.DefaultBookmaker3, Draw = 1.67, Home = 4.5 }
+            new OddBuilder().SetSampleData1().SetDraw(SampleEvent.HomeOdd1).SetHome(SampleEvent.DrawOdd1).Instance,
+            new OddBuilder().SetSampleData2().SetDraw(SampleEvent.HomeOdd2).SetHome(SampleEvent.DrawOdd2).Instance,
+            new OddBuilder().SetSampleData3().SetDraw(SampleEvent.HomeOdd3).SetHome(SampleEvent.DrawOdd3).Instance
         }).Instance;
-
-        var timestamp = DateTime.Now;
 
         var strategy = new AdjustedConsensusStrategy();
 
-        var prediction = strategy.GetPrediction(upcomingEvent, timestamp);
+        var prediction = strategy.GetPrediction(upcomingEvent, SampleEvent.Timestamp);
 
         prediction.Should().NotBeNull();
-        prediction.AwayTeam.Should().NotBeNull().And.Be(UpcomingEventBuilderExtensions.DefaultAwayTeam);
-        prediction.Bookmaker.Should().NotBeNull().And.Be(OddsBuilderExtensions.DefaultBookmaker1);
-        prediction.CommenceTime.Should().Be(UpcomingEventBuilderExtensions.DefaultCommenceTime);
-        prediction.HomeTeam.Should().NotBeNull().And.Be(UpcomingEventBuilderExtensions.DefaultHomeTeam);
-        prediction.Id.Should().NotBeNull().And.Be(UpcomingEventBuilderExtensions.DefaultId);
+        prediction.AwayTeam.Should().NotBeNull().And.Be(SampleEvent.AwayTeam);
+        prediction.Bookmaker.Should().NotBeNull().And.Be(SampleEvent.Bookmaker1);
+        prediction.CommenceTime.Should().Be(SampleEvent.CommenceTime);
+        prediction.HomeTeam.Should().NotBeNull().And.Be(SampleEvent.HomeTeam);
+        prediction.Id.Should().NotBeNull().And.Be(SampleEvent.Id);
         prediction.Strategy.Should().NotBeNull().And.Be(nameof(AdjustedConsensusStrategy));
-        prediction.Timestamp.Should().Be(timestamp);
-        prediction.TraceId.Should().Be(UpcomingEventBuilderExtensions.DefaultTraceId);
+        prediction.Timestamp.Should().Be(SampleEvent.Timestamp);
+        prediction.TraceId.Should().Be(SampleEvent.TraceId);
         prediction.Winner.Should().NotBeNull().And.Be(Constants.Draw);
     }
 
     [Test]
     public void GetPrediction_WithDifferentWinningBookmaker_ReturnsPrediction()
     {
-        var upcomingEvent = new UpcomingEventBuilder().SetDefaults().SetOdds(new List<Odd>
+        var upcomingEvent = new UpcomingEventBuilder().SetSampleData().SetOdds(new List<Odd>
         {
-            new() { Away = 3.82, Bookmaker = OddsBuilderExtensions.DefaultBookmaker2, Draw = 1.8, Home = 4.08 },
-            new() { Away = 4.33, Bookmaker = OddsBuilderExtensions.DefaultBookmaker1, Draw = 1.7, Home = 4.33 },
-            new() { Away = 4.5, Bookmaker = OddsBuilderExtensions.DefaultBookmaker3, Draw = 1.67, Home = 4.5 }
+            new OddBuilder().SetSampleData1().SetBookmaker(SampleEvent.Bookmaker2).Instance,
+            new OddBuilder().SetSampleData2().SetBookmaker(SampleEvent.Bookmaker1).Instance,
+            new OddBuilder().SetSampleData3().SetBookmaker(SampleEvent.Bookmaker3).Instance
         }).Instance;
-
-        var timestamp = DateTime.Now;
 
         var strategy = new AdjustedConsensusStrategy();
 
-        var prediction = strategy.GetPrediction(upcomingEvent, timestamp);
+        var prediction = strategy.GetPrediction(upcomingEvent, SampleEvent.Timestamp);
 
         prediction.Should().NotBeNull();
-        prediction.AwayTeam.Should().NotBeNull().And.Be(UpcomingEventBuilderExtensions.DefaultAwayTeam);
-        prediction.Bookmaker.Should().NotBeNull().And.Be("sport888");
-        prediction.CommenceTime.Should().Be(UpcomingEventBuilderExtensions.DefaultCommenceTime);
-        prediction.HomeTeam.Should().NotBeNull().And.Be(UpcomingEventBuilderExtensions.DefaultHomeTeam);
-        prediction.Id.Should().NotBeNull().And.Be(UpcomingEventBuilderExtensions.DefaultId);
-        prediction.Strategy.Should().NotBeNull().And.Be(nameof(AdjustedConsensusStrategy));
-        prediction.Timestamp.Should().Be(timestamp);
-        prediction.TraceId.Should().Be(UpcomingEventBuilderExtensions.DefaultTraceId);
-        prediction.Winner.Should().NotBeNull().And.Be(Constants.Draw);
+        prediction.AwayTeam.Should().NotBeNull().And.Be(SampleEvent.AwayTeam);
+        prediction.Bookmaker.Should().NotBeNull().And.Be(SampleEvent.Bookmaker2);
+        prediction.CommenceTime.Should().Be(SampleEvent.CommenceTime);
+        prediction.HomeTeam.Should().NotBeNull().And.Be(SampleEvent.HomeTeam);
+        prediction.Id.Should().NotBeNull().And.Be(SampleEvent.Id);
+        prediction.Strategy.Should().NotBeNull().And.Be(SampleEvent.Strategy);
+        prediction.Timestamp.Should().Be(SampleEvent.Timestamp);
+        prediction.TraceId.Should().Be(SampleEvent.TraceId);
+        prediction.Winner.Should().NotBeNull().And.Be(SampleEvent.HomeTeam);
     }
 
     [Test]
@@ -134,7 +126,7 @@ internal class AdjustedConsensusStrategyTests
 
         var action = () =>
         {
-            _ = strategy.GetPrediction(new UpcomingEventBuilder().SetDefaults().Instance, null);
+            _ = strategy.GetPrediction(new UpcomingEventBuilder().SetSampleData().Instance, null);
         };
 
         action.Should().Throw<ArgumentNullException>().WithParameterName("timestamp");
@@ -148,7 +140,7 @@ internal class AdjustedConsensusStrategyTests
 
         var action = () =>
         {
-            _ = strategy.GetPrediction(new UpcomingEventBuilder().SetDefaults().SetId(id).Instance, DateTime.Now);
+            _ = strategy.GetPrediction(new UpcomingEventBuilder().SetSampleData().SetId(id).Instance, DateTime.Now);
         };
 
         action.Should().Throw<ArgumentException>().WithParameterName(nameof(id));
@@ -161,7 +153,7 @@ internal class AdjustedConsensusStrategyTests
 
         var action = () =>
         {
-            _ = strategy.GetPrediction(new UpcomingEventBuilder().SetDefaults().SetTimestamp(null).Instance,
+            _ = strategy.GetPrediction(new UpcomingEventBuilder().SetSampleData().SetTimestamp(null).Instance,
                 DateTime.Now);
         };
 
@@ -175,7 +167,7 @@ internal class AdjustedConsensusStrategyTests
 
         var action = () =>
         {
-            _ = strategy.GetPrediction(new UpcomingEventBuilder().SetDefaults().SetTraceId(null).Instance,
+            _ = strategy.GetPrediction(new UpcomingEventBuilder().SetSampleData().SetTraceId(null).Instance,
                 DateTime.Now);
         };
 
@@ -189,7 +181,7 @@ internal class AdjustedConsensusStrategyTests
 
         var action = () =>
         {
-            _ = strategy.GetPrediction(new UpcomingEventBuilder().SetDefaults().SetCommenceTime(null).Instance,
+            _ = strategy.GetPrediction(new UpcomingEventBuilder().SetSampleData().SetCommenceTime(null).Instance,
                 DateTime.Now);
         };
 
@@ -204,7 +196,7 @@ internal class AdjustedConsensusStrategyTests
 
         var action = () =>
         {
-            _ = strategy.GetPrediction(new UpcomingEventBuilder().SetDefaults().SetAwayTeam(null).Instance,
+            _ = strategy.GetPrediction(new UpcomingEventBuilder().SetSampleData().SetAwayTeam(null).Instance,
                 DateTime.Now);
         };
 
@@ -219,7 +211,7 @@ internal class AdjustedConsensusStrategyTests
 
         var action = () =>
         {
-            _ = strategy.GetPrediction(new UpcomingEventBuilder().SetDefaults().SetHomeTeam(null).Instance,
+            _ = strategy.GetPrediction(new UpcomingEventBuilder().SetSampleData().SetHomeTeam(null).Instance,
                 DateTime.Now);
         };
 
@@ -233,7 +225,7 @@ internal class AdjustedConsensusStrategyTests
 
         var action = () =>
         {
-            _ = strategy.GetPrediction(new UpcomingEventBuilder().SetDefaults().SetOdds(null).Instance, DateTime.Now);
+            _ = strategy.GetPrediction(new UpcomingEventBuilder().SetSampleData().SetOdds(null).Instance, DateTime.Now);
         };
 
         action.Should().Throw<ArgumentException>().WithParameterName("odds");
@@ -246,7 +238,7 @@ internal class AdjustedConsensusStrategyTests
 
         var action = () =>
         {
-            _ = strategy.GetPrediction(new UpcomingEventBuilder().SetDefaults().SetOdds(new List<Odd>()).Instance,
+            _ = strategy.GetPrediction(new UpcomingEventBuilder().SetSampleData().SetOdds(new List<Odd>()).Instance,
                 DateTime.Now);
         };
 
@@ -261,8 +253,8 @@ internal class AdjustedConsensusStrategyTests
         var action = () =>
         {
             _ = strategy.GetPrediction(
-                new UpcomingEventBuilder().SetDefaults()
-                    .SetOdds(new List<Odd> { new OddBuilder().SetDefaults1().SetAway(null).Instance }).Instance,
+                new UpcomingEventBuilder().SetSampleData()
+                    .SetOdds(new List<Odd> { new OddBuilder().SetSampleData1().SetAway(null).Instance }).Instance,
                 DateTime.Now);
         };
 
@@ -278,8 +270,8 @@ internal class AdjustedConsensusStrategyTests
         var action = () =>
         {
             _ = strategy.GetPrediction(
-                new UpcomingEventBuilder().SetDefaults()
-                    .SetOdds(new List<Odd> { new OddBuilder().SetDefaults1().SetBookmaker(bookmaker).Instance })
+                new UpcomingEventBuilder().SetSampleData()
+                    .SetOdds(new List<Odd> { new OddBuilder().SetSampleData1().SetBookmaker(bookmaker).Instance })
                     .Instance, DateTime.Now);
         };
 
@@ -294,8 +286,8 @@ internal class AdjustedConsensusStrategyTests
         var action = () =>
         {
             _ = strategy.GetPrediction(
-                new UpcomingEventBuilder().SetDefaults()
-                    .SetOdds(new List<Odd> { new OddBuilder().SetDefaults1().SetDraw(null).Instance }).Instance,
+                new UpcomingEventBuilder().SetSampleData()
+                    .SetOdds(new List<Odd> { new OddBuilder().SetSampleData1().SetDraw(null).Instance }).Instance,
                 DateTime.Now);
         };
 
@@ -310,8 +302,8 @@ internal class AdjustedConsensusStrategyTests
         var action = () =>
         {
             _ = strategy.GetPrediction(
-                new UpcomingEventBuilder().SetDefaults()
-                    .SetOdds(new List<Odd> { new OddBuilder().SetDefaults1().SetHome(null).Instance }).Instance,
+                new UpcomingEventBuilder().SetSampleData()
+                    .SetOdds(new List<Odd> { new OddBuilder().SetSampleData1().SetHome(null).Instance }).Instance,
                 DateTime.Now);
         };
 

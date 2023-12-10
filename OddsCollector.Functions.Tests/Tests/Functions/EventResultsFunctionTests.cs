@@ -7,7 +7,7 @@ using OddsCollector.Functions.OddsApi;
 namespace OddsCollector.Functions.Tests.Tests.Functions;
 
 [Parallelizable(ParallelScope.All)]
-internal sealed class EventResultsFunctionTests
+internal class EventResultsFunctionTests
 {
     [Test]
     public async Task Run_WithValidParameters_ReturnsEventResults()

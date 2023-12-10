@@ -147,12 +147,12 @@ internal class OddsApiObjectConverter : IOddsApiObjectConverter
     {
         if (!scores.TryGetValue(awayTeam, out var awayScore))
         {
-            throw new ArgumentException($"{nameof(scores)} don't have data for {awayTeam}", nameof(scores));
+            throw new ArgumentException($"{nameof(scores)} doesn't contain data for {awayTeam}", nameof(scores));
         }
 
         if (!scores.TryGetValue(homeTeam, out var homeScore))
         {
-            throw new ArgumentException($"{nameof(scores)} don't have data for {homeTeam}", nameof(scores));
+            throw new ArgumentException($"{nameof(scores)} doesn't contain data for {homeTeam}", nameof(scores));
         }
 
         if (awayScore == homeScore)
