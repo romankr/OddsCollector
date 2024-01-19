@@ -22,7 +22,7 @@ namespace OddsCollector.Functions.OddsApi.WebApi
     using System = global::System;
 
     [System.CodeDom.Compiler.GeneratedCode("NSwag", "13.20.0.0 (NJsonSchema v10.9.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial interface IClient
+    internal partial interface IClient
     {
         /// <remarks>
         /// A successful response includes a list of available sports and tournaments
@@ -98,7 +98,7 @@ namespace OddsCollector.Functions.OddsApi.WebApi
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NSwag", "13.20.0.0 (NJsonSchema v10.9.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class Client : IClient
+    internal partial class Client : IClient
     {
         private string _baseUrl = "https://api.the-odds-api.com";
         private System.Net.Http.HttpClient _httpClient;
