@@ -15,8 +15,19 @@ internal class EventResultsFunction(ILogger<EventResultsFunction> logger, IOddsA
     {
         try
         {
-            return (await client.GetEventResultsAsync(Guid.NewGuid(), DateTime.UtcNow, cancellationToken)
+            var results = (await client.GetEventResultsAsync(Guid.NewGuid(), DateTime.UtcNow, cancellationToken)
                 .ConfigureAwait(false)).ToArray();
+
+            if (results.Length == 0)
+            {
+                logger.LogWarning("No results received");
+            }
+            else
+            {
+                logger.LogInformation("{Length} events received", results.Length);
+            }
+
+            return results;
         }
         catch (Exception exception)
         {

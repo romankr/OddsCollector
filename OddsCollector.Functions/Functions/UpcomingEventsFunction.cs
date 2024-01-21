@@ -15,8 +15,19 @@ internal class UpcomingEventsFunction(ILogger<UpcomingEventsFunction> logger, IO
     {
         try
         {
-            return (await client.GetUpcomingEventsAsync(Guid.NewGuid(), DateTime.UtcNow, cancellationToken)
+            var events = (await client.GetUpcomingEventsAsync(Guid.NewGuid(), DateTime.UtcNow, cancellationToken)
                 .ConfigureAwait(false)).ToArray();
+
+            if (events.Length == 0)
+            {
+                logger.LogWarning("No events received");
+            }
+            else
+            {
+                logger.LogInformation("{Length} events received", events.Length);
+            }
+
+            return events;
         }
         catch (Exception exception)
         {
