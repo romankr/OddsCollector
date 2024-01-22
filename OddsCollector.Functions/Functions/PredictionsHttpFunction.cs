@@ -24,12 +24,7 @@ internal class PredictionsHttpFunction(ILogger<PredictionsHttpFunction> logger)
     {
         try
         {
-            // cosmosdb sql doesn't support grouping
-            // so doing it manually
-            var grouped = predictions.GroupBy(p => p.Id)
-                .Select(group => group.OrderByDescending(p => p.Timestamp).First()).ToList();
-
-            var serialized = JsonSerializer.Serialize(grouped, SerializerOptions);
+            var serialized = JsonSerializer.Serialize(predictions, SerializerOptions);
 
             return CreateResponse(HttpStatusCode.OK, request, serialized);
         }
