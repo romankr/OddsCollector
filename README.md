@@ -1,4 +1,4 @@
-Pulls the most recent odds from https://the-odds-api.com/ and makes predictions
+Pulls the most recent odds from https://the-odds-api.com/ and makes predictions using this [algorithm](https://www.researchgate.net/publication/320296375_Beating_the_bookies_with_their_own_numbers_-_and_how_the_online_sports_betting_market_is_rigged).
 
 Architecture
 
