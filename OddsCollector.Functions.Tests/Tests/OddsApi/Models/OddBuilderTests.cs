@@ -3,95 +3,125 @@ using OddsCollector.Functions.Tests.Data;
 
 namespace OddsCollector.Functions.Tests.Tests.OddsApi.Models;
 
-[Parallelizable(ParallelScope.All)]
 internal class OddBuilderTests
 {
     [Test]
     public void Instance_WithoutParameters_ReturnsValidInstance()
     {
-        var result = new OddBuilder().Instance;
+        // Arrange & Act
+        var odd = new OddBuilder().Instance;
 
-        result.Should().NotBeNull();
+        // Assert
+        odd.Should().NotBeNull();
+    }
+
+    [Test]
+    public void Instance_WithFullParameterList_ReturnsValidInstance()
+    {
+        // Arrange & Act
+        var odd = new OddBuilder()
+            .SetAway(SampleEvent.AwayOdd1)
+            .SetBookmaker(SampleEvent.Bookmaker1)
+            .SetDraw(SampleEvent.DrawOdd1)
+            .SetHome(SampleEvent.HomeOdd1)
+            .Instance;
+
+        // Assert
+        odd.Should().NotBeNull().
+            And.BeEquivalentTo(new OddBuilder().SetSampleData1().Instance);
     }
 
     [Test]
     public void Instance_WithValidBookmaker_ReturnsValidInstance()
     {
-        var result = new OddBuilder().SetBookmaker(SampleEvent.Bookmaker1).Instance;
+        // Arrange & Act
+        var odd = new OddBuilder().SetBookmaker(SampleEvent.Bookmaker1).Instance;
 
-        result.Should().NotBeNull();
-        result.Bookmaker.Should().NotBeNull().And.Be(SampleEvent.Bookmaker1);
+        // Assert
+        odd.Should().NotBeNull();
+        odd.Bookmaker.Should().NotBeNull().And.Be(SampleEvent.Bookmaker1);
     }
 
     [Test]
     public void SetAway_WithValidAway_ReturnsValidInstance()
     {
-        var result = new OddBuilder().SetAway(SampleEvent.AwayOdd1).Instance;
+        // Arrange & Act
+        var odd = new OddBuilder().SetAway(SampleEvent.AwayOdd1).Instance;
 
-        result.Should().NotBeNull();
-        result.Away.Should().Be(SampleEvent.AwayOdd1);
+        // Assert
+        odd.Should().NotBeNull();
+        odd.Away.Should().Be(SampleEvent.AwayOdd1);
     }
 
     [Test]
     public void SetDraw_WithValidDraw_ReturnsValidInstance()
     {
-        var result = new OddBuilder().SetDraw(SampleEvent.DrawOdd1).Instance;
+        // Arrange & Act
+        var odd = new OddBuilder().SetDraw(SampleEvent.DrawOdd1).Instance;
 
-        result.Should().NotBeNull();
-        result.Draw.Should().Be(SampleEvent.DrawOdd1);
+        // Assert
+        odd.Should().NotBeNull();
+        odd.Draw.Should().Be(SampleEvent.DrawOdd1);
     }
 
     [Test]
     public void SetHome_WithValidHome_ReturnsValidInstance()
     {
-        var result = new OddBuilder().SetHome(SampleEvent.HomeOdd1).Instance;
+        // Arrange & Act
+        var odd = new OddBuilder().SetHome(SampleEvent.HomeOdd1).Instance;
 
-        result.Should().NotBeNull();
-        result.Home.Should().Be(SampleEvent.HomeOdd1);
+        // Assert
+        odd.Should().NotBeNull();
+        odd.Home.Should().Be(SampleEvent.HomeOdd1);
     }
 
-    [TestCase("")]
-    [TestCase(null)]
-    public void SetBookmaker_WithNullOrEmptyBookmaker_ThrowsException(string? bookmaker)
+    [Test]
+    public void SetBookmaker_WithEmptyBookmaker_ThrowsException()
     {
-        var action = () =>
-        {
-            _ = new OddBuilder().SetBookmaker(bookmaker).Instance;
-        };
+        // Arrange & Act
+        var action = () => new OddBuilder().SetBookmaker(string.Empty).Instance;
 
-        action.Should().Throw<ArgumentException>().WithParameterName(nameof(bookmaker));
+        // Assert
+        action.Should().ThrowExactly<ArgumentException>().WithParameterName("bookmaker");
+    }
+
+    [Test]
+    public void SetBookmaker_WithNullBookmaker_ThrowsException()
+    {
+        // Arrange & Act
+        var action = () => new OddBuilder().SetBookmaker(null).Instance;
+
+        // Assert
+        action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("bookmaker");
     }
 
     [Test]
     public void SetAway_WithNullAway_ThrowsException()
     {
-        var action = () =>
-        {
-            _ = new OddBuilder().SetAway(null).Instance;
-        };
+        // Arrange & Act
+        var action = () => new OddBuilder().SetAway(null).Instance;
 
-        action.Should().Throw<ArgumentException>().WithParameterName("away");
+        // Assert
+        action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("away");
     }
 
     [Test]
     public void SetDraw_WithNullDraw_ThrowsException()
     {
-        var action = () =>
-        {
-            _ = new OddBuilder().SetDraw(null).Instance;
-        };
+        // Arrange & Act
+        var action = () => new OddBuilder().SetDraw(null).Instance;
 
-        action.Should().Throw<ArgumentException>().WithParameterName("draw");
+        // Assert
+        action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("draw");
     }
 
     [Test]
     public void SetHome_WithNullHome_ThrowsException()
     {
-        var action = () =>
-        {
-            _ = new OddBuilder().SetHome(null).Instance;
-        };
+        // Arrange & Act
+        var action = () => new OddBuilder().SetHome(null).Instance;
 
-        action.Should().Throw<ArgumentException>().WithParameterName("home");
+        // Assert
+        action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("home");
     }
 }

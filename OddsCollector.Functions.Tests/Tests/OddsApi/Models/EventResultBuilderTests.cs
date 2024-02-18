@@ -3,21 +3,23 @@ using OddsCollector.Functions.Tests.Data;
 
 namespace OddsCollector.Functions.Tests.Tests.OddsApi.Models;
 
-[Parallelizable(ParallelScope.All)]
 internal class EventResultBuilderTests
 {
     [Test]
     public void Instance_WithoutParameters_ReturnsValidInstance()
     {
-        var result = new EventResultBuilder().Instance;
+        // Arrange & Act
+        var eventResult = new EventResultBuilder().Instance;
 
-        result.Should().NotBeNull();
+        // Assert
+        eventResult.Should().NotBeNull();
     }
 
     [Test]
     public void Instance_WithFullParameterList_ReturnsValidInstance()
     {
-        var result = new EventResultBuilder()
+        // Arrange & Act
+        var eventResult = new EventResultBuilder()
             .SetWinner(SampleEvent.Winner)
             .SetId(SampleEvent.Id)
             .SetCommenceTime(SampleEvent.CommenceTime)
@@ -25,113 +27,133 @@ internal class EventResultBuilderTests
             .SetTraceId(SampleEvent.TraceId)
             .Instance;
 
-        result.Should().NotBeNull();
-        result.Winner.Should().NotBeNull().And.Be(SampleEvent.Winner);
-        result.Id.Should().NotBeNull().And.Be(SampleEvent.Id);
-        result.CommenceTime.Should().Be(SampleEvent.CommenceTime);
-        result.Timestamp.Should().Be(SampleEvent.Timestamp);
-        result.TraceId.Should().Be(SampleEvent.TraceId);
+        // Assert
+        eventResult.Should().NotBeNull().
+            And.BeEquivalentTo(new EventResultBuilder().SetSampleData().Instance);
     }
 
     [Test]
     public void SetWinner_WithValidWinner_ReturnsValidInstance()
     {
-        var result = new EventResultBuilder().SetWinner(SampleEvent.Winner).Instance;
+        // Arrange & Act
+        var eventResult = new EventResultBuilder().SetWinner(SampleEvent.Winner).Instance;
 
-        result.Should().NotBeNull();
-        result.Winner.Should().NotBeNull().And.Be(SampleEvent.Winner);
+        // Assert
+        eventResult.Should().NotBeNull();
+        eventResult.Winner.Should().NotBeNull().And.Be(SampleEvent.Winner);
     }
 
     [Test]
     public void SetId_WithValidId_ReturnsValidInstance()
     {
-        var result = new EventResultBuilder().SetId(SampleEvent.Id).Instance;
+        // Arrange & Act
+        var eventResult = new EventResultBuilder().SetId(SampleEvent.Id).Instance;
 
-        result.Should().NotBeNull();
-        result.Id.Should().NotBeNull().And.Be(SampleEvent.Id);
+        // Assert
+        eventResult.Should().NotBeNull();
+        eventResult.Id.Should().NotBeNull().And.Be(SampleEvent.Id);
     }
 
     [Test]
     public void SetCommenceTime_WithValidCommenceTime_ReturnsValidInstance()
     {
-        var result = new EventResultBuilder().SetCommenceTime(SampleEvent.CommenceTime).Instance;
+        // Arrange & Act
+        var eventResult = new EventResultBuilder().SetCommenceTime(SampleEvent.CommenceTime).Instance;
 
-        result.Should().NotBeNull();
-        result.CommenceTime.Should().Be(SampleEvent.CommenceTime);
+        // Assert
+        eventResult.Should().NotBeNull();
+        eventResult.CommenceTime.Should().Be(SampleEvent.CommenceTime);
     }
 
     [Test]
     public void SetTimestamp_WithValidTimestamp_ReturnsValidInstance()
     {
-        var result = new EventResultBuilder().SetTimestamp(SampleEvent.Timestamp).Instance;
+        // Arrange & Act
+        var eventResult = new EventResultBuilder().SetTimestamp(SampleEvent.Timestamp).Instance;
 
-        result.Should().NotBeNull();
-        result.Timestamp.Should().Be(SampleEvent.Timestamp);
+        // Assert
+        eventResult.Should().NotBeNull();
+        eventResult.Timestamp.Should().Be(SampleEvent.Timestamp);
     }
 
     [Test]
     public void SetTraceId_WithValidTraceId_ReturnsValidInstance()
     {
-        var result = new EventResultBuilder().SetTraceId(SampleEvent.TraceId).Instance;
+        // Arrange & Act
+        var eventResult = new EventResultBuilder().SetTraceId(SampleEvent.TraceId).Instance;
 
-        result.Should().NotBeNull();
-        result.TraceId.Should().Be(SampleEvent.TraceId);
+        // Assert
+        eventResult.Should().NotBeNull();
+        eventResult.TraceId.Should().Be(SampleEvent.TraceId);
     }
 
-    [TestCase("")]
-    [TestCase(null)]
-    public void SetWinner_WithNullOrEmptyWinner_ThrowsException(string? winner)
+    [Test]
+    public void SetWinner_WithEmptyWinner_ThrowsException()
     {
-        var action = () =>
-        {
-            _ = new EventResultBuilder().SetWinner(winner).Instance;
-        };
+        // Arrange & Act
+        var action = () => new EventResultBuilder().SetWinner(string.Empty).Instance;
 
-        action.Should().Throw<ArgumentException>().WithParameterName(nameof(winner));
+        // Assert
+        action.Should().ThrowExactly<ArgumentException>().WithParameterName("winner");
     }
 
-    [TestCase("")]
-    [TestCase(null)]
-    public void SetId_WithNullOrEmptyId_ThrowsException(string? id)
+    [Test]
+    public void SetWinner_WithNullWinner_ThrowsException()
     {
-        var action = () =>
-        {
-            _ = new EventResultBuilder().SetId(id).Instance;
-        };
+        // Arrange & Act
+        var action = () => new EventResultBuilder().SetWinner(null).Instance;
 
-        action.Should().Throw<ArgumentException>().WithParameterName(nameof(id));
+        // Assert
+        action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("winner");
+    }
+
+    [Test]
+    public void SetId_WithEmptyId_ThrowsException()
+    {
+        // Arrange & Act
+        var action = () => new EventResultBuilder().SetId(string.Empty).Instance;
+
+        // Assert
+        action.Should().ThrowExactly<ArgumentException>().WithParameterName("id");
+    }
+
+    [Test]
+    public void SetId_WithNullId_ThrowsException()
+    {
+        // Arrange & Act
+        var action = () => new EventResultBuilder().SetId(null).Instance;
+
+        // Assert
+        action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("id");
     }
 
     [Test]
     public void SetCommenceTime_WithNullCommenceTime_ThrowsException()
     {
-        var action = () =>
-        {
-            _ = new EventResultBuilder().SetCommenceTime(null).Instance;
-        };
+        // Arrange & Act
+        var action = () => new EventResultBuilder().SetCommenceTime(null).Instance;
 
-        action.Should().Throw<ArgumentException>().WithParameterName("commenceTime");
+        // Assert
+        action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("commenceTime");
     }
 
     [Test]
     public void SetTimestamp_WithNullTimestamp_ThrowsException()
     {
-        var action = () =>
-        {
-            _ = new EventResultBuilder().SetTimestamp(null).Instance;
-        };
+        // Arrange & Act
+        var action = () => new EventResultBuilder().SetTimestamp(null).Instance;
 
-        action.Should().Throw<ArgumentException>().WithParameterName("timestamp");
+        // Assert
+        action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("timestamp");
     }
 
     [Test]
     public void SetTraceId_WithNullTraceId_ThrowsException()
     {
-        var action = () =>
-        {
-            _ = new EventResultBuilder().SetTraceId(null).Instance;
-        };
+        // Arrange & Act
+        var action = () => new EventResultBuilder().SetTraceId(null).Instance;
 
-        action.Should().Throw<ArgumentException>().WithParameterName("traceId");
+        // Assert
+        action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("traceId");
     }
 }

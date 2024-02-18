@@ -10,12 +10,12 @@ using OddsCollector.Functions.Tests.ServiceBus;
 
 namespace OddsCollector.Functions.Tests.Tests.Functions;
 
-[Parallelizable(ParallelScope.All)]
 internal class PredictionFunctionTests
 {
     [Test]
     public async Task Run_WithValidServiceBusMessage_ReturnsEventPrediction()
     {
+        // Arrange
         var loggerStub = Substitute.For<ILogger<PredictionFunction>>();
 
         var upcomingEvent = new UpcomingEventBuilder().SetSampleData().Instance;
@@ -34,8 +34,10 @@ internal class PredictionFunctionTests
 
         var token = new CancellationToken();
 
+        // Act
         var prediction = await function.Run(receivedMessages, actionsMock, token).ConfigureAwait(false);
 
+        // Assert
         prediction.Should().NotBeNull().And.HaveCount(1);
         prediction[0].Should().NotBeNull().And.Be(expectedPrediction);
 
@@ -45,6 +47,7 @@ internal class PredictionFunctionTests
     [Test]
     public async Task Run_WithInvalidItems_ReturnsSuccessfullyProcessedEventPredictions()
     {
+        // Arrange
         var loggerMock = Substitute.For<ILogger<PredictionFunction>>();
 
         var goodUpcomingEvent = new UpcomingEventBuilder().SetSampleData().Instance;
@@ -72,8 +75,10 @@ internal class PredictionFunctionTests
 
         var token = new CancellationToken();
 
+        // Act
         var prediction = await function.Run(receivedMessages, actionsMock, token).ConfigureAwait(false);
 
+        // Assert
         prediction.Should().NotBeNull().And.HaveCount(1);
         prediction[0].Should().NotBeNull().And.Be(expectedPrediction);
 

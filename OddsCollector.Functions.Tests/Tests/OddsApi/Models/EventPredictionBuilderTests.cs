@@ -3,21 +3,23 @@ using OddsCollector.Functions.Tests.Data;
 
 namespace OddsCollector.Functions.Tests.Tests.OddsApi.Models;
 
-[Parallelizable(ParallelScope.All)]
 internal class EventPredictionBuilderTests
 {
     [Test]
     public void Instance_WithoutParameters_ReturnsValidInstance()
     {
-        var result = new EventPredictionBuilder().Instance;
+        // Arrange & Act
+        var eventPrediction = new EventPredictionBuilder().Instance;
 
-        result.Should().NotBeNull();
+        // Assert
+        eventPrediction.Should().NotBeNull();
     }
 
     [Test]
     public void Instance_WithFullParameterList_ReturnsValidInstance()
     {
-        var result = new EventPredictionBuilder()
+        // Arrange & Act
+        var eventPrediction = new EventPredictionBuilder()
             .SetBookmaker(SampleEvent.Bookmaker1)
             .SetWinner(SampleEvent.Winner)
             .SetAwayTeam(SampleEvent.AwayTeam)
@@ -29,201 +31,257 @@ internal class EventPredictionBuilderTests
             .SetTraceId(SampleEvent.TraceId)
             .Instance;
 
-        result.Should().NotBeNull();
-        result.Bookmaker.Should().NotBeNull().And.Be(SampleEvent.Bookmaker1);
-        result.Winner.Should().NotBeNull().And.Be(SampleEvent.Winner);
-        result.AwayTeam.Should().NotBeNull().And.Be(SampleEvent.AwayTeam);
-        result.HomeTeam.Should().NotBeNull().And.Be(SampleEvent.HomeTeam);
-        result.Id.Should().NotBeNull().And.Be(SampleEvent.Id);
-        result.Strategy.Should().NotBeNull().And.Be(SampleEvent.Strategy);
-        result.CommenceTime.Should().Be(SampleEvent.CommenceTime);
-        result.Timestamp.Should().Be(SampleEvent.Timestamp);
-        result.TraceId.Should().Be(SampleEvent.TraceId);
+        // Assert
+        eventPrediction.Should().NotBeNull().
+            And.BeEquivalentTo(new EventPredictionBuilder().SetSampleData().Instance);
     }
 
     [Test]
     public void SetBookmaker_WithValidBookmaker_ReturnsValidInstance()
     {
-        var result = new EventPredictionBuilder().SetBookmaker(SampleEvent.Bookmaker1).Instance;
+        // Arrange & Act
+        var eventPrediction = new EventPredictionBuilder().SetBookmaker(SampleEvent.Bookmaker1).Instance;
 
-        result.Should().NotBeNull();
-        result.Bookmaker.Should().NotBeNull().And.Be(SampleEvent.Bookmaker1);
+        // Assert
+        eventPrediction.Should().NotBeNull();
+        eventPrediction.Bookmaker.Should().NotBeNull().And.Be(SampleEvent.Bookmaker1);
     }
 
     [Test]
     public void SetWinner_WithValidWinner_ReturnsValidInstance()
     {
-        var result = new EventPredictionBuilder().SetWinner(SampleEvent.Winner).Instance;
+        // Arrange & Act
+        var eventPrediction = new EventPredictionBuilder().SetWinner(SampleEvent.Winner).Instance;
 
-        result.Should().NotBeNull();
-        result.Winner.Should().NotBeNull().And.Be(SampleEvent.Winner);
+        // Assert
+        eventPrediction.Should().NotBeNull();
+        eventPrediction.Winner.Should().NotBeNull().And.Be(SampleEvent.Winner);
     }
 
     [Test]
     public void SetAwayTeam_WithValidAwayTeam_ReturnsValidInstance()
     {
-        var result = new EventPredictionBuilder().SetAwayTeam(SampleEvent.AwayTeam).Instance;
+        // Arrange & Act
+        var eventPrediction = new EventPredictionBuilder().SetAwayTeam(SampleEvent.AwayTeam).Instance;
 
-        result.Should().NotBeNull();
-        result.AwayTeam.Should().NotBeNull().And.Be(SampleEvent.AwayTeam);
+        // Assert
+        eventPrediction.Should().NotBeNull();
+        eventPrediction.AwayTeam.Should().NotBeNull().And.Be(SampleEvent.AwayTeam);
     }
 
     [Test]
     public void SetHomeTeam_WithValidHomeTeam_ReturnsValidInstance()
     {
-        var result = new EventPredictionBuilder().SetHomeTeam(SampleEvent.HomeTeam).Instance;
+        // Arrange & Act
+        var eventPrediction = new EventPredictionBuilder().SetHomeTeam(SampleEvent.HomeTeam).Instance;
 
-        result.Should().NotBeNull();
-        result.HomeTeam.Should().NotBeNull().And.Be(SampleEvent.HomeTeam);
+        // Assert
+        eventPrediction.Should().NotBeNull();
+        eventPrediction.HomeTeam.Should().NotBeNull().And.Be(SampleEvent.HomeTeam);
     }
 
     [Test]
     public void SetId_WithValidId_ReturnsValidInstance()
     {
-        var result = new EventPredictionBuilder().SetId(SampleEvent.Id).Instance;
+        // Arrange & Act
+        var eventPrediction = new EventPredictionBuilder().SetId(SampleEvent.Id).Instance;
 
-        result.Should().NotBeNull();
-        result.Id.Should().NotBeNull().And.Be(SampleEvent.Id);
+        // Assert
+        eventPrediction.Should().NotBeNull();
+        eventPrediction.Id.Should().NotBeNull().And.Be(SampleEvent.Id);
     }
 
     [Test]
     public void SetStrategy_WithValidStrategy_ReturnsValidInstance()
     {
-        var result = new EventPredictionBuilder().SetStrategy(SampleEvent.Strategy).Instance;
+        // Arrange & Act
+        var eventPrediction = new EventPredictionBuilder().SetStrategy(SampleEvent.Strategy).Instance;
 
-        result.Should().NotBeNull();
-        result.Strategy.Should().NotBeNull().And.Be(SampleEvent.Strategy);
+        // Assert
+        eventPrediction.Should().NotBeNull();
+        eventPrediction.Strategy.Should().NotBeNull().And.Be(SampleEvent.Strategy);
     }
 
     [Test]
     public void SetCommenceTime_WithValidCommenceTime_ReturnsValidInstance()
     {
-        var result = new EventPredictionBuilder().SetCommenceTime(SampleEvent.CommenceTime).Instance;
+        // Arrange & Act
+        var eventPrediction = new EventPredictionBuilder().SetCommenceTime(SampleEvent.CommenceTime).Instance;
 
-        result.Should().NotBeNull();
-        result.CommenceTime.Should().Be(SampleEvent.CommenceTime);
+        // Assert
+        eventPrediction.Should().NotBeNull();
+        eventPrediction.CommenceTime.Should().Be(SampleEvent.CommenceTime);
     }
 
     [Test]
     public void SetTimestamp_WithValidTimestamp_ReturnsValidInstance()
     {
-        var result = new EventPredictionBuilder().SetTimestamp(SampleEvent.Timestamp).Instance;
+        // Arrange & Act
+        var eventPrediction = new EventPredictionBuilder().SetTimestamp(SampleEvent.Timestamp).Instance;
 
-        result.Should().NotBeNull();
-        result.Timestamp.Should().Be(SampleEvent.Timestamp);
+        // Assert
+        eventPrediction.Should().NotBeNull();
+        eventPrediction.Timestamp.Should().Be(SampleEvent.Timestamp);
     }
 
     [Test]
     public void SetTraceId_WithValidTraceId_ReturnsValidInstance()
     {
-        var result = new EventPredictionBuilder().SetTraceId(SampleEvent.TraceId).Instance;
+        // Arrange & Act
+        var eventPrediction = new EventPredictionBuilder().SetTraceId(SampleEvent.TraceId).Instance;
 
-        result.Should().NotBeNull();
-        result.TraceId.Should().Be(SampleEvent.TraceId);
+        // Assert
+        eventPrediction.Should().NotBeNull();
+        eventPrediction.TraceId.Should().Be(SampleEvent.TraceId);
     }
 
-    [TestCase("")]
-    [TestCase(null)]
-    public void SetBookmaker_WithNullOrEmptyBookmaker_ThrowsException(string? bookmaker)
+    [Test]
+    public void SetBookmaker_WithEmptyBookmaker_ThrowsException()
     {
-        var action = () =>
-        {
-            _ = new EventPredictionBuilder().SetBookmaker(bookmaker).Instance;
-        };
+        // Arrange & Act
+        var action = () => new EventPredictionBuilder().SetBookmaker(string.Empty).Instance;
 
-        action.Should().Throw<ArgumentException>().WithParameterName(nameof(bookmaker));
+        // Assert
+        action.Should().ThrowExactly<ArgumentException>().WithParameterName("bookmaker");
     }
 
-    [TestCase("")]
-    [TestCase(null)]
-    public void SetWinner_WithNullOrEmptyWinner_ThrowsException(string? winner)
+    [Test]
+    public void SetBookmaker_WithNullBookmaker_ThrowsException()
     {
-        var action = () =>
-        {
-            _ = new EventPredictionBuilder().SetWinner(winner).Instance;
-        };
+        // Arrange & Act
+        var action = () => new EventPredictionBuilder().SetBookmaker(null).Instance;
 
-        action.Should().Throw<ArgumentException>().WithParameterName(nameof(winner));
+        // Assert
+        action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("bookmaker");
     }
 
-    [TestCase("")]
-    [TestCase(null)]
-    public void SetAwayTeam_WithNullOrEmptyAwayTeam_ThrowsException(string? awayTeam)
+    [Test]
+    public void SetWinner_WithEmptyWinner_ThrowsException()
     {
-        var action = () =>
-        {
-            _ = new EventPredictionBuilder().SetAwayTeam(awayTeam).Instance;
-        };
+        // Arrange & Act
+        var action = () => new EventPredictionBuilder().SetWinner(string.Empty).Instance;
 
-        action.Should().Throw<ArgumentException>().WithParameterName(nameof(awayTeam));
+        // Assert
+        action.Should().ThrowExactly<ArgumentException>().WithParameterName("winner");
     }
 
-    [TestCase("")]
-    [TestCase(null)]
-    public void SetHomeTeam_WithNullOrEmptyHomeTeam_ThrowsException(string? homeTeam)
+    [Test]
+    public void SetWinner_WithNullWinner_ThrowsException()
     {
-        var action = () =>
-        {
-            _ = new EventPredictionBuilder().SetHomeTeam(homeTeam).Instance;
-        };
+        // Arrange & Act
+        var action = () => new EventPredictionBuilder().SetWinner(null).Instance;
 
-        action.Should().Throw<ArgumentException>().WithParameterName(nameof(homeTeam));
+        // Assert
+        action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("winner");
     }
 
-    [TestCase("")]
-    [TestCase(null)]
-    public void SetId_WithNullOrEmptyId_ThrowsException(string? id)
+    [Test]
+    public void SetAwayTeam_WithNullAwayTeam_ThrowsException()
     {
-        var action = () =>
-        {
-            _ = new EventPredictionBuilder().SetId(id).Instance;
-        };
+        // Arrange & Act
+        var action = () => new EventPredictionBuilder().SetAwayTeam(null).Instance;
 
-        action.Should().Throw<ArgumentException>().WithParameterName(nameof(id));
+        // Assert
+        action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("awayTeam");
     }
 
-    [TestCase("")]
-    [TestCase(null)]
-    public void SetStrategy_WithNullOrEmptyStrategy_ThrowsException(string? strategy)
+    [Test]
+    public void SetAwayTeam_WithNullOrEmptyAwayTeam_ThrowsException()
     {
-        var action = () =>
-        {
-            _ = new EventPredictionBuilder().SetStrategy(strategy).Instance;
-        };
+        // Arrange & Act
+        var action = () => new EventPredictionBuilder().SetAwayTeam(string.Empty).Instance;
 
-        action.Should().Throw<ArgumentException>().WithParameterName(nameof(strategy));
+        // Assert
+        action.Should().ThrowExactly<ArgumentException>().WithParameterName("awayTeam");
+    }
+
+    [Test]
+    public void SetHomeTeam_WithEmptyHomeTeam_ThrowsException()
+    {
+        // Arrange & Act
+        var action = () => new EventPredictionBuilder().SetHomeTeam(string.Empty).Instance;
+
+        // Assert
+        action.Should().ThrowExactly<ArgumentException>().WithParameterName("homeTeam");
+    }
+
+    [Test]
+    public void SetHomeTeam_WithNullHomeTeam_ThrowsException()
+    {
+        // Arrange & Act
+        var action = () => new EventPredictionBuilder().SetHomeTeam(null).Instance;
+
+        // Assert
+        action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("homeTeam");
+    }
+
+    [Test]
+    public void SetId_WithEmptyId_ThrowsException()
+    {
+        // Arrange & Act
+        var action = () => new EventPredictionBuilder().SetId(string.Empty).Instance;
+
+        // Assert
+        action.Should().ThrowExactly<ArgumentException>().WithParameterName("id");
+    }
+
+    [Test]
+    public void SetId_WithNullId_ThrowsException()
+    {
+        // Arrange & Act
+        var action = () => new EventPredictionBuilder().SetId(null).Instance;
+
+        // Assert
+        action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("id");
+    }
+
+    [Test]
+    public void SetStrategy_WithEmptyStrategy_ThrowsException()
+    {
+        // Arrange & Act
+        var action = () => new EventPredictionBuilder().SetStrategy(string.Empty).Instance;
+
+        // Assert
+        action.Should().ThrowExactly<ArgumentException>().WithParameterName("strategy");
+    }
+
+    [Test]
+    public void SetStrategy_WithNullStrategy_ThrowsException()
+    {
+        // Arrange & Act
+        var action = () => new EventPredictionBuilder().SetStrategy(null).Instance;
+
+        // Assert
+        action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("strategy");
     }
 
     [Test]
     public void SetCommenceTime_WithNullCommenceTime_ThrowsException()
     {
-        var action = () =>
-        {
-            _ = new EventPredictionBuilder().SetCommenceTime(null).Instance;
-        };
+        // Arrange & Act
+        var action = () => new EventPredictionBuilder().SetCommenceTime(null).Instance;
 
-        action.Should().Throw<ArgumentException>().WithParameterName("commenceTime");
+        // Assert
+        action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("commenceTime");
     }
 
     [Test]
     public void SetTimestamp_WithNullTimestamp_ThrowsException()
     {
-        var action = () =>
-        {
-            _ = new EventPredictionBuilder().SetTimestamp(null).Instance;
-        };
+        // Arrange & Act
+        var action = () => new EventPredictionBuilder().SetTimestamp(null).Instance;
 
-        action.Should().Throw<ArgumentException>().WithParameterName("timestamp");
+        // Assert
+        action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("timestamp");
     }
 
     [Test]
     public void SetTraceId_WithNullTraceId_ThrowsException()
     {
-        var action = () =>
-        {
-            _ = new EventPredictionBuilder().SetTraceId(null).Instance;
-        };
+        // Arrange & Act
+        var action = () => new EventPredictionBuilder().SetTraceId(null).Instance;
 
-        action.Should().Throw<ArgumentException>().WithParameterName("traceId");
+        // Assert
+        action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("traceId");
     }
 }

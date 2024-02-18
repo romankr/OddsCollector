@@ -7,12 +7,12 @@ using OddsCollector.Functions.OddsApi.WebApi;
 
 namespace OddsCollector.Functions.Tests.Tests.OddsApi;
 
-[Parallelizable(ParallelScope.All)]
 internal class OddsApiClientTests
 {
     [Test]
     public async Task GetUpcomingEventsAsync_WithLeagues_ReturnsUpcomingEvents()
     {
+        // Arrange
         ICollection<Anonymous2> rawUpcomingEvents = [new Anonymous2()];
         var webApiClientMock = Substitute.For<IClient>();
         webApiClientMock
@@ -39,8 +39,10 @@ internal class OddsApiClientTests
         var timestamp = DateTime.UtcNow;
         var token = new CancellationToken();
 
+        // Act
         var results = await oddsClient.GetUpcomingEventsAsync(traceId, timestamp, token);
 
+        // Assert
         results.Should().NotBeNull().And.Equal(upcomingEvents);
 
         await webApiClientMock.Received()
@@ -67,6 +69,7 @@ internal class OddsApiClientTests
     [Test]
     public async Task GetEventResultsAsync_WithLeagues_ReturnsEventResults()
     {
+        // Arrange
         ICollection<Anonymous3> rawEventResults = [new Anonymous3()];
         var webApiClientMock = Substitute.For<IClient>();
         webApiClientMock.ScoresAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<int?>(),
@@ -91,8 +94,10 @@ internal class OddsApiClientTests
         var timestamp = DateTime.UtcNow;
         var token = new CancellationToken();
 
+        // Act
         var results = await oddsClient.GetEventResultsAsync(traceId, timestamp, token);
 
+        // Assert
         results.Should().NotBeNull().And.Equal(eventResults);
 
         await webApiClientMock.Received().ScoresAsync(league, secretValue, 3, token).ConfigureAwait(false);
