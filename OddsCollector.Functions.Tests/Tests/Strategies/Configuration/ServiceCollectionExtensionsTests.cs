@@ -10,10 +10,13 @@ internal class ServiceCollectionExtensionsTests
     [Test]
     public void AddPredictionStrategy_AddsProperlyConfiguredPredictionStrategy()
     {
+        // Arrange
         var services = new ServiceCollection();
 
+        // Act
         services.AddPredictionStrategy();
 
+        // Assert
         var strategy =
             services.FirstOrDefault(
                 x => x.ServiceType == typeof(IPredictionStrategy)

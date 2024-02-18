@@ -11,10 +11,13 @@ internal class ServiceCollectionExtensionsTests
     [Test]
     public void AddOddsApiClientWithDependencies_AddsProperlyConfiguredOddsApiClient()
     {
+        // Arrange
         var services = new ServiceCollection();
 
+        // Act
         services.AddOddsApiClientWithDependencies();
 
+        // Assert
         var options =
             services.FirstOrDefault(
                 x => x.ServiceType == typeof(IConfigureOptions<OddsApiClientOptions>)

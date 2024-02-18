@@ -3,21 +3,23 @@ using OddsCollector.Functions.Tests.Data;
 
 namespace OddsCollector.Functions.Tests.Tests.OddsApi.Models;
 
-[Parallelizable(ParallelScope.All)]
 internal class UpcomingEventBuilderTests
 {
     [Test]
     public void Instance_WithoutParameters_ReturnsValidInstance()
     {
-        var result = new UpcomingEventBuilder().Instance;
+        // Arrange & Act
+        var upcomingEvent = new UpcomingEventBuilder().Instance;
 
-        result.Should().NotBeNull();
+        // Assert
+        upcomingEvent.Should().NotBeNull();
     }
 
     [Test]
     public void Instance_WithFullParameterList_ReturnsValidInstance()
     {
-        var result = new UpcomingEventBuilder()
+        // Arrange & Act
+        var upcomingEvent = new UpcomingEventBuilder()
             .SetAwayTeam(SampleEvent.AwayTeam)
             .SetHomeTeam(SampleEvent.HomeTeam)
             .SetId(SampleEvent.Id)
@@ -27,171 +29,173 @@ internal class UpcomingEventBuilderTests
             .SetOdds(SampleEvent.Odds)
             .Instance;
 
-        result.Should().NotBeNull();
-        result.AwayTeam.Should().NotBeNull().And.Be(SampleEvent.AwayTeam);
-        result.HomeTeam.Should().NotBeNull().And.Be(SampleEvent.HomeTeam);
-        result.Id.Should().NotBeNull().And.Be(SampleEvent.Id);
-        result.CommenceTime.Should().Be(SampleEvent.CommenceTime);
-        result.Timestamp.Should().Be(SampleEvent.Timestamp);
-        result.TraceId.Should().Be(SampleEvent.TraceId);
-        result.Odds.Should().NotBeNull().And.HaveCount(3);
-
-        var first = result.Odds.ElementAt(0);
-
-        first.Should().NotBeNull();
-        first.Bookmaker.Should().NotBeNull().And.Be(SampleEvent.Bookmaker1);
-        first.Away.Should().Be(SampleEvent.AwayOdd1);
-        first.Home.Should().Be(SampleEvent.HomeOdd1);
-        first.Draw.Should().Be(SampleEvent.DrawOdd1);
-
-        var second = result.Odds.ElementAt(1);
-
-        second.Should().NotBeNull();
-        second.Bookmaker.Should().NotBeNull().And.Be(SampleEvent.Bookmaker2);
-        second.Away.Should().Be(SampleEvent.AwayOdd2);
-        second.Home.Should().Be(SampleEvent.HomeOdd2);
-        second.Draw.Should().Be(SampleEvent.DrawOdd2);
-
-        var third = result.Odds.ElementAt(2);
-
-        third.Should().NotBeNull();
-        third.Bookmaker.Should().NotBeNull().And.Be(SampleEvent.Bookmaker3);
-        third.Away.Should().Be(SampleEvent.AwayOdd3);
-        third.Home.Should().Be(SampleEvent.HomeOdd3);
-        third.Draw.Should().Be(SampleEvent.DrawOdd3);
+        // Assert
+        upcomingEvent.Should().NotBeNull().
+            And.BeEquivalentTo(new UpcomingEventBuilder().SetSampleData().Instance);
     }
 
     [Test]
     public void SetAwayTeam_WithValidAwayTeam_ReturnsValidInstance()
     {
-        var result = new UpcomingEventBuilder().SetAwayTeam(SampleEvent.AwayTeam).Instance;
+        // Arrange & Act
+        var upcomingEvent = new UpcomingEventBuilder().SetAwayTeam(SampleEvent.AwayTeam).Instance;
 
-        result.Should().NotBeNull();
-        result.AwayTeam.Should().Be(SampleEvent.AwayTeam);
+        // Assert
+        upcomingEvent.Should().NotBeNull();
+        upcomingEvent.AwayTeam.Should().Be(SampleEvent.AwayTeam);
     }
 
     [Test]
     public void SetHomeTeam_WithValidHomeTeam_ReturnsValidInstance()
     {
-        var result = new UpcomingEventBuilder().SetHomeTeam(SampleEvent.HomeTeam).Instance;
+        // Arrange & Act
+        var upcomingEvent = new UpcomingEventBuilder().SetHomeTeam(SampleEvent.HomeTeam).Instance;
 
-        result.Should().NotBeNull();
-        result.HomeTeam.Should().NotBeNull().And.Be(SampleEvent.HomeTeam);
+        // Assert
+        upcomingEvent.Should().NotBeNull();
+        upcomingEvent.HomeTeam.Should().NotBeNull().And.Be(SampleEvent.HomeTeam);
     }
 
     [Test]
     public void SetId_WithValidId_ReturnsValidInstance()
     {
-        var result = new UpcomingEventBuilder().SetId(SampleEvent.Id).Instance;
+        // Arrange & Act
+        var upcomingEvent = new UpcomingEventBuilder().SetId(SampleEvent.Id).Instance;
 
-        result.Should().NotBeNull();
-        result.Id.Should().NotBeNull().And.Be(SampleEvent.Id);
+        // Assert
+        upcomingEvent.Should().NotBeNull();
+        upcomingEvent.Id.Should().NotBeNull().And.Be(SampleEvent.Id);
     }
 
     [Test]
     public void SetCommenceTime_WithValidCommenceTime_ReturnsValidInstance()
     {
-        var result = new UpcomingEventBuilder().SetCommenceTime(SampleEvent.CommenceTime).Instance;
+        // Arrange & Act
+        var upcomingEvent = new UpcomingEventBuilder().SetCommenceTime(SampleEvent.CommenceTime).Instance;
 
-        result.Should().NotBeNull();
-        result.CommenceTime.Should().Be(SampleEvent.CommenceTime);
+        // Assert
+        upcomingEvent.Should().NotBeNull();
+        upcomingEvent.CommenceTime.Should().Be(SampleEvent.CommenceTime);
     }
 
     [Test]
     public void SetTimestamp_WithValidTimestamp_ReturnsValidInstance()
     {
-        var result = new UpcomingEventBuilder().SetTimestamp(SampleEvent.Timestamp).Instance;
+        // Arrange & Act
+        var upcomingEvent = new UpcomingEventBuilder().SetTimestamp(SampleEvent.Timestamp).Instance;
 
-        result.Should().NotBeNull();
-        result.Timestamp.Should().Be(SampleEvent.Timestamp);
+        // Assert
+        upcomingEvent.Should().NotBeNull();
+        upcomingEvent.Timestamp.Should().Be(SampleEvent.Timestamp);
     }
 
     [Test]
     public void SetTraceId_WithValidTraceId_ReturnsValidInstance()
     {
-        var result = new UpcomingEventBuilder().SetTraceId(SampleEvent.TraceId).Instance;
+        // Arrange & Act
+        var upcomingEvent = new UpcomingEventBuilder().SetTraceId(SampleEvent.TraceId).Instance;
 
-        result.Should().NotBeNull();
-        result.TraceId.Should().Be(SampleEvent.TraceId);
+        // Assert
+        upcomingEvent.Should().NotBeNull();
+        upcomingEvent.TraceId.Should().Be(SampleEvent.TraceId);
     }
 
-    [TestCase("")]
-    [TestCase(null)]
-    public void SetAwayTeam_WithNullOrEmptyAwayTeam_ThrowsException(string? awayTeam)
+    [Test]
+    public void SetAwayTeam_WithNullAwayTeam_ThrowsException()
     {
-        var action = () =>
-        {
-            _ = new UpcomingEventBuilder().SetAwayTeam(awayTeam).Instance;
-        };
+        // Arrange & Act
+        var action = () => new UpcomingEventBuilder().SetAwayTeam(null).Instance;
 
-        action.Should().Throw<ArgumentException>().WithParameterName(nameof(awayTeam));
+        // Assert
+        action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("awayTeam");
     }
 
-    [TestCase("")]
-    [TestCase(null)]
-    public void SetHomeTeam_WithNullOrEmptyHomeTeam_ThrowsException(string? homeTeam)
+    public void SetAwayTeam_WithEmptyAwayTeam_ThrowsException()
     {
-        var action = () =>
-        {
-            _ = new UpcomingEventBuilder().SetHomeTeam(homeTeam).Instance;
-        };
+        // Arrange & Act
+        var action = () => new UpcomingEventBuilder().SetAwayTeam(string.Empty).Instance;
 
-        action.Should().Throw<ArgumentException>().WithParameterName(nameof(homeTeam));
+        // Assert
+        action.Should().ThrowExactly<ArgumentException>().WithParameterName("awayTeam");
     }
 
-    [TestCase("")]
-    [TestCase(null)]
-    public void SetId_WithNullOrEmptyId_ThrowsException(string? id)
+    [Test]
+    public void SetHomeTeam_WithEmptyHomeTeam_ThrowsException()
     {
-        var action = () =>
-        {
-            _ = new UpcomingEventBuilder().SetId(id).Instance;
-        };
+        // Arrange & Act
+        var action = () => new UpcomingEventBuilder().SetHomeTeam(string.Empty).Instance;
 
-        action.Should().Throw<ArgumentException>().WithParameterName(nameof(id));
+        // Assert
+        action.Should().ThrowExactly<ArgumentException>().WithParameterName("homeTeam");
+    }
+
+    [Test]
+    public void SetHomeTeam_WithNullHomeTeam_ThrowsException()
+    {
+        // Arrange & Act
+        var action = () => new UpcomingEventBuilder().SetHomeTeam(null).Instance;
+
+        // Assert
+        action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("homeTeam");
+    }
+
+    [Test]
+    public void SetId_WithEmptyId_ThrowsException()
+    {
+        // Arrange & Act
+        var action = () => new UpcomingEventBuilder().SetId(string.Empty).Instance;
+
+        // Assert
+        action.Should().ThrowExactly<ArgumentException>().WithParameterName("id");
+    }
+
+    [Test]
+    public void SetId_WithNullId_ThrowsException()
+    {
+        // Arrange & Act
+        var action = () => new UpcomingEventBuilder().SetId(null).Instance;
+
+        // Assert
+        action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("id");
     }
 
     [Test]
     public void SetCommenceTime_WithNullCommenceTime_ThrowsException()
     {
-        var action = () =>
-        {
-            _ = new UpcomingEventBuilder().SetCommenceTime(null).Instance;
-        };
+        // Arrange & Act
+        var action = () => new UpcomingEventBuilder().SetCommenceTime(null).Instance;
 
-        action.Should().Throw<ArgumentException>().WithParameterName("commenceTime");
+        // Assert
+        action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("commenceTime");
     }
 
     [Test]
     public void SetTimestamp_WithNullTimestamp_ThrowsException()
     {
-        var action = () =>
-        {
-            _ = new UpcomingEventBuilder().SetTimestamp(null).Instance;
-        };
+        // Arrange & Act
+        var action = () => new UpcomingEventBuilder().SetTimestamp(null).Instance;
 
-        action.Should().Throw<ArgumentException>().WithParameterName("timestamp");
+        // Assert
+        action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("timestamp");
     }
 
     [Test]
     public void SetTraceId_WithNullTraceId_ThrowsException()
     {
-        var action = () =>
-        {
-            _ = new UpcomingEventBuilder().SetTraceId(null).Instance;
-        };
+        // Arrange & Act
+        var action = () => new UpcomingEventBuilder().SetTraceId(null).Instance;
 
-        action.Should().Throw<ArgumentException>().WithParameterName("traceId");
+        // Assert
+        action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("traceId");
     }
 
     [Test]
     public void SetOdds_WithNullOdds_ThrowsException()
     {
-        var action = () =>
-        {
-            _ = new UpcomingEventBuilder().SetOdds(null).Instance;
-        };
+        // Arrange & Act
+        var action = () => new UpcomingEventBuilder().SetOdds(null).Instance;
 
-        action.Should().Throw<ArgumentException>().WithParameterName("odds");
+        // Assert
+        action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("odds");
     }
 }

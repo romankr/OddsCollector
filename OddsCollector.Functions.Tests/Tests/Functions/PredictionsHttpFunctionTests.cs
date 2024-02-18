@@ -9,12 +9,12 @@ using OddsCollector.Functions.Tests.Data;
 
 namespace OddsCollector.Functions.Tests.Tests.Functions;
 
-[Parallelizable(ParallelScope.All)]
 internal class PredictionsHttpFunctionTests
 {
     [Test]
     public void Run_WithValidArguments_ReturnsValidResponse()
     {
+        // Arrange
         var loggerStub = Substitute.For<ILogger<PredictionsHttpFunction>>();
 
         var function = new PredictionsHttpFunction(loggerStub);
@@ -40,8 +40,10 @@ internal class PredictionsHttpFunctionTests
             new EventPredictionBuilder().SetSampleData().SetTimestamp(timestamp).Instance,
         };
 
+        // Act
         var response = function.Run(requestStub, predictions);
 
+        // Assert
         response.Should().NotBeNull();
         responseMock.StatusCode.Should().Be(HttpStatusCode.OK);
 

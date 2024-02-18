@@ -37,9 +37,6 @@ internal sealed class AdjustedConsensusStrategy : IPredictionStrategy
             throw new ArgumentException($"{nameof(odds)} cannot be empty", nameof(odds));
         }
 
-        ArgumentException.ThrowIfNullOrEmpty(awayTeam);
-        ArgumentException.ThrowIfNullOrEmpty(homeTeam);
-
         List<StrategyScore> scores =
         [
             new StrategyScore { Name = Constants.Draw, Odd = CalculateAdjustedScore(enumerated, Draw, 0.057) },

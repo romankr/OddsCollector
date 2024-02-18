@@ -21,7 +21,8 @@ internal class OddsApiObjectConverter : IOddsApiObjectConverter
         ArgumentNullException.ThrowIfNull(events);
 
         return events
-            .Where(r => r.Completed != null && r.Completed.Value)
+            .Where(r => r is not null)
+            .Where(r => r.Completed is not null && r.Completed.Value)
             .Select(r => ToEventResult(r, traceId, timestamp));
     }
 

@@ -6,12 +6,12 @@ using OddsCollector.Functions.OddsApi;
 
 namespace OddsCollector.Functions.Tests.Tests.Functions;
 
-[Parallelizable(ParallelScope.All)]
 internal class UpcomingEventsFunctionTest
 {
     [Test]
     public async Task Run_WithValidParameters_ReturnsEventResults()
     {
+        // Arrange
         IEnumerable<UpcomingEvent> expectedEventResults = new List<UpcomingEvent>() { new() };
 
         var loggerMock = Substitute.For<ILogger<UpcomingEventsFunction>>();
@@ -22,8 +22,10 @@ internal class UpcomingEventsFunctionTest
 
         var function = new UpcomingEventsFunction(loggerMock, clientStub);
 
+        // Act
         var eventResults = await function.Run(new CancellationToken());
 
+        // Assert
         eventResults.Should().NotBeNull().And.BeEquivalentTo(expectedEventResults);
 
         loggerMock.ReceivedWithAnyArgs().LogInformation(string.Empty, 1);
@@ -32,6 +34,7 @@ internal class UpcomingEventsFunctionTest
     [Test]
     public async Task Run_WithException_ReturnsEmptyEventResults()
     {
+        // Arrange
         var exception = new Exception();
 
         var loggerMock = Substitute.For<ILogger<UpcomingEventsFunction>>();
@@ -42,8 +45,10 @@ internal class UpcomingEventsFunctionTest
 
         var function = new UpcomingEventsFunction(loggerMock, clientStub);
 
+        // Act
         var eventResults = await function.Run(new CancellationToken());
 
+        // Assert
         eventResults.Should().NotBeNull().And.BeEmpty();
 
         loggerMock.Received().LogError(exception, "Failed to get upcoming events");
@@ -52,6 +57,7 @@ internal class UpcomingEventsFunctionTest
     [Test]
     public async Task Run_WithValidParameters_ReturnsNoEventResults()
     {
+        // Arrange
         IEnumerable<UpcomingEvent> expectedEventResults = new List<UpcomingEvent>();
 
         var loggerMock = Substitute.For<ILogger<UpcomingEventsFunction>>();
@@ -62,8 +68,10 @@ internal class UpcomingEventsFunctionTest
 
         var function = new UpcomingEventsFunction(loggerMock, clientStub);
 
+        // Act
         var eventResults = await function.Run(new CancellationToken());
 
+        // Assert
         eventResults.Should().NotBeNull().And.BeEquivalentTo(expectedEventResults);
 
         loggerMock.ReceivedWithAnyArgs().LogWarning(string.Empty, 1);
