@@ -53,11 +53,6 @@ internal class UpcomingEventBuilder
     {
         ArgumentNullException.ThrowIfNull(traceId);
 
-        if (traceId is null)
-        {
-            throw new ArgumentNullException(nameof(traceId));
-        }
-
         Instance.TraceId = traceId.Value;
 
         return this;
