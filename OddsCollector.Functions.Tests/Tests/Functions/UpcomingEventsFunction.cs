@@ -1,12 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
 using NSubstitute.ExceptionExtensions;
-using OddsCollector.Functions.Functions;
 using OddsCollector.Functions.Models;
 using OddsCollector.Functions.OddsApi;
 
 namespace OddsCollector.Functions.Tests.Tests.Functions;
 
-internal class UpcomingEventsFunctionTest
+internal class UpcomingEventsFunction
 {
     [Test]
     public async Task Run_WithValidParameters_ReturnsEventResults()
@@ -14,13 +13,13 @@ internal class UpcomingEventsFunctionTest
         // Arrange
         IEnumerable<UpcomingEvent> expectedEventResults = new List<UpcomingEvent>() { new() };
 
-        var loggerMock = Substitute.For<ILogger<UpcomingEventsFunction>>();
+        var loggerMock = Substitute.For<ILogger<OddsCollector.Functions.Functions.UpcomingEventsFunction>>();
 
         var clientStub = Substitute.For<IOddsApiClient>();
         clientStub.GetUpcomingEventsAsync(Arg.Any<Guid>(), Arg.Any<DateTime>(), Arg.Any<CancellationToken>())
             .Returns(Task.FromResult(expectedEventResults));
 
-        var function = new UpcomingEventsFunction(loggerMock, clientStub);
+        var function = new OddsCollector.Functions.Functions.UpcomingEventsFunction(loggerMock, clientStub);
 
         // Act
         var eventResults = await function.Run(new CancellationToken());
@@ -37,13 +36,13 @@ internal class UpcomingEventsFunctionTest
         // Arrange
         var exception = new Exception();
 
-        var loggerMock = Substitute.For<ILogger<UpcomingEventsFunction>>();
+        var loggerMock = Substitute.For<ILogger<OddsCollector.Functions.Functions.UpcomingEventsFunction>>();
 
         var clientStub = Substitute.For<IOddsApiClient>();
         clientStub.GetUpcomingEventsAsync(Arg.Any<Guid>(), Arg.Any<DateTime>(), Arg.Any<CancellationToken>())
             .Throws(exception);
 
-        var function = new UpcomingEventsFunction(loggerMock, clientStub);
+        var function = new OddsCollector.Functions.Functions.UpcomingEventsFunction(loggerMock, clientStub);
 
         // Act
         var eventResults = await function.Run(new CancellationToken());
@@ -60,13 +59,13 @@ internal class UpcomingEventsFunctionTest
         // Arrange
         IEnumerable<UpcomingEvent> expectedEventResults = new List<UpcomingEvent>();
 
-        var loggerMock = Substitute.For<ILogger<UpcomingEventsFunction>>();
+        var loggerMock = Substitute.For<ILogger<OddsCollector.Functions.Functions.UpcomingEventsFunction>>();
 
         var clientStub = Substitute.For<IOddsApiClient>();
         clientStub.GetUpcomingEventsAsync(Arg.Any<Guid>(), Arg.Any<DateTime>(), Arg.Any<CancellationToken>())
             .Returns(Task.FromResult(expectedEventResults));
 
-        var function = new UpcomingEventsFunction(loggerMock, clientStub);
+        var function = new OddsCollector.Functions.Functions.UpcomingEventsFunction(loggerMock, clientStub);
 
         // Act
         var eventResults = await function.Run(new CancellationToken());

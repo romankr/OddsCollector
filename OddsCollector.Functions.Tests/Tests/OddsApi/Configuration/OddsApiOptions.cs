@@ -2,7 +2,7 @@
 
 namespace OddsCollector.Functions.Tests.Tests.OddsApi.Configuration;
 
-internal class OddsApiOptionsTests
+internal class OddsApiOptions
 {
     private static readonly IEnumerable<(string LeagueString, HashSet<string> ExpectedLeagues)>
         TestCases = new List<(string LeagueString, HashSet<string> ExpectedLeagues)>

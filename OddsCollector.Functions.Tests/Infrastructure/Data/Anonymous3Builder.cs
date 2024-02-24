@@ -1,6 +1,6 @@
 ﻿using OddsCollector.Functions.OddsApi.WebApi;
 
-namespace OddsCollector.Functions.Tests.Data;
+namespace OddsCollector.Functions.Tests.Infrastructure.Data;
 
 internal class Anonymous3Builder
 {

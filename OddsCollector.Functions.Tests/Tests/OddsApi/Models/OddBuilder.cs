@@ -1,15 +1,14 @@
-﻿using OddsCollector.Functions.Models;
-using OddsCollector.Functions.Tests.Data;
+﻿using OddsCollector.Functions.Tests.Infrastructure.Data;
 
 namespace OddsCollector.Functions.Tests.Tests.OddsApi.Models;
 
-internal class OddBuilderTests
+internal class OddBuilder
 {
     [Test]
     public void Instance_WithoutParameters_ReturnsValidInstance()
     {
         // Arrange & Act
-        var odd = new OddBuilder().Instance;
+        var odd = new OddsCollector.Functions.Models.OddBuilder().Instance;
 
         // Assert
         odd.Should().NotBeNull();
@@ -19,7 +18,7 @@ internal class OddBuilderTests
     public void Instance_WithFullParameterList_ReturnsValidInstance()
     {
         // Arrange & Act
-        var odd = new OddBuilder()
+        var odd = new OddsCollector.Functions.Models.OddBuilder()
             .SetAway(SampleEvent.AwayOdd1)
             .SetBookmaker(SampleEvent.Bookmaker1)
             .SetDraw(SampleEvent.DrawOdd1)
@@ -28,14 +27,14 @@ internal class OddBuilderTests
 
         // Assert
         odd.Should().NotBeNull().
-            And.BeEquivalentTo(new OddBuilder().SetSampleData1().Instance);
+            And.BeEquivalentTo(new OddsCollector.Functions.Models.OddBuilder().SetSampleData1().Instance);
     }
 
     [Test]
     public void Instance_WithValidBookmaker_ReturnsValidInstance()
     {
         // Arrange & Act
-        var odd = new OddBuilder().SetBookmaker(SampleEvent.Bookmaker1).Instance;
+        var odd = new OddsCollector.Functions.Models.OddBuilder().SetBookmaker(SampleEvent.Bookmaker1).Instance;
 
         // Assert
         odd.Should().NotBeNull();
@@ -46,7 +45,7 @@ internal class OddBuilderTests
     public void SetAway_WithValidAway_ReturnsValidInstance()
     {
         // Arrange & Act
-        var odd = new OddBuilder().SetAway(SampleEvent.AwayOdd1).Instance;
+        var odd = new OddsCollector.Functions.Models.OddBuilder().SetAway(SampleEvent.AwayOdd1).Instance;
 
         // Assert
         odd.Should().NotBeNull();
@@ -57,7 +56,7 @@ internal class OddBuilderTests
     public void SetDraw_WithValidDraw_ReturnsValidInstance()
     {
         // Arrange & Act
-        var odd = new OddBuilder().SetDraw(SampleEvent.DrawOdd1).Instance;
+        var odd = new OddsCollector.Functions.Models.OddBuilder().SetDraw(SampleEvent.DrawOdd1).Instance;
 
         // Assert
         odd.Should().NotBeNull();
@@ -68,7 +67,7 @@ internal class OddBuilderTests
     public void SetHome_WithValidHome_ReturnsValidInstance()
     {
         // Arrange & Act
-        var odd = new OddBuilder().SetHome(SampleEvent.HomeOdd1).Instance;
+        var odd = new OddsCollector.Functions.Models.OddBuilder().SetHome(SampleEvent.HomeOdd1).Instance;
 
         // Assert
         odd.Should().NotBeNull();
@@ -79,7 +78,7 @@ internal class OddBuilderTests
     public void SetBookmaker_WithEmptyBookmaker_ThrowsException()
     {
         // Arrange & Act
-        var action = () => new OddBuilder().SetBookmaker(string.Empty).Instance;
+        var action = () => new OddsCollector.Functions.Models.OddBuilder().SetBookmaker(string.Empty).Instance;
 
         // Assert
         action.Should().ThrowExactly<ArgumentException>().WithParameterName("bookmaker");
@@ -89,7 +88,7 @@ internal class OddBuilderTests
     public void SetBookmaker_WithNullBookmaker_ThrowsException()
     {
         // Arrange & Act
-        var action = () => new OddBuilder().SetBookmaker(null).Instance;
+        var action = () => new OddsCollector.Functions.Models.OddBuilder().SetBookmaker(null).Instance;
 
         // Assert
         action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("bookmaker");
@@ -99,7 +98,7 @@ internal class OddBuilderTests
     public void SetAway_WithNullAway_ThrowsException()
     {
         // Arrange & Act
-        var action = () => new OddBuilder().SetAway(null).Instance;
+        var action = () => new OddsCollector.Functions.Models.OddBuilder().SetAway(null).Instance;
 
         // Assert
         action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("away");
@@ -109,7 +108,7 @@ internal class OddBuilderTests
     public void SetDraw_WithNullDraw_ThrowsException()
     {
         // Arrange & Act
-        var action = () => new OddBuilder().SetDraw(null).Instance;
+        var action = () => new OddsCollector.Functions.Models.OddBuilder().SetDraw(null).Instance;
 
         // Assert
         action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("draw");
@@ -119,7 +118,7 @@ internal class OddBuilderTests
     public void SetHome_WithNullHome_ThrowsException()
     {
         // Arrange & Act
-        var action = () => new OddBuilder().SetHome(null).Instance;
+        var action = () => new OddsCollector.Functions.Models.OddBuilder().SetHome(null).Instance;
 
         // Assert
         action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("home");

@@ -1,15 +1,14 @@
-﻿using OddsCollector.Functions.Models;
-using OddsCollector.Functions.Tests.Data;
+﻿using OddsCollector.Functions.Tests.Infrastructure.Data;
 
 namespace OddsCollector.Functions.Tests.Tests.OddsApi.Models;
 
-internal class EventResultBuilderTests
+internal class EventResultBuilder
 {
     [Test]
     public void Instance_WithoutParameters_ReturnsValidInstance()
     {
         // Arrange & Act
-        var eventResult = new EventResultBuilder().Instance;
+        var eventResult = new OddsCollector.Functions.Models.EventResultBuilder().Instance;
 
         // Assert
         eventResult.Should().NotBeNull();
@@ -19,7 +18,7 @@ internal class EventResultBuilderTests
     public void Instance_WithFullParameterList_ReturnsValidInstance()
     {
         // Arrange & Act
-        var eventResult = new EventResultBuilder()
+        var eventResult = new OddsCollector.Functions.Models.EventResultBuilder()
             .SetWinner(SampleEvent.Winner)
             .SetId(SampleEvent.Id)
             .SetCommenceTime(SampleEvent.CommenceTime)
@@ -29,14 +28,14 @@ internal class EventResultBuilderTests
 
         // Assert
         eventResult.Should().NotBeNull().
-            And.BeEquivalentTo(new EventResultBuilder().SetSampleData().Instance);
+            And.BeEquivalentTo(new OddsCollector.Functions.Models.EventResultBuilder().SetSampleData().Instance);
     }
 
     [Test]
     public void SetWinner_WithValidWinner_ReturnsValidInstance()
     {
         // Arrange & Act
-        var eventResult = new EventResultBuilder().SetWinner(SampleEvent.Winner).Instance;
+        var eventResult = new OddsCollector.Functions.Models.EventResultBuilder().SetWinner(SampleEvent.Winner).Instance;
 
         // Assert
         eventResult.Should().NotBeNull();
@@ -47,7 +46,7 @@ internal class EventResultBuilderTests
     public void SetId_WithValidId_ReturnsValidInstance()
     {
         // Arrange & Act
-        var eventResult = new EventResultBuilder().SetId(SampleEvent.Id).Instance;
+        var eventResult = new OddsCollector.Functions.Models.EventResultBuilder().SetId(SampleEvent.Id).Instance;
 
         // Assert
         eventResult.Should().NotBeNull();
@@ -58,7 +57,7 @@ internal class EventResultBuilderTests
     public void SetCommenceTime_WithValidCommenceTime_ReturnsValidInstance()
     {
         // Arrange & Act
-        var eventResult = new EventResultBuilder().SetCommenceTime(SampleEvent.CommenceTime).Instance;
+        var eventResult = new OddsCollector.Functions.Models.EventResultBuilder().SetCommenceTime(SampleEvent.CommenceTime).Instance;
 
         // Assert
         eventResult.Should().NotBeNull();
@@ -69,7 +68,7 @@ internal class EventResultBuilderTests
     public void SetTimestamp_WithValidTimestamp_ReturnsValidInstance()
     {
         // Arrange & Act
-        var eventResult = new EventResultBuilder().SetTimestamp(SampleEvent.Timestamp).Instance;
+        var eventResult = new OddsCollector.Functions.Models.EventResultBuilder().SetTimestamp(SampleEvent.Timestamp).Instance;
 
         // Assert
         eventResult.Should().NotBeNull();
@@ -80,7 +79,7 @@ internal class EventResultBuilderTests
     public void SetTraceId_WithValidTraceId_ReturnsValidInstance()
     {
         // Arrange & Act
-        var eventResult = new EventResultBuilder().SetTraceId(SampleEvent.TraceId).Instance;
+        var eventResult = new OddsCollector.Functions.Models.EventResultBuilder().SetTraceId(SampleEvent.TraceId).Instance;
 
         // Assert
         eventResult.Should().NotBeNull();
@@ -91,7 +90,7 @@ internal class EventResultBuilderTests
     public void SetWinner_WithEmptyWinner_ThrowsException()
     {
         // Arrange & Act
-        var action = () => new EventResultBuilder().SetWinner(string.Empty).Instance;
+        var action = () => new OddsCollector.Functions.Models.EventResultBuilder().SetWinner(string.Empty).Instance;
 
         // Assert
         action.Should().ThrowExactly<ArgumentException>().WithParameterName("winner");
@@ -101,7 +100,7 @@ internal class EventResultBuilderTests
     public void SetWinner_WithNullWinner_ThrowsException()
     {
         // Arrange & Act
-        var action = () => new EventResultBuilder().SetWinner(null).Instance;
+        var action = () => new OddsCollector.Functions.Models.EventResultBuilder().SetWinner(null).Instance;
 
         // Assert
         action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("winner");
@@ -111,7 +110,7 @@ internal class EventResultBuilderTests
     public void SetId_WithEmptyId_ThrowsException()
     {
         // Arrange & Act
-        var action = () => new EventResultBuilder().SetId(string.Empty).Instance;
+        var action = () => new OddsCollector.Functions.Models.EventResultBuilder().SetId(string.Empty).Instance;
 
         // Assert
         action.Should().ThrowExactly<ArgumentException>().WithParameterName("id");
@@ -121,7 +120,7 @@ internal class EventResultBuilderTests
     public void SetId_WithNullId_ThrowsException()
     {
         // Arrange & Act
-        var action = () => new EventResultBuilder().SetId(null).Instance;
+        var action = () => new OddsCollector.Functions.Models.EventResultBuilder().SetId(null).Instance;
 
         // Assert
         action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("id");
@@ -131,7 +130,7 @@ internal class EventResultBuilderTests
     public void SetCommenceTime_WithNullCommenceTime_ThrowsException()
     {
         // Arrange & Act
-        var action = () => new EventResultBuilder().SetCommenceTime(null).Instance;
+        var action = () => new OddsCollector.Functions.Models.EventResultBuilder().SetCommenceTime(null).Instance;
 
         // Assert
         action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("commenceTime");
@@ -141,7 +140,7 @@ internal class EventResultBuilderTests
     public void SetTimestamp_WithNullTimestamp_ThrowsException()
     {
         // Arrange & Act
-        var action = () => new EventResultBuilder().SetTimestamp(null).Instance;
+        var action = () => new OddsCollector.Functions.Models.EventResultBuilder().SetTimestamp(null).Instance;
 
         // Assert
         action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("timestamp");
@@ -151,7 +150,7 @@ internal class EventResultBuilderTests
     public void SetTraceId_WithNullTraceId_ThrowsException()
     {
         // Arrange & Act
-        var action = () => new EventResultBuilder().SetTraceId(null).Instance;
+        var action = () => new OddsCollector.Functions.Models.EventResultBuilder().SetTraceId(null).Instance;
 
         // Assert
         action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("traceId");

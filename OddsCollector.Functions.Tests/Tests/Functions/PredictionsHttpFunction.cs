@@ -3,21 +3,20 @@ using System.Text.Json;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-using OddsCollector.Functions.Functions;
 using OddsCollector.Functions.Models;
-using OddsCollector.Functions.Tests.Data;
+using OddsCollector.Functions.Tests.Infrastructure.Data;
 
 namespace OddsCollector.Functions.Tests.Tests.Functions;
 
-internal class PredictionsHttpFunctionTests
+internal class PredictionsHttpFunction
 {
     [Test]
     public void Run_WithValidArguments_ReturnsValidResponse()
     {
         // Arrange
-        var loggerStub = Substitute.For<ILogger<PredictionsHttpFunction>>();
+        var loggerStub = Substitute.For<ILogger<OddsCollector.Functions.Functions.PredictionsHttpFunction>>();
 
-        var function = new PredictionsHttpFunction(loggerStub);
+        var function = new OddsCollector.Functions.Functions.PredictionsHttpFunction(loggerStub);
 
         var contextStub = Substitute.For<FunctionContext>();
 

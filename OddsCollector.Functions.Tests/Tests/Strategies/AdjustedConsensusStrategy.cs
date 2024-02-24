@@ -1,11 +1,10 @@
 ﻿using OddsCollector.Functions.Models;
-using OddsCollector.Functions.Strategies;
-using OddsCollector.Functions.Tests.Data;
+using OddsCollector.Functions.Tests.Infrastructure.Data;
 
 namespace OddsCollector.Functions.Tests.Tests.Strategies;
 
 [Parallelizable(ParallelScope.All)]
-internal class AdjustedConsensusStrategyTests
+internal class AdjustedConsensusStrategy
 {
     private static readonly IEnumerable<(UpcomingEvent UpcomingEvent, EventPrediction EventPrediction)>
         TestCases = new List<(UpcomingEvent UpcomingEvent, EventPrediction EventPrediction)>
@@ -52,7 +51,7 @@ internal class AdjustedConsensusStrategyTests
         (UpcomingEvent UpcomingEvent, EventPrediction EventPrediction) testCase)
     {
         // Arrange
-        var strategy = new AdjustedConsensusStrategy();
+        var strategy = new OddsCollector.Functions.Strategies.AdjustedConsensusStrategy();
 
         // Act
         var prediction = strategy.GetPrediction(testCase.UpcomingEvent, SampleEvent.Timestamp);
@@ -65,7 +64,7 @@ internal class AdjustedConsensusStrategyTests
     public void GetPrediction_WithNullUpcomingEvent_ThrowsException()
     {
         // Arrange
-        var strategy = new AdjustedConsensusStrategy();
+        var strategy = new OddsCollector.Functions.Strategies.AdjustedConsensusStrategy();
 
         // Act
         var action = () => strategy.GetPrediction(null, DateTime.Now);
@@ -78,7 +77,7 @@ internal class AdjustedConsensusStrategyTests
     public void GetPrediction_WithNullTimestamp_ThrowsException()
     {
         // Arrange
-        var strategy = new AdjustedConsensusStrategy();
+        var strategy = new OddsCollector.Functions.Strategies.AdjustedConsensusStrategy();
 
         // Act
         var action = () => strategy.GetPrediction(new UpcomingEvent(), null);
@@ -91,7 +90,7 @@ internal class AdjustedConsensusStrategyTests
     public void GetPrediction_WithEmptyOdds_ThrowsException()
     {
         // Arrange
-        var strategy = new AdjustedConsensusStrategy();
+        var strategy = new OddsCollector.Functions.Strategies.AdjustedConsensusStrategy();
 
         // Act
         var action = () =>

@@ -2,21 +2,20 @@
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using NSubstitute.ReceivedExtensions;
-using OddsCollector.Functions.Functions;
 using OddsCollector.Functions.Models;
 using OddsCollector.Functions.Strategies;
-using OddsCollector.Functions.Tests.Data;
-using OddsCollector.Functions.Tests.ServiceBus;
+using OddsCollector.Functions.Tests.Infrastructure.Data;
+using OddsCollector.Functions.Tests.Infrastructure.ServiceBus;
 
 namespace OddsCollector.Functions.Tests.Tests.Functions;
 
-internal class PredictionFunctionTests
+internal class PredictionFunction
 {
     [Test]
     public async Task Run_WithValidServiceBusMessage_ReturnsEventPrediction()
     {
         // Arrange
-        var loggerStub = Substitute.For<ILogger<PredictionFunction>>();
+        var loggerStub = Substitute.For<ILogger<OddsCollector.Functions.Functions.PredictionFunction>>();
 
         var upcomingEvent = new UpcomingEventBuilder().SetSampleData().Instance;
 
@@ -30,7 +29,7 @@ internal class PredictionFunctionTests
         var strategyStub = Substitute.For<IPredictionStrategy>();
         strategyStub.GetPrediction(Arg.Any<UpcomingEvent>(), Arg.Any<DateTime>()).Returns(expectedPrediction);
 
-        var function = new PredictionFunction(loggerStub, strategyStub);
+        var function = new OddsCollector.Functions.Functions.PredictionFunction(loggerStub, strategyStub);
 
         var token = new CancellationToken();
 
@@ -48,7 +47,7 @@ internal class PredictionFunctionTests
     public async Task Run_WithInvalidItems_ReturnsSuccessfullyProcessedEventPredictions()
     {
         // Arrange
-        var loggerMock = Substitute.For<ILogger<PredictionFunction>>();
+        var loggerMock = Substitute.For<ILogger<OddsCollector.Functions.Functions.PredictionFunction>>();
 
         var goodUpcomingEvent = new UpcomingEventBuilder().SetSampleData().Instance;
 
@@ -71,7 +70,7 @@ internal class PredictionFunctionTests
         strategyStub.GetPrediction(Arg.Any<UpcomingEvent>(), Arg.Any<DateTime>())
             .Returns(_ => throw exception, _ => expectedPrediction);
 
-        var function = new PredictionFunction(loggerMock, strategyStub);
+        var function = new OddsCollector.Functions.Functions.PredictionFunction(loggerMock, strategyStub);
 
         var token = new CancellationToken();
 

@@ -3,7 +3,7 @@ using System.Text.Json;
 using Azure.Core.Amqp;
 using Azure.Messaging.ServiceBus;
 
-namespace OddsCollector.Functions.Tests.ServiceBus;
+namespace OddsCollector.Functions.Tests.Infrastructure.ServiceBus;
 
 internal static class ServiceBusReceivedMessageFactory
 {

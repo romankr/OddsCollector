@@ -1,6 +1,6 @@
 ﻿using OddsCollector.Functions.Models;
 
-namespace OddsCollector.Functions.Tests.Data;
+namespace OddsCollector.Functions.Tests.Infrastructure.Data;
 
 internal static class UpcomingEventBuilderExtensions
 {

@@ -1,13 +1,12 @@
 ﻿using Microsoft.Extensions.Options;
 using OddsCollector.Functions.Models;
-using OddsCollector.Functions.OddsApi;
 using OddsCollector.Functions.OddsApi.Configuration;
 using OddsCollector.Functions.OddsApi.Converter;
 using OddsCollector.Functions.OddsApi.WebApi;
 
 namespace OddsCollector.Functions.Tests.Tests.OddsApi;
 
-internal class OddsApiClientTests
+internal class OddsApiClient
 {
     [Test]
     public async Task GetUpcomingEventsAsync_WithLeagues_ReturnsUpcomingEvents()
@@ -33,7 +32,7 @@ internal class OddsApiClientTests
         var optionsStub = Substitute.For<IOptions<OddsApiClientOptions>>();
         optionsStub.Value.Returns(new OddsApiClientOptions { Leagues = [league], ApiKey = secretValue });
 
-        var oddsClient = new OddsApiClient(optionsStub, webApiClientMock, converterMock);
+        var oddsClient = new OddsCollector.Functions.OddsApi.OddsApiClient(optionsStub, webApiClientMock, converterMock);
 
         var traceId = Guid.NewGuid();
         var timestamp = DateTime.UtcNow;
@@ -88,7 +87,7 @@ internal class OddsApiClientTests
         var optionsStub = Substitute.For<IOptions<OddsApiClientOptions>>();
         optionsStub.Value.Returns(new OddsApiClientOptions { Leagues = [league], ApiKey = secretValue });
 
-        var oddsClient = new OddsApiClient(optionsStub, webApiClientMock, converterMock);
+        var oddsClient = new OddsCollector.Functions.OddsApi.OddsApiClient(optionsStub, webApiClientMock, converterMock);
 
         var traceId = Guid.NewGuid();
         var timestamp = DateTime.UtcNow;

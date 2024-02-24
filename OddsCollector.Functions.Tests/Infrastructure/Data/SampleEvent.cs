@@ -2,7 +2,7 @@
 using OddsCollector.Functions.OddsApi.WebApi;
 using OddsCollector.Functions.Strategies;
 
-namespace OddsCollector.Functions.Tests.Data;
+namespace OddsCollector.Functions.Tests.Infrastructure.Data;
 
 internal static class SampleEvent
 {

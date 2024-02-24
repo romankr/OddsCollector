@@ -6,7 +6,7 @@ using OddsCollector.Functions.OddsApi.WebApi;
 
 namespace OddsCollector.Functions.Tests.Tests.OddsApi.Configuration;
 
-internal class ServiceCollectionExtensionsTests
+internal class ServiceCollectionExtensions
 {
     [Test]
     public void AddOddsApiClientWithDependencies_AddsProperlyConfiguredOddsApiClient()
@@ -42,7 +42,7 @@ internal class ServiceCollectionExtensionsTests
 
         var oddsApiClient =
             services.FirstOrDefault(
-                x => x.ImplementationType == typeof(OddsApiClient)
+                x => x.ImplementationType == typeof(OddsCollector.Functions.OddsApi.OddsApiClient)
                      && x.ServiceType == typeof(IOddsApiClient)
                      && x.Lifetime == ServiceLifetime.Singleton);
 
