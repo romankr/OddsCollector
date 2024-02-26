@@ -15,8 +15,7 @@ internal class UpcomingEventsFunction(ILogger<UpcomingEventsFunction> logger, IO
     {
         try
         {
-            var events = (await client.GetUpcomingEventsAsync(Guid.NewGuid(), DateTime.UtcNow, cancellationToken)
-                .ConfigureAwait(false)).ToArray();
+            var events = (await client.GetUpcomingEventsAsync(Guid.NewGuid(), DateTime.UtcNow, cancellationToken)).ToArray();
 
             if (events.Length == 0)
             {

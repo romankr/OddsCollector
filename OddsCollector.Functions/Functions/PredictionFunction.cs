@@ -27,7 +27,7 @@ internal class PredictionFunction(ILogger<PredictionFunction> logger, IPredictio
 
                 predictions.Add(prediction);
 
-                await messageActions.CompleteMessageAsync(message, cancellationToken).ConfigureAwait(false);
+                await messageActions.CompleteMessageAsync(message, cancellationToken);
             }
             catch (Exception exception)
             {

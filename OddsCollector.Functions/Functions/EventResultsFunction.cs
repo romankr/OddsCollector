@@ -15,8 +15,7 @@ internal class EventResultsFunction(ILogger<EventResultsFunction> logger, IOddsA
     {
         try
         {
-            var results = (await client.GetEventResultsAsync(Guid.NewGuid(), DateTime.UtcNow, cancellationToken)
-                .ConfigureAwait(false)).ToArray();
+            var results = (await client.GetEventResultsAsync(Guid.NewGuid(), DateTime.UtcNow, cancellationToken)).ToArray();
 
             if (results.Length == 0)
             {
