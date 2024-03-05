@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\OddsCollector.Functions\OddsCollector.Functions.csproj" />
+    <ProjectReference Include="..\OddsCollector.Functions\OddsCollector.Functions.csproj"/>
   </ItemGroup>
 
 </Project>

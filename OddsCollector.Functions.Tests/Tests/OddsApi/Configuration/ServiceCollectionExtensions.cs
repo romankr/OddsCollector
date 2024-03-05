@@ -15,37 +15,37 @@ internal class ServiceCollectionExtensions
         var services = new ServiceCollection();
 
         // Act
-        services.AddOddsApiClientWithDependencies();
+        services.AddOddsApiClientWithDependencies("leagues", "key");
 
         // Assert
-        var options =
+        var optionsDescriptor =
             services.FirstOrDefault(
                 x => x.ServiceType == typeof(IConfigureOptions<OddsApiClientOptions>)
                      && x.Lifetime == ServiceLifetime.Singleton);
 
-        options.Should().NotBeNull();
+        optionsDescriptor.Should().NotBeNull();
 
-        var httpClient =
+        var httpClientDescriptor =
             services.FirstOrDefault(
                 x => x.ServiceType == typeof(HttpClient)
                      && x.Lifetime == ServiceLifetime.Transient);
 
-        httpClient.Should().NotBeNull();
+        httpClientDescriptor.Should().NotBeNull();
 
-        var client =
+        var clientDescriptor =
             services.FirstOrDefault(
                 x => x.ImplementationType == typeof(Client)
                      && x.ServiceType == typeof(IClient)
                      && x.Lifetime == ServiceLifetime.Singleton);
 
-        client.Should().NotBeNull();
+        clientDescriptor.Should().NotBeNull();
 
-        var oddsApiClient =
+        var oddsApiClientDescriptor =
             services.FirstOrDefault(
                 x => x.ImplementationType == typeof(OddsCollector.Functions.OddsApi.OddsApiClient)
                      && x.ServiceType == typeof(IOddsApiClient)
                      && x.Lifetime == ServiceLifetime.Singleton);
 
-        oddsApiClient.Should().NotBeNull();
+        oddsApiClientDescriptor.Should().NotBeNull();
     }
 }

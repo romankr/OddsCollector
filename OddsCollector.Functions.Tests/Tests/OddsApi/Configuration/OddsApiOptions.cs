@@ -6,12 +6,12 @@ internal class OddsApiOptions
 {
     private static readonly IEnumerable<(string LeagueString, HashSet<string> ExpectedLeagues)>
         TestCases = new List<(string LeagueString, HashSet<string> ExpectedLeagues)>
-    {
-        ("league", new HashSet<string>() { "league" }),
-        ("league1;league2", new HashSet<string>() { "league1", "league2" }),
-        ("league1;;league2", new HashSet<string>() { "league1", "league2" }),
-        ("league1;league1", new HashSet<string>() { "league1" })
-    };
+        {
+            ("league", ["league"]),
+            ("league1;league2", ["league1", "league2"]),
+            ("league1;;league2", ["league1", "league2"]),
+            ("league1;league1", ["league1"])
+        };
 
     [TestCaseSource(nameof(TestCases))]
     public void SetLeagues_WithValidLeagueInputString_ReturnsCorrectLeagues(

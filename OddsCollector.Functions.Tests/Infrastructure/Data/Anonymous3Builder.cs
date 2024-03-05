@@ -37,6 +37,7 @@ internal class Anonymous3Builder
         return this;
     }
 
+    // ReSharper disable once MemberCanBePrivate.Global
     public Anonymous3Builder SetId(string id)
     {
         Instance.Id = id;
@@ -44,6 +45,7 @@ internal class Anonymous3Builder
         return this;
     }
 
+    // ReSharper disable once MemberCanBePrivate.Global
     public Anonymous3Builder SetCommenceTime(DateTime commenceTime)
     {
         Instance.Commence_time = commenceTime;

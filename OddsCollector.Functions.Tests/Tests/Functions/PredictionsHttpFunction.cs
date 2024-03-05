@@ -34,10 +34,8 @@ internal class PredictionsHttpFunction
 
         var timestamp = DateTime.UtcNow;
 
-        var predictions = new[]
-        {
-            new EventPredictionBuilder().SetSampleData().SetTimestamp(timestamp).Instance,
-        };
+        var predictions =
+            new[] { new EventPredictionBuilder().SetSampleData().SetTimestamp(timestamp).Instance };
 
         // Act
         var response = function.Run(requestStub, predictions);

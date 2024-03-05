@@ -32,7 +32,8 @@ internal class OddsApiClient
         var optionsStub = Substitute.For<IOptions<OddsApiClientOptions>>();
         optionsStub.Value.Returns(new OddsApiClientOptions { Leagues = [league], ApiKey = secretValue });
 
-        var oddsClient = new OddsCollector.Functions.OddsApi.OddsApiClient(optionsStub, webApiClientMock, converterMock);
+        var oddsClient =
+            new OddsCollector.Functions.OddsApi.OddsApiClient(optionsStub, webApiClientMock, converterMock);
 
         var traceId = Guid.NewGuid();
         var timestamp = DateTime.UtcNow;
@@ -87,7 +88,8 @@ internal class OddsApiClient
         var optionsStub = Substitute.For<IOptions<OddsApiClientOptions>>();
         optionsStub.Value.Returns(new OddsApiClientOptions { Leagues = [league], ApiKey = secretValue });
 
-        var oddsClient = new OddsCollector.Functions.OddsApi.OddsApiClient(optionsStub, webApiClientMock, converterMock);
+        var oddsClient =
+            new OddsCollector.Functions.OddsApi.OddsApiClient(optionsStub, webApiClientMock, converterMock);
 
         var traceId = Guid.NewGuid();
         var timestamp = DateTime.UtcNow;

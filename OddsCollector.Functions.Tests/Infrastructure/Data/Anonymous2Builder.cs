@@ -36,6 +36,7 @@ internal class Anonymous2Builder
         return this;
     }
 
+    // ReSharper disable once MemberCanBePrivate.Global
     public Anonymous2Builder SetCommenceTime(DateTime commenceTime)
     {
         Instance.Commence_time = commenceTime;

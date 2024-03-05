@@ -21,7 +21,6 @@ internal class OddsApiObjectConverter : IOddsApiObjectConverter
         ArgumentNullException.ThrowIfNull(events);
 
         return events
-            .Where(r => r is not null)
             .Where(r => r.Completed is not null && r.Completed.Value)
             .Select(r => ToEventResult(r, traceId, timestamp));
     }
@@ -131,7 +130,9 @@ internal class OddsApiObjectConverter : IOddsApiObjectConverter
         ArgumentException.ThrowIfNullOrEmpty(awayTeam);
         ArgumentException.ThrowIfNullOrEmpty(homeTeam);
 
-        var d = scores.Select(s => ToKeyValuePair(s.Name, s.Score)).ToDictionary(p => p.Key, p => p.Value);
+        var d =
+            scores.Select(s => ToKeyValuePair(s.Name, s.Score))
+                .ToDictionary(p => p.Key, p => p.Value);
 
         return GetWinner(d, awayTeam, homeTeam);
     }

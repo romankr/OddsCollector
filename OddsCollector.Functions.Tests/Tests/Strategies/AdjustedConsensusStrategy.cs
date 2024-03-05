@@ -18,9 +18,12 @@ internal class AdjustedConsensusStrategy
             (
                 new UpcomingEventBuilder().SetSampleData().SetOdds(new List<Odd>
                 {
-                    new OddBuilder().SetSampleData1().SetAway(SampleEvent.HomeOdd1).SetHome(SampleEvent.AwayOdd1).Instance,
-                    new OddBuilder().SetSampleData2().SetAway(SampleEvent.HomeOdd2).SetHome(SampleEvent.AwayOdd2).Instance,
-                    new OddBuilder().SetSampleData3().SetAway(SampleEvent.HomeOdd3).SetHome(SampleEvent.AwayOdd3).Instance
+                    new OddBuilder().SetSampleData1().SetAway(SampleEvent.HomeOdd1).SetHome(SampleEvent.AwayOdd1)
+                        .Instance,
+                    new OddBuilder().SetSampleData2().SetAway(SampleEvent.HomeOdd2).SetHome(SampleEvent.AwayOdd2)
+                        .Instance,
+                    new OddBuilder().SetSampleData3().SetAway(SampleEvent.HomeOdd3).SetHome(SampleEvent.AwayOdd3)
+                        .Instance
                 }).Instance,
                 new EventPredictionBuilder().SetSampleData().SetWinner(SampleEvent.AwayTeam).Instance
             ),
@@ -28,9 +31,12 @@ internal class AdjustedConsensusStrategy
             (
                 new UpcomingEventBuilder().SetSampleData().SetOdds(new List<Odd>
                 {
-                    new OddBuilder().SetSampleData1().SetDraw(SampleEvent.HomeOdd1).SetHome(SampleEvent.DrawOdd1).Instance,
-                    new OddBuilder().SetSampleData2().SetDraw(SampleEvent.HomeOdd2).SetHome(SampleEvent.DrawOdd2).Instance,
-                    new OddBuilder().SetSampleData3().SetDraw(SampleEvent.HomeOdd3).SetHome(SampleEvent.DrawOdd3).Instance
+                    new OddBuilder().SetSampleData1().SetDraw(SampleEvent.HomeOdd1).SetHome(SampleEvent.DrawOdd1)
+                        .Instance,
+                    new OddBuilder().SetSampleData2().SetDraw(SampleEvent.HomeOdd2).SetHome(SampleEvent.DrawOdd2)
+                        .Instance,
+                    new OddBuilder().SetSampleData3().SetDraw(SampleEvent.HomeOdd3).SetHome(SampleEvent.DrawOdd3)
+                        .Instance
                 }).Instance,
                 new EventPredictionBuilder().SetSampleData().SetWinner(Constants.Draw).Instance
             ),
@@ -94,7 +100,8 @@ internal class AdjustedConsensusStrategy
 
         // Act
         var action = () =>
-            strategy.GetPrediction(new UpcomingEventBuilder().SetSampleData().SetOdds(new List<Odd>()).Instance, DateTime.Now);
+            strategy.GetPrediction(new UpcomingEventBuilder().SetSampleData().SetOdds(new List<Odd>()).Instance,
+                DateTime.Now);
 
         // Assert
         action.Should().ThrowExactly<ArgumentException>().WithParameterName("odds");
