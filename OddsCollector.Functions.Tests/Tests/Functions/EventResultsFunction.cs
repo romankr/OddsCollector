@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Logging;
 using NSubstitute.ExceptionExtensions;
 using OddsCollector.Functions.Models;
 using OddsCollector.Functions.OddsApi;
@@ -8,10 +9,11 @@ namespace OddsCollector.Functions.Tests.Tests.Functions;
 internal class EventResultsFunction
 {
     [Test]
+    [SuppressMessage("Usage", "CA2254:Template should be a static expression")]
     public async Task Run_WithValidParameters_ReturnsEventResults()
     {
         // Arrange
-        IEnumerable<EventResult> expectedEventResults = new List<EventResult>() { new() };
+        IEnumerable<EventResult> expectedEventResults = new List<EventResult> { new() };
 
         var loggerMock = Substitute.For<ILogger<OddsCollector.Functions.Functions.EventResultsFunction>>();
 
@@ -58,6 +60,7 @@ internal class EventResultsFunction
     }
 
     [Test]
+    [SuppressMessage("Usage", "CA2254:Template should be a static expression")]
     public async Task Run_WithValidParameters_ReturnsNoEventResults()
     {
         // Arrange

@@ -17,12 +17,12 @@ internal class ServiceCollectionExtensions
         services.AddPredictionStrategy();
 
         // Assert
-        var strategy =
+        var strategyDescriptor =
             services.FirstOrDefault(
                 x => x.ServiceType == typeof(IPredictionStrategy)
                      && x.ImplementationType == typeof(OddsCollector.Functions.Strategies.AdjustedConsensusStrategy)
                      && x.Lifetime == ServiceLifetime.Singleton);
 
-        strategy.Should().NotBeNull();
+        strategyDescriptor.Should().NotBeNull();
     }
 }

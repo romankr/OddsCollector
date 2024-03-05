@@ -16,6 +16,7 @@ internal static class ServiceBusReceivedMessageFactory
 
         var ampqAnnotatedMessage = new AmqpAnnotatedMessage(ampqMessage);
 
-        return ServiceBusReceivedMessage.FromAmqpMessage(ampqAnnotatedMessage, new BinaryData(Array.Empty<byte>()));
+        return ServiceBusReceivedMessage.FromAmqpMessage(
+            ampqAnnotatedMessage, new BinaryData(Array.Empty<byte>()));
     }
 }

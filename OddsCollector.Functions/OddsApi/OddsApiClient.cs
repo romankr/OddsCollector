@@ -25,7 +25,8 @@ internal class OddsApiClient(
         foreach (var league in options.Value.Leagues)
         {
             var events = await client.OddsAsync(league, options.Value.ApiKey,
-                    EuropeanRegion, HeadToHeadMarket, IsoDateFormat, DecimalOddsFormat, null, null, cancellationToken)
+                    EuropeanRegion, HeadToHeadMarket, IsoDateFormat,
+                    DecimalOddsFormat, null, null, cancellationToken)
                 .ConfigureAwait(false);
 
             result.AddRange(converter.ToUpcomingEvents(events, traceId, timestamp));

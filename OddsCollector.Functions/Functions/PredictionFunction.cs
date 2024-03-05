@@ -9,7 +9,8 @@ namespace OddsCollector.Functions.Functions;
 internal class PredictionFunction(ILogger<PredictionFunction> logger, IPredictionStrategy strategy)
 {
     [Function(nameof(PredictionFunction))]
-    [CosmosDBOutput("%CosmosDb:Database%", "%CosmosDb:EventPredictionsContainer%", Connection = "CosmosDb:Connection")]
+    [CosmosDBOutput("%CosmosDb:Database%", "%CosmosDb:EventPredictionsContainer%",
+        Connection = "CosmosDb:Connection")]
     public async Task<EventPrediction[]> Run(
         [ServiceBusTrigger("%ServiceBus:Queue%", Connection = "ServiceBus:Connection", IsBatched = true)]
         ServiceBusReceivedMessage[] messages, ServiceBusMessageActions messageActions,

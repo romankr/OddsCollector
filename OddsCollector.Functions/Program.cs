@@ -20,9 +20,11 @@ internal static class Program
             .ConfigureServices(services =>
             {
                 services.AddPredictionStrategy();
-                services.AddOddsApiClientWithDependencies();
                 services.AddApplicationInsightsTelemetryWorkerService();
                 services.ConfigureFunctionsApplicationInsights();
+                services.AddOddsApiClientWithDependencies(
+                    Environment.GetEnvironmentVariable("OddsApiClient:Leagues"),
+                    Environment.GetEnvironmentVariable("OddsApiClient:ApiKey"));
             })
             .Build();
 

@@ -6,6 +6,363 @@ namespace OddsCollector.Functions.Tests.Tests.OddsApi.Converter;
 
 internal class OddsApiObjectConverter
 {
+    private static readonly
+        IEnumerable<(ICollection<Anonymous2>? OriginalEvents, Type ExceptionType, string ParameterName)>
+        UpcomingEventTestCases =
+            new List<(ICollection<Anonymous2>? OriginalEvents, Type ExceptionType, string ParameterName)>
+            {
+                (
+                    null,
+                    typeof(ArgumentNullException),
+                    "events"
+                ),
+                (
+                    [null!],
+                    typeof(ArgumentNullException),
+                    "upcomingEvent"
+                ),
+                (
+                    [new Anonymous2Builder().SetSampleData().SetBookmakers(null).Instance],
+                    typeof(ArgumentNullException),
+                    "bookmakers"
+                ),
+                (
+                    [new Anonymous2Builder().SetSampleData().SetAwayTeam("").Instance],
+                    typeof(ArgumentException),
+                    "awayTeam"
+                ),
+                (
+                    [new Anonymous2Builder().SetSampleData().SetAwayTeam(null).Instance],
+                    typeof(ArgumentNullException),
+                    "awayTeam"
+                ),
+                (
+                    [new Anonymous2Builder().SetSampleData().SetHomeTeam("").Instance],
+                    typeof(ArgumentException),
+                    "homeTeam"
+                ),
+                (
+                    [new Anonymous2Builder().SetSampleData().SetHomeTeam(null).Instance],
+                    typeof(ArgumentNullException),
+                    "homeTeam"
+                ),
+                (
+                    [
+                        new Anonymous2Builder().SetSampleData().SetBookmakers(
+                            [
+                                new Bookmakers
+                                {
+                                    Key = "",
+                                    Markets =
+                                    [
+                                        new Markets2 { Key = Markets2Key.H2h, Outcomes = SampleEvent.Outcomes1 }
+                                    ]
+                                }
+                            ]
+                        ).Instance
+                    ],
+                    typeof(ArgumentException),
+                    "bookmaker"
+                ),
+                (
+                    [
+                        new Anonymous2Builder().SetSampleData().SetBookmakers(
+                            [
+                                new Bookmakers
+                                {
+                                    Key = null,
+                                    Markets =
+                                    [
+                                        new Markets2 { Key = Markets2Key.H2h, Outcomes = SampleEvent.Outcomes1 }
+                                    ]
+                                }
+                            ]
+                        ).Instance
+                    ],
+                    typeof(ArgumentNullException),
+                    "bookmaker"
+                ),
+                (
+                    [
+                        new Anonymous2Builder().SetSampleData().SetBookmakers(
+                            [new Bookmakers { Key = SampleEvent.Bookmaker1, Markets = null }]
+                        ).Instance
+                    ],
+                    typeof(ArgumentNullException),
+                    "markets"
+                ),
+                (
+                    [
+                        new Anonymous2Builder().SetSampleData().SetBookmakers(
+                            [
+                                new Bookmakers
+                                {
+                                    Key = SampleEvent.Bookmaker1,
+                                    Markets =
+                                    [
+                                        new Markets2 { Key = null, Outcomes = SampleEvent.Outcomes1 }
+                                    ]
+                                }
+                            ]
+                        ).Instance
+                    ],
+                    typeof(ArgumentNullException),
+                    "markets"
+                ),
+                (
+                    [
+                        new Anonymous2Builder().SetSampleData().SetBookmakers(
+                            [new Bookmakers { Key = SampleEvent.Bookmaker1, Markets = [] }]
+                        ).Instance
+                    ],
+                    typeof(ArgumentException),
+                    "markets"
+                ),
+                (
+                    [
+                        new Anonymous2Builder().SetSampleData().SetBookmakers(
+                            [
+                                new Bookmakers
+                                {
+                                    Key = SampleEvent.Bookmaker1,
+                                    Markets = [new Markets2 { Key = Markets2Key.H2h, Outcomes = null }]
+                                }
+                            ]
+                        ).Instance
+                    ],
+                    typeof(ArgumentNullException),
+                    "outcomes"
+                ),
+                (
+                    [
+                        new Anonymous2Builder().SetSampleData().SetBookmakers(
+                            [
+                                new Bookmakers
+                                {
+                                    Key = SampleEvent.Bookmaker1,
+                                    Markets =
+                                    [
+                                        new Markets2 { Key = Markets2Key.H2h, Outcomes = [] }
+                                    ]
+                                }
+                            ]
+                        ).Instance
+                    ],
+                    typeof(ArgumentException),
+                    "outcomes"
+                ),
+                (
+                    [
+                        new Anonymous2Builder().SetSampleData().SetBookmakers(
+                            [
+                                new Bookmakers
+                                {
+                                    Key = SampleEvent.Bookmaker1,
+                                    Markets =
+                                    [
+                                        new Markets2
+                                        {
+                                            Key = Markets2Key.H2h,
+                                            Outcomes =
+                                            [
+                                                SampleEvent.HomeOutcome1,
+                                                SampleEvent.DrawOutcome1
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        ).Instance
+                    ],
+                    typeof(ArgumentException),
+                    "outcomes"
+                ),
+                (
+                    [
+                        new Anonymous2Builder().SetSampleData().SetBookmakers(
+                            [
+                                new Bookmakers
+                                {
+                                    Key = SampleEvent.Bookmaker1,
+                                    Markets =
+                                    [
+                                        new Markets2
+                                        {
+                                            Key = Markets2Key.H2h,
+                                            Outcomes =
+                                            [
+                                                SampleEvent.AwayOutcome1,
+                                                new Outcome { Name = SampleEvent.HomeTeam, Price = null },
+                                                SampleEvent.DrawOutcome1
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        ).Instance
+                    ],
+                    typeof(ArgumentNullException),
+                    "home"
+                ),
+                (
+                    [
+                        new Anonymous2Builder().SetSampleData().SetBookmakers(
+                            [
+                                new Bookmakers
+                                {
+                                    Key = SampleEvent.Bookmaker1,
+                                    Markets =
+                                    [
+                                        new Markets2
+                                        {
+                                            Key = Markets2Key.H2h,
+                                            Outcomes =
+                                            [
+                                                new Outcome { Name = SampleEvent.AwayTeam, Price = null },
+                                                SampleEvent.HomeOutcome1,
+                                                SampleEvent.DrawOutcome1
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        ).Instance
+                    ],
+                    typeof(ArgumentNullException),
+                    "away"
+                ),
+                (
+                    [
+                        new Anonymous2Builder().SetSampleData().SetBookmakers(
+                            [
+                                new Bookmakers
+                                {
+                                    Key = SampleEvent.Bookmaker1,
+                                    Markets =
+                                    [
+                                        new Markets2
+                                        {
+                                            Key = Markets2Key.H2h,
+                                            Outcomes =
+                                            [
+                                                SampleEvent.AwayOutcome1,
+                                                SampleEvent.HomeOutcome1,
+                                                new Outcome { Name = Constants.Draw, Price = null }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        ).Instance
+                    ],
+                    typeof(ArgumentNullException),
+                    "draw"
+                )
+            };
+
+    private static readonly
+        IEnumerable<(ICollection<Anonymous3>? OriginalEvents, Type ExceptionType, string ParameterName)>
+        EventResultTestCases =
+            new List<(ICollection<Anonymous3>? OriginalEvents, Type ExceptionType, string ParameterName)>
+            {
+                (
+                    null,
+                    typeof(ArgumentNullException),
+                    "events"
+                ),
+                (
+                    [new Anonymous3Builder().SetSampleData().SetScores(null).Instance],
+                    typeof(ArgumentNullException),
+                    "scores"
+                ),
+                (
+                    [new Anonymous3Builder().SetSampleData().SetScores([]).Instance],
+                    typeof(ArgumentException),
+                    "scores"
+                ),
+                (
+                    [new Anonymous3Builder().SetSampleData().SetHomeTeam(string.Empty).Instance],
+                    typeof(ArgumentException),
+                    "homeTeam"
+                ),
+                (
+                    [new Anonymous3Builder().SetSampleData().SetHomeTeam(null).Instance],
+                    typeof(ArgumentNullException),
+                    "homeTeam"
+                ),
+                (
+                    [new Anonymous3Builder().SetSampleData().SetAwayTeam(string.Empty).Instance],
+                    typeof(ArgumentException),
+                    "awayTeam"
+                ),
+                (
+                    [new Anonymous3Builder().SetSampleData().SetAwayTeam(null).Instance],
+                    typeof(ArgumentNullException),
+                    "awayTeam"
+                ),
+                (
+                    [
+                        new Anonymous3Builder().SetSampleData().SetScores([
+                            new ScoreModel { Name = string.Empty, Score = SampleEvent.HomeScore },
+                            new ScoreModel { Name = string.Empty, Score = SampleEvent.AwayScore }
+                        ]).Instance
+                    ],
+                    typeof(ArgumentException),
+                    "name"
+                ),
+                (
+                    [
+                        new Anonymous3Builder().SetSampleData().SetScores([
+                            new ScoreModel { Name = null, Score = SampleEvent.HomeScore },
+                            new ScoreModel { Name = null, Score = SampleEvent.AwayScore }
+                        ]).Instance
+                    ],
+                    typeof(ArgumentNullException),
+                    "name"
+                ),
+                (
+                    [
+                        new Anonymous3Builder().SetSampleData().SetScores([
+                            new ScoreModel { Name = SampleEvent.HomeTeam, Score = string.Empty },
+                            new ScoreModel { Name = SampleEvent.AwayTeam, Score = string.Empty }
+                        ]).Instance
+                    ],
+                    typeof(ArgumentException),
+                    "score"
+                ),
+                (
+                    [
+                        new Anonymous3Builder().SetSampleData().SetScores([
+                            new ScoreModel { Name = SampleEvent.HomeTeam, Score = null },
+                            new ScoreModel { Name = SampleEvent.AwayTeam, Score = null }
+                        ]).Instance
+                    ],
+                    typeof(ArgumentNullException),
+                    "score"
+                ),
+                (
+                    [
+                        new Anonymous3Builder().SetSampleData().SetScores([
+                            SampleEvent.HomeScoreModel,
+                            SampleEvent.AwayScoreModel,
+                            SampleEvent.AwayScoreModel
+                        ]).Instance
+                    ],
+                    typeof(ArgumentException),
+                    "scores"
+                ),
+                (
+                    [new Anonymous3Builder().SetSampleData().SetScores([SampleEvent.HomeScoreModel]).Instance],
+                    typeof(ArgumentException),
+                    "scores"
+                ),
+                (
+                    [new Anonymous3Builder().SetSampleData().SetScores([SampleEvent.AwayScoreModel]).Instance],
+                    typeof(ArgumentException),
+                    "scores"
+                )
+            };
+
     [Test]
     public void ToUpcomingEvents_WithOddList_ReturnsConvertedEvents()
     {
@@ -21,8 +378,9 @@ internal class OddsApiObjectConverter
         ];
 
         // Act
-        var upcomingEvents = converter.ToUpcomingEvents(rawUpcomingEvents, SampleEvent.TraceId, SampleEvent.Timestamp)
-            .ToList();
+        var upcomingEvents =
+            converter.ToUpcomingEvents(rawUpcomingEvents, SampleEvent.TraceId, SampleEvent.Timestamp)
+                .ToList();
 
         // Assert
         upcomingEvents.Should().NotBeNull().And.HaveCount(2);
@@ -41,261 +399,12 @@ internal class OddsApiObjectConverter
         var converter = new OddsCollector.Functions.OddsApi.Converter.OddsApiObjectConverter();
 
         // Act
-        var upcomingEvents = converter.ToUpcomingEvents([], SampleEvent.TraceId, SampleEvent.Timestamp).ToList();
+        var upcomingEvents =
+            converter.ToUpcomingEvents([], SampleEvent.TraceId, SampleEvent.Timestamp).ToList();
 
         // Assert
         upcomingEvents.Should().NotBeNull().And.BeEmpty();
     }
-
-    private static readonly IEnumerable<(ICollection<Anonymous2>? OriginalEvents, Type ExceptionType, string ParameterName)>
-        UpcomingEventTestCases = new List<(ICollection<Anonymous2>? OriginalEvents, Type ExceptionType, string ParameterName)>
-        {
-            (
-                null,
-                typeof(ArgumentNullException),
-                "events"
-            ),
-            (
-                [null!],
-                typeof(ArgumentNullException),
-                "upcomingEvent"
-            ),
-            (
-                [new Anonymous2Builder().SetSampleData().SetBookmakers(null).Instance],
-                typeof(ArgumentNullException),
-                "bookmakers"
-            ),
-            (
-                [new Anonymous2Builder().SetSampleData().SetAwayTeam("").Instance],
-                typeof(ArgumentException),
-                "awayTeam"
-            ),
-            (
-                [new Anonymous2Builder().SetSampleData().SetAwayTeam(null).Instance],
-                typeof(ArgumentNullException),
-                "awayTeam"
-            ),
-            (
-                [new Anonymous2Builder().SetSampleData().SetHomeTeam("").Instance],
-                typeof(ArgumentException),
-                "homeTeam"
-            ),
-            (
-                [new Anonymous2Builder().SetSampleData().SetHomeTeam(null).Instance],
-                typeof(ArgumentNullException),
-                "homeTeam"
-            ),
-            (
-                [new Anonymous2Builder().SetSampleData().SetBookmakers(
-                    [
-                        new Bookmakers
-                        {
-                            Key = "",
-                            Markets =
-                            [
-                                new Markets2 { Key = Markets2Key.H2h, Outcomes = SampleEvent.Outcomes1 }
-                            ]
-                        }
-                    ]
-                    ).Instance
-                ],
-                typeof(ArgumentException),
-                "bookmaker"
-            ),
-            (
-                [new Anonymous2Builder().SetSampleData().SetBookmakers(
-                    [
-                        new Bookmakers
-                        {
-                            Key = null,
-                            Markets =
-                            [
-                                new Markets2 { Key = Markets2Key.H2h, Outcomes = SampleEvent.Outcomes1 }
-                            ]
-                        }
-                    ]
-                    ).Instance
-                ],
-                typeof(ArgumentNullException),
-                "bookmaker"
-            ),
-            (
-                [
-                    new Anonymous2Builder().SetSampleData().SetBookmakers(
-                        [new Bookmakers { Key = SampleEvent.Bookmaker1, Markets = null }]
-                    ).Instance
-                ],
-                typeof(ArgumentNullException),
-                "markets"
-            ),
-            (
-                [
-                    new Anonymous2Builder().SetSampleData().SetBookmakers(
-                    [
-                        new Bookmakers
-                        {
-                            Key = SampleEvent.Bookmaker1,
-                            Markets =
-                            [
-                                new Markets2 { Key = null, Outcomes = SampleEvent.Outcomes1 }
-                            ]
-                        }
-                    ]
-                    ).Instance
-                ],
-                typeof(ArgumentNullException),
-                "markets"
-            ),
-            (
-                [
-                    new Anonymous2Builder().SetSampleData().SetBookmakers(
-                        [new Bookmakers { Key = SampleEvent.Bookmaker1, Markets = [] }]
-                    ).Instance
-                ],
-                typeof(ArgumentException),
-                "markets"
-            ),
-            (
-                [
-                    new Anonymous2Builder().SetSampleData().SetBookmakers(
-                    [
-                        new Bookmakers
-                        {
-                            Key = SampleEvent.Bookmaker1,
-                            Markets = [new Markets2 { Key = Markets2Key.H2h, Outcomes = null }]
-                        }
-                    ]
-                    ).Instance
-                ],
-                typeof(ArgumentNullException),
-                "outcomes"
-            ),
-            (
-                [
-                    new Anonymous2Builder().SetSampleData().SetBookmakers(
-                    [
-                        new Bookmakers
-                        {
-                            Key = SampleEvent.Bookmaker1,
-                            Markets =
-                            [
-                                new Markets2 { Key = Markets2Key.H2h, Outcomes = [] }
-                            ]
-                        }
-                    ]
-                    ).Instance
-                ],
-                typeof(ArgumentException),
-                "outcomes"
-            ),
-            (
-                [
-                    new Anonymous2Builder().SetSampleData().SetBookmakers(
-                    [
-                        new Bookmakers
-                        {
-                            Key = SampleEvent.Bookmaker1,
-                            Markets =
-                            [
-                                new Markets2
-                                {
-                                    Key = Markets2Key.H2h,
-                                    Outcomes =
-                                    [
-                                        SampleEvent.HomeOutcome1,
-                                        SampleEvent.DrawOutcome1
-                                    ]
-                                }
-                            ]
-                        }
-                    ]
-                    ).Instance
-                ],
-                typeof(ArgumentException),
-                "outcomes"
-            ),
-            (
-                [
-                    new Anonymous2Builder().SetSampleData().SetBookmakers(
-                    [
-                        new Bookmakers
-                        {
-                            Key = SampleEvent.Bookmaker1,
-                            Markets =
-                            [
-                                new Markets2
-                                {
-                                    Key = Markets2Key.H2h,
-                                    Outcomes =
-                                    [
-                                        SampleEvent.AwayOutcome1,
-                                        new Outcome { Name = SampleEvent.HomeTeam, Price = null },
-                                        SampleEvent.DrawOutcome1
-                                    ]
-                                }
-                            ]
-                        }
-                    ]
-                    ).Instance
-                ],
-                typeof(ArgumentNullException),
-                "home"
-            ),
-            (
-                [
-                    new Anonymous2Builder().SetSampleData().SetBookmakers(
-                    [
-                        new Bookmakers
-                        {
-                            Key = SampleEvent.Bookmaker1,
-                            Markets =
-                            [
-                                new Markets2
-                                {
-                                    Key = Markets2Key.H2h,
-                                    Outcomes =
-                                    [
-                                        new Outcome { Name = SampleEvent.AwayTeam, Price = null },
-                                        SampleEvent.HomeOutcome1,
-                                        SampleEvent.DrawOutcome1
-                                    ]
-                                }
-                            ]
-                        }
-                    ]
-                    ).Instance
-                ],
-                typeof(ArgumentNullException),
-                "away"
-            ),
-            (
-                [
-                    new Anonymous2Builder().SetSampleData().SetBookmakers(
-                    [
-                        new Bookmakers
-                        {
-                            Key = SampleEvent.Bookmaker1,
-                            Markets =
-                            [
-                                new Markets2
-                                {
-                                    Key = Markets2Key.H2h,
-                                    Outcomes =
-                                    [
-                                        SampleEvent.AwayOutcome1,
-                                        SampleEvent.HomeOutcome1,
-                                        new Outcome { Name = Constants.Draw, Price = null }
-                                    ]
-                                }
-                            ]
-                        }
-                    ]
-                    ).Instance
-                ],
-                typeof(ArgumentNullException),
-                "draw"
-            )
-        };
 
     [TestCaseSource(nameof(UpcomingEventTestCases))]
     public void ToUpcomingEvents_WithInvalidEvents_ThrowsException(
@@ -307,7 +416,9 @@ internal class OddsApiObjectConverter
         // Act & Assert
         Assert.Throws(
             testCase.ExceptionType,
-            () => converter.ToUpcomingEvents(testCase.OriginalEvents, SampleEvent.TraceId, SampleEvent.Timestamp).ToList());
+            () => converter.ToUpcomingEvents(testCase.OriginalEvents, SampleEvent.TraceId, SampleEvent.Timestamp)
+                // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
+                .ToList());
     }
 
     [Test]
@@ -333,19 +444,21 @@ internal class OddsApiObjectConverter
         ];
 
         // Act
-        var eventResults = converter.ToEventResults(rawEventResults, SampleEvent.TraceId, SampleEvent.Timestamp).ToList();
+        var eventResults =
+            converter.ToEventResults(rawEventResults, SampleEvent.TraceId, SampleEvent.Timestamp)
+                .ToList();
 
         // Assert
         eventResults.Should().NotBeNull().And.HaveCount(3);
 
-        eventResults.ElementAt(0).Should().NotBeNull().
-            And.BeEquivalentTo(new EventResultBuilder().SetSampleData().SetWinner(SampleEvent.HomeTeam).Instance);
+        eventResults.ElementAt(0).Should().NotBeNull().And
+            .BeEquivalentTo(new EventResultBuilder().SetSampleData().SetWinner(SampleEvent.HomeTeam).Instance);
 
-        eventResults.ElementAt(1).Should().NotBeNull().
-            And.BeEquivalentTo(new EventResultBuilder().SetSampleData().SetWinner(SampleEvent.AwayTeam).Instance);
+        eventResults.ElementAt(1).Should().NotBeNull().And
+            .BeEquivalentTo(new EventResultBuilder().SetSampleData().SetWinner(SampleEvent.AwayTeam).Instance);
 
-        eventResults.ElementAt(2).Should().NotBeNull().
-            And.BeEquivalentTo(new EventResultBuilder().SetSampleData().SetWinner(Constants.Draw).Instance);
+        eventResults.ElementAt(2).Should().NotBeNull().And
+            .BeEquivalentTo(new EventResultBuilder().SetSampleData().SetWinner(Constants.Draw).Instance);
     }
 
     [Test]
@@ -355,20 +468,8 @@ internal class OddsApiObjectConverter
         var converter = new OddsCollector.Functions.OddsApi.Converter.OddsApiObjectConverter();
 
         // Act
-        var eventResults = converter.ToEventResults([], SampleEvent.TraceId, SampleEvent.Timestamp);
-
-        // Assert
-        eventResults.Should().NotBeNull().And.BeEmpty();
-    }
-
-    [Test]
-    public void ToEventResults_WithNullCompletedEventsList_ReturnsEmptyConvertedEventsList()
-    {
-        // Arrange
-        var converter = new OddsCollector.Functions.OddsApi.Converter.OddsApiObjectConverter();
-
-        // Act
-        var eventResults = converter.ToEventResults([null!], SampleEvent.TraceId, SampleEvent.Timestamp);
+        var eventResults =
+            converter.ToEventResults([], SampleEvent.TraceId, SampleEvent.Timestamp);
 
         // Assert
         eventResults.Should().NotBeNull().And.BeEmpty();
@@ -387,7 +488,8 @@ internal class OddsApiObjectConverter
         ];
 
         // Act
-        var eventResults = converter.ToEventResults(rawEventResults, SampleEvent.TraceId, SampleEvent.Timestamp);
+        var eventResults =
+            converter.ToEventResults(rawEventResults, SampleEvent.TraceId, SampleEvent.Timestamp);
 
         // Assert
         eventResults.Should().NotBeNull().And.BeEmpty();
@@ -409,114 +511,16 @@ internal class OddsApiObjectConverter
         ];
 
         // Act
-        var eventResults = converter.ToEventResults(rawEventResults, SampleEvent.TraceId, SampleEvent.Timestamp).ToList();
+        var eventResults =
+            converter.ToEventResults(rawEventResults, SampleEvent.TraceId, SampleEvent.Timestamp)
+                .ToList();
 
         // Assert
         eventResults.Should().NotBeNull().And.HaveCount(1);
 
-        eventResults.ElementAt(0).Should().NotBeNull().And.BeEquivalentTo(new EventResultBuilder().SetSampleData().Instance);
+        eventResults.ElementAt(0).Should().NotBeNull().And
+            .BeEquivalentTo(new EventResultBuilder().SetSampleData().Instance);
     }
-
-    private static readonly IEnumerable<(ICollection<Anonymous3>? OriginalEvents, Type ExceptionType, string ParameterName)>
-        EventResultTestCases = new List<(ICollection<Anonymous3>? OriginalEvents, Type ExceptionType, string ParameterName)>
-        {
-            (
-                null,
-                typeof(ArgumentNullException),
-                "events"
-            ),
-            (
-                [new Anonymous3Builder().SetSampleData().SetScores(null).Instance],
-                typeof(ArgumentNullException),
-                "scores"
-            ),
-            (
-                [new Anonymous3Builder().SetSampleData().SetScores([]).Instance],
-                typeof(ArgumentException),
-                "scores"
-            ),
-            (
-                [new Anonymous3Builder().SetSampleData().SetHomeTeam(string.Empty).Instance],
-                typeof(ArgumentException),
-                "homeTeam"
-            ),
-            (
-                [new Anonymous3Builder().SetSampleData().SetHomeTeam(null).Instance],
-                typeof(ArgumentNullException),
-                "homeTeam"
-            ),
-             (
-                [new Anonymous3Builder().SetSampleData().SetAwayTeam(string.Empty).Instance],
-                typeof(ArgumentException),
-                "awayTeam"
-            ),
-            (
-                [new Anonymous3Builder().SetSampleData().SetAwayTeam(null).Instance],
-                typeof(ArgumentNullException),
-                "awayTeam"
-            ),
-            (
-                [
-                    new Anonymous3Builder().SetSampleData().SetScores([
-                        new ScoreModel { Name = string.Empty, Score = SampleEvent.HomeScore },
-                        new ScoreModel { Name = string.Empty, Score = SampleEvent.AwayScore }
-                    ]).Instance
-                ],
-                typeof(ArgumentException),
-                "name"
-            ),
-            (
-                [
-                    new Anonymous3Builder().SetSampleData().SetScores([
-                        new ScoreModel { Name = null, Score = SampleEvent.HomeScore },
-                        new ScoreModel { Name = null, Score = SampleEvent.AwayScore }
-                    ]).Instance
-                ],
-                typeof(ArgumentNullException),
-                "name"
-            ),
-            (
-                [
-                    new Anonymous3Builder().SetSampleData().SetScores([
-                        new ScoreModel { Name = SampleEvent.HomeTeam, Score = string.Empty },
-                        new ScoreModel { Name = SampleEvent.AwayTeam, Score = string.Empty }
-                    ]).Instance
-                ],
-                typeof(ArgumentException),
-                "score"
-            ),
-            (
-                [
-                    new Anonymous3Builder().SetSampleData().SetScores([
-                        new ScoreModel { Name = SampleEvent.HomeTeam, Score = null },
-                        new ScoreModel { Name = SampleEvent.AwayTeam, Score = null }
-                    ]).Instance
-                ],
-                typeof(ArgumentNullException),
-                "score"
-            ),
-            (
-                [
-                    new Anonymous3Builder().SetSampleData().SetScores([
-                        SampleEvent.HomeScoreModel,
-                        SampleEvent.AwayScoreModel,
-                        SampleEvent.AwayScoreModel
-                    ]).Instance
-                ],
-                typeof(ArgumentException),
-                "scores"
-            ),
-            (
-                [new Anonymous3Builder().SetSampleData().SetScores([SampleEvent.HomeScoreModel]).Instance],
-                typeof(ArgumentException),
-                "scores"
-            ),
-            (
-                [new Anonymous3Builder().SetSampleData().SetScores([SampleEvent.AwayScoreModel]).Instance],
-                typeof(ArgumentException),
-                "scores"
-            )
-        };
 
     [TestCaseSource(nameof(EventResultTestCases))]
     public void ToEventResults_WithInvalidEvents_ThrowsException(
@@ -528,6 +532,8 @@ internal class OddsApiObjectConverter
         // Act & Assert
         Assert.Throws(
             testCase.ExceptionType,
-            () => converter.ToEventResults(testCase.OriginalEvents, SampleEvent.TraceId, SampleEvent.Timestamp).ToList());
+            () => converter.ToEventResults(testCase.OriginalEvents, SampleEvent.TraceId, SampleEvent.Timestamp)
+                // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
+                .ToList());
     }
 }

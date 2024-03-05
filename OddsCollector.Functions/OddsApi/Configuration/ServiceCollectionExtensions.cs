@@ -6,20 +6,19 @@ namespace OddsCollector.Functions.OddsApi.Configuration;
 
 internal static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddOddsApiClientWithDependencies(this IServiceCollection services)
+    public static void AddOddsApiClientWithDependencies(this IServiceCollection services, string? leagues,
+        string? apiKey)
     {
         services.Configure<OddsApiClientOptions>(o =>
         {
             // workaround for https://github.com/MicrosoftDocs/azure-docs/issues/32962
-            o.AddLeagues(Environment.GetEnvironmentVariable("OddsApiClient:Leagues"));
-            o.SetApiKey(Environment.GetEnvironmentVariable("OddsApiClient:ApiKey"));
+            o.AddLeagues(leagues);
+            o.SetApiKey(apiKey);
         });
 
         services.AddHttpClient<Client>();
         services.AddSingleton<IClient, Client>();
         services.AddSingleton<IOddsApiObjectConverter, OddsApiObjectConverter>();
         services.AddSingleton<IOddsApiClient, OddsApiClient>();
-
-        return services;
     }
 }

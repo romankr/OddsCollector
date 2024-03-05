@@ -8,14 +8,17 @@ namespace OddsCollector.Functions.Functions;
 internal class EventResultsFunction(ILogger<EventResultsFunction> logger, IOddsApiClient client)
 {
     [Function(nameof(EventResultsFunction))]
-    [CosmosDBOutput("%CosmosDb:Database%", "%CosmosDb:EventResultsContainer%", Connection = "CosmosDb:Connection")]
+    [CosmosDBOutput("%CosmosDb:Database%", "%CosmosDb:EventResultsContainer%",
+        Connection = "CosmosDb:Connection")]
     public async Task<EventResult[]> Run(
         [TimerTrigger("%EventResultsFunction:TimerInterval%")]
         CancellationToken cancellationToken)
     {
         try
         {
-            var results = (await client.GetEventResultsAsync(Guid.NewGuid(), DateTime.UtcNow, cancellationToken)).ToArray();
+            var results =
+                (await client.GetEventResultsAsync(Guid.NewGuid(), DateTime.UtcNow, cancellationToken))
+                .ToArray();
 
             if (results.Length == 0)
             {
