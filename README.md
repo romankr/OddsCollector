@@ -1,4 +1,4 @@
-**Odds Collector** is a software project aimed at gathering and analyzing odds data for various sports from [The Odds API](https://the-odds-api.com/) while leveraging the robust infrastructure of Microsoft Azure and power of C#. This application provides an instrument to access historical odds information and predictions for sporting events.
+**Odds Collector** is a software project aimed at gathering and analyzing odds data for various sports from [The Odds API](https://the-odds-api.com/) while leveraging the infrastructure of Microsoft Azure. This application provides an instrument to access historical odds information and predictions for sporting events.
 
 # Purpose
 
@@ -12,7 +12,7 @@ The project is designed to have fun with algorythm described in "[Beating the bo
 
 **Azure Functions Integration**: Optimizes resource consumption by executing specific functions in response to events, ensuring cost-effectiveness and streamlined execution.
 
-**Azure Cosmos DB for Data Storage**: Utilizing Azure Cosmos DB as the backend database ensures high-performance data storage and retrieval.
+**Azure Cosmos DB for Data Storage**: Utilizing Azure Cosmos DB as the backend database.
 
 # Prerequisites
 
