@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using NSubstitute.ReceivedExtensions;
 using OddsCollector.Functions.Models;
 using OddsCollector.Functions.Strategies;
+using OddsCollector.Functions.Tests.Infrastructure.CancellationToken;
 using OddsCollector.Functions.Tests.Infrastructure.Data;
 using OddsCollector.Functions.Tests.Infrastructure.ServiceBus;
 
@@ -41,6 +42,36 @@ internal class PredictionFunction
         prediction[0].Should().NotBeNull().And.Be(expectedPrediction);
 
         await actionsMock.Received(Quantity.Exactly(1)).CompleteMessageAsync(receivedMessages[0], token);
+    }
+
+    [Test]
+    public async Task Run_WithValidServiceBusMessageAndRequestedCancellation_ReturnsNoPredictions()
+    {
+        // Arrange
+        var loggerStub = Substitute.For<ILogger<OddsCollector.Functions.Functions.PredictionFunction>>();
+
+        var upcomingEvent = new UpcomingEventBuilder().SetSampleData().Instance;
+
+        var expectedPrediction = new EventPredictionBuilder().SetSampleData().Instance;
+
+        ServiceBusReceivedMessage[] receivedMessages =
+            [ServiceBusReceivedMessageFactory.CreateFromObject(upcomingEvent)];
+
+        var actionsMock = Substitute.For<ServiceBusMessageActions>();
+
+        var strategyStub = Substitute.For<IPredictionStrategy>();
+        strategyStub.GetPrediction(Arg.Any<UpcomingEvent>(), Arg.Any<DateTime>()).Returns(expectedPrediction);
+
+        var function = new OddsCollector.Functions.Functions.PredictionFunction(loggerStub, strategyStub);
+
+        var cancellationToken = await CancellationTokenGenerator.GetRequestedForCancellationToken();
+
+        // Act
+        var prediction = await function.Run(receivedMessages, actionsMock, cancellationToken)
+            .ConfigureAwait(false);
+
+        // Assert
+        prediction.Should().NotBeNull().And.HaveCount(0);
     }
 
     [Test]

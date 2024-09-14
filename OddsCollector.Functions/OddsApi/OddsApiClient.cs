@@ -24,6 +24,11 @@ internal class OddsApiClient(
 
         foreach (var league in options.Value.Leagues)
         {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                break;
+            }
+
             var events = await client.OddsAsync(league, options.Value.ApiKey,
                     EuropeanRegion, HeadToHeadMarket, IsoDateFormat,
                     DecimalOddsFormat, null, null, cancellationToken)
@@ -42,6 +47,11 @@ internal class OddsApiClient(
 
         foreach (var league in options.Value.Leagues)
         {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                break;
+            }
+
             var results =
                 await client.ScoresAsync(league, options.Value.ApiKey, DaysFromToday, cancellationToken)
                     .ConfigureAwait(false);
