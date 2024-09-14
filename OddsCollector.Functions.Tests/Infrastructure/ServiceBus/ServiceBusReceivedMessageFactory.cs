@@ -7,7 +7,12 @@ namespace OddsCollector.Functions.Tests.Infrastructure.ServiceBus;
 
 internal static class ServiceBusReceivedMessageFactory
 {
-    public static ServiceBusReceivedMessage CreateFromObject(object obj)
+    public static IEnumerable<ServiceBusReceivedMessage> CreateFromObjects(IEnumerable<object> objects)
+    {
+        return objects.Select(CreateFromObject);
+    }
+
+    private static ServiceBusReceivedMessage CreateFromObject(object obj)
     {
         var serialized = Encoding.ASCII.GetBytes(JsonSerializer.Serialize(obj))
             .Select(x => new ReadOnlyMemory<byte>([x]));

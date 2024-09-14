@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using NSubstitute.ExceptionExtensions;
 using OddsCollector.Functions.Models;
 using OddsCollector.Functions.OddsApi;
+using LoggerFactory = OddsCollector.Functions.Tests.Infrastructure.Logger.LoggerFactory;
 
 namespace OddsCollector.Functions.Tests.Tests.Functions;
 
@@ -15,7 +16,7 @@ internal class UpcomingEventsFunction
         // Arrange
         IEnumerable<UpcomingEvent> expectedEventResults = new List<UpcomingEvent> { new() };
 
-        var loggerMock = Substitute.For<ILogger<OddsCollector.Functions.Functions.UpcomingEventsFunction>>();
+        var loggerMock = LoggerFactory.GetLoggerMock<OddsCollector.Functions.Functions.UpcomingEventsFunction>();
 
         var clientStub = Substitute.For<IOddsApiClient>();
         clientStub.GetUpcomingEventsAsync(Arg.Any<Guid>(), Arg.Any<DateTime>(), Arg.Any<CancellationToken>())
@@ -38,7 +39,7 @@ internal class UpcomingEventsFunction
         // Arrange
         var exception = new Exception();
 
-        var loggerMock = Substitute.For<ILogger<OddsCollector.Functions.Functions.UpcomingEventsFunction>>();
+        var loggerMock = LoggerFactory.GetLoggerMock<OddsCollector.Functions.Functions.UpcomingEventsFunction>();
 
         var clientStub = Substitute.For<IOddsApiClient>();
         clientStub.GetUpcomingEventsAsync(Arg.Any<Guid>(), Arg.Any<DateTime>(), Arg.Any<CancellationToken>())
@@ -62,7 +63,7 @@ internal class UpcomingEventsFunction
         // Arrange
         IEnumerable<UpcomingEvent> expectedEventResults = new List<UpcomingEvent>();
 
-        var loggerMock = Substitute.For<ILogger<OddsCollector.Functions.Functions.UpcomingEventsFunction>>();
+        var loggerMock = LoggerFactory.GetLoggerMock<OddsCollector.Functions.Functions.UpcomingEventsFunction>();
 
         var clientStub = Substitute.For<IOddsApiClient>();
         clientStub.GetUpcomingEventsAsync(Arg.Any<Guid>(), Arg.Any<DateTime>(), Arg.Any<CancellationToken>())
