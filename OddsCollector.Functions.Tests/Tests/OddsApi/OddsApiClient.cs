@@ -3,6 +3,7 @@ using OddsCollector.Functions.Models;
 using OddsCollector.Functions.OddsApi.Configuration;
 using OddsCollector.Functions.OddsApi.Converter;
 using OddsCollector.Functions.OddsApi.WebApi;
+using OddsCollector.Functions.Tests.Infrastructure.CancellationToken;
 
 namespace OddsCollector.Functions.Tests.Tests.OddsApi;
 
@@ -117,5 +118,81 @@ internal class OddsApiClient
         firstReceivedArguments[0].Should().Be(rawEventResults);
         firstReceivedArguments[1].Should().Be(traceId);
         firstReceivedArguments[2].Should().Be(timestamp);
+    }
+
+    [Test]
+    public async Task GetUpcomingEventsAsync_WithLeaguesAndRequestedCancellation_ReturnsNoUpcomingEvents()
+    {
+        // Arrange
+        ICollection<Anonymous2> rawUpcomingEvents = [new Anonymous2()];
+        var webApiClientMock = Substitute.For<IClient>();
+        webApiClientMock
+            .OddsAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<Regions>(), Arg.Any<Markets>(),
+                Arg.Any<DateFormat>(), Arg.Any<OddsFormat>(), Arg.Any<string>(), Arg.Any<string>(),
+                Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult(rawUpcomingEvents));
+
+        // ReSharper disable once CollectionNeverUpdated.Local
+        List<UpcomingEvent> upcomingEvents = [];
+        var converterMock = Substitute.For<IOddsApiObjectConverter>();
+        converterMock.ToUpcomingEvents(Arg.Any<ICollection<Anonymous2>?>(), Arg.Any<Guid>(), Arg.Any<DateTime>())
+            .Returns(new List<UpcomingEvent>());
+
+        const string secretValue = nameof(secretValue);
+
+        const string league = nameof(league);
+        var optionsStub = Substitute.For<IOptions<OddsApiClientOptions>>();
+        optionsStub.Value.Returns(new OddsApiClientOptions { Leagues = [league], ApiKey = secretValue });
+
+        var oddsClient =
+            new OddsCollector.Functions.OddsApi.OddsApiClient(optionsStub, webApiClientMock, converterMock);
+
+        var traceId = Guid.NewGuid();
+        var timestamp = DateTime.UtcNow;
+
+        var cancellationToken = await CancellationTokenGenerator.GetRequestedForCancellationToken();
+
+        // Act
+        var results = (await oddsClient.GetUpcomingEventsAsync(traceId, timestamp, cancellationToken)).ToList();
+
+        // Assert
+        results.Should().NotBeNull().And.HaveCount(0);
+    }
+
+    [Test]
+    public async Task GetEventResultsAsync_WithLeaguesAndRequestedCancellation_ReturnsNoEventResults()
+    {
+        // Arrange
+        ICollection<Anonymous3> rawEventResults = [new Anonymous3()];
+        var webApiClientMock = Substitute.For<IClient>();
+        webApiClientMock.ScoresAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<int?>(),
+                Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult(rawEventResults));
+
+        // ReSharper disable once CollectionNeverUpdated.Local
+        List<EventResult> eventResults = [];
+        var converterMock = Substitute.For<IOddsApiObjectConverter>();
+        converterMock.ToEventResults(Arg.Any<ICollection<Anonymous3>?>(), Arg.Any<Guid>(), Arg.Any<DateTime>())
+            .Returns(eventResults);
+
+        const string secretValue = nameof(secretValue);
+
+        const string league = nameof(league);
+        var optionsStub = Substitute.For<IOptions<OddsApiClientOptions>>();
+        optionsStub.Value.Returns(new OddsApiClientOptions { Leagues = [league], ApiKey = secretValue });
+
+        var oddsClient =
+            new OddsCollector.Functions.OddsApi.OddsApiClient(optionsStub, webApiClientMock, converterMock);
+
+        var traceId = Guid.NewGuid();
+        var timestamp = DateTime.UtcNow;
+
+        var cancellationToken = await CancellationTokenGenerator.GetRequestedForCancellationToken();
+
+        // Act
+        var results = (await oddsClient.GetEventResultsAsync(traceId, timestamp, cancellationToken)).ToList();
+
+        // Assert
+        results.Should().NotBeNull().And.HaveCount(0);
     }
 }

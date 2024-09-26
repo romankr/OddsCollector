@@ -20,6 +20,11 @@ internal class PredictionFunction(ILogger<PredictionFunction> logger, IPredictio
 
         foreach (var message in messages)
         {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                break;
+            }
+
             try
             {
                 var upcomingEvent = message.Body.ToObjectFromJson<UpcomingEvent>();

@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using NSubstitute.ExceptionExtensions;
 using OddsCollector.Functions.Models;
 using OddsCollector.Functions.OddsApi;
+using LoggerFactory = OddsCollector.Functions.Tests.Infrastructure.Logger.LoggerFactory;
 
 namespace OddsCollector.Functions.Tests.Tests.Functions;
 
@@ -15,18 +16,16 @@ internal class EventResultsFunction
         // Arrange
         IEnumerable<EventResult> expectedEventResults = new List<EventResult> { new() };
 
-        var loggerMock = Substitute.For<ILogger<OddsCollector.Functions.Functions.EventResultsFunction>>();
+        var loggerMock = LoggerFactory.GetLoggerMock<OddsCollector.Functions.Functions.EventResultsFunction>();
 
-        var clientStub = Substitute.For<IOddsApiClient>();
-        clientStub.GetEventResultsAsync(Arg.Any<Guid>(), Arg.Any<DateTime>(), Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult(expectedEventResults));
+        var clientStub = GetOddsApiClientStub(expectedEventResults);
 
         var function = new OddsCollector.Functions.Functions.EventResultsFunction(loggerMock, clientStub);
 
-        var token = new CancellationToken();
+        var cancellationToken = new CancellationToken();
 
         // Act
-        var eventResults = await function.Run(token);
+        var eventResults = await function.Run(cancellationToken);
 
         // Assert
         eventResults.Should().NotBeNull().And.BeEquivalentTo(expectedEventResults);
@@ -40,7 +39,7 @@ internal class EventResultsFunction
         // Arrange
         var exception = new Exception();
 
-        var loggerMock = Substitute.For<ILogger<OddsCollector.Functions.Functions.EventResultsFunction>>();
+        var loggerMock = LoggerFactory.GetLoggerMock<OddsCollector.Functions.Functions.EventResultsFunction>();
 
         var clientStub = Substitute.For<IOddsApiClient>();
         clientStub.GetEventResultsAsync(Arg.Any<Guid>(), Arg.Any<DateTime>(), Arg.Any<CancellationToken>())
@@ -48,10 +47,10 @@ internal class EventResultsFunction
 
         var function = new OddsCollector.Functions.Functions.EventResultsFunction(loggerMock, clientStub);
 
-        var token = new CancellationToken();
+        var cancellationToken = new CancellationToken();
 
         // Act
-        var eventResults = await function.Run(token);
+        var eventResults = await function.Run(cancellationToken);
 
         // Assert
         eventResults.Should().NotBeNull().And.BeEmpty();
@@ -66,22 +65,30 @@ internal class EventResultsFunction
         // Arrange
         IEnumerable<EventResult> expectedEventResults = new List<EventResult>();
 
-        var loggerMock = Substitute.For<ILogger<OddsCollector.Functions.Functions.EventResultsFunction>>();
+        var loggerMock = LoggerFactory.GetLoggerMock<OddsCollector.Functions.Functions.EventResultsFunction>();
 
-        var clientStub = Substitute.For<IOddsApiClient>();
-        clientStub.GetEventResultsAsync(Arg.Any<Guid>(), Arg.Any<DateTime>(), Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult(expectedEventResults));
+        var clientStub = GetOddsApiClientStub(expectedEventResults);
 
         var function = new OddsCollector.Functions.Functions.EventResultsFunction(loggerMock, clientStub);
 
-        var token = new CancellationToken();
+        var cancellationToken = new CancellationToken();
 
         // Act
-        var eventResults = await function.Run(token);
+        var eventResults = await function.Run(cancellationToken);
 
         // Assert
         eventResults.Should().NotBeNull().And.BeEquivalentTo(expectedEventResults);
 
         loggerMock.ReceivedWithAnyArgs().LogWarning(string.Empty, 1);
+    }
+
+    private static IOddsApiClient GetOddsApiClientStub(IEnumerable<EventResult> expectedEventResults)
+    {
+        var clientStub = Substitute.For<IOddsApiClient>();
+
+        clientStub.GetEventResultsAsync(Arg.Any<Guid>(), Arg.Any<DateTime>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult(expectedEventResults));
+
+        return clientStub;
     }
 }

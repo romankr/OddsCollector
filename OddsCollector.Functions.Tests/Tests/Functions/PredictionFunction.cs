@@ -1,10 +1,9 @@
-﻿using Azure.Messaging.ServiceBus;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.Extensions.Logging;
-using NSubstitute.ReceivedExtensions;
+﻿using NSubstitute.ReceivedExtensions;
 using OddsCollector.Functions.Models;
 using OddsCollector.Functions.Strategies;
+using OddsCollector.Functions.Tests.Infrastructure.CancellationToken;
 using OddsCollector.Functions.Tests.Infrastructure.Data;
+using OddsCollector.Functions.Tests.Infrastructure.Logger;
 using OddsCollector.Functions.Tests.Infrastructure.ServiceBus;
 
 namespace OddsCollector.Functions.Tests.Tests.Functions;
@@ -15,16 +14,18 @@ internal class PredictionFunction
     public async Task Run_WithValidServiceBusMessage_ReturnsEventPrediction()
     {
         // Arrange
-        var loggerStub = Substitute.For<ILogger<OddsCollector.Functions.Functions.PredictionFunction>>();
+        var loggerStub = LoggerFactory.GetLoggerMock<OddsCollector.Functions.Functions.PredictionFunction>();
 
         var upcomingEvent = new UpcomingEventBuilder().SetSampleData().Instance;
 
         var expectedPrediction = new EventPredictionBuilder().SetSampleData().Instance;
 
-        ServiceBusReceivedMessage[] receivedMessages =
-            [ServiceBusReceivedMessageFactory.CreateFromObject(upcomingEvent)];
+        var receivedMessages =
+            ServiceBusReceivedMessageFactory.CreateFromObjects([
+                upcomingEvent
+            ]).ToArray();
 
-        var actionsMock = Substitute.For<ServiceBusMessageActions>();
+        var actionsMock = ServiceBusMessageActionsFactory.GetServiceBusMessageActionsMock();
 
         var strategyStub = Substitute.For<IPredictionStrategy>();
         strategyStub.GetPrediction(Arg.Any<UpcomingEvent>(), Arg.Any<DateTime>()).Returns(expectedPrediction);
@@ -44,10 +45,42 @@ internal class PredictionFunction
     }
 
     [Test]
+    public async Task Run_WithValidServiceBusMessageAndRequestedCancellation_ReturnsNoPredictions()
+    {
+        // Arrange
+        var loggerStub = LoggerFactory.GetLoggerMock<OddsCollector.Functions.Functions.PredictionFunction>();
+
+        var upcomingEvent = new UpcomingEventBuilder().SetSampleData().Instance;
+
+        var expectedPrediction = new EventPredictionBuilder().SetSampleData().Instance;
+
+        var receivedMessages =
+            ServiceBusReceivedMessageFactory.CreateFromObjects([
+                upcomingEvent
+            ]).ToArray();
+
+        var actionsMock = ServiceBusMessageActionsFactory.GetServiceBusMessageActionsMock();
+
+        var strategyStub = Substitute.For<IPredictionStrategy>();
+        strategyStub.GetPrediction(Arg.Any<UpcomingEvent>(), Arg.Any<DateTime>()).Returns(expectedPrediction);
+
+        var function = new OddsCollector.Functions.Functions.PredictionFunction(loggerStub, strategyStub);
+
+        var cancellationToken = await CancellationTokenGenerator.GetRequestedForCancellationToken();
+
+        // Act
+        var prediction = await function.Run(receivedMessages, actionsMock, cancellationToken)
+            .ConfigureAwait(false);
+
+        // Assert
+        prediction.Should().NotBeNull().And.HaveCount(0);
+    }
+
+    [Test]
     public async Task Run_WithInvalidItems_ReturnsSuccessfullyProcessedEventPredictions()
     {
         // Arrange
-        var loggerMock = Substitute.For<ILogger<OddsCollector.Functions.Functions.PredictionFunction>>();
+        var loggerMock = LoggerFactory.GetLoggerMock<OddsCollector.Functions.Functions.PredictionFunction>();
 
         var goodUpcomingEvent = new UpcomingEventBuilder().SetSampleData().Instance;
 
@@ -56,13 +89,13 @@ internal class PredictionFunction
 
         var expectedPrediction = new EventPredictionBuilder().SetSampleData().Instance;
 
-        ServiceBusReceivedMessage[] receivedMessages =
-        [
-            ServiceBusReceivedMessageFactory.CreateFromObject(badUpcomingEvent),
-            ServiceBusReceivedMessageFactory.CreateFromObject(goodUpcomingEvent)
-        ];
+        var receivedMessages =
+            ServiceBusReceivedMessageFactory.CreateFromObjects([
+                badUpcomingEvent,
+                goodUpcomingEvent
+            ]).ToArray();
 
-        var actionsMock = Substitute.For<ServiceBusMessageActions>();
+        var actionsMock = ServiceBusMessageActionsFactory.GetServiceBusMessageActionsMock();
 
         var exception = new Exception();
 
