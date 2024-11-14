@@ -4,7 +4,6 @@ using OddsCollector.Functions.Strategies.Configuration;
 
 namespace OddsCollector.Functions.Tests.Tests.Strategies.Configuration;
 
-[Parallelizable(ParallelScope.All)]
 internal class ServiceCollectionExtensions
 {
     [Test]

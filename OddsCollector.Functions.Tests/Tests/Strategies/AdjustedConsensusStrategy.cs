@@ -3,7 +3,6 @@ using OddsCollector.Functions.Tests.Infrastructure.Data;
 
 namespace OddsCollector.Functions.Tests.Tests.Strategies;
 
-[Parallelizable(ParallelScope.All)]
 internal class AdjustedConsensusStrategy
 {
     private static readonly IEnumerable<(UpcomingEvent UpcomingEvent, EventPrediction EventPrediction)>
