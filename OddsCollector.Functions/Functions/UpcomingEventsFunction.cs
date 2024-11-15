@@ -1,11 +1,11 @@
 ﻿using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using OddsCollector.Functions.Models;
-using OddsCollector.Functions.OddsApi;
+using OddsCollector.Functions.Processors;
 
 namespace OddsCollector.Functions.Functions;
 
-internal class UpcomingEventsFunction(ILogger<UpcomingEventsFunction> logger, IOddsApiClient client)
+internal class UpcomingEventsFunction(ILogger<UpcomingEventsFunction> logger, IUpcomingEventsProcessor processor)
 {
     [Function(nameof(UpcomingEventsFunction))]
     [ServiceBusOutput("%ServiceBus:Queue%", Connection = "ServiceBus:Connection")]
@@ -15,9 +15,7 @@ internal class UpcomingEventsFunction(ILogger<UpcomingEventsFunction> logger, IO
     {
         try
         {
-            var events =
-                (await client.GetUpcomingEventsAsync(Guid.NewGuid(), DateTime.UtcNow, cancellationToken))
-                .ToArray();
+            var events = (await processor.GetUpcomingEventsAsync(cancellationToken)).ToArray();
 
             if (events.Length == 0)
             {
@@ -25,14 +23,14 @@ internal class UpcomingEventsFunction(ILogger<UpcomingEventsFunction> logger, IO
             }
             else
             {
-                logger.LogInformation("{Length} events received", events.Length);
+                logger.LogInformation("{Length} event(s) received", events.Length);
             }
 
             return events;
         }
         catch (Exception exception)
         {
-            logger.LogError(exception, "Failed to get upcoming events");
+            logger.LogError(exception, "Failed to get events");
         }
 
         return [];
