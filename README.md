@@ -16,7 +16,7 @@ The project is designed to have fun with algorythm described in "[Beating the bo
 
 # Prerequisites
 
-- [.NET 8.0](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
+- [.NET 9.0](https://dotnet.microsoft.com/en-us/download/dotnet/9.0)
 - [Azure Development Tools](https://learn.microsoft.com/en-us/azure/azure-functions/functions-reference?tabs=blob&pivots=programming-language-csharp#development-tools)
 - (Optional) [NSwag Studio](https://github.com/RicoSuter/NSwag/wiki/NSwagStudio). The repository already has [The Odds API C# client](https://github.com/romankr/OddsCollector/blob/master/OddsCollector.Functions/OddsApi/WebApi/WebApiClient.cs). However, you can use [parameters.nswag](https://github.com/romankr/OddsCollector/blob/master/OddsCollector.Functions/OddsApi/WebApi/parameters.nswag) to modify it.
 - (Optional) [Jupyter](https://jupyter.org/). Required for [analytics.ipynb](https://github.com/romankr/OddsCollector/blob/master/analytics.ipynb). 
