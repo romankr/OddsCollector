@@ -3,6 +3,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using OddsCollector.Functions.OddsApi.Configuration;
+using OddsCollector.Functions.Processors.Configuration;
 using OddsCollector.Functions.Strategies.Configuration;
 
 [assembly: InternalsVisibleTo("OddsCollector.Functions.Tests")]
@@ -20,6 +21,7 @@ internal static class Program
             .ConfigureServices(services =>
             {
                 services.AddPredictionStrategy();
+                services.AddFunctionProcessors();
                 services.AddApplicationInsightsTelemetryWorkerService();
                 services.ConfigureFunctionsApplicationInsights();
                 services.AddOddsApiClientWithDependencies(

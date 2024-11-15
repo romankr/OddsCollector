@@ -1,11 +1,11 @@
 ﻿using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using OddsCollector.Functions.Models;
-using OddsCollector.Functions.OddsApi;
+using OddsCollector.Functions.Processors;
 
 namespace OddsCollector.Functions.Functions;
 
-internal class EventResultsFunction(ILogger<EventResultsFunction> logger, IOddsApiClient client)
+internal class EventResultsFunction(ILogger<EventResultsFunction> logger, IEventResultProcessor processor)
 {
     [Function(nameof(EventResultsFunction))]
     [CosmosDBOutput("%CosmosDb:Database%", "%CosmosDb:EventResultsContainer%",
@@ -16,9 +16,7 @@ internal class EventResultsFunction(ILogger<EventResultsFunction> logger, IOddsA
     {
         try
         {
-            var results =
-                (await client.GetEventResultsAsync(Guid.NewGuid(), DateTime.UtcNow, cancellationToken))
-                .ToArray();
+            var results = (await processor.GetEventResultsAsync(cancellationToken)).ToArray();
 
             if (results.Length == 0)
             {
