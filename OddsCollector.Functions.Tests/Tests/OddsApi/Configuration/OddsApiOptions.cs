@@ -4,92 +4,104 @@ namespace OddsCollector.Functions.Tests.Tests.OddsApi.Configuration;
 
 internal class OddsApiOptions
 {
-    private static readonly IEnumerable<(string LeagueString, HashSet<string> ExpectedLeagues)>
-        TestCases = new List<(string LeagueString, HashSet<string> ExpectedLeagues)>
-        {
-            ("league", ["league"]),
-            ("league1;league2", ["league1", "league2"]),
-            ("league1;;league2", ["league1", "league2"]),
-            ("league1;league1", ["league1"])
-        };
-
-    [TestCaseSource(nameof(TestCases))]
-    public void SetLeagues_WithValidLeagueInputString_ReturnsCorrectLeagues(
-        (string LeagueString, HashSet<string> ExpectedLeagues) testCase)
+    [Test]
+    public void SetLeagues_WithOneLeague_ReturnsCorrectLeagues()
     {
-        // Arrange
         var options = new OddsApiClientOptions();
 
-        // Act
-        options.AddLeagues(testCase.LeagueString);
+        options.AddLeagues("league");
 
-        // Assert
-        options.Leagues.Should().NotBeNull().And.BeEquivalentTo(testCase.ExpectedLeagues);
+        options.Leagues.Should().NotBeNull().And.BeEquivalentTo(["league"]);
+    }
+
+    [Test]
+    public void SetLeagues_WithMultipleLeagues_ReturnsCorrectLeagues()
+    {
+        var options = new OddsApiClientOptions();
+
+        options.AddLeagues("league1;league2");
+
+        options.Leagues.Should().NotBeNull().And.BeEquivalentTo(["league1", "league2"]);
+    }
+
+    [Test]
+    public void SetLeagues_WithDuplicateLeagues_ReturnsOneLeague()
+    {
+        var options = new OddsApiClientOptions();
+
+        options.AddLeagues("league1;league1");
+
+        options.Leagues.Should().NotBeNull().And.BeEquivalentTo(["league1"]);
+    }
+
+    [Test]
+    public void SetLeagues_WithEmptyLeague_ReturnsCorrectLeagues()
+    {
+        var options = new OddsApiClientOptions();
+
+        options.AddLeagues("league1;;league2");
+
+        options.Leagues.Should().NotBeNull().And.BeEquivalentTo(["league1", "league2"]);
+    }
+
+    [Test]
+    public void SetLeagues_WithLeadingAndTrailingCharacters_ReturnsCorrectLeagues()
+    {
+        var options = new OddsApiClientOptions();
+
+        options.AddLeagues("league1\n; league2\r");
+
+        options.Leagues.Should().NotBeNull().And.BeEquivalentTo(["league1", "league2"]);
     }
 
     [Test]
     public void SetLeagues_WithNullOrEmptyLeagues_ThrowsException()
     {
-        // Arrange
         var options = new OddsApiClientOptions();
 
-        // Act
         var action = () => options.AddLeagues(string.Empty);
 
-        // Assert
-        action.Should().ThrowExactly<ArgumentException>().WithParameterName("leaguesString");
+        action.Should().ThrowExactly<ArgumentException>().WithParameterName("leagues");
     }
 
     [Test]
     public void SetLeagues_WithNullLeagues_ThrowsException()
     {
-        // Arrange
         var options = new OddsApiClientOptions();
 
-        // Act
         var action = () => options.AddLeagues(null);
 
-        // Assert
-        action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("leaguesString");
+        action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("leagues");
     }
 
     [Test]
     public void SetApiKey_WithValidKey_ReturnsThisKey()
     {
-        // Arrange
         const string key = nameof(key);
         var options = new OddsApiClientOptions();
 
-        // Act
         options.SetApiKey(key);
 
-        // Assert
         options.ApiKey.Should().NotBeNull().And.Be(key);
     }
 
     [Test]
     public void SetApiKey_WithNullApiKey_ThrowsException()
     {
-        // Arrange
         var options = new OddsApiClientOptions();
 
-        // Act
         var action = () => options.SetApiKey(null);
 
-        // Assert
         action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("apiKey");
     }
 
     [Test]
     public void SetApiKey_WithEmptyApiKey_ThrowsException()
     {
-        // Arrange
         var options = new OddsApiClientOptions();
 
-        // Act
         var action = () => options.SetApiKey(string.Empty);
 
-        // Assert
         action.Should().ThrowExactly<ArgumentException>().WithParameterName("apiKey");
     }
 }
