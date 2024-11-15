@@ -6,17 +6,14 @@ internal class OddsApiClientOptions
 
     public string ApiKey { get; set; } = string.Empty;
 
-    public void AddLeagues(string? leaguesString)
+    public void AddLeagues(string? leagues)
     {
-        ArgumentException.ThrowIfNullOrEmpty(leaguesString);
+        ArgumentException.ThrowIfNullOrEmpty(leagues);
 
-        foreach (var league in leaguesString.Split(";"))
-        {
-            if (!string.IsNullOrEmpty(league))
-            {
-                Leagues.Add(league);
-            }
-        }
+        var deserialized =
+            leagues.Split(";", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        Leagues.UnionWith(deserialized);
     }
 
     public void SetApiKey(string? apiKey)
