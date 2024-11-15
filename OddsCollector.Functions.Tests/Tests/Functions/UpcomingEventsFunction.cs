@@ -1,28 +1,26 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Testing;
 using NSubstitute.ExceptionExtensions;
 using OddsCollector.Functions.Models;
-using OddsCollector.Functions.OddsApi;
-using LoggerFactory = OddsCollector.Functions.Tests.Infrastructure.Logger.LoggerFactory;
+using OddsCollector.Functions.Processors;
 
 namespace OddsCollector.Functions.Tests.Tests.Functions;
 
 internal class UpcomingEventsFunction
 {
     [Test]
-    [SuppressMessage("Usage", "CA2254:Template should be a static expression")]
-    public async Task Run_WithValidParameters_ReturnsEventResults()
+    public async Task Run_WithValidMessages_ReturnsEventResultList()
     {
         // Arrange
-        IEnumerable<UpcomingEvent> expectedEventResults = new List<UpcomingEvent> { new() };
+        IEnumerable<UpcomingEvent> expectedEventResults = [new()];
 
-        var loggerMock = LoggerFactory.GetLoggerMock<OddsCollector.Functions.Functions.UpcomingEventsFunction>();
+        var loggerMock = new FakeLogger<OddsCollector.Functions.Functions.UpcomingEventsFunction>();
 
-        var clientStub = Substitute.For<IOddsApiClient>();
-        clientStub.GetUpcomingEventsAsync(Arg.Any<Guid>(), Arg.Any<DateTime>(), Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult(expectedEventResults));
+        var processorStub = Substitute.For<IUpcomingEventsProcessor>();
 
-        var function = new OddsCollector.Functions.Functions.UpcomingEventsFunction(loggerMock, clientStub);
+        processorStub.GetUpcomingEventsAsync(Arg.Any<CancellationToken>()).Returns(Task.FromResult(expectedEventResults));
+
+        var function = new OddsCollector.Functions.Functions.UpcomingEventsFunction(loggerMock, processorStub);
 
         // Act
         var eventResults = await function.Run(new CancellationToken());
@@ -30,22 +28,23 @@ internal class UpcomingEventsFunction
         // Assert
         eventResults.Should().NotBeNull().And.BeEquivalentTo(expectedEventResults);
 
-        loggerMock.ReceivedWithAnyArgs().LogInformation(string.Empty, 1);
+        loggerMock.LatestRecord.Level.Should().Be(LogLevel.Information);
+        loggerMock.LatestRecord.Message.Should().Be("1 event(s) received");
     }
 
     [Test]
-    public async Task Run_WithException_ReturnsEmptyEventResults()
+    public async Task Run_WithException_ReturnsEmptyEventResultList()
     {
         // Arrange
         var exception = new Exception();
 
-        var loggerMock = LoggerFactory.GetLoggerMock<OddsCollector.Functions.Functions.UpcomingEventsFunction>();
+        var loggerMock = new FakeLogger<OddsCollector.Functions.Functions.UpcomingEventsFunction>();
 
-        var clientStub = Substitute.For<IOddsApiClient>();
-        clientStub.GetUpcomingEventsAsync(Arg.Any<Guid>(), Arg.Any<DateTime>(), Arg.Any<CancellationToken>())
-            .Throws(exception);
+        var processorStub = Substitute.For<IUpcomingEventsProcessor>();
 
-        var function = new OddsCollector.Functions.Functions.UpcomingEventsFunction(loggerMock, clientStub);
+        processorStub.GetUpcomingEventsAsync(Arg.Any<CancellationToken>()).Throws(exception);
+
+        var function = new OddsCollector.Functions.Functions.UpcomingEventsFunction(loggerMock, processorStub);
 
         // Act
         var eventResults = await function.Run(new CancellationToken());
@@ -53,23 +52,24 @@ internal class UpcomingEventsFunction
         // Assert
         eventResults.Should().NotBeNull().And.BeEmpty();
 
-        loggerMock.Received().LogError(exception, "Failed to get upcoming events");
+        loggerMock.LatestRecord.Level.Should().Be(LogLevel.Error);
+        loggerMock.LatestRecord.Message.Should().Be("Failed to get events");
+        loggerMock.LatestRecord.Exception.Should().Be(exception);
     }
 
     [Test]
-    [SuppressMessage("Usage", "CA2254:Template should be a static expression")]
-    public async Task Run_WithValidParameters_ReturnsNoEventResults()
+    public async Task Run_WithEmptyMessages_ReturnsEmptyEventResultList()
     {
         // Arrange
-        IEnumerable<UpcomingEvent> expectedEventResults = new List<UpcomingEvent>();
+        IEnumerable<UpcomingEvent> expectedEventResults = [];
 
-        var loggerMock = LoggerFactory.GetLoggerMock<OddsCollector.Functions.Functions.UpcomingEventsFunction>();
+        var loggerMock = new FakeLogger<OddsCollector.Functions.Functions.UpcomingEventsFunction>();
 
-        var clientStub = Substitute.For<IOddsApiClient>();
-        clientStub.GetUpcomingEventsAsync(Arg.Any<Guid>(), Arg.Any<DateTime>(), Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult(expectedEventResults));
+        var processorStub = Substitute.For<IUpcomingEventsProcessor>();
 
-        var function = new OddsCollector.Functions.Functions.UpcomingEventsFunction(loggerMock, clientStub);
+        processorStub.GetUpcomingEventsAsync(Arg.Any<CancellationToken>()).Returns(Task.FromResult(expectedEventResults));
+
+        var function = new OddsCollector.Functions.Functions.UpcomingEventsFunction(loggerMock, processorStub);
 
         // Act
         var eventResults = await function.Run(new CancellationToken());
@@ -77,6 +77,7 @@ internal class UpcomingEventsFunction
         // Assert
         eventResults.Should().NotBeNull().And.BeEquivalentTo(expectedEventResults);
 
-        loggerMock.ReceivedWithAnyArgs().LogWarning(string.Empty, 1);
+        loggerMock.LatestRecord.Level.Should().Be(LogLevel.Warning);
+        loggerMock.LatestRecord.Message.Should().Be("No events received");
     }
 }

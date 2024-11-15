@@ -20,18 +20,18 @@ internal class EventResultsFunction(ILogger<EventResultsFunction> logger, IEvent
 
             if (results.Length == 0)
             {
-                logger.LogWarning("No results received");
+                logger.LogWarning("No events received");
             }
             else
             {
-                logger.LogInformation("{Length} events received", results.Length);
+                logger.LogInformation("{Length} event(s) received", results.Length);
             }
 
             return results;
         }
         catch (Exception exception)
         {
-            logger.LogError(exception, "Failed to get event results");
+            logger.LogError(exception, "Failed to get events");
         }
 
         return [];
