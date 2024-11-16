@@ -30,7 +30,7 @@ internal class EventResultsFunction
         actualEventResults.Should().NotBeNull().And.BeEquivalentTo(expectedEventResults);
 
         loggerMock.LatestRecord.Level.Should().Be(LogLevel.Information);
-        loggerMock.LatestRecord.Message.Should().Be("1 events received");
+        loggerMock.LatestRecord.Message.Should().Be("1 event(s) received");
     }
 
     [Test]
@@ -54,7 +54,7 @@ internal class EventResultsFunction
         actualEventResults.Should().NotBeNull().And.BeEmpty();
 
         loggerMock.LatestRecord.Level.Should().Be(LogLevel.Error);
-        loggerMock.LatestRecord.Message.Should().Be("Failed to get event results");
+        loggerMock.LatestRecord.Message.Should().Be("Failed to get events");
         loggerMock.LatestRecord.Exception.Should().Be(exception);
     }
 
@@ -81,6 +81,6 @@ internal class EventResultsFunction
         actualEventResults.Should().NotBeNull().And.BeEmpty();
 
         loggerMock.LatestRecord.Level.Should().Be(LogLevel.Warning);
-        loggerMock.LatestRecord.Message.Should().Be("No results received");
+        loggerMock.LatestRecord.Message.Should().Be("No events received");
     }
 }

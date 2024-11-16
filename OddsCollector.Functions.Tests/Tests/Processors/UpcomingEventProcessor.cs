@@ -2,18 +2,18 @@
 
 namespace OddsCollector.Functions.Tests.Tests.Processors;
 
-internal class EventResultProcessor
+internal class UpcomingEventProcessor
 {
     [Test]
-    public async Task GetEventResultsAsync_PassesTraceId()
+    public async Task GetUpcomingEventsAsync_PassesTraceId()
     {
         // Arrange
         var clientMock = Substitute.For<IOddsApiClient>();
 
-        var processor = new OddsCollector.Functions.Processors.EventResultProcessor(clientMock);
+        var processor = new OddsCollector.Functions.Processors.UpcomingEventsProcessor(clientMock);
 
         // Act
-        await processor.GetEventResultsAsync(new CancellationToken());
+        await processor.GetUpcomingEventsAsync(new CancellationToken());
 
         // Assert
         var calls = clientMock.ReceivedCalls().ToList();
@@ -26,15 +26,15 @@ internal class EventResultProcessor
     }
 
     [Test]
-    public async Task GetEventResultsAsync_PassesDateTime()
+    public async Task GetUpcomingEventsAsync_PassesDateTime()
     {
         // Arrange
         var clientMock = Substitute.For<IOddsApiClient>();
 
-        var processor = new OddsCollector.Functions.Processors.EventResultProcessor(clientMock);
+        var processor = new OddsCollector.Functions.Processors.UpcomingEventsProcessor(clientMock);
 
         // Act
-        await processor.GetEventResultsAsync(new CancellationToken());
+        await processor.GetUpcomingEventsAsync(new CancellationToken());
 
         // Assert
         var calls = clientMock.ReceivedCalls().ToList();
@@ -47,17 +47,17 @@ internal class EventResultProcessor
     }
 
     [Test]
-    public async Task GetEventResultsAsync_PassesCancellationToken()
+    public async Task GetUpcomingEventsAsync_PassesCancellationToken()
     {
         // Arrange
         var cancellationToken = new CancellationToken();
 
         var clientMock = Substitute.For<IOddsApiClient>();
 
-        var processor = new OddsCollector.Functions.Processors.EventResultProcessor(clientMock);
+        var processor = new OddsCollector.Functions.Processors.UpcomingEventsProcessor(clientMock);
 
         // Act
-        await processor.GetEventResultsAsync(cancellationToken);
+        await processor.GetUpcomingEventsAsync(cancellationToken);
 
         // Assert
         var calls = clientMock.ReceivedCalls().ToList();
