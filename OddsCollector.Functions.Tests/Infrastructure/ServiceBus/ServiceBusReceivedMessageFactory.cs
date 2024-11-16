@@ -7,21 +7,20 @@ namespace OddsCollector.Functions.Tests.Infrastructure.ServiceBus;
 
 internal static class ServiceBusReceivedMessageFactory
 {
-    public static IEnumerable<ServiceBusReceivedMessage> CreateFromObjects(IEnumerable<object> objects)
-    {
-        return objects.Select(CreateFromObject);
-    }
-
-    private static ServiceBusReceivedMessage CreateFromObject(object obj)
+    public static ServiceBusReceivedMessage CreateFromObject(object obj, string? messageId = null)
     {
         var serialized = Encoding.ASCII.GetBytes(JsonSerializer.Serialize(obj))
             .Select(x => new ReadOnlyMemory<byte>([x]));
 
-        var ampqMessage = new AmqpMessageBody(serialized);
+        var message = new AmqpMessageBody(serialized);
 
-        var ampqAnnotatedMessage = new AmqpAnnotatedMessage(ampqMessage);
+        var annotatedMessage = new AmqpAnnotatedMessage(message);
+
+        annotatedMessage.Properties.MessageId = messageId is not null
+            ? new AmqpMessageId(messageId)
+            : null;
 
         return ServiceBusReceivedMessage.FromAmqpMessage(
-            ampqAnnotatedMessage, new BinaryData(Array.Empty<byte>()));
+            annotatedMessage, new BinaryData([]));
     }
 }

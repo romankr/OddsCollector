@@ -2,7 +2,7 @@
 using OddsCollector.Functions.Processors;
 using OddsCollector.Functions.Processors.Configuration;
 
-namespace OddsCollector.Functions.Tests.Tests.Processors;
+namespace OddsCollector.Functions.Tests.Tests.Processors.Configuration;
 
 internal class ServiceCollectionExtensions
 {
@@ -33,6 +33,22 @@ internal class ServiceCollectionExtensions
             services.FirstOrDefault(
                 x => x.ServiceType == typeof(IUpcomingEventsProcessor)
                      && x.ImplementationType == typeof(OddsCollector.Functions.Processors.UpcomingEventsProcessor)
+                     && x.Lifetime == ServiceLifetime.Singleton);
+
+        descriptor.Should().NotBeNull();
+    }
+
+    [Test]
+    public void AddFunctionProcessors_AddsPredictionProcessor()
+    {
+        var services = new ServiceCollection();
+
+        services.AddFunctionProcessors();
+
+        var descriptor =
+            services.FirstOrDefault(
+                x => x.ServiceType == typeof(IPredictionProcessor)
+                     && x.ImplementationType == typeof(OddsCollector.Functions.Processors.PredictionProcessor)
                      && x.Lifetime == ServiceLifetime.Singleton);
 
         descriptor.Should().NotBeNull();

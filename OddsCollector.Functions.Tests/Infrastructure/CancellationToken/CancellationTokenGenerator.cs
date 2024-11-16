@@ -4,10 +4,10 @@ internal static class CancellationTokenGenerator
 {
     public static async Task<System.Threading.CancellationToken> GetRequestedForCancellationToken()
     {
-        var cancellationTokenSource = new CancellationTokenSource();
+        var source = new CancellationTokenSource();
 
-        await cancellationTokenSource.CancelAsync();
+        await source.CancelAsync();
 
-        return cancellationTokenSource.Token;
+        return source.Token;
     }
 }

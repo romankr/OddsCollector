@@ -1,9 +1,12 @@
-﻿using NSubstitute.ReceivedExtensions;
+﻿using Azure.Messaging.ServiceBus;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Testing;
+using NSubstitute.ExceptionExtensions;
 using OddsCollector.Functions.Models;
-using OddsCollector.Functions.Strategies;
+using OddsCollector.Functions.Processors;
 using OddsCollector.Functions.Tests.Infrastructure.CancellationToken;
 using OddsCollector.Functions.Tests.Infrastructure.Data;
-using OddsCollector.Functions.Tests.Infrastructure.Logger;
 using OddsCollector.Functions.Tests.Infrastructure.ServiceBus;
 
 namespace OddsCollector.Functions.Tests.Tests.Functions;
@@ -11,120 +14,88 @@ namespace OddsCollector.Functions.Tests.Tests.Functions;
 internal class PredictionFunction
 {
     [Test]
-    public async Task Run_WithValidServiceBusMessage_ReturnsEventPrediction()
+    public async Task Run_WithServiceBusMessage_ReturnsEventPredictionAndLogsCount()
     {
         // Arrange
-        var loggerStub = LoggerFactory.GetLoggerMock<OddsCollector.Functions.Functions.PredictionFunction>();
-
-        var upcomingEvent = new UpcomingEventBuilder().SetSampleData().Instance;
+        var loggerMock = new FakeLogger<OddsCollector.Functions.Functions.PredictionFunction>();
 
         var expectedPrediction = new EventPredictionBuilder().SetSampleData().Instance;
 
-        var receivedMessages =
-            ServiceBusReceivedMessageFactory.CreateFromObjects([
-                upcomingEvent
-            ]).ToArray();
+        var processorStub = Substitute.For<IPredictionProcessor>();
+        processorStub.DeserializeAndCompleteMessageAsync(Arg.Any<ServiceBusReceivedMessage>(),
+            Arg.Any<ServiceBusMessageActions>(), Arg.Any<CancellationToken>()).Returns(expectedPrediction);
 
-        var actionsMock = ServiceBusMessageActionsFactory.GetServiceBusMessageActionsMock();
-
-        var strategyStub = Substitute.For<IPredictionStrategy>();
-        strategyStub.GetPrediction(Arg.Any<UpcomingEvent>(), Arg.Any<DateTime>()).Returns(expectedPrediction);
-
-        var function = new OddsCollector.Functions.Functions.PredictionFunction(loggerStub, strategyStub);
-
-        var token = new CancellationToken();
+        var function = new OddsCollector.Functions.Functions.PredictionFunction(loggerMock, processorStub);
 
         // Act
-        var prediction = await function.Run(receivedMessages, actionsMock, token).ConfigureAwait(false);
+        var predictions = await function.Run([null!], null!, new CancellationToken()).ConfigureAwait(false);
 
         // Assert
-        prediction.Should().NotBeNull().And.HaveCount(1);
-        prediction[0].Should().NotBeNull().And.Be(expectedPrediction);
+        predictions.Should().NotBeNull().And.HaveCount(1);
+        predictions[0].Should().NotBeNull().And.Be(expectedPrediction);
 
-        await actionsMock.Received(Quantity.Exactly(1)).CompleteMessageAsync(receivedMessages[0], token);
+        loggerMock.Collector.Count.Should().Be(1);
+        loggerMock.LatestRecord.Level.Should().Be(LogLevel.Information);
+        loggerMock.LatestRecord.Message.Should().Be("Processed 1 message(s)");
     }
 
     [Test]
-    public async Task Run_WithValidServiceBusMessageAndRequestedCancellation_ReturnsNoPredictions()
+    public async Task Run_WithRequestedCancellation_ReturnsEmptyPredictionListAndLogsWarning()
     {
         // Arrange
-        var loggerStub = LoggerFactory.GetLoggerMock<OddsCollector.Functions.Functions.PredictionFunction>();
+        var loggerMock = new FakeLogger<OddsCollector.Functions.Functions.PredictionFunction>();
 
-        var upcomingEvent = new UpcomingEventBuilder().SetSampleData().Instance;
+        var processorStub = Substitute.For<IPredictionProcessor>();
+        processorStub.DeserializeAndCompleteMessageAsync(Arg.Any<ServiceBusReceivedMessage>(),
+            Arg.Any<ServiceBusMessageActions>(), Arg.Any<CancellationToken>())
+            .Returns(new EventPredictionBuilder().SetSampleData().Instance);
 
-        var expectedPrediction = new EventPredictionBuilder().SetSampleData().Instance;
-
-        var receivedMessages =
-            ServiceBusReceivedMessageFactory.CreateFromObjects([
-                upcomingEvent
-            ]).ToArray();
-
-        var actionsMock = ServiceBusMessageActionsFactory.GetServiceBusMessageActionsMock();
-
-        var strategyStub = Substitute.For<IPredictionStrategy>();
-        strategyStub.GetPrediction(Arg.Any<UpcomingEvent>(), Arg.Any<DateTime>()).Returns(expectedPrediction);
-
-        var function = new OddsCollector.Functions.Functions.PredictionFunction(loggerStub, strategyStub);
+        var function = new OddsCollector.Functions.Functions.PredictionFunction(loggerMock, processorStub);
 
         var cancellationToken = await CancellationTokenGenerator.GetRequestedForCancellationToken();
 
         // Act
-        var prediction = await function.Run(receivedMessages, actionsMock, cancellationToken)
-            .ConfigureAwait(false);
+        var predictions = await function.Run([null!], null!, cancellationToken).ConfigureAwait(false);
 
         // Assert
-        prediction.Should().NotBeNull().And.HaveCount(0);
+        predictions.Should().NotBeNull().And.HaveCount(0);
+
+        loggerMock.Collector.Count.Should().Be(1);
+        loggerMock.LatestRecord.Level.Should().Be(LogLevel.Warning);
+        loggerMock.LatestRecord.Message.Should().Be("Processed 0 messages");
     }
 
     [Test]
-    public async Task Run_WithInvalidItems_ReturnsSuccessfullyProcessedEventPredictions()
+    public async Task Run_WithException_ReturnsEmptyPredictionListAndLogsException()
     {
         // Arrange
-        var loggerMock = LoggerFactory.GetLoggerMock<OddsCollector.Functions.Functions.PredictionFunction>();
-
-        var goodUpcomingEvent = new UpcomingEventBuilder().SetSampleData().Instance;
-
-        var badUpcomingEvent = new UpcomingEventBuilder().SetSampleData()
-            .SetAwayTeam(SampleEvent.HomeTeam).Instance;
-
-        var expectedPrediction = new EventPredictionBuilder().SetSampleData().Instance;
-
-        var receivedMessages =
-            ServiceBusReceivedMessageFactory.CreateFromObjects([
-                badUpcomingEvent,
-                goodUpcomingEvent
-            ]).ToArray();
-
-        var actionsMock = ServiceBusMessageActionsFactory.GetServiceBusMessageActionsMock();
+        var loggerMock = new FakeLogger<OddsCollector.Functions.Functions.PredictionFunction>();
 
         var exception = new Exception();
 
-        var strategyStub = Substitute.For<IPredictionStrategy>();
-        strategyStub.GetPrediction(Arg.Any<UpcomingEvent>(), Arg.Any<DateTime>())
-            .Returns(_ => throw exception, _ => expectedPrediction);
+        const string expectedMessageId = "123";
 
-        var function = new OddsCollector.Functions.Functions.PredictionFunction(loggerMock, strategyStub);
+        var message = ServiceBusReceivedMessageFactory.CreateFromObject(
+            new UpcomingEventBuilder().SetSampleData().Instance, expectedMessageId);
 
-        var token = new CancellationToken();
+        var processorStub = Substitute.For<IPredictionProcessor>();
+        processorStub.DeserializeAndCompleteMessageAsync(Arg.Any<ServiceBusReceivedMessage>(),
+            Arg.Any<ServiceBusMessageActions>(), Arg.Any<CancellationToken>()).Throws(exception);
+
+        var function = new OddsCollector.Functions.Functions.PredictionFunction(loggerMock, processorStub);
 
         // Act
-        var prediction = await function.Run(receivedMessages, actionsMock, token).ConfigureAwait(false);
+        var predictions = await function.Run([message], null!, new CancellationToken()).ConfigureAwait(false);
 
         // Assert
-        prediction.Should().NotBeNull().And.HaveCount(1);
-        prediction[0].Should().NotBeNull().And.Be(expectedPrediction);
+        predictions.Should().NotBeNull().And.HaveCount(0);
 
-        await actionsMock.Received(Quantity.Exactly(1)).CompleteMessageAsync(receivedMessages[1], token);
+        loggerMock.Collector.Count.Should().BeGreaterThanOrEqualTo(1);
 
-        var receivedCalls = loggerMock.ReceivedCalls().ToList();
+        var logRecord = loggerMock.Collector.GetSnapshot()[0];
 
-        receivedCalls.Should().NotBeNull().And.HaveCount(1);
-
-        var firstReceived = receivedCalls.First();
-
-        var firstReceivedArguments = firstReceived.GetArguments();
-
-        firstReceivedArguments.Should().NotBeNull();
-        firstReceivedArguments[3].Should().NotBeNull().And.Be(exception);
+        logRecord.Level.Should().Be(LogLevel.Error);
+        logRecord.Message.Should().Be($"Failed to processes message with id {expectedMessageId}");
+        logRecord.Exception.Should().Be(exception);
     }
 }
