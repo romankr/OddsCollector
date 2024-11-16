@@ -8,5 +8,6 @@ internal static class ServiceCollectionExtensions
     {
         services.AddSingleton<IEventResultProcessor, EventResultProcessor>();
         services.AddSingleton<IUpcomingEventsProcessor, UpcomingEventsProcessor>();
+        services.AddSingleton<IPredictionProcessor, PredictionProcessor>();
     }
 }

@@ -1,12 +1,13 @@
-﻿using Azure.Messaging.ServiceBus;
+﻿using System.Runtime.CompilerServices;
+using Azure.Messaging.ServiceBus;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using OddsCollector.Functions.Models;
-using OddsCollector.Functions.Strategies;
+using OddsCollector.Functions.Processors;
 
 namespace OddsCollector.Functions.Functions;
 
-internal class PredictionFunction(ILogger<PredictionFunction> logger, IPredictionStrategy strategy)
+internal class PredictionFunction(ILogger<PredictionFunction> logger, IPredictionProcessor processor)
 {
     [Function(nameof(PredictionFunction))]
     [CosmosDBOutput("%CosmosDb:Database%", "%CosmosDb:EventPredictionsContainer%",
@@ -18,29 +19,48 @@ internal class PredictionFunction(ILogger<PredictionFunction> logger, IPredictio
     {
         List<EventPrediction> predictions = [];
 
+        await foreach (var prediction in ProcessMessagesAsync(messages, messageActions, cancellationToken))
+        {
+            predictions.Add(prediction);
+        }
+
+        if (predictions.Count == 0)
+        {
+            logger.LogWarning("Processed 0 messages");
+        }
+        else
+        {
+            logger.LogInformation("Processed {Count} message(s)", predictions.Count);
+        }
+
+        return [.. predictions];
+    }
+
+    private async IAsyncEnumerable<EventPrediction> ProcessMessagesAsync(ServiceBusReceivedMessage[] messages,
+        ServiceBusMessageActions messageActions, [EnumeratorCancellation] CancellationToken cancellationToken)
+    {
         foreach (var message in messages)
         {
             if (cancellationToken.IsCancellationRequested)
             {
-                break;
+                yield break;
             }
+
+            EventPrediction? prediction = null;
 
             try
             {
-                var upcomingEvent = message.Body.ToObjectFromJson<UpcomingEvent>();
-
-                var prediction = strategy.GetPrediction(upcomingEvent, DateTime.UtcNow);
-
-                predictions.Add(prediction);
-
-                await messageActions.CompleteMessageAsync(message, cancellationToken);
+                prediction = await processor.DeserializeAndCompleteMessageAsync(message, messageActions, cancellationToken);
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, "Failed to convert message with id {Id}", message.MessageId);
+                logger.LogError(exception, "Failed to processes message with id {Id}", message.MessageId);
+            }
+
+            if (prediction is not null)
+            {
+                yield return prediction;
             }
         }
-
-        return [.. predictions];
     }
 }
