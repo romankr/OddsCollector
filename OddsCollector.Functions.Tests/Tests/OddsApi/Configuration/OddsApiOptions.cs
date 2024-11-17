@@ -5,7 +5,7 @@ namespace OddsCollector.Functions.Tests.Tests.OddsApi.Configuration;
 internal class OddsApiOptions
 {
     [Test]
-    public void SetLeagues_WithOneLeague_ReturnsCorrectLeagues()
+    public void SetLeagues_WithOneLeague_ReturnsOneLeague()
     {
         var options = new OddsApiClientOptions();
 
@@ -15,7 +15,7 @@ internal class OddsApiOptions
     }
 
     [Test]
-    public void SetLeagues_WithMultipleLeagues_ReturnsCorrectLeagues()
+    public void SetLeagues_WithMultipleLeagues_ReturnsMultipleLeagues()
     {
         var options = new OddsApiClientOptions();
 
@@ -25,7 +25,7 @@ internal class OddsApiOptions
     }
 
     [Test]
-    public void SetLeagues_WithDuplicateLeagues_ReturnsOneLeague()
+    public void SetLeagues_WithDuplicateLeagues_ReturnsOnlyOneLeague()
     {
         var options = new OddsApiClientOptions();
 
@@ -35,13 +35,13 @@ internal class OddsApiOptions
     }
 
     [Test]
-    public void SetLeagues_WithEmptyLeague_ReturnsCorrectLeagues()
+    public void SetLeagues_WithEmptyLeague_ReturnsNoLeagues()
     {
         var options = new OddsApiClientOptions();
 
-        options.AddLeagues("league1;;league2");
+        options.AddLeagues(";;");
 
-        options.Leagues.Should().NotBeNull().And.BeEquivalentTo(["league1", "league2"]);
+        options.Leagues.Should().NotBeNull().And.BeEmpty();
     }
 
     [Test]
@@ -75,7 +75,7 @@ internal class OddsApiOptions
     }
 
     [Test]
-    public void SetApiKey_WithValidKey_ReturnsThisKey()
+    public void SetApiKey_WithKey_ReturnsKey()
     {
         const string key = nameof(key);
         var options = new OddsApiClientOptions();
