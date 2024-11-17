@@ -9,43 +9,64 @@ namespace OddsCollector.Functions.Tests.Tests.OddsApi.Configuration;
 internal class ServiceCollectionExtensions
 {
     [Test]
-    public void AddOddsApiClientWithDependencies_AddsProperlyConfiguredOddsApiClient()
+    public void AddOddsApiClientWithDependencies_AddsOddsApiClientOptions()
     {
-        // Arrange
         var services = new ServiceCollection();
 
-        // Act
         services.AddOddsApiClientWithDependencies("leagues", "key");
 
-        // Assert
-        var optionsDescriptor =
+        var descriptor =
             services.FirstOrDefault(
                 x => x.ServiceType == typeof(IConfigureOptions<OddsApiClientOptions>)
                      && x.Lifetime == ServiceLifetime.Singleton);
 
-        optionsDescriptor.Should().NotBeNull();
+        descriptor.Should().NotBeNull();
+    }
 
-        var httpClientDescriptor =
+    [Test]
+    public void AddOddsApiClientWithDependencies_AddsHttpClient()
+    {
+        var services = new ServiceCollection();
+
+        services.AddOddsApiClientWithDependencies("leagues", "key");
+
+        var descriptor =
             services.FirstOrDefault(
                 x => x.ServiceType == typeof(HttpClient)
                      && x.Lifetime == ServiceLifetime.Transient);
 
-        httpClientDescriptor.Should().NotBeNull();
+        descriptor.Should().NotBeNull();
+    }
 
-        var clientDescriptor =
+    [Test]
+    public void AddOddsApiClientWithDependencies_AddsClient()
+    {
+        var services = new ServiceCollection();
+
+        services.AddOddsApiClientWithDependencies("leagues", "key");
+
+        var descriptor =
             services.FirstOrDefault(
                 x => x.ImplementationType == typeof(Client)
                      && x.ServiceType == typeof(IClient)
                      && x.Lifetime == ServiceLifetime.Singleton);
 
-        clientDescriptor.Should().NotBeNull();
+        descriptor.Should().NotBeNull();
+    }
 
-        var oddsApiClientDescriptor =
+    [Test]
+    public void AddOddsApiClientWithDependencies_AddsOddsApiClient()
+    {
+        var services = new ServiceCollection();
+
+        services.AddOddsApiClientWithDependencies("leagues", "key");
+
+        var descriptor =
             services.FirstOrDefault(
                 x => x.ImplementationType == typeof(OddsCollector.Functions.OddsApi.OddsApiClient)
                      && x.ServiceType == typeof(IOddsApiClient)
                      && x.Lifetime == ServiceLifetime.Singleton);
 
-        oddsApiClientDescriptor.Should().NotBeNull();
+        descriptor.Should().NotBeNull();
     }
 }
