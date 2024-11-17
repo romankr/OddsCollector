@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Hosting;
 
 [assembly: InternalsVisibleTo("OddsCollector.Functions.Tests")]
@@ -7,6 +8,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace OddsCollector.Functions;
 
+[ExcludeFromCodeCoverage]
 internal static class Program
 {
     private static void Main()

@@ -19,6 +19,7 @@
 
 namespace OddsCollector.Functions.OddsApi.WebApi
 {
+    using System.Diagnostics.CodeAnalysis;
     using System = global::System;
 
     [System.CodeDom.Compiler.GeneratedCode("NSwag", "13.20.0.0 (NJsonSchema v10.9.0.0 (Newtonsoft.Json v13.0.0.0))")]
@@ -97,6 +98,7 @@ namespace OddsCollector.Functions.OddsApi.WebApi
 
     }
 
+    [ExcludeFromCodeCoverage]
     [System.CodeDom.Compiler.GeneratedCode("NSwag", "13.20.0.0 (NJsonSchema v10.9.0.0 (Newtonsoft.Json v13.0.0.0))")]
     internal partial class Client : IClient
     {
@@ -524,6 +526,7 @@ namespace OddsCollector.Functions.OddsApi.WebApi
             }
         }
 
+        [ExcludeFromCodeCoverage]
         protected struct ObjectResponseResult<T>
         {
             public ObjectResponseResult(T responseObject, string responseText)
@@ -624,6 +627,7 @@ namespace OddsCollector.Functions.OddsApi.WebApi
         }
     }
 
+    [ExcludeFromCodeCoverage]
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.20.0.0 (NJsonSchema v10.9.0.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class Outcome
     {
@@ -665,6 +669,7 @@ namespace OddsCollector.Functions.OddsApi.WebApi
 
     }
 
+    [ExcludeFromCodeCoverage]
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.20.0.0 (NJsonSchema v10.9.0.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class ScoreModel
     {
@@ -760,6 +765,7 @@ namespace OddsCollector.Functions.OddsApi.WebApi
 
     }
 
+    [ExcludeFromCodeCoverage]
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.20.0.0 (NJsonSchema v10.9.0.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class Anonymous
     {
@@ -821,6 +827,7 @@ namespace OddsCollector.Functions.OddsApi.WebApi
 
     }
 
+    [ExcludeFromCodeCoverage]
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.20.0.0 (NJsonSchema v10.9.0.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class Anonymous2
     {
@@ -871,6 +878,7 @@ namespace OddsCollector.Functions.OddsApi.WebApi
 
     }
 
+    [ExcludeFromCodeCoverage]
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.20.0.0 (NJsonSchema v10.9.0.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class Anonymous3
     {
@@ -943,6 +951,7 @@ namespace OddsCollector.Functions.OddsApi.WebApi
 
     }
 
+    [ExcludeFromCodeCoverage]
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.20.0.0 (NJsonSchema v10.9.0.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class Bookmakers
     {
@@ -993,6 +1002,7 @@ namespace OddsCollector.Functions.OddsApi.WebApi
 
     }
 
+    [ExcludeFromCodeCoverage]
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.20.0.0 (NJsonSchema v10.9.0.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class Markets2
     {
@@ -1044,7 +1054,7 @@ namespace OddsCollector.Functions.OddsApi.WebApi
     }
 
 
-
+    [ExcludeFromCodeCoverage]
     [System.CodeDom.Compiler.GeneratedCode("NSwag", "13.20.0.0 (NJsonSchema v10.9.0.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class ApiException : System.Exception
     {
@@ -1068,6 +1078,7 @@ namespace OddsCollector.Functions.OddsApi.WebApi
         }
     }
 
+    [ExcludeFromCodeCoverage]
     [System.CodeDom.Compiler.GeneratedCode("NSwag", "13.20.0.0 (NJsonSchema v10.9.0.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class ApiException<TResult> : ApiException
     {
