@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using FluentAssertions.Execution;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using NSubstitute.ExceptionExtensions;
 using OddsCollector.Functions.Models;
@@ -29,8 +30,12 @@ internal class UpcomingEventsFunction
         eventResults.Should().NotBeNull().And.BeEquivalentTo(expectedEventResults);
 
         loggerMock.Collector.Count.Should().Be(1);
-        loggerMock.LatestRecord.Level.Should().Be(LogLevel.Information);
-        loggerMock.LatestRecord.Message.Should().Be("1 event(s) received");
+
+        using (var scope = new AssertionScope())
+        {
+            loggerMock.LatestRecord.Level.Should().Be(LogLevel.Information);
+            loggerMock.LatestRecord.Message.Should().Be("1 event(s) received");
+        }
     }
 
     [Test]
@@ -54,9 +59,13 @@ internal class UpcomingEventsFunction
         eventResults.Should().NotBeNull().And.BeEmpty();
 
         loggerMock.Collector.Count.Should().Be(1);
-        loggerMock.LatestRecord.Level.Should().Be(LogLevel.Error);
-        loggerMock.LatestRecord.Message.Should().Be("Failed to get events");
-        loggerMock.LatestRecord.Exception.Should().Be(exception);
+
+        using (var scope = new AssertionScope())
+        {
+            loggerMock.LatestRecord.Level.Should().Be(LogLevel.Error);
+            loggerMock.LatestRecord.Message.Should().Be("Failed to get events");
+            loggerMock.LatestRecord.Exception.Should().Be(exception);
+        }
     }
 
     [Test]
@@ -80,7 +89,11 @@ internal class UpcomingEventsFunction
         eventResults.Should().NotBeNull().And.BeEquivalentTo(expectedEventResults);
 
         loggerMock.Collector.Count.Should().Be(1);
-        loggerMock.LatestRecord.Level.Should().Be(LogLevel.Warning);
-        loggerMock.LatestRecord.Message.Should().Be("No events received");
+
+        using (var scope = new AssertionScope())
+        {
+            loggerMock.LatestRecord.Level.Should().Be(LogLevel.Warning);
+            loggerMock.LatestRecord.Message.Should().Be("No events received");
+        }
     }
 }
