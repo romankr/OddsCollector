@@ -53,4 +53,20 @@ internal class ServiceCollectionExtensions
 
         descriptor.Should().NotBeNull();
     }
+
+    [Test]
+    public void AddFunctionProcessors_AddsPredictionHttpRequestProcessor()
+    {
+        var services = new ServiceCollection();
+
+        services.AddFunctionProcessors();
+
+        var descriptor =
+            services.FirstOrDefault(
+                x => x.ServiceType == typeof(IPredictionHttpRequestProcessor)
+                     && x.ImplementationType == typeof(OddsCollector.Functions.Processors.PredictionHttpRequestProcessor)
+                     && x.Lifetime == ServiceLifetime.Singleton);
+
+        descriptor.Should().NotBeNull();
+    }
 }

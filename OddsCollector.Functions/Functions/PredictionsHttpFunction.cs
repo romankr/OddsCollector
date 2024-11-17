@@ -1,15 +1,15 @@
 ﻿using System.Net;
-using System.Text.Json;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using OddsCollector.Functions.Models;
+using OddsCollector.Functions.Processors;
 
 namespace OddsCollector.Functions.Functions;
 
-internal class PredictionsHttpFunction(ILogger<PredictionsHttpFunction> logger)
+internal class PredictionsHttpFunction(ILogger<PredictionsHttpFunction> logger, IPredictionHttpRequestProcessor processor)
 {
-    private static readonly JsonSerializerOptions SerializerOptions = new() { WriteIndented = true };
+    private const string ErrorMessage = "Failed to get predictions";
 
     [Function(nameof(PredictionsHttpFunction))]
     public HttpResponseData Run(
@@ -24,17 +24,15 @@ internal class PredictionsHttpFunction(ILogger<PredictionsHttpFunction> logger)
     {
         try
         {
-            var serialized = JsonSerializer.Serialize(predictions, SerializerOptions);
+            var serialized = processor.Serialize(predictions);
 
             return CreateResponse(HttpStatusCode.OK, request, serialized);
         }
         catch (Exception exception)
         {
-            const string message = "Failed to return predictions";
+            logger.LogError(exception, ErrorMessage);
 
-            logger.LogError(exception, message);
-
-            return CreateResponse(HttpStatusCode.InternalServerError, request, message);
+            return CreateResponse(HttpStatusCode.InternalServerError, request, ErrorMessage);
         }
     }
 

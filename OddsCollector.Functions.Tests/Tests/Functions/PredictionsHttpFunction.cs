@@ -1,55 +1,71 @@
 ﻿using System.Net;
-using System.Text.Json;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.Functions.Worker.Http;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Testing;
+using NSubstitute.ExceptionExtensions;
 using OddsCollector.Functions.Models;
-using OddsCollector.Functions.Tests.Infrastructure.Data;
-using OddsCollector.Functions.Tests.Infrastructure.Logger;
+using OddsCollector.Functions.Processors;
+using OddsCollector.Functions.Tests.Infrastructure.Http;
 
 namespace OddsCollector.Functions.Tests.Tests.Functions;
 
 internal class PredictionsHttpFunction
 {
     [Test]
-    public void Run_WithValidArguments_ReturnsValidResponse()
+    public void Run_WithPredictions_ReturnsSuccessfullHttpResponse()
     {
         // Arrange
-        var loggerStub = LoggerFactory.GetLoggerMock<OddsCollector.Functions.Functions.PredictionsHttpFunction>();
+        var loggerStub = new FakeLogger<OddsCollector.Functions.Functions.PredictionsHttpFunction>();
 
-        var function = new OddsCollector.Functions.Functions.PredictionsHttpFunction(loggerStub);
+        const string expectedString = "{}";
 
-        var contextStub = Substitute.For<FunctionContext>();
+        var processorStub = Substitute.For<IPredictionHttpRequestProcessor>();
 
-        var headersMock = Substitute.For<HttpHeadersCollection>();
+        processorStub.Serialize(Arg.Any<EventPrediction[]>()).Returns(expectedString);
 
-        var responseStream = new MemoryStream();
+        var requestStub = HttpRequestDataFactory.Create();
 
-        var responseMock = Substitute.For<HttpResponseData>(contextStub);
-        responseMock.Headers.Returns(headersMock);
-        responseMock.Body.Returns(responseStream);
-
-        var requestStub = Substitute.For<HttpRequestData>(contextStub);
-
-        requestStub.CreateResponse().Returns(responseMock);
-
-        var timestamp = DateTime.UtcNow;
-
-        var predictions =
-            new[] { new EventPredictionBuilder().SetSampleData().SetTimestamp(timestamp).Instance };
+        var function = new OddsCollector.Functions.Functions.PredictionsHttpFunction(loggerStub, processorStub);
 
         // Act
-        var response = function.Run(requestStub, predictions);
+        var response = function.Run(requestStub, []);
 
         // Assert
         response.Should().NotBeNull();
-        responseMock.StatusCode.Should().Be(HttpStatusCode.OK);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        using var reader = new StreamReader(responseMock.Body);
-        responseMock.Body.Seek(0, SeekOrigin.Begin);
-        var text = reader.ReadToEnd();
+        response.ReadBodyAsString().Should().NotBeNullOrEmpty().And.Be(expectedString);
+    }
 
-        var deserialized = JsonSerializer.Deserialize<EventPrediction[]>(text);
-        deserialized.Should().NotBeNull().And.HaveCount(1);
-        deserialized![0].Timestamp.Should().Be(timestamp);
+    [Test]
+    public void Run_WithException_ReturnsErrorHttpResponseAndLogsException()
+    {
+        // Arrange
+        var loggerMock = new FakeLogger<OddsCollector.Functions.Functions.PredictionsHttpFunction>();
+
+        var processorStub = Substitute.For<IPredictionHttpRequestProcessor>();
+
+        const string expectedErrorMessage = "Failed to get predictions";
+
+        var exception = new Exception();
+
+        processorStub.Serialize(Arg.Any<EventPrediction[]>()).Throws(exception);
+
+        var requestStub = HttpRequestDataFactory.Create();
+
+        var function = new OddsCollector.Functions.Functions.PredictionsHttpFunction(loggerMock, processorStub);
+
+        // Act
+        var response = function.Run(requestStub, []);
+
+        // Assert
+        response.Should().NotBeNull();
+        response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+
+        response.ReadBodyAsString().Should().NotBeNullOrEmpty().And.Be(expectedErrorMessage);
+
+        loggerMock.Collector.Count.Should().Be(1);
+        loggerMock.LatestRecord.Level.Should().Be(LogLevel.Error);
+        loggerMock.LatestRecord.Message.Should().Be(expectedErrorMessage);
+        loggerMock.LatestRecord.Exception.Should().Be(exception);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Azure.Messaging.ServiceBus;
+using FluentAssertions.Execution;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
@@ -35,8 +36,12 @@ internal class PredictionFunction
         predictions[0].Should().NotBeNull().And.Be(expectedPrediction);
 
         loggerMock.Collector.Count.Should().Be(1);
-        loggerMock.LatestRecord.Level.Should().Be(LogLevel.Information);
-        loggerMock.LatestRecord.Message.Should().Be("Processed 1 message(s)");
+
+        using (var scope = new AssertionScope())
+        {
+            loggerMock.LatestRecord.Level.Should().Be(LogLevel.Information);
+            loggerMock.LatestRecord.Message.Should().Be("Processed 1 message(s)");
+        }
     }
 
     [Test]
@@ -61,8 +66,12 @@ internal class PredictionFunction
         predictions.Should().NotBeNull().And.HaveCount(0);
 
         loggerMock.Collector.Count.Should().Be(1);
-        loggerMock.LatestRecord.Level.Should().Be(LogLevel.Warning);
-        loggerMock.LatestRecord.Message.Should().Be("Processed 0 messages");
+
+        using (var scope = new AssertionScope())
+        {
+            loggerMock.LatestRecord.Level.Should().Be(LogLevel.Warning);
+            loggerMock.LatestRecord.Message.Should().Be("Processed 0 messages");
+        }
     }
 
     [Test]
@@ -94,8 +103,11 @@ internal class PredictionFunction
 
         var logRecord = loggerMock.Collector.GetSnapshot()[0];
 
-        logRecord.Level.Should().Be(LogLevel.Error);
-        logRecord.Message.Should().Be($"Failed to processes message with id {expectedMessageId}");
-        logRecord.Exception.Should().Be(exception);
+        using (var scope = new AssertionScope())
+        {
+            logRecord.Level.Should().Be(LogLevel.Error);
+            logRecord.Message.Should().Be($"Failed to processes message with id {expectedMessageId}");
+            logRecord.Exception.Should().Be(exception);
+        }
     }
 }
