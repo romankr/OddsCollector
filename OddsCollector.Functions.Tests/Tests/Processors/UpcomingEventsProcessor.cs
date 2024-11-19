@@ -26,7 +26,7 @@ internal class UpcomingEventsProcessor
     }
 
     [Test]
-    public async Task GetUpcomingEventsAsync_PassesDateTime()
+    public async Task GetUpcomingEventsAsync_PassesTimestamp()
     {
         // Arrange
         var clientMock = Substitute.For<IOddsApiClient>();
@@ -42,8 +42,13 @@ internal class UpcomingEventsProcessor
 
         var arguments = calls[0].GetArguments();
         arguments.Should().NotBeNullOrEmpty().And.HaveCount(3);
+        arguments[1].Should().BeOfType<DateTime>();
 
-        arguments[1].Should().BeOfType<DateTime>().And.NotBe(DateTime.MinValue).And.NotBe(DateTime.MaxValue);
+#pragma warning disable CS8605 // Unboxing a possibly null value.
+        var timestamp = (DateTime)arguments[1];
+#pragma warning restore CS8605 // Unboxing a possibly null value.
+
+        timestamp.Should().BeCloseTo(DateTime.UtcNow, new TimeSpan(0, 0, 5));
     }
 
     [Test]

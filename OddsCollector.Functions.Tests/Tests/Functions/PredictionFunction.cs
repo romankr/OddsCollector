@@ -7,7 +7,6 @@ using NSubstitute.ExceptionExtensions;
 using OddsCollector.Functions.Models;
 using OddsCollector.Functions.Processors;
 using OddsCollector.Functions.Tests.Infrastructure.CancellationToken;
-using OddsCollector.Functions.Tests.Infrastructure.Data;
 using OddsCollector.Functions.Tests.Infrastructure.ServiceBus;
 
 namespace OddsCollector.Functions.Tests.Tests.Functions;
@@ -20,7 +19,7 @@ internal class PredictionFunction
         // Arrange
         var loggerMock = new FakeLogger<OddsCollector.Functions.Functions.PredictionFunction>();
 
-        var expectedPrediction = new EventPredictionBuilder().SetSampleData().Instance;
+        var expectedPrediction = new EventPrediction();
 
         var processorStub = Substitute.For<IPredictionProcessor>();
         processorStub.DeserializeAndCompleteMessageAsync(Arg.Any<ServiceBusReceivedMessage>(),
@@ -53,7 +52,7 @@ internal class PredictionFunction
         var processorStub = Substitute.For<IPredictionProcessor>();
         processorStub.DeserializeAndCompleteMessageAsync(Arg.Any<ServiceBusReceivedMessage>(),
             Arg.Any<ServiceBusMessageActions>(), Arg.Any<CancellationToken>())
-            .Returns(new EventPredictionBuilder().SetSampleData().Instance);
+            .Returns(new EventPrediction());
 
         var function = new OddsCollector.Functions.Functions.PredictionFunction(loggerMock, processorStub);
 
@@ -85,7 +84,7 @@ internal class PredictionFunction
         const string expectedMessageId = "123";
 
         var message = ServiceBusReceivedMessageFactory.CreateFromObject(
-            new UpcomingEventBuilder().SetSampleData().Instance, expectedMessageId);
+            new UpcomingEvent(), expectedMessageId);
 
         var processorStub = Substitute.For<IPredictionProcessor>();
         processorStub.DeserializeAndCompleteMessageAsync(Arg.Any<ServiceBusReceivedMessage>(),

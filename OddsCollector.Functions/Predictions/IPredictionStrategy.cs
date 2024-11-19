@@ -1,6 +1,6 @@
 ﻿using OddsCollector.Functions.Models;
 
-namespace OddsCollector.Functions.Strategies;
+namespace OddsCollector.Functions.Predictions;
 
 internal interface IPredictionStrategy
 {

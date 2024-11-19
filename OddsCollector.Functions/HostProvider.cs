@@ -2,8 +2,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using OddsCollector.Functions.OddsApi.Configuration;
+using OddsCollector.Functions.Predictions.Configuration;
 using OddsCollector.Functions.Processors.Configuration;
-using OddsCollector.Functions.Strategies.Configuration;
 
 namespace OddsCollector.Functions;
 

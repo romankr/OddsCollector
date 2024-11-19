@@ -1,8 +1,7 @@
 ﻿using Microsoft.Azure.Functions.Worker;
 using NSubstitute.ReceivedExtensions;
 using OddsCollector.Functions.Models;
-using OddsCollector.Functions.Strategies;
-using OddsCollector.Functions.Tests.Infrastructure.Data;
+using OddsCollector.Functions.Predictions;
 using OddsCollector.Functions.Tests.Infrastructure.ServiceBus;
 
 namespace OddsCollector.Functions.Tests.Tests.Processors;
@@ -15,16 +14,12 @@ internal class PredictionProcessor
         // Arrange
         var actionsMock = Substitute.For<ServiceBusMessageActions>();
 
-        var cancellationToken = new CancellationToken();
-
-        var upcomingEvent = new UpcomingEventBuilder().SetSampleData().Instance;
-        var expectedPrediction = new EventPredictionBuilder().SetSampleData().Instance;
-
-        var message = ServiceBusReceivedMessageFactory.CreateFromObject(upcomingEvent);
-
+        var expectedPrediction = new EventPrediction();
+        var message = ServiceBusReceivedMessageFactory.CreateFromObject(new UpcomingEvent());
         var strategyStub = Substitute.For<IPredictionStrategy>();
-        strategyStub.GetPrediction(Arg.Any<UpcomingEvent>(), Arg.Any<DateTime>())
-            .Returns(expectedPrediction);
+        strategyStub.GetPrediction(Arg.Any<UpcomingEvent>(), Arg.Any<DateTime>()).Returns(expectedPrediction);
+
+        var cancellationToken = new CancellationToken();
 
         var processor = new OddsCollector.Functions.Processors.PredictionProcessor(strategyStub);
 

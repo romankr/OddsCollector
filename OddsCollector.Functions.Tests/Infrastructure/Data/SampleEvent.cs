@@ -1,6 +1,5 @@
 ﻿using OddsCollector.Functions.Models;
 using OddsCollector.Functions.OddsApi.WebApi;
-using OddsCollector.Functions.Strategies;
 
 namespace OddsCollector.Functions.Tests.Infrastructure.Data;
 
@@ -9,7 +8,6 @@ internal static class SampleEvent
     public const string Id = "4acd8f2675ca847ba33eea3664f6c0bb";
     public const string AwayTeam = "Liverpool";
     public const string HomeTeam = "Manchester City";
-    public const string Strategy = nameof(AdjustedConsensusStrategy);
     public const string Winner = HomeTeam;
 
     public const double AwayOdd1 = 4.08;
@@ -36,18 +34,18 @@ internal static class SampleEvent
     public static readonly Guid TraceId = new("447b57dd-84bc-4e79-95d0-695f7493bf41");
     public static readonly DateTime Timestamp = new(2023, 11, 25, 15, 30, 0);
 
-    public static readonly IEnumerable<Odd> Odds = new List<Odd>
-    {
+    public static readonly IEnumerable<Odd> Odds =
+    [
         new OddBuilder().SetSampleData1().Instance,
         new OddBuilder().SetSampleData2().Instance,
         new OddBuilder().SetSampleData3().Instance
-    };
+    ];
 
     public static readonly Outcome AwayOutcome1 = new() { Name = AwayTeam, Price = AwayOdd1 };
 
     public static readonly Outcome HomeOutcome1 = new() { Name = HomeTeam, Price = HomeOdd1 };
 
-    public static readonly Outcome DrawOutcome1 = new() { Name = Constants.Draw, Price = DrawOdd1 };
+    public static readonly Outcome DrawOutcome1 = new() { Name = OutcomeTypes.Draw, Price = DrawOdd1 };
 
     public static readonly ICollection<Outcome> Outcomes1 =
     [
@@ -60,14 +58,14 @@ internal static class SampleEvent
     [
         new Outcome { Name = AwayTeam, Price = AwayOdd2 },
         new Outcome { Name = HomeTeam, Price = HomeOdd2 },
-        new Outcome { Name = Constants.Draw, Price = DrawOdd2 }
+        new Outcome { Name = OutcomeTypes.Draw, Price = DrawOdd2 }
     ];
 
     private static readonly ICollection<Outcome> Outcomes3 =
     [
         new Outcome { Name = AwayTeam, Price = AwayOdd3 },
         new Outcome { Name = HomeTeam, Price = HomeOdd3 },
-        new Outcome { Name = Constants.Draw, Price = DrawOdd3 }
+        new Outcome { Name = OutcomeTypes.Draw, Price = DrawOdd3 }
     ];
 
     public static readonly ICollection<Bookmakers> Bookmakers =
