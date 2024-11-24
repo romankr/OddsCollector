@@ -1,7 +1,7 @@
 ﻿using Azure.Messaging.ServiceBus;
 using Microsoft.Azure.Functions.Worker;
 using OddsCollector.Functions.Models;
-using OddsCollector.Functions.Strategies;
+using OddsCollector.Functions.Predictions;
 
 namespace OddsCollector.Functions.Processors;
 

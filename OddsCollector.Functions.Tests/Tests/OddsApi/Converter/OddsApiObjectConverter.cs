@@ -247,7 +247,7 @@ internal class OddsApiObjectConverter
                                             [
                                                 SampleEvent.AwayOutcome1,
                                                 SampleEvent.HomeOutcome1,
-                                                new Outcome { Name = Constants.Draw, Price = null }
+                                                new Outcome { Name = OutcomeTypes.Draw, Price = null }
                                             ]
                                         }
                                     ]
@@ -458,7 +458,7 @@ internal class OddsApiObjectConverter
             .BeEquivalentTo(new EventResultBuilder().SetSampleData().SetWinner(SampleEvent.AwayTeam).Instance);
 
         eventResults.ElementAt(2).Should().NotBeNull().And
-            .BeEquivalentTo(new EventResultBuilder().SetSampleData().SetWinner(Constants.Draw).Instance);
+            .BeEquivalentTo(new EventResultBuilder().SetSampleData().SetWinner(OutcomeTypes.Draw).Instance);
     }
 
     [Test]

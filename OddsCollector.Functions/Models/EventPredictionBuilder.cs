@@ -13,15 +13,6 @@ internal class EventPredictionBuilder
         return this;
     }
 
-    public EventPredictionBuilder SetBookmaker(string? bookmaker)
-    {
-        ArgumentException.ThrowIfNullOrEmpty(bookmaker);
-
-        Instance.Bookmaker = bookmaker;
-
-        return this;
-    }
-
     public EventPredictionBuilder SetCommenceTime(DateTime? commenceTime)
     {
         ArgumentNullException.ThrowIfNull(commenceTime);
@@ -45,15 +36,6 @@ internal class EventPredictionBuilder
         ArgumentException.ThrowIfNullOrEmpty(id);
 
         Instance.Id = id;
-
-        return this;
-    }
-
-    public EventPredictionBuilder SetStrategy(string? strategy)
-    {
-        ArgumentException.ThrowIfNullOrEmpty(strategy);
-
-        Instance.Strategy = strategy;
 
         return this;
     }

@@ -85,7 +85,7 @@ internal class OddsApiObjectConverter : IOddsApiObjectConverter
             .SetBookmaker(bookmaker)
             .SetHome(GetScore(outcomes, homeTeam))
             .SetAway(GetScore(outcomes, awayTeam))
-            .SetDraw(GetScore(outcomes, Constants.Draw)).Instance;
+            .SetDraw(GetScore(outcomes, OutcomeTypes.Draw)).Instance;
     }
 
     private static double? GetScore(IEnumerable<Outcome> outcomes, string oddType)
@@ -159,7 +159,7 @@ internal class OddsApiObjectConverter : IOddsApiObjectConverter
 
         if (awayScore == homeScore)
         {
-            return Constants.Draw;
+            return OutcomeTypes.Draw;
         }
 
         return awayScore > homeScore ? awayTeam : homeTeam;
