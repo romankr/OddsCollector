@@ -8,9 +8,7 @@ internal static class HttpRequestDataFactory
     public static HttpRequestData Create()
     {
         var context = Substitute.For<FunctionContext>();
-
         var headers = Substitute.For<HttpHeadersCollection>();
-
         var stream = new MemoryStream();
 
         var response = Substitute.For<HttpResponseData>(context);
@@ -18,9 +16,7 @@ internal static class HttpRequestDataFactory
         response.Body.Returns(stream);
 
         var request = Substitute.For<HttpRequestData>(context);
-
         request.CreateResponse().Returns(response);
-
         return request;
     }
 }

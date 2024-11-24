@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using OddsCollector.Functions.OddsApi.Converter;
+using OddsCollector.Functions.OddsApi.Clients;
+using OddsCollector.Functions.OddsApi.Converters;
 using OddsCollector.Functions.OddsApi.WebApi;
 
 namespace OddsCollector.Functions.OddsApi.Configuration;
@@ -18,7 +19,9 @@ internal static class ServiceCollectionExtensions
 
         services.AddHttpClient<Client>();
         services.AddSingleton<IClient, Client>();
-        services.AddSingleton<IOddsApiObjectConverter, OddsApiObjectConverter>();
-        services.AddSingleton<IOddsApiClient, OddsApiClient>();
+        services.AddSingleton<IOddsConverter, OddsConverter>();
+        services.AddSingleton<IScoresConverter, ScoresConverter>();
+        services.AddSingleton<IUpcomingEventsClient, UpcomingEventsClient>();
+        services.AddSingleton<IEventResultsClient, EventResultsClient>();
     }
 }

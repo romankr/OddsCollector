@@ -1,11 +1,11 @@
 ﻿using Microsoft.Extensions.Options;
 using OddsCollector.Functions.Models;
 using OddsCollector.Functions.OddsApi.Configuration;
-using OddsCollector.Functions.OddsApi.Converter;
+using OddsCollector.Functions.OddsApi.Converters;
 using OddsCollector.Functions.OddsApi.WebApi;
 using OddsCollector.Functions.Tests.Infrastructure.CancellationToken;
 
-namespace OddsCollector.Functions.Tests.Tests.OddsApi;
+namespace OddsCollector.Functions.Tests.Tests.OddsApi.Clients;
 
 internal class OddsApiClient
 {

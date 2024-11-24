@@ -2,7 +2,7 @@
 using OddsCollector.Functions.OddsApi.WebApi;
 using OddsCollector.Functions.Tests.Infrastructure.Data;
 
-namespace OddsCollector.Functions.Tests.Tests.OddsApi.Converter;
+namespace OddsCollector.Functions.Tests.Tests.OddsApi.Converters;
 
 internal class OddsApiObjectConverter
 {

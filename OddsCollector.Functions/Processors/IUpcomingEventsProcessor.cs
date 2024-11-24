@@ -4,5 +4,5 @@ namespace OddsCollector.Functions.Processors;
 
 internal interface IUpcomingEventsProcessor
 {
-    Task<IEnumerable<UpcomingEvent>> GetUpcomingEventsAsync(CancellationToken cancellationToken);
+    IAsyncEnumerable<UpcomingEvent> GetUpcomingEventsAsync(CancellationToken cancellationToken);
 }

@@ -1,4 +1,4 @@
-﻿using OddsCollector.Functions.OddsApi;
+﻿using OddsCollector.Functions.OddsApi.Clients;
 
 namespace OddsCollector.Functions.Tests.Tests.Processors;
 
@@ -8,7 +8,7 @@ internal class EventResultProcessor
     public async Task GetEventResultsAsync_PassesTraceId()
     {
         // Arrange
-        var clientMock = Substitute.For<IOddsApiClient>();
+        var clientMock = Substitute.For<IEventResultsClient>();
 
         var processor = new OddsCollector.Functions.Processors.EventResultProcessor(clientMock);
 
@@ -29,7 +29,7 @@ internal class EventResultProcessor
     public async Task GetEventResultsAsync_PassesDateTime()
     {
         // Arrange
-        var clientMock = Substitute.For<IOddsApiClient>();
+        var clientMock = Substitute.For<IEventResultsClient>();
 
         var processor = new OddsCollector.Functions.Processors.EventResultProcessor(clientMock);
 
@@ -57,7 +57,7 @@ internal class EventResultProcessor
         // Arrange
         var cancellationToken = new CancellationToken();
 
-        var clientMock = Substitute.For<IOddsApiClient>();
+        var clientMock = Substitute.For<IEventResultsClient>();
 
         var processor = new OddsCollector.Functions.Processors.EventResultProcessor(clientMock);
 
