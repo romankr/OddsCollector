@@ -2,7 +2,7 @@
 
 namespace OddsCollector.Functions.Models;
 
-internal class EventPrediction
+internal sealed class EventPrediction
 {
     // duplicating information to avoid complex cosmosdb queries
     public string AwayTeam { get; set; } = string.Empty;

@@ -4,7 +4,7 @@ using OddsCollector.Functions.Processors.Configuration;
 
 namespace OddsCollector.Functions.Tests.Tests.Processors.Configuration;
 
-internal class ServiceCollectionExtensions
+internal sealed class ServiceCollectionExtensions
 {
     [Test]
     public void AddFunctionProcessors_AddsEventResultProcessor()

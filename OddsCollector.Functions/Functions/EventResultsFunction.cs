@@ -5,7 +5,7 @@ using OddsCollector.Functions.Processors;
 
 namespace OddsCollector.Functions.Functions;
 
-internal class EventResultsFunction(ILogger<EventResultsFunction> logger, IEventResultProcessor processor)
+internal sealed class EventResultsFunction(ILogger<EventResultsFunction> logger, IEventResultProcessor processor)
 {
     [Function(nameof(EventResultsFunction))]
     [CosmosDBOutput("%CosmosDb:Database%", "%CosmosDb:EventResultsContainer%",

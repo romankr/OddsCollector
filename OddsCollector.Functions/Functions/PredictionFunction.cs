@@ -7,7 +7,7 @@ using OddsCollector.Functions.Processors;
 
 namespace OddsCollector.Functions.Functions;
 
-internal class PredictionFunction(ILogger<PredictionFunction> logger, IPredictionProcessor processor)
+internal sealed class PredictionFunction(ILogger<PredictionFunction> logger, IPredictionProcessor processor)
 {
     [Function(nameof(PredictionFunction))]
     [CosmosDBOutput("%CosmosDb:Database%", "%CosmosDb:EventPredictionsContainer%",

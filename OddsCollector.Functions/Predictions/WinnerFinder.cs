@@ -2,7 +2,7 @@
 
 namespace OddsCollector.Functions.Predictions;
 
-internal class WinnerFinder(IScoreCalculator calculator) : IWinnerFinder
+internal sealed class WinnerFinder(IScoreCalculator calculator) : IWinnerFinder
 {
     public string GetWinner(ICollection<Odd> odds)
     {

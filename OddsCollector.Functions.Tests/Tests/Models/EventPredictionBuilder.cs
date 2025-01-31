@@ -1,6 +1,6 @@
 ﻿namespace OddsCollector.Functions.Tests.Tests.Models;
 
-internal class EventPredictionBuilder
+internal sealed class EventPredictionBuilder
 {
     [TestCase("", TestName = "SetId_WithEmptyString_ThrowsException")]
     [TestCase(null, TestName = "SetId_WithNullString_ThrowsException")]

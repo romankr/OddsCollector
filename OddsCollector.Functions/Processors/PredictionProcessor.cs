@@ -5,7 +5,7 @@ using OddsCollector.Functions.Predictions;
 
 namespace OddsCollector.Functions.Processors;
 
-internal class PredictionProcessor(IPredictionStrategy strategy) : IPredictionProcessor
+internal sealed class PredictionProcessor(IPredictionStrategy strategy) : IPredictionProcessor
 {
     public async Task<EventPrediction> DeserializeAndCompleteMessageAsync(ServiceBusReceivedMessage message,
         ServiceBusMessageActions messageActions, CancellationToken cancellationToken)

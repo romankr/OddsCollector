@@ -3,7 +3,7 @@ using OddsCollector.Functions.Models;
 
 namespace OddsCollector.Functions.Tests.Tests.Processors;
 
-internal class PredictionHttpRequestProcessor
+internal sealed class PredictionHttpRequestProcessor
 {
     [Test]
     public void Serialize_WithPredictions_ReturnsSerializedAsArray()

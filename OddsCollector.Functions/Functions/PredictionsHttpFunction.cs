@@ -7,7 +7,7 @@ using OddsCollector.Functions.Processors;
 
 namespace OddsCollector.Functions.Functions;
 
-internal class PredictionsHttpFunction(ILogger<PredictionsHttpFunction> logger, IPredictionHttpRequestProcessor processor)
+internal sealed class PredictionsHttpFunction(ILogger<PredictionsHttpFunction> logger, IPredictionHttpRequestProcessor processor)
 {
     private const string ErrorMessage = "Failed to get predictions";
 

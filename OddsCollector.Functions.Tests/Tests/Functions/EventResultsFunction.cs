@@ -8,7 +8,7 @@ using OddsCollector.Functions.Processors;
 
 namespace OddsCollector.Functions.Tests.Tests.Functions;
 
-internal class EventResultsFunction
+internal sealed class EventResultsFunction
 {
     [Test]
     public async Task Run_WithValidMessages_ReturnsEventResultListAndLogsCount()

@@ -1,6 +1,6 @@
 ﻿namespace OddsCollector.Functions.Models;
 
-internal class UpcomingEventBuilder
+internal sealed class UpcomingEventBuilder
 {
     public UpcomingEvent Instance { get; } = new();
 

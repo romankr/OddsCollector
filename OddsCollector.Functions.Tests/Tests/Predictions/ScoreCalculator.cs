@@ -3,7 +3,7 @@ using OddsCollector.Functions.Models;
 
 namespace OddsCollector.Functions.Tests.Tests.Predictions;
 
-internal class ScoreCalculator
+internal sealed class ScoreCalculator
 {
     [Test]
     public void GetScores_WithOdds_ReturnsAdjustedConsensusScoresForDraw()

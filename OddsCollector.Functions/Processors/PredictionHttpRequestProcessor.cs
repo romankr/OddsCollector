@@ -3,7 +3,7 @@ using OddsCollector.Functions.Models;
 
 namespace OddsCollector.Functions.Processors;
 
-internal class PredictionHttpRequestProcessor : IPredictionHttpRequestProcessor
+internal sealed class PredictionHttpRequestProcessor : IPredictionHttpRequestProcessor
 {
     private static readonly JsonSerializerOptions SerializerOptions = new() { WriteIndented = true };
 

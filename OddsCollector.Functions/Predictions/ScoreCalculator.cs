@@ -2,7 +2,7 @@
 
 namespace OddsCollector.Functions.Predictions;
 
-internal class ScoreCalculator : IScoreCalculator
+internal sealed class ScoreCalculator : IScoreCalculator
 {
     public OutcomeScore[] GetScores(ICollection<Odd> odds)
     {

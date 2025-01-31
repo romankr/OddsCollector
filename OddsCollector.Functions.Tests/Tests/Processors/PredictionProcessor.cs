@@ -6,7 +6,7 @@ using OddsCollector.Functions.Tests.Infrastructure.ServiceBus;
 
 namespace OddsCollector.Functions.Tests.Tests.Processors;
 
-internal class PredictionProcessor
+internal sealed class PredictionProcessor
 {
     [Test]
     public async Task DeserializeAndCompleteMessageAsync_WithServiceBusMessage_ReturnsPredictionAndCompletesMessage()

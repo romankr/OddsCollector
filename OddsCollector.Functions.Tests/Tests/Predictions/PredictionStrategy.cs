@@ -4,7 +4,7 @@ using OddsCollector.Functions.Predictions;
 
 namespace OddsCollector.Functions.Tests.Tests.Predictions;
 
-internal class PredictionStrategy
+internal sealed class PredictionStrategy
 {
     [Test]
     public void GetPrediction_WithUpcomingEvent_ReturnsPrediction()
