@@ -7,6 +7,4 @@ internal class UpcomingEvent
     public string HomeTeam { get; set; } = string.Empty;
     public string Id { get; set; } = string.Empty;
     public IEnumerable<Odd> Odds { get; set; } = [];
-    public DateTime Timestamp { get; set; } = DateTime.MinValue;
-    public Guid TraceId { get; set; } = Guid.Empty;
 }

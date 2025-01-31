@@ -11,8 +11,6 @@ internal static class UpcomingEventBuilderExtensions
             .SetCommenceTime(SampleEvent.CommenceTime)
             .SetHomeTeam(SampleEvent.HomeTeam)
             .SetId(SampleEvent.Id)
-            .SetTimestamp(SampleEvent.Timestamp)
-            .SetTraceId(SampleEvent.TraceId)
             .SetOdds(SampleEvent.Odds);
     }
 }

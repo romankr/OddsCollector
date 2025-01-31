@@ -24,8 +24,7 @@ internal class OddsApiClient
         // ReSharper disable once CollectionNeverUpdated.Local
         List<UpcomingEvent> upcomingEvents = [];
         var converterMock = Substitute.For<IOddsApiObjectConverter>();
-        converterMock.ToUpcomingEvents(Arg.Any<ICollection<Anonymous2>?>(), Arg.Any<Guid>(), Arg.Any<DateTime>())
-            .Returns(new List<UpcomingEvent>());
+        converterMock.ToUpcomingEvents(Arg.Any<ICollection<Anonymous2>?>()).Returns(new List<UpcomingEvent>());
 
         const string secretValue = nameof(secretValue);
 
@@ -36,12 +35,10 @@ internal class OddsApiClient
         var oddsClient =
             new OddsCollector.Functions.OddsApi.OddsApiClient(optionsStub, webApiClientMock, converterMock);
 
-        var traceId = Guid.NewGuid();
-        var timestamp = DateTime.UtcNow;
         var token = new CancellationToken();
 
         // Act
-        var results = await oddsClient.GetUpcomingEventsAsync(traceId, timestamp, token);
+        var results = await oddsClient.GetUpcomingEventsAsync(token);
 
         // Assert
         results.Should().NotBeNull().And.Equal(upcomingEvents);
@@ -63,8 +60,6 @@ internal class OddsApiClient
 
         firstReceivedArguments.Should().NotBeNull();
         firstReceivedArguments[0].Should().Be(rawUpcomingEvents);
-        firstReceivedArguments[1].Should().Be(traceId);
-        firstReceivedArguments[2].Should().Be(timestamp);
     }
 
     [Test]
@@ -80,8 +75,7 @@ internal class OddsApiClient
         // ReSharper disable once CollectionNeverUpdated.Local
         List<EventResult> eventResults = [];
         var converterMock = Substitute.For<IOddsApiObjectConverter>();
-        converterMock.ToEventResults(Arg.Any<ICollection<Anonymous3>?>(), Arg.Any<Guid>(), Arg.Any<DateTime>())
-            .Returns(eventResults);
+        converterMock.ToEventResults(Arg.Any<ICollection<Anonymous3>?>()).Returns(eventResults);
 
         const string secretValue = nameof(secretValue);
 
@@ -92,12 +86,10 @@ internal class OddsApiClient
         var oddsClient =
             new OddsCollector.Functions.OddsApi.OddsApiClient(optionsStub, webApiClientMock, converterMock);
 
-        var traceId = Guid.NewGuid();
-        var timestamp = DateTime.UtcNow;
         var token = new CancellationToken();
 
         // Act
-        var results = await oddsClient.GetEventResultsAsync(traceId, timestamp, token);
+        var results = await oddsClient.GetEventResultsAsync(token);
 
         // Assert
         results.Should().NotBeNull().And.Equal(eventResults);
@@ -116,8 +108,6 @@ internal class OddsApiClient
 
         firstReceivedArguments.Should().NotBeNull();
         firstReceivedArguments[0].Should().Be(rawEventResults);
-        firstReceivedArguments[1].Should().Be(traceId);
-        firstReceivedArguments[2].Should().Be(timestamp);
     }
 
     [Test]
@@ -135,8 +125,7 @@ internal class OddsApiClient
         // ReSharper disable once CollectionNeverUpdated.Local
         List<UpcomingEvent> upcomingEvents = [];
         var converterMock = Substitute.For<IOddsApiObjectConverter>();
-        converterMock.ToUpcomingEvents(Arg.Any<ICollection<Anonymous2>?>(), Arg.Any<Guid>(), Arg.Any<DateTime>())
-            .Returns(new List<UpcomingEvent>());
+        converterMock.ToUpcomingEvents(Arg.Any<ICollection<Anonymous2>?>()).Returns(new List<UpcomingEvent>());
 
         const string secretValue = nameof(secretValue);
 
@@ -147,13 +136,10 @@ internal class OddsApiClient
         var oddsClient =
             new OddsCollector.Functions.OddsApi.OddsApiClient(optionsStub, webApiClientMock, converterMock);
 
-        var traceId = Guid.NewGuid();
-        var timestamp = DateTime.UtcNow;
-
         var cancellationToken = await CancellationTokenGenerator.GetRequestedForCancellationToken();
 
         // Act
-        var results = (await oddsClient.GetUpcomingEventsAsync(traceId, timestamp, cancellationToken)).ToList();
+        var results = (await oddsClient.GetUpcomingEventsAsync(cancellationToken)).ToList();
 
         // Assert
         results.Should().NotBeNull().And.HaveCount(0);
@@ -172,8 +158,7 @@ internal class OddsApiClient
         // ReSharper disable once CollectionNeverUpdated.Local
         List<EventResult> eventResults = [];
         var converterMock = Substitute.For<IOddsApiObjectConverter>();
-        converterMock.ToEventResults(Arg.Any<ICollection<Anonymous3>?>(), Arg.Any<Guid>(), Arg.Any<DateTime>())
-            .Returns(eventResults);
+        converterMock.ToEventResults(Arg.Any<ICollection<Anonymous3>?>()).Returns(eventResults);
 
         const string secretValue = nameof(secretValue);
 
@@ -184,13 +169,10 @@ internal class OddsApiClient
         var oddsClient =
             new OddsCollector.Functions.OddsApi.OddsApiClient(optionsStub, webApiClientMock, converterMock);
 
-        var traceId = Guid.NewGuid();
-        var timestamp = DateTime.UtcNow;
-
         var cancellationToken = await CancellationTokenGenerator.GetRequestedForCancellationToken();
 
         // Act
-        var results = (await oddsClient.GetEventResultsAsync(traceId, timestamp, cancellationToken)).ToList();
+        var results = (await oddsClient.GetEventResultsAsync(cancellationToken)).ToList();
 
         // Assert
         results.Should().NotBeNull().And.HaveCount(0);

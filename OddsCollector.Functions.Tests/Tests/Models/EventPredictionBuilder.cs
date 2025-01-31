@@ -55,24 +55,4 @@ internal class EventPredictionBuilder
 
         action.Should().Throw<ArgumentException>().WithParameterName("commenceTime");
     }
-
-    [Test]
-    public void SetTimestamp_WithNullDateTime_ThrowsException()
-    {
-        var builder = new OddsCollector.Functions.Models.EventPredictionBuilder();
-
-        var action = () => builder.SetTimestamp(null);
-
-        action.Should().Throw<ArgumentException>().WithParameterName("timestamp");
-    }
-
-    [Test]
-    public void SetTraceId_WithNullGuid_ThrowsException()
-    {
-        var builder = new OddsCollector.Functions.Models.EventPredictionBuilder();
-
-        var action = () => builder.SetTraceId(null);
-
-        action.Should().Throw<ArgumentException>().WithParameterName("traceId");
-    }
 }

@@ -7,6 +7,6 @@ internal class UpcomingEventsProcessor(IOddsApiClient client) : IUpcomingEventsP
 {
     public async Task<IEnumerable<UpcomingEvent>> GetUpcomingEventsAsync(CancellationToken cancellationToken)
     {
-        return await client.GetUpcomingEventsAsync(Guid.NewGuid(), DateTime.UtcNow, cancellationToken);
+        return await client.GetUpcomingEventsAsync(cancellationToken);
     }
 }

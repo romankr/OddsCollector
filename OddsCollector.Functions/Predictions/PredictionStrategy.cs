@@ -8,25 +8,22 @@ namespace OddsCollector.Functions.Predictions;
 /// </remarks>
 internal sealed class PredictionStrategy(IWinnerFinder finder) : IPredictionStrategy
 {
-    public EventPrediction GetPrediction(UpcomingEvent? upcomingEvent, DateTime? timestamp)
+    public EventPrediction GetPrediction(UpcomingEvent? upcomingEvent)
     {
         ArgumentNullException.ThrowIfNull(upcomingEvent);
-        ArgumentNullException.ThrowIfNull(timestamp);
 
         var winner = finder.GetWinner(upcomingEvent.Odds.ToList());
 
-        return ToEventPrediction(winner, upcomingEvent, timestamp.Value);
+        return ToEventPrediction(winner, upcomingEvent);
     }
 
-    private static EventPrediction ToEventPrediction(string winner, UpcomingEvent upcomingEvent, DateTime timestamp)
+    private static EventPrediction ToEventPrediction(string winner, UpcomingEvent upcomingEvent)
     {
         return new EventPredictionBuilder()
             .SetAwayTeam(upcomingEvent.AwayTeam)
             .SetHomeTeam(upcomingEvent.HomeTeam)
             .SetCommenceTime(upcomingEvent.CommenceTime)
             .SetId(upcomingEvent.Id)
-            .SetTimestamp(timestamp)
-            .SetTraceId(upcomingEvent.TraceId)
             .SetWinner(winner)
             .Instance;
     }

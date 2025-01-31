@@ -9,8 +9,6 @@ internal static class EventResultBuilderExtensions
         return builder
             .SetId(SampleEvent.Id)
             .SetWinner(SampleEvent.Winner)
-            .SetCommenceTime(SampleEvent.CommenceTime)
-            .SetTimestamp(SampleEvent.Timestamp)
-            .SetTraceId(SampleEvent.TraceId);
+            .SetCommenceTime(SampleEvent.CommenceTime);
     }
 }

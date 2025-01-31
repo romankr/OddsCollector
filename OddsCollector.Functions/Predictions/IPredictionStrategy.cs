@@ -4,5 +4,5 @@ namespace OddsCollector.Functions.Predictions;
 
 internal interface IPredictionStrategy
 {
-    EventPrediction GetPrediction(UpcomingEvent? upcomingEvent, DateTime? timestamp);
+    EventPrediction GetPrediction(UpcomingEvent? upcomingEvent);
 }
