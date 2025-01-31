@@ -32,11 +32,10 @@ internal class EventResultsFunction
 
         loggerMock.Collector.Count.Should().Be(1);
 
-        using (var scope = new AssertionScope())
-        {
-            loggerMock.LatestRecord.Level.Should().Be(LogLevel.Information);
-            loggerMock.LatestRecord.Message.Should().Be("1 event(s) received");
-        }
+        using var scope = new AssertionScope();
+
+        loggerMock.LatestRecord.Level.Should().Be(LogLevel.Information);
+        loggerMock.LatestRecord.Message.Should().Be("1 event(s) received");
     }
 
     [Test]
@@ -61,12 +60,11 @@ internal class EventResultsFunction
 
         loggerMock.Collector.Count.Should().Be(1);
 
-        using (var scope = new AssertionScope())
-        {
-            loggerMock.LatestRecord.Level.Should().Be(LogLevel.Error);
-            loggerMock.LatestRecord.Message.Should().Be("Failed to get events");
-            loggerMock.LatestRecord.Exception.Should().Be(exception);
-        }
+        using var scope = new AssertionScope();
+
+        loggerMock.LatestRecord.Level.Should().Be(LogLevel.Error);
+        loggerMock.LatestRecord.Message.Should().Be("Failed to get events");
+        loggerMock.LatestRecord.Exception.Should().Be(exception);
     }
 
     [Test]
@@ -93,10 +91,9 @@ internal class EventResultsFunction
 
         loggerMock.Collector.Count.Should().Be(1);
 
-        using (var scope = new AssertionScope())
-        {
-            loggerMock.LatestRecord.Level.Should().Be(LogLevel.Warning);
-            loggerMock.LatestRecord.Message.Should().Be("No events received");
-        }
+        using var scope = new AssertionScope();
+
+        loggerMock.LatestRecord.Level.Should().Be(LogLevel.Warning);
+        loggerMock.LatestRecord.Message.Should().Be("No events received");
     }
 }

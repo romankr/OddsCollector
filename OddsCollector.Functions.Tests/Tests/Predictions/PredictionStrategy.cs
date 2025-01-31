@@ -37,16 +37,15 @@ internal class PredictionStrategy
         // Assert
         prediction.Should().NotBeNull();
 
-        using (var scope = new AssertionScope())
-        {
-            prediction.AwayTeam.Should().NotBeNullOrEmpty().And.Be(expectedAwayTeam);
-            prediction.HomeTeam.Should().NotBeNullOrEmpty().And.Be(expectedHomeTeam);
-            prediction.CommenceTime.Should().Be(expectedCommenceTime);
-            prediction.Id.Should().NotBeNullOrEmpty().And.Be(expectedId);
-            prediction.TraceId.Should().Be(expectedTraceId);
-            prediction.Winner.Should().Be(expectedHomeTeam);
-            prediction.Timestamp.Should().BeCloseTo(DateTime.UtcNow, new TimeSpan(0, 0, 5));
-        }
+        using var scope = new AssertionScope();
+
+        prediction.AwayTeam.Should().NotBeNullOrEmpty().And.Be(expectedAwayTeam);
+        prediction.HomeTeam.Should().NotBeNullOrEmpty().And.Be(expectedHomeTeam);
+        prediction.CommenceTime.Should().Be(expectedCommenceTime);
+        prediction.Id.Should().NotBeNullOrEmpty().And.Be(expectedId);
+        prediction.TraceId.Should().Be(expectedTraceId);
+        prediction.Winner.Should().Be(expectedHomeTeam);
+        prediction.Timestamp.Should().BeCloseTo(DateTime.UtcNow, new TimeSpan(0, 0, 5));
     }
 
     [Test]
