@@ -7,6 +7,6 @@ internal class EventResultProcessor(IOddsApiClient client) : IEventResultProcess
 {
     public async Task<IEnumerable<EventResult>> GetEventResultsAsync(CancellationToken cancellationToken)
     {
-        return await client.GetEventResultsAsync(Guid.NewGuid(), DateTime.UtcNow, cancellationToken);
+        return await client.GetEventResultsAsync(cancellationToken);
     }
 }

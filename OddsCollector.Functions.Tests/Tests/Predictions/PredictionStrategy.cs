@@ -10,20 +10,17 @@ internal class PredictionStrategy
     public void GetPrediction_WithUpcomingEvent_ReturnsPrediction()
     {
         // Arrange
-        var expectedDateTime = DateTime.UtcNow;
         var expectedAwayTeam = "Liverpool";
         var expectedHomeTeam = "Manchester City";
         var expectedCommenceTime = new DateTime(2023, 11, 25, 12, 30, 0);
         var expectedId = Guid.NewGuid().ToString();
-        var expectedTraceId = Guid.NewGuid();
 
         var upcomingEvent = new UpcomingEvent()
         {
             AwayTeam = expectedAwayTeam,
             CommenceTime = expectedCommenceTime,
             HomeTeam = expectedHomeTeam,
-            Id = expectedId,
-            TraceId = expectedTraceId
+            Id = expectedId
         };
 
         var finderStub = Substitute.For<IWinnerFinder>();
@@ -32,7 +29,7 @@ internal class PredictionStrategy
         var strategy = new OddsCollector.Functions.Predictions.PredictionStrategy(finderStub);
 
         // Act
-        var prediction = strategy.GetPrediction(upcomingEvent, expectedDateTime);
+        var prediction = strategy.GetPrediction(upcomingEvent);
 
         // Assert
         prediction.Should().NotBeNull();
@@ -43,9 +40,7 @@ internal class PredictionStrategy
             prediction.HomeTeam.Should().NotBeNullOrEmpty().And.Be(expectedHomeTeam);
             prediction.CommenceTime.Should().Be(expectedCommenceTime);
             prediction.Id.Should().NotBeNullOrEmpty().And.Be(expectedId);
-            prediction.TraceId.Should().Be(expectedTraceId);
             prediction.Winner.Should().Be(expectedHomeTeam);
-            prediction.Timestamp.Should().BeCloseTo(DateTime.UtcNow, new TimeSpan(0, 0, 5));
         }
     }
 
@@ -56,20 +51,8 @@ internal class PredictionStrategy
 
         var strategy = new OddsCollector.Functions.Predictions.PredictionStrategy(finderStub);
 
-        var action = () => strategy.GetPrediction(null, DateTime.Now);
+        var action = () => strategy.GetPrediction(null);
 
         action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("upcomingEvent");
-    }
-
-    [Test]
-    public void GetPrediction_WithNullTimestamp_ThrowsException()
-    {
-        var finderStub = Substitute.For<IWinnerFinder>();
-
-        var strategy = new OddsCollector.Functions.Predictions.PredictionStrategy(finderStub);
-
-        var action = () => strategy.GetPrediction(new UpcomingEvent(), null);
-
-        action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("timestamp");
     }
 }

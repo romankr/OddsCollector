@@ -17,7 +17,7 @@ internal class PredictionProcessor
         var expectedPrediction = new EventPrediction();
         var message = ServiceBusReceivedMessageFactory.CreateFromObject(new UpcomingEvent());
         var strategyStub = Substitute.For<IPredictionStrategy>();
-        strategyStub.GetPrediction(Arg.Any<UpcomingEvent>(), Arg.Any<DateTime>()).Returns(expectedPrediction);
+        strategyStub.GetPrediction(Arg.Any<UpcomingEvent>()).Returns(expectedPrediction);
 
         var cancellationToken = new CancellationToken();
 

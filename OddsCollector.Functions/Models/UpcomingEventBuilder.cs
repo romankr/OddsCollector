@@ -40,24 +40,6 @@ internal class UpcomingEventBuilder
         return this;
     }
 
-    public UpcomingEventBuilder SetTimestamp(DateTime? timestamp)
-    {
-        ArgumentNullException.ThrowIfNull(timestamp);
-
-        Instance.Timestamp = timestamp.Value;
-
-        return this;
-    }
-
-    public UpcomingEventBuilder SetTraceId(Guid? traceId)
-    {
-        ArgumentNullException.ThrowIfNull(traceId);
-
-        Instance.TraceId = traceId.Value;
-
-        return this;
-    }
-
     public UpcomingEventBuilder SetOdds(IEnumerable<Odd>? odds)
     {
         ArgumentNullException.ThrowIfNull(odds);

@@ -40,24 +40,6 @@ internal class EventPredictionBuilder
         return this;
     }
 
-    public EventPredictionBuilder SetTimestamp(DateTime? timestamp)
-    {
-        ArgumentNullException.ThrowIfNull(timestamp);
-
-        Instance.Timestamp = timestamp.Value;
-
-        return this;
-    }
-
-    public EventPredictionBuilder SetTraceId(Guid? traceId)
-    {
-        ArgumentNullException.ThrowIfNull(traceId);
-
-        Instance.TraceId = traceId.Value;
-
-        return this;
-    }
-
     public EventPredictionBuilder SetWinner(string? winner)
     {
         ArgumentException.ThrowIfNullOrEmpty(winner);

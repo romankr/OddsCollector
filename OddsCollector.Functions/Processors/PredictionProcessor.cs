@@ -12,7 +12,7 @@ internal class PredictionProcessor(IPredictionStrategy strategy) : IPredictionPr
     {
         var upcomingEvent = message.Body.ToObjectFromJson<UpcomingEvent>();
 
-        var prediction = strategy.GetPrediction(upcomingEvent, DateTime.UtcNow);
+        var prediction = strategy.GetPrediction(upcomingEvent);
 
         await messageActions.CompleteMessageAsync(message, cancellationToken);
 

@@ -30,22 +30,4 @@ internal class EventResultBuilder
 
         return this;
     }
-
-    public EventResultBuilder SetTimestamp(DateTime? timestamp)
-    {
-        ArgumentNullException.ThrowIfNull(timestamp);
-
-        Instance.Timestamp = timestamp.Value;
-
-        return this;
-    }
-
-    public EventResultBuilder SetTraceId(Guid? traceId)
-    {
-        ArgumentNullException.ThrowIfNull(traceId);
-
-        Instance.TraceId = traceId.Value;
-
-        return this;
-    }
 }
