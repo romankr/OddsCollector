@@ -6,7 +6,7 @@ using OddsCollector.Functions.OddsApi.WebApi;
 
 namespace OddsCollector.Functions.Tests.Tests.OddsApi.Configuration;
 
-internal class ServiceCollectionExtensions
+internal sealed class ServiceCollectionExtensions
 {
     [Test]
     public void AddOddsApiClientWithDependencies_AddsOddsApiClientOptions()

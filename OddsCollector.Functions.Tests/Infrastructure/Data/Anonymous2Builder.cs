@@ -2,7 +2,7 @@
 
 namespace OddsCollector.Functions.Tests.Infrastructure.Data;
 
-internal class Anonymous2Builder
+internal sealed class Anonymous2Builder
 {
     public Anonymous2 Instance { get; } = new();
 

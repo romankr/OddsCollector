@@ -4,7 +4,7 @@ using OddsCollector.Functions.Tests.Infrastructure.Data;
 
 namespace OddsCollector.Functions.Tests.Tests.OddsApi.Converter;
 
-internal class OddsApiObjectConverter
+internal sealed class OddsApiObjectConverter
 {
     private static readonly
         IEnumerable<(ICollection<Anonymous2>? OriginalEvents, Type ExceptionType, string ParameterName)>
@@ -379,8 +379,7 @@ internal class OddsApiObjectConverter
 
         // Act
         var upcomingEvents =
-            converter.ToUpcomingEvents(rawUpcomingEvents, SampleEvent.TraceId, SampleEvent.Timestamp)
-                .ToList();
+            converter.ToUpcomingEvents(rawUpcomingEvents).ToList();
 
         // Assert
         upcomingEvents.Should().NotBeNull().And.HaveCount(2);
@@ -399,8 +398,7 @@ internal class OddsApiObjectConverter
         var converter = new OddsCollector.Functions.OddsApi.Converter.OddsApiObjectConverter();
 
         // Act
-        var upcomingEvents =
-            converter.ToUpcomingEvents([], SampleEvent.TraceId, SampleEvent.Timestamp).ToList();
+        var upcomingEvents = converter.ToUpcomingEvents([]).ToList();
 
         // Assert
         upcomingEvents.Should().NotBeNull().And.BeEmpty();
@@ -416,9 +414,8 @@ internal class OddsApiObjectConverter
         // Act & Assert
         Assert.Throws(
             testCase.ExceptionType,
-            () => converter.ToUpcomingEvents(testCase.OriginalEvents, SampleEvent.TraceId, SampleEvent.Timestamp)
-                // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
-                .ToList());
+            // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
+            () => converter.ToUpcomingEvents(testCase.OriginalEvents).ToList());
     }
 
     [Test]
@@ -444,9 +441,7 @@ internal class OddsApiObjectConverter
         ];
 
         // Act
-        var eventResults =
-            converter.ToEventResults(rawEventResults, SampleEvent.TraceId, SampleEvent.Timestamp)
-                .ToList();
+        var eventResults = converter.ToEventResults(rawEventResults).ToList();
 
         // Assert
         eventResults.Should().NotBeNull().And.HaveCount(3);
@@ -468,8 +463,7 @@ internal class OddsApiObjectConverter
         var converter = new OddsCollector.Functions.OddsApi.Converter.OddsApiObjectConverter();
 
         // Act
-        var eventResults =
-            converter.ToEventResults([], SampleEvent.TraceId, SampleEvent.Timestamp);
+        var eventResults = converter.ToEventResults([]);
 
         // Assert
         eventResults.Should().NotBeNull().And.BeEmpty();
@@ -488,8 +482,7 @@ internal class OddsApiObjectConverter
         ];
 
         // Act
-        var eventResults =
-            converter.ToEventResults(rawEventResults, SampleEvent.TraceId, SampleEvent.Timestamp);
+        var eventResults = converter.ToEventResults(rawEventResults);
 
         // Assert
         eventResults.Should().NotBeNull().And.BeEmpty();
@@ -511,9 +504,7 @@ internal class OddsApiObjectConverter
         ];
 
         // Act
-        var eventResults =
-            converter.ToEventResults(rawEventResults, SampleEvent.TraceId, SampleEvent.Timestamp)
-                .ToList();
+        var eventResults = converter.ToEventResults(rawEventResults).ToList();
 
         // Assert
         eventResults.Should().NotBeNull().And.HaveCount(1);
@@ -532,8 +523,7 @@ internal class OddsApiObjectConverter
         // Act & Assert
         Assert.Throws(
             testCase.ExceptionType,
-            () => converter.ToEventResults(testCase.OriginalEvents, SampleEvent.TraceId, SampleEvent.Timestamp)
-                // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
-                .ToList());
+            // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
+            () => converter.ToEventResults(testCase.OriginalEvents).ToList());
     }
 }

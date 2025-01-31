@@ -4,28 +4,27 @@ using OddsCollector.Functions.OddsApi.WebApi;
 
 namespace OddsCollector.Functions.OddsApi.Converter;
 
-internal class OddsApiObjectConverter : IOddsApiObjectConverter
+internal sealed class OddsApiObjectConverter : IOddsApiObjectConverter
 {
     private const Markets2Key HeadToHeadMarketKey = Markets2Key.H2h;
 
-    public IEnumerable<UpcomingEvent> ToUpcomingEvents(ICollection<Anonymous2>? events, Guid traceId,
-        DateTime timestamp)
+    public IEnumerable<UpcomingEvent> ToUpcomingEvents(ICollection<Anonymous2>? events)
     {
         ArgumentNullException.ThrowIfNull(events);
 
-        return events.Select(e => ToUpcomingEvent(e, traceId, timestamp));
+        return events.Select(e => ToUpcomingEvent(e));
     }
 
-    public IEnumerable<EventResult> ToEventResults(ICollection<Anonymous3>? events, Guid traceId, DateTime timestamp)
+    public IEnumerable<EventResult> ToEventResults(ICollection<Anonymous3>? events)
     {
         ArgumentNullException.ThrowIfNull(events);
 
         return events
             .Where(r => r.Completed is not null && r.Completed.Value)
-            .Select(r => ToEventResult(r, traceId, timestamp));
+            .Select(r => ToEventResult(r));
     }
 
-    private static UpcomingEvent ToUpcomingEvent(Anonymous2? upcomingEvent, Guid traceId, DateTime timestamp)
+    private static UpcomingEvent ToUpcomingEvent(Anonymous2? upcomingEvent)
     {
         ArgumentNullException.ThrowIfNull(upcomingEvent);
 
@@ -34,8 +33,6 @@ internal class OddsApiObjectConverter : IOddsApiObjectConverter
             .SetHomeTeam(upcomingEvent.Home_team)
             .SetId(upcomingEvent.Id)
             .SetCommenceTime(upcomingEvent.Commence_time)
-            .SetTimestamp(timestamp)
-            .SetTraceId(traceId)
             .SetOdds(
                 ToOdds(upcomingEvent.Bookmakers, upcomingEvent.Away_team, upcomingEvent.Home_team).ToList()
             )
@@ -107,13 +104,11 @@ internal class OddsApiObjectConverter : IOddsApiObjectConverter
         return matches.First().Price;
     }
 
-    private static EventResult ToEventResult(Anonymous3 eventResult, Guid traceId, DateTime timestamp)
+    private static EventResult ToEventResult(Anonymous3 eventResult)
     {
         return new EventResultBuilder()
             .SetId(eventResult.Id)
             .SetCommenceTime(eventResult.Commence_time)
-            .SetTimestamp(timestamp)
-            .SetTraceId(traceId)
             .SetWinner(GetWinner(eventResult.Scores, eventResult.Away_team, eventResult.Home_team))
             .Instance;
     }

@@ -6,7 +6,7 @@ using OddsCollector.Functions.OddsApi.WebApi;
 
 namespace OddsCollector.Functions.OddsApi;
 
-internal class OddsApiClient(
+internal sealed class OddsApiClient(
     IOptions<OddsApiClientOptions> options,
     IClient client,
     IOddsApiObjectConverter converter) : IOddsApiClient
@@ -17,8 +17,7 @@ internal class OddsApiClient(
     private const Regions EuropeanRegion = Regions.Eu;
     private const int DaysFromToday = 3;
 
-    public async Task<IEnumerable<UpcomingEvent>> GetUpcomingEventsAsync(Guid traceId, DateTime timestamp,
-        CancellationToken cancellationToken)
+    public async Task<IEnumerable<UpcomingEvent>> GetUpcomingEventsAsync(CancellationToken cancellationToken)
     {
         List<UpcomingEvent> result = [];
 
@@ -34,14 +33,13 @@ internal class OddsApiClient(
                     DecimalOddsFormat, null, null, cancellationToken)
                 .ConfigureAwait(false);
 
-            result.AddRange(converter.ToUpcomingEvents(events, traceId, timestamp));
+            result.AddRange(converter.ToUpcomingEvents(events));
         }
 
         return result;
     }
 
-    public async Task<IEnumerable<EventResult>> GetEventResultsAsync(Guid traceId, DateTime timestamp,
-        CancellationToken cancellationToken)
+    public async Task<IEnumerable<EventResult>> GetEventResultsAsync(CancellationToken cancellationToken)
     {
         List<EventResult> result = [];
 
@@ -56,7 +54,7 @@ internal class OddsApiClient(
                 await client.ScoresAsync(league, options.Value.ApiKey, DaysFromToday, cancellationToken)
                     .ConfigureAwait(false);
 
-            result.AddRange(converter.ToEventResults(results, traceId, timestamp));
+            result.AddRange(converter.ToEventResults(results));
         }
 
         return result;

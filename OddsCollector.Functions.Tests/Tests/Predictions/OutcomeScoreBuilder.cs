@@ -1,6 +1,6 @@
 ﻿namespace OddsCollector.Functions.Tests.Tests.Predictions;
 
-internal class OutcomeScoreBuilder
+internal sealed class OutcomeScoreBuilder
 {
     [TestCase("", TestName = "SetScore_WithEmptyString_ThrowsException")]
     [TestCase(null, TestName = "SetScore_WithNullString_ThrowsException")]

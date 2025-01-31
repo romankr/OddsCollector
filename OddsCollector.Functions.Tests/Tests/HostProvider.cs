@@ -1,6 +1,6 @@
 ﻿namespace OddsCollector.Functions.Tests.Tests;
 
-internal class HostProvider
+internal sealed class HostProvider
 {
     [Test]
     public void Get_ReturnsHost()

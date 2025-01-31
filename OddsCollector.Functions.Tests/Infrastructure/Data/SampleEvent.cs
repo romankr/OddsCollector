@@ -31,8 +31,6 @@ internal static class SampleEvent
     public const string AwayScore = "0";
 
     public static readonly DateTime CommenceTime = new(2023, 11, 25, 12, 30, 0);
-    public static readonly Guid TraceId = new("447b57dd-84bc-4e79-95d0-695f7493bf41");
-    public static readonly DateTime Timestamp = new(2023, 11, 25, 15, 30, 0);
 
     public static readonly IEnumerable<Odd> Odds =
     [

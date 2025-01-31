@@ -1,6 +1,6 @@
 ﻿namespace OddsCollector.Functions.Tests.Tests.Models;
 
-internal class EventPredictionBuilder
+internal sealed class EventPredictionBuilder
 {
     [TestCase("", TestName = "SetId_WithEmptyString_ThrowsException")]
     [TestCase(null, TestName = "SetId_WithNullString_ThrowsException")]
@@ -54,25 +54,5 @@ internal class EventPredictionBuilder
         var action = () => builder.SetCommenceTime(null);
 
         action.Should().Throw<ArgumentException>().WithParameterName("commenceTime");
-    }
-
-    [Test]
-    public void SetTimestamp_WithNullDateTime_ThrowsException()
-    {
-        var builder = new OddsCollector.Functions.Models.EventPredictionBuilder();
-
-        var action = () => builder.SetTimestamp(null);
-
-        action.Should().Throw<ArgumentException>().WithParameterName("timestamp");
-    }
-
-    [Test]
-    public void SetTraceId_WithNullGuid_ThrowsException()
-    {
-        var builder = new OddsCollector.Functions.Models.EventPredictionBuilder();
-
-        var action = () => builder.SetTraceId(null);
-
-        action.Should().Throw<ArgumentException>().WithParameterName("traceId");
     }
 }

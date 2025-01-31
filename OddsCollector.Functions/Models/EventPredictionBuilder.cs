@@ -1,6 +1,6 @@
 ﻿namespace OddsCollector.Functions.Models;
 
-internal class EventPredictionBuilder
+internal sealed class EventPredictionBuilder
 {
     public EventPrediction Instance { get; } = new();
 
@@ -36,24 +36,6 @@ internal class EventPredictionBuilder
         ArgumentException.ThrowIfNullOrEmpty(id);
 
         Instance.Id = id;
-
-        return this;
-    }
-
-    public EventPredictionBuilder SetTimestamp(DateTime? timestamp)
-    {
-        ArgumentNullException.ThrowIfNull(timestamp);
-
-        Instance.Timestamp = timestamp.Value;
-
-        return this;
-    }
-
-    public EventPredictionBuilder SetTraceId(Guid? traceId)
-    {
-        ArgumentNullException.ThrowIfNull(traceId);
-
-        Instance.TraceId = traceId.Value;
 
         return this;
     }
