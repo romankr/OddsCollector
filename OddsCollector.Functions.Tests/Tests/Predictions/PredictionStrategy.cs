@@ -34,14 +34,14 @@ internal sealed class PredictionStrategy
         // Assert
         prediction.Should().NotBeNull();
 
-        using (var scope = new AssertionScope())
-        {
-            prediction.AwayTeam.Should().NotBeNullOrEmpty().And.Be(expectedAwayTeam);
-            prediction.HomeTeam.Should().NotBeNullOrEmpty().And.Be(expectedHomeTeam);
-            prediction.CommenceTime.Should().Be(expectedCommenceTime);
-            prediction.Id.Should().NotBeNullOrEmpty().And.Be(expectedId);
-            prediction.Winner.Should().Be(expectedHomeTeam);
-        }
+
+        using var scope = new AssertionScope();
+
+        prediction.AwayTeam.Should().NotBeNullOrEmpty().And.Be(expectedAwayTeam);
+        prediction.HomeTeam.Should().NotBeNullOrEmpty().And.Be(expectedHomeTeam);
+        prediction.CommenceTime.Should().Be(expectedCommenceTime);
+        prediction.Id.Should().NotBeNullOrEmpty().And.Be(expectedId);
+        prediction.Winner.Should().Be(expectedHomeTeam);
     }
 
     [Test]
