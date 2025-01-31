@@ -4,7 +4,7 @@ using OddsCollector.Functions.Tests.Infrastructure.Data;
 
 namespace OddsCollector.Functions.Tests.Tests.OddsApi.Converter;
 
-internal class OddsApiObjectConverter
+internal sealed class OddsApiObjectConverter
 {
     private static readonly
         IEnumerable<(ICollection<Anonymous2>? OriginalEvents, Type ExceptionType, string ParameterName)>

@@ -8,7 +8,7 @@ using OddsCollector.Functions.Tests.Infrastructure.Http;
 
 namespace OddsCollector.Functions.Tests.Tests.Functions;
 
-internal class PredictionsHttpFunction
+internal sealed class PredictionsHttpFunction
 {
     [Test]
     public void Run_WithPredictions_ReturnsSuccessfullHttpResponse()

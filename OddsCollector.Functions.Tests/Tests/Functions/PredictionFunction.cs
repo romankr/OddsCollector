@@ -11,7 +11,7 @@ using OddsCollector.Functions.Tests.Infrastructure.ServiceBus;
 
 namespace OddsCollector.Functions.Tests.Tests.Functions;
 
-internal class PredictionFunction
+internal sealed class PredictionFunction
 {
     [Test]
     public async Task Run_WithServiceBusMessage_ReturnsEventPredictionAndLogsCount()

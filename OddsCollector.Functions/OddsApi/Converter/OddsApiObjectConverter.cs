@@ -4,7 +4,7 @@ using OddsCollector.Functions.OddsApi.WebApi;
 
 namespace OddsCollector.Functions.OddsApi.Converter;
 
-internal class OddsApiObjectConverter : IOddsApiObjectConverter
+internal sealed class OddsApiObjectConverter : IOddsApiObjectConverter
 {
     private const Markets2Key HeadToHeadMarketKey = Markets2Key.H2h;
 

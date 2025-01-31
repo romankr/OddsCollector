@@ -3,7 +3,7 @@ using OddsCollector.Functions.Predictions;
 
 namespace OddsCollector.Functions.Tests.Tests.Predictions;
 
-internal class WinnerFinder
+internal sealed class WinnerFinder
 {
     [Test]
     public void GetWinner_WithOdds_ReturnsWinner()

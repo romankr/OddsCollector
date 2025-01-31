@@ -1,6 +1,6 @@
 ﻿namespace OddsCollector.Functions.Models;
 
-internal class EventResultBuilder
+internal sealed class EventResultBuilder
 {
     public EventResult Instance { get; } = new();
 

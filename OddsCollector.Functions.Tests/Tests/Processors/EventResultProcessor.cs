@@ -2,7 +2,7 @@
 
 namespace OddsCollector.Functions.Tests.Tests.Processors;
 
-internal class EventResultProcessor
+internal sealed class EventResultProcessor
 {
     [Test]
     public async Task GetEventResultsAsync_PassesTraceId()

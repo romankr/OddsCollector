@@ -2,7 +2,7 @@
 
 namespace OddsCollector.Functions.Tests.Tests.OddsApi.Configuration;
 
-internal class OddsApiOptions
+internal sealed class OddsApiOptions
 {
     [Test]
     public void SetLeagues_WithOneLeague_ReturnsOneLeague()

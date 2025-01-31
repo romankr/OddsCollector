@@ -1,6 +1,6 @@
 ﻿namespace OddsCollector.Functions.Predictions;
 
-internal class OutcomeScoreBuilder
+internal sealed class OutcomeScoreBuilder
 {
     public OutcomeScore Instance { get; } = new();
 

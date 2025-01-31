@@ -7,7 +7,7 @@ using OddsCollector.Functions.Tests.Infrastructure.CancellationToken;
 
 namespace OddsCollector.Functions.Tests.Tests.OddsApi;
 
-internal class OddsApiClient
+internal sealed class OddsApiClient
 {
     [Test]
     public async Task GetUpcomingEventsAsync_WithLeagues_ReturnsUpcomingEvents()

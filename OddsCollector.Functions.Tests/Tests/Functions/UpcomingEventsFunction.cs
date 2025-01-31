@@ -7,7 +7,7 @@ using OddsCollector.Functions.Processors;
 
 namespace OddsCollector.Functions.Tests.Tests.Functions;
 
-internal class UpcomingEventsFunction
+internal sealed class UpcomingEventsFunction
 {
     [Test]
     public async Task Run_WithValidMessages_ReturnsEventResultListAndLogsCount()

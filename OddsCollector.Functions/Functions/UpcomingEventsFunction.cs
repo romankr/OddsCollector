@@ -5,7 +5,7 @@ using OddsCollector.Functions.Processors;
 
 namespace OddsCollector.Functions.Functions;
 
-internal class UpcomingEventsFunction(ILogger<UpcomingEventsFunction> logger, IUpcomingEventsProcessor processor)
+internal sealed class UpcomingEventsFunction(ILogger<UpcomingEventsFunction> logger, IUpcomingEventsProcessor processor)
 {
     [Function(nameof(UpcomingEventsFunction))]
     [ServiceBusOutput("%ServiceBus:Queue%", Connection = "ServiceBus:Connection")]

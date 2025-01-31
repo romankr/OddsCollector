@@ -6,7 +6,7 @@ using OddsCollector.Functions.OddsApi.WebApi;
 
 namespace OddsCollector.Functions.OddsApi;
 
-internal class OddsApiClient(
+internal sealed class OddsApiClient(
     IOptions<OddsApiClientOptions> options,
     IClient client,
     IOddsApiObjectConverter converter) : IOddsApiClient

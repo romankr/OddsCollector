@@ -4,7 +4,7 @@ using OddsCollector.Functions.Predictions.Configuration;
 
 namespace OddsCollector.Functions.Tests.Tests.Predictions.Configuration;
 
-internal class ServiceCollectionExtensions
+internal sealed class ServiceCollectionExtensions
 {
     [Test]
     public void AddPredictionStrategy_AddsPredictionStrategy()

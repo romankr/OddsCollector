@@ -1,6 +1,6 @@
 ﻿namespace OddsCollector.Functions.Models;
 
-internal class OddBuilder
+internal sealed class OddBuilder
 {
     public Odd Instance { get; } = new();
 

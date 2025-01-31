@@ -1,6 +1,6 @@
 ﻿namespace OddsCollector.Functions.Models;
 
-internal class Odd
+internal sealed class Odd
 {
     public double Away { get; set; }
     public string Bookmaker { get; set; } = string.Empty;
