@@ -15,18 +15,7 @@ internal sealed class UpcomingEventsFunction(ILogger<UpcomingEventsFunction> log
     {
         try
         {
-            var events = (await processor.GetUpcomingEventsAsync(cancellationToken)).ToArray();
-
-            if (events.Length == 0)
-            {
-                logger.LogWarning("No events received");
-            }
-            else
-            {
-                logger.LogInformation("{Length} event(s) received", events.Length);
-            }
-
-            return events;
+            return await processor.GetUpcomingEventsAsync(cancellationToken);
         }
         catch (Exception exception)
         {

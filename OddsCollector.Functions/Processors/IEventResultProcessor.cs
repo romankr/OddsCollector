@@ -4,5 +4,5 @@ namespace OddsCollector.Functions.Processors;
 
 internal interface IEventResultProcessor
 {
-    Task<IEnumerable<EventResult>> GetEventResultsAsync(CancellationToken cancellationToken);
+    Task<EventResult[]> GetEventResultsAsync(CancellationToken cancellationToken);
 }

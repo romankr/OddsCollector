@@ -1,29 +1,67 @@
-﻿using OddsCollector.Functions.OddsApi;
+﻿using FluentAssertions.Execution;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Testing;
+using OddsCollector.Functions.Models;
+using OddsCollector.Functions.OddsApi;
 
 namespace OddsCollector.Functions.Tests.Tests.Processors;
 
 internal sealed class EventResultProcessor
 {
     [Test]
-    public async Task GetEventResultsAsync_PassesCancellationToken()
+    public async Task GetEventResultsAsync_WithNoEvents_ReturnsNoEventAngLogsWarning()
     {
         // Arrange
-        var cancellationToken = new CancellationToken();
+        IEnumerable<EventResult> expectedEventResults = [];
+
+        var loggerMock = new FakeLogger<OddsCollector.Functions.Processors.EventResultProcessor>();
 
         var clientMock = Substitute.For<IOddsApiClient>();
+        clientMock.GetEventResultsAsync(Arg.Any<CancellationToken>()).Returns(Task.FromResult(expectedEventResults));
 
-        var processor = new OddsCollector.Functions.Processors.EventResultProcessor(clientMock);
+        var processor = new OddsCollector.Functions.Processors.EventResultProcessor(loggerMock, clientMock);
 
         // Act
-        await processor.GetEventResultsAsync(cancellationToken);
+        var actualEventResults = await processor.GetEventResultsAsync(new CancellationToken());
 
         // Assert
-        var calls = clientMock.ReceivedCalls().ToList();
-        calls.Should().NotBeNullOrEmpty().And.HaveCount(1);
+        actualEventResults.Should().NotBeNull().And.BeEmpty();
 
-        var arguments = calls[0].GetArguments();
-        arguments.Should().NotBeNullOrEmpty().And.HaveCount(1);
+        loggerMock.Collector.Count.Should().Be(1);
 
-        arguments[0].Should().BeOfType<CancellationToken>().And.Be(cancellationToken);
+        using var scope = new AssertionScope();
+
+        loggerMock.LatestRecord.Level.Should().Be(LogLevel.Warning);
+        loggerMock.LatestRecord.Message.Should().Be("No events received");
+    }
+
+    [Test]
+    public async Task GetEventResultsAsync_WithSingleEvent_ReturnsSingleEventAngLogsInformation()
+    {
+        // Arrange
+        var expectedEventResult = new EventResult();
+
+        IEnumerable<EventResult> expectedEventResults = [expectedEventResult];
+
+        var loggerMock = new FakeLogger<OddsCollector.Functions.Processors.EventResultProcessor>();
+
+        var clientMock = Substitute.For<IOddsApiClient>();
+        clientMock.GetEventResultsAsync(Arg.Any<CancellationToken>()).Returns(Task.FromResult(expectedEventResults));
+
+        var processor = new OddsCollector.Functions.Processors.EventResultProcessor(loggerMock, clientMock);
+
+        // Act
+        var actualEventResults = await processor.GetEventResultsAsync(new CancellationToken());
+
+        // Assert
+        actualEventResults.Should().NotBeNull().And.HaveCount(1);
+        actualEventResults[0].Should().NotBeNull().And.Be(expectedEventResult);
+
+        loggerMock.Collector.Count.Should().Be(1);
+
+        using var scope = new AssertionScope();
+
+        loggerMock.LatestRecord.Level.Should().Be(LogLevel.Information);
+        loggerMock.LatestRecord.Message.Should().Be("1 event(s) received");
     }
 }

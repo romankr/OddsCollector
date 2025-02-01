@@ -9,8 +9,6 @@ namespace OddsCollector.Functions.Functions;
 
 internal sealed class PredictionsHttpFunction(ILogger<PredictionsHttpFunction> logger, IPredictionHttpRequestProcessor processor)
 {
-    private const string ErrorMessage = "Failed to get predictions";
-
     [Function(nameof(PredictionsHttpFunction))]
     public HttpResponseData Run(
         [HttpTrigger(AuthorizationLevel.Admin, "get")]
@@ -22,23 +20,25 @@ internal sealed class PredictionsHttpFunction(ILogger<PredictionsHttpFunction> l
             SqlQuery = "SELECT * FROM p WHERE p.CommenceTime > GetCurrentDateTime()")]
         EventPrediction[] predictions)
     {
+        HttpStatusCode statusCode;
+        string body;
+
         try
         {
-            var serialized = processor.Serialize(predictions);
-
-            return CreateResponse(HttpStatusCode.OK, request, serialized);
+            statusCode = HttpStatusCode.OK;
+            body = processor.Serialize(predictions);
         }
         catch (Exception exception)
         {
+            const string ErrorMessage = "Failed to get predictions";
+
+            statusCode = HttpStatusCode.InternalServerError;
+            body = ErrorMessage;
+
             logger.LogError(exception, ErrorMessage);
-
-            return CreateResponse(HttpStatusCode.InternalServerError, request, ErrorMessage);
         }
-    }
 
-    private static HttpResponseData CreateResponse(HttpStatusCode code, HttpRequestData request, string body)
-    {
-        var response = request.CreateResponse(code);
+        var response = request.CreateResponse(statusCode);
         response.WriteString(body);
         return response;
     }
