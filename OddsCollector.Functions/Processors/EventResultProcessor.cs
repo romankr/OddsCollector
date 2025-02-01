@@ -1,12 +1,24 @@
-﻿using OddsCollector.Functions.Models;
+﻿using Microsoft.Extensions.Logging;
+using OddsCollector.Functions.Models;
 using OddsCollector.Functions.OddsApi;
 
 namespace OddsCollector.Functions.Processors;
 
-internal sealed class EventResultProcessor(IOddsApiClient client) : IEventResultProcessor
+internal sealed class EventResultProcessor(ILogger<EventResultProcessor> logger, IOddsApiClient client) : IEventResultProcessor
 {
-    public async Task<IEnumerable<EventResult>> GetEventResultsAsync(CancellationToken cancellationToken)
+    public async Task<EventResult[]> GetEventResultsAsync(CancellationToken cancellationToken)
     {
-        return await client.GetEventResultsAsync(cancellationToken);
+        var result = (await client.GetEventResultsAsync(cancellationToken)).ToArray();
+
+        if (result.Length == 0)
+        {
+            logger.LogWarning("No events received");
+        }
+        else
+        {
+            logger.LogInformation("{Length} event(s) received", result.Length);
+        }
+
+        return result;
     }
 }

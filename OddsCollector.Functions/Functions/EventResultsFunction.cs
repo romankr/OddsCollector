@@ -16,18 +16,7 @@ internal sealed class EventResultsFunction(ILogger<EventResultsFunction> logger,
     {
         try
         {
-            var results = (await processor.GetEventResultsAsync(cancellationToken)).ToArray();
-
-            if (results.Length == 0)
-            {
-                logger.LogWarning("No events received");
-            }
-            else
-            {
-                logger.LogInformation("{Length} event(s) received", results.Length);
-            }
-
-            return results;
+            return await processor.GetEventResultsAsync(cancellationToken);
         }
         catch (Exception exception)
         {

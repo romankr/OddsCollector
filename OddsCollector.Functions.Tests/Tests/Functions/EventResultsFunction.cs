@@ -11,31 +11,24 @@ namespace OddsCollector.Functions.Tests.Tests.Functions;
 internal sealed class EventResultsFunction
 {
     [Test]
-    public async Task Run_WithValidMessages_ReturnsEventResultListAndLogsCount()
+    public async Task Run_WithValidMessages_ReturnsEventResultList()
     {
         // Arrange
-        IEnumerable<EventResult> expectedEventResults = [new()];
+        EventResult[] expectedEventResults = [new()];
 
-        var loggerMock = new FakeLogger<OddsCollector.Functions.Functions.EventResultsFunction>();
+        var loggerStub = new FakeLogger<OddsCollector.Functions.Functions.EventResultsFunction>();
 
         var processorStub = Substitute.For<IEventResultProcessor>();
 
         processorStub.GetEventResultsAsync(Arg.Any<CancellationToken>()).Returns(Task.FromResult(expectedEventResults));
 
-        var function = new OddsCollector.Functions.Functions.EventResultsFunction(loggerMock, processorStub);
+        var function = new OddsCollector.Functions.Functions.EventResultsFunction(loggerStub, processorStub);
 
         // Act
         var actualEventResults = await function.Run(new CancellationToken());
 
         // Assert
         actualEventResults.Should().NotBeNull().And.BeEquivalentTo(expectedEventResults);
-
-        loggerMock.Collector.Count.Should().Be(1);
-
-        using var scope = new AssertionScope();
-
-        loggerMock.LatestRecord.Level.Should().Be(LogLevel.Information);
-        loggerMock.LatestRecord.Message.Should().Be("1 event(s) received");
     }
 
     [Test]
@@ -65,35 +58,5 @@ internal sealed class EventResultsFunction
         loggerMock.LatestRecord.Level.Should().Be(LogLevel.Error);
         loggerMock.LatestRecord.Message.Should().Be("Failed to get events");
         loggerMock.LatestRecord.Exception.Should().Be(exception);
-    }
-
-    [Test]
-    public async Task Run_WithEmptyMessages_ReturnsEmptyEventResultListAndLogsWarning()
-    {
-        // Arrange
-        IEnumerable<EventResult> expectedEventResults = [];
-
-        var loggerMock = new FakeLogger<OddsCollector.Functions.Functions.EventResultsFunction>();
-
-        var processorStub = Substitute.For<IEventResultProcessor>();
-
-        processorStub.GetEventResultsAsync(Arg.Any<CancellationToken>()).Returns(Task.FromResult(expectedEventResults));
-
-        var function = new OddsCollector.Functions.Functions.EventResultsFunction(loggerMock, processorStub);
-
-        var cancellationToken = new CancellationToken();
-
-        // Act
-        var actualEventResults = await function.Run(cancellationToken);
-
-        // Assert
-        actualEventResults.Should().NotBeNull().And.BeEmpty();
-
-        loggerMock.Collector.Count.Should().Be(1);
-
-        using var scope = new AssertionScope();
-
-        loggerMock.LatestRecord.Level.Should().Be(LogLevel.Warning);
-        loggerMock.LatestRecord.Message.Should().Be("No events received");
     }
 }
