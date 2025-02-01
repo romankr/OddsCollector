@@ -1,4 +1,5 @@
 ﻿namespace OddsCollector.Functions.Tests.Tests.Predictions;
+using FunctionsApp = OddsCollector.Functions.Predictions;
 
 internal sealed class OutcomeScoreBuilder
 {
@@ -6,7 +7,7 @@ internal sealed class OutcomeScoreBuilder
     [TestCase(null, TestName = "SetScore_WithNullString_ThrowsException")]
     public void SetScore_WithNullOrEmptyString_ThrowsException(string? outcome)
     {
-        var builder = new OddsCollector.Functions.Predictions.OutcomeScoreBuilder();
+        var builder = new FunctionsApp.OutcomeScoreBuilder();
 
         var action = () => builder.SetOutcome(outcome);
 

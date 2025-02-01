@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging.Testing;
 using NSubstitute.ExceptionExtensions;
 using OddsCollector.Functions.Models;
 using OddsCollector.Functions.Processors;
+using FunctionsApp = OddsCollector.Functions.Functions;
 
 namespace OddsCollector.Functions.Tests.Tests.Functions;
 
@@ -15,7 +16,7 @@ internal sealed class PredictionFunction
     public async Task Run_WithServiceBusMessage_ReturnsEventPrediction()
     {
         // Arrange
-        var loggerStub = new FakeLogger<OddsCollector.Functions.Functions.PredictionFunction>();
+        var loggerStub = new FakeLogger<FunctionsApp.PredictionFunction>();
 
         var expectedPrediction = new EventPrediction();
         EventPrediction[] expectedPredictions = [expectedPrediction];
@@ -24,7 +25,7 @@ internal sealed class PredictionFunction
         processorStub.ProcessMessagesAsync(Arg.Any<ServiceBusReceivedMessage[]>(),
             Arg.Any<ServiceBusMessageActions>(), Arg.Any<CancellationToken>()).Returns(expectedPredictions);
 
-        var function = new OddsCollector.Functions.Functions.PredictionFunction(loggerStub, processorStub);
+        var function = new FunctionsApp.PredictionFunction(loggerStub, processorStub);
 
         // Act
         var predictions = await function.Run([null!], null!, new CancellationToken()).ConfigureAwait(false);
@@ -38,7 +39,7 @@ internal sealed class PredictionFunction
     public async Task Run_WithException_ReturnsEmptyPredictionListAndLogsException()
     {
         // Arrange
-        var loggerMock = new FakeLogger<OddsCollector.Functions.Functions.PredictionFunction>();
+        var loggerMock = new FakeLogger<FunctionsApp.PredictionFunction>();
 
         var exception = new Exception();
 
@@ -46,7 +47,7 @@ internal sealed class PredictionFunction
         processorStub.ProcessMessagesAsync(Arg.Any<ServiceBusReceivedMessage[]>(),
             Arg.Any<ServiceBusMessageActions>(), Arg.Any<CancellationToken>()).Throws(exception);
 
-        var function = new OddsCollector.Functions.Functions.PredictionFunction(loggerMock, processorStub);
+        var function = new FunctionsApp.PredictionFunction(loggerMock, processorStub);
 
         // Act
         var predictions = await function.Run([null!], null!, new CancellationToken()).ConfigureAwait(false);

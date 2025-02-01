@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using OddsCollector.Functions.Models;
 using OddsCollector.Functions.OddsApi;
+using FunctionsApp = OddsCollector.Functions.Processors;
 
 namespace OddsCollector.Functions.Tests.Tests.Processors;
 
@@ -14,12 +15,12 @@ internal sealed class UpcomingEventsProcessor
         // Arrange
         IEnumerable<UpcomingEvent> expectedUpcomingEvents = [];
 
-        var loggerMock = new FakeLogger<OddsCollector.Functions.Processors.UpcomingEventsProcessor>();
+        var loggerMock = new FakeLogger<FunctionsApp.UpcomingEventsProcessor>();
 
         var clientMock = Substitute.For<IOddsApiClient>();
         clientMock.GetUpcomingEventsAsync(Arg.Any<CancellationToken>()).Returns(Task.FromResult(expectedUpcomingEvents));
 
-        var processor = new OddsCollector.Functions.Processors.UpcomingEventsProcessor(loggerMock, clientMock);
+        var processor = new FunctionsApp.UpcomingEventsProcessor(loggerMock, clientMock);
 
         // Act
         var actualEventResults = await processor.GetUpcomingEventsAsync(new CancellationToken());
@@ -43,12 +44,12 @@ internal sealed class UpcomingEventsProcessor
 
         IEnumerable<UpcomingEvent> expectedUpcomingEvents = [expectedUpcomingEvent];
 
-        var loggerMock = new FakeLogger<OddsCollector.Functions.Processors.UpcomingEventsProcessor>();
+        var loggerMock = new FakeLogger<FunctionsApp.UpcomingEventsProcessor>();
 
         var clientMock = Substitute.For<IOddsApiClient>();
         clientMock.GetUpcomingEventsAsync(Arg.Any<CancellationToken>()).Returns(Task.FromResult(expectedUpcomingEvents));
 
-        var processor = new OddsCollector.Functions.Processors.UpcomingEventsProcessor(loggerMock, clientMock);
+        var processor = new FunctionsApp.UpcomingEventsProcessor(loggerMock, clientMock);
 
         // Act
         var actualEventResults = await processor.GetUpcomingEventsAsync(new CancellationToken());
