@@ -13,11 +13,11 @@ internal sealed class UpcomingEventsProcessor
     public async Task GetUpcomingEventsAsync_WithNoEvents_ReturnsNoEventAngLogsWarning()
     {
         // Arrange
-        IEnumerable<UpcomingEvent> expectedUpcomingEvents = [];
+        UpcomingEvent[] expectedUpcomingEvents = [];
 
         var loggerMock = new FakeLogger<FunctionsApp.UpcomingEventsProcessor>();
 
-        var clientMock = Substitute.For<IOddsApiClient>();
+        var clientMock = Substitute.For<IUpcomingEventsClient>();
         clientMock.GetUpcomingEventsAsync(Arg.Any<CancellationToken>()).Returns(Task.FromResult(expectedUpcomingEvents));
 
         var processor = new FunctionsApp.UpcomingEventsProcessor(loggerMock, clientMock);
@@ -42,11 +42,11 @@ internal sealed class UpcomingEventsProcessor
         // Arrange
         var expectedUpcomingEvent = new UpcomingEvent();
 
-        IEnumerable<UpcomingEvent> expectedUpcomingEvents = [expectedUpcomingEvent];
+        UpcomingEvent[] expectedUpcomingEvents = [expectedUpcomingEvent];
 
         var loggerMock = new FakeLogger<FunctionsApp.UpcomingEventsProcessor>();
 
-        var clientMock = Substitute.For<IOddsApiClient>();
+        var clientMock = Substitute.For<IUpcomingEventsClient>();
         clientMock.GetUpcomingEventsAsync(Arg.Any<CancellationToken>()).Returns(Task.FromResult(expectedUpcomingEvents));
 
         var processor = new FunctionsApp.UpcomingEventsProcessor(loggerMock, clientMock);
