@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using OddsCollector.Functions.Predictions;
 using OddsCollector.Functions.Predictions.Configuration;
+using FunctionsApp = OddsCollector.Functions.Predictions;
 
 namespace OddsCollector.Functions.Tests.Tests.Predictions.Configuration;
 
@@ -16,7 +17,7 @@ internal sealed class ServiceCollectionExtensions
         var descriptor =
             services.FirstOrDefault(
                 x => x.ServiceType == typeof(IPredictionStrategy)
-                     && x.ImplementationType == typeof(OddsCollector.Functions.Predictions.PredictionStrategy)
+                     && x.ImplementationType == typeof(FunctionsApp.PredictionStrategy)
                      && x.Lifetime == ServiceLifetime.Singleton);
 
         descriptor.Should().NotBeNull();
@@ -32,7 +33,7 @@ internal sealed class ServiceCollectionExtensions
         var strategyDescriptor =
             services.FirstOrDefault(
                 x => x.ServiceType == typeof(IWinnerFinder)
-                     && x.ImplementationType == typeof(OddsCollector.Functions.Predictions.WinnerFinder)
+                     && x.ImplementationType == typeof(FunctionsApp.WinnerFinder)
                      && x.Lifetime == ServiceLifetime.Singleton);
 
         strategyDescriptor.Should().NotBeNull();
@@ -48,7 +49,7 @@ internal sealed class ServiceCollectionExtensions
         var strategyDescriptor =
             services.FirstOrDefault(
                 x => x.ServiceType == typeof(IScoreCalculator)
-                     && x.ImplementationType == typeof(OddsCollector.Functions.Predictions.ScoreCalculator)
+                     && x.ImplementationType == typeof(FunctionsApp.ScoreCalculator)
                      && x.Lifetime == ServiceLifetime.Singleton);
 
         strategyDescriptor.Should().NotBeNull();

@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using OddsCollector.Functions.OddsApi;
 using OddsCollector.Functions.OddsApi.Configuration;
 using OddsCollector.Functions.OddsApi.WebApi;
+using FunctionsApp = OddsCollector.Functions.OddsApi;
 
 namespace OddsCollector.Functions.Tests.Tests.OddsApi.Configuration;
 
@@ -17,7 +18,7 @@ internal sealed class ServiceCollectionExtensions
 
         var descriptor =
             services.FirstOrDefault(
-                x => x.ServiceType == typeof(IConfigureOptions<OddsApiClientOptions>)
+                x => x.ServiceType == typeof(IConfigureOptions<FunctionsApp.Configuration.OddsApiClientOptions>)
                      && x.Lifetime == ServiceLifetime.Singleton);
 
         descriptor.Should().NotBeNull();
@@ -63,7 +64,7 @@ internal sealed class ServiceCollectionExtensions
 
         var descriptor =
             services.FirstOrDefault(
-                x => x.ImplementationType == typeof(OddsCollector.Functions.OddsApi.OddsApiClient)
+                x => x.ImplementationType == typeof(FunctionsApp.OddsApiClient)
                      && x.ServiceType == typeof(IOddsApiClient)
                      && x.Lifetime == ServiceLifetime.Singleton);
 

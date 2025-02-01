@@ -1,6 +1,7 @@
 ﻿using OddsCollector.Functions.Models;
 using OddsCollector.Functions.OddsApi.WebApi;
 using OddsCollector.Functions.Tests.Infrastructure.Data;
+using FunctionsApp = OddsCollector.Functions.OddsApi;
 
 namespace OddsCollector.Functions.Tests.Tests.OddsApi.Converter;
 
@@ -367,7 +368,7 @@ internal sealed class OddsApiObjectConverter
     public void ToUpcomingEvents_WithOddList_ReturnsConvertedEvents()
     {
         // Arrange
-        var converter = new OddsCollector.Functions.OddsApi.Converter.OddsApiObjectConverter();
+        var converter = new FunctionsApp.Converter.OddsApiObjectConverter();
 
         const string secondId = "1766194919f1cbfbd846576434f0499b";
 
@@ -395,7 +396,7 @@ internal sealed class OddsApiObjectConverter
     public void ToUpcomingEvents_WithEmptyOddList_ReturnsEmptyConvertedEventsList()
     {
         // Arrange
-        var converter = new OddsCollector.Functions.OddsApi.Converter.OddsApiObjectConverter();
+        var converter = new FunctionsApp.Converter.OddsApiObjectConverter();
 
         // Act
         var upcomingEvents = converter.ToUpcomingEvents([]).ToList();
@@ -409,7 +410,7 @@ internal sealed class OddsApiObjectConverter
         (ICollection<Anonymous2>? OriginalEvents, Type ExceptionType, string ParameterName) testCase)
     {
         // Arrange
-        var converter = new OddsCollector.Functions.OddsApi.Converter.OddsApiObjectConverter();
+        var converter = new FunctionsApp.Converter.OddsApiObjectConverter();
 
         // Act & Assert
         Assert.Throws(
@@ -422,7 +423,7 @@ internal sealed class OddsApiObjectConverter
     public void ToEventResults_WithCompletedEvents_ReturnsConvertedEvents()
     {
         // Arrange
-        var converter = new OddsCollector.Functions.OddsApi.Converter.OddsApiObjectConverter();
+        var converter = new FunctionsApp.Converter.OddsApiObjectConverter();
 
         List<Anonymous3> rawEventResults =
         [
@@ -460,7 +461,7 @@ internal sealed class OddsApiObjectConverter
     public void ToEventResults_WithEmptyCompletedEventsList_ReturnsEmptyConvertedEventsList()
     {
         // Arrange
-        var converter = new OddsCollector.Functions.OddsApi.Converter.OddsApiObjectConverter();
+        var converter = new FunctionsApp.Converter.OddsApiObjectConverter();
 
         // Act
         var eventResults = converter.ToEventResults([]);
@@ -473,7 +474,7 @@ internal sealed class OddsApiObjectConverter
     public void ToEventResults_WithUncompletedEvents_ReturnsNoEvents()
     {
         // Arrange
-        var converter = new OddsCollector.Functions.OddsApi.Converter.OddsApiObjectConverter();
+        var converter = new FunctionsApp.Converter.OddsApiObjectConverter();
 
         List<Anonymous3> rawEventResults =
         [
@@ -492,7 +493,7 @@ internal sealed class OddsApiObjectConverter
     public void ToEventResults_WithExtraScore_ReturnsEventResult()
     {
         // Arrange
-        var converter = new OddsCollector.Functions.OddsApi.Converter.OddsApiObjectConverter();
+        var converter = new FunctionsApp.Converter.OddsApiObjectConverter();
 
         List<Anonymous3> rawEventResults =
         [
@@ -518,7 +519,7 @@ internal sealed class OddsApiObjectConverter
         (ICollection<Anonymous3>? OriginalEvents, Type ExceptionType, string ParameterName) testCase)
     {
         // Arrange
-        var converter = new OddsCollector.Functions.OddsApi.Converter.OddsApiObjectConverter();
+        var converter = new FunctionsApp.Converter.OddsApiObjectConverter();
 
         // Act & Assert
         Assert.Throws(

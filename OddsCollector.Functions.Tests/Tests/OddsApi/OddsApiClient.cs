@@ -4,6 +4,7 @@ using OddsCollector.Functions.OddsApi.Configuration;
 using OddsCollector.Functions.OddsApi.Converter;
 using OddsCollector.Functions.OddsApi.WebApi;
 using OddsCollector.Functions.Tests.Infrastructure.CancellationToken;
+using FunctionsApp = OddsCollector.Functions.OddsApi;
 
 namespace OddsCollector.Functions.Tests.Tests.OddsApi;
 
@@ -32,8 +33,7 @@ internal sealed class OddsApiClient
         var optionsStub = Substitute.For<IOptions<OddsApiClientOptions>>();
         optionsStub.Value.Returns(new OddsApiClientOptions { Leagues = [league], ApiKey = secretValue });
 
-        var oddsClient =
-            new OddsCollector.Functions.OddsApi.OddsApiClient(optionsStub, webApiClientMock, converterMock);
+        var oddsClient = new FunctionsApp.OddsApiClient(optionsStub, webApiClientMock, converterMock);
 
         var token = new CancellationToken();
 
@@ -83,8 +83,7 @@ internal sealed class OddsApiClient
         var optionsStub = Substitute.For<IOptions<OddsApiClientOptions>>();
         optionsStub.Value.Returns(new OddsApiClientOptions { Leagues = [league], ApiKey = secretValue });
 
-        var oddsClient =
-            new OddsCollector.Functions.OddsApi.OddsApiClient(optionsStub, webApiClientMock, converterMock);
+        var oddsClient = new FunctionsApp.OddsApiClient(optionsStub, webApiClientMock, converterMock);
 
         var token = new CancellationToken();
 
@@ -133,8 +132,7 @@ internal sealed class OddsApiClient
         var optionsStub = Substitute.For<IOptions<OddsApiClientOptions>>();
         optionsStub.Value.Returns(new OddsApiClientOptions { Leagues = [league], ApiKey = secretValue });
 
-        var oddsClient =
-            new OddsCollector.Functions.OddsApi.OddsApiClient(optionsStub, webApiClientMock, converterMock);
+        var oddsClient = new FunctionsApp.OddsApiClient(optionsStub, webApiClientMock, converterMock);
 
         var cancellationToken = await CancellationTokenGenerator.GetRequestedForCancellationToken();
 
@@ -166,8 +164,7 @@ internal sealed class OddsApiClient
         var optionsStub = Substitute.For<IOptions<OddsApiClientOptions>>();
         optionsStub.Value.Returns(new OddsApiClientOptions { Leagues = [league], ApiKey = secretValue });
 
-        var oddsClient =
-            new OddsCollector.Functions.OddsApi.OddsApiClient(optionsStub, webApiClientMock, converterMock);
+        var oddsClient = new FunctionsApp.OddsApiClient(optionsStub, webApiClientMock, converterMock);
 
         var cancellationToken = await CancellationTokenGenerator.GetRequestedForCancellationToken();
 

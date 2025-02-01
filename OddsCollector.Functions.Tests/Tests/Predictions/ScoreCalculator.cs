@@ -1,5 +1,6 @@
 ﻿using FluentAssertions.Execution;
 using OddsCollector.Functions.Models;
+using FunctionsApp = OddsCollector.Functions.Predictions;
 
 namespace OddsCollector.Functions.Tests.Tests.Predictions;
 
@@ -14,7 +15,7 @@ internal sealed class ScoreCalculator
             new Odd() { Away = 3, Draw = 2, Home = 1 }
         ];
 
-        var calculator = new OddsCollector.Functions.Predictions.ScoreCalculator();
+        var calculator = new FunctionsApp.ScoreCalculator();
 
         // Act
         var scores = calculator.GetScores(odds);
@@ -40,7 +41,7 @@ internal sealed class ScoreCalculator
             new Odd() { Away = 3, Draw = 2, Home = 1 }
         ];
 
-        var calculator = new OddsCollector.Functions.Predictions.ScoreCalculator();
+        var calculator = new FunctionsApp.ScoreCalculator();
 
         // Act
         var scores = calculator.GetScores(odds);
@@ -66,7 +67,7 @@ internal sealed class ScoreCalculator
             new Odd() { Away = 3, Draw = 2, Home = 1 }
         ];
 
-        var calculator = new OddsCollector.Functions.Predictions.ScoreCalculator();
+        var calculator = new FunctionsApp.ScoreCalculator();
 
         // Act
         var scores = calculator.GetScores(odds);

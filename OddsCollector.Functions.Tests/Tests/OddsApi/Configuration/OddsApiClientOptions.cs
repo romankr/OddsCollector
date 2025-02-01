@@ -1,13 +1,13 @@
-﻿using OddsCollector.Functions.OddsApi.Configuration;
+﻿using FunctionsApp = OddsCollector.Functions.OddsApi.Configuration;
 
 namespace OddsCollector.Functions.Tests.Tests.OddsApi.Configuration;
 
-internal sealed class OddsApiOptions
+internal sealed class OddsApiClientOptions
 {
     [Test]
     public void SetLeagues_WithOneLeague_ReturnsOneLeague()
     {
-        var options = new OddsApiClientOptions();
+        var options = new FunctionsApp.OddsApiClientOptions();
 
         options.AddLeagues("league");
 
@@ -17,7 +17,7 @@ internal sealed class OddsApiOptions
     [Test]
     public void SetLeagues_WithMultipleLeagues_ReturnsMultipleLeagues()
     {
-        var options = new OddsApiClientOptions();
+        var options = new FunctionsApp.OddsApiClientOptions();
 
         options.AddLeagues("league1;league2");
 
@@ -27,7 +27,7 @@ internal sealed class OddsApiOptions
     [Test]
     public void SetLeagues_WithDuplicateLeagues_ReturnsOnlyOneLeague()
     {
-        var options = new OddsApiClientOptions();
+        var options = new FunctionsApp.OddsApiClientOptions();
 
         options.AddLeagues("league1;league1");
 
@@ -37,7 +37,7 @@ internal sealed class OddsApiOptions
     [Test]
     public void SetLeagues_WithEmptyLeague_ReturnsNoLeagues()
     {
-        var options = new OddsApiClientOptions();
+        var options = new FunctionsApp.OddsApiClientOptions();
 
         options.AddLeagues(";;");
 
@@ -47,7 +47,7 @@ internal sealed class OddsApiOptions
     [Test]
     public void SetLeagues_WithLeadingAndTrailingCharacters_ReturnsCorrectLeagues()
     {
-        var options = new OddsApiClientOptions();
+        var options = new FunctionsApp.OddsApiClientOptions();
 
         options.AddLeagues("league1\n; league2\r");
 
@@ -57,7 +57,7 @@ internal sealed class OddsApiOptions
     [Test]
     public void SetLeagues_WithNullOrEmptyLeagues_ThrowsException()
     {
-        var options = new OddsApiClientOptions();
+        var options = new FunctionsApp.OddsApiClientOptions();
 
         var action = () => options.AddLeagues(string.Empty);
 
@@ -67,7 +67,7 @@ internal sealed class OddsApiOptions
     [Test]
     public void SetLeagues_WithNullLeagues_ThrowsException()
     {
-        var options = new OddsApiClientOptions();
+        var options = new FunctionsApp.OddsApiClientOptions();
 
         var action = () => options.AddLeagues(null);
 
@@ -78,7 +78,7 @@ internal sealed class OddsApiOptions
     public void SetApiKey_WithKey_ReturnsKey()
     {
         const string key = nameof(key);
-        var options = new OddsApiClientOptions();
+        var options = new FunctionsApp.OddsApiClientOptions();
 
         options.SetApiKey(key);
 
@@ -88,7 +88,7 @@ internal sealed class OddsApiOptions
     [Test]
     public void SetApiKey_WithNullApiKey_ThrowsException()
     {
-        var options = new OddsApiClientOptions();
+        var options = new FunctionsApp.OddsApiClientOptions();
 
         var action = () => options.SetApiKey(null);
 
@@ -98,7 +98,7 @@ internal sealed class OddsApiOptions
     [Test]
     public void SetApiKey_WithEmptyApiKey_ThrowsException()
     {
-        var options = new OddsApiClientOptions();
+        var options = new FunctionsApp.OddsApiClientOptions();
 
         var action = () => options.SetApiKey(string.Empty);
 

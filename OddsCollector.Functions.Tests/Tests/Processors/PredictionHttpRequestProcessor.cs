@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using OddsCollector.Functions.Models;
+using FunctionsApp = OddsCollector.Functions.Processors;
 
 namespace OddsCollector.Functions.Tests.Tests.Processors;
 
@@ -8,7 +9,7 @@ internal sealed class PredictionHttpRequestProcessor
     [Test]
     public void Serialize_WithPredictions_ReturnsSerializedAsArray()
     {
-        var processor = new OddsCollector.Functions.Processors.PredictionHttpRequestProcessor();
+        var processor = new FunctionsApp.PredictionHttpRequestProcessor();
         var prediction = new EventPrediction();
         var serialized = processor.Serialize([prediction]);
 

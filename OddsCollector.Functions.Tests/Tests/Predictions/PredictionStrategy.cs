@@ -1,6 +1,7 @@
 ﻿using FluentAssertions.Execution;
 using OddsCollector.Functions.Models;
 using OddsCollector.Functions.Predictions;
+using FunctionsApp = OddsCollector.Functions.Predictions;
 
 namespace OddsCollector.Functions.Tests.Tests.Predictions;
 
@@ -26,7 +27,7 @@ internal sealed class PredictionStrategy
         var finderStub = Substitute.For<IWinnerFinder>();
         finderStub.GetWinner(Arg.Any<ICollection<Odd>>()).Returns(expectedHomeTeam);
 
-        var strategy = new OddsCollector.Functions.Predictions.PredictionStrategy(finderStub);
+        var strategy = new FunctionsApp.PredictionStrategy(finderStub);
 
         // Act
         var prediction = strategy.GetPrediction(upcomingEvent);
@@ -49,7 +50,7 @@ internal sealed class PredictionStrategy
     {
         var finderStub = Substitute.For<IWinnerFinder>();
 
-        var strategy = new OddsCollector.Functions.Predictions.PredictionStrategy(finderStub);
+        var strategy = new FunctionsApp.PredictionStrategy(finderStub);
 
         var action = () => strategy.GetPrediction(null);
 

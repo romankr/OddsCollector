@@ -8,6 +8,7 @@ using OddsCollector.Functions.Models;
 using OddsCollector.Functions.Predictions;
 using OddsCollector.Functions.Tests.Infrastructure.CancellationToken;
 using OddsCollector.Functions.Tests.Infrastructure.ServiceBus;
+using FunctionsApp = OddsCollector.Functions.Processors;
 
 namespace OddsCollector.Functions.Tests.Tests.Processors;
 
@@ -19,7 +20,7 @@ internal sealed class PredictionProcessor
         // Arrange
         var actionsMock = Substitute.For<ServiceBusMessageActions>();
 
-        var loggerMock = new FakeLogger<OddsCollector.Functions.Processors.PredictionProcessor>();
+        var loggerMock = new FakeLogger<FunctionsApp.PredictionProcessor>();
 
         var expectedPrediction = new EventPrediction();
 
@@ -30,7 +31,7 @@ internal sealed class PredictionProcessor
 
         var cancellationToken = new CancellationToken();
 
-        var processor = new OddsCollector.Functions.Processors.PredictionProcessor(loggerMock, strategyStub);
+        var processor = new FunctionsApp.PredictionProcessor(loggerMock, strategyStub);
 
         // Act
         var predictions = await processor.ProcessMessagesAsync([message], actionsMock, cancellationToken).ConfigureAwait(false);
@@ -55,11 +56,11 @@ internal sealed class PredictionProcessor
         // Arrange
         var actionsMock = Substitute.For<ServiceBusMessageActions>();
 
-        var loggerMock = new FakeLogger<OddsCollector.Functions.Processors.PredictionProcessor>();
+        var loggerMock = new FakeLogger<FunctionsApp.PredictionProcessor>();
 
         var strategyStub = Substitute.For<IPredictionStrategy>();
 
-        var processor = new OddsCollector.Functions.Processors.PredictionProcessor(loggerMock, strategyStub);
+        var processor = new FunctionsApp.PredictionProcessor(loggerMock, strategyStub);
 
         // Act
         var predictions = await processor.ProcessMessagesAsync([], actionsMock, new CancellationToken()).ConfigureAwait(false);
@@ -83,7 +84,7 @@ internal sealed class PredictionProcessor
         // Arrange
         var actionsMock = Substitute.For<ServiceBusMessageActions>();
 
-        var loggerMock = new FakeLogger<OddsCollector.Functions.Processors.PredictionProcessor>();
+        var loggerMock = new FakeLogger<FunctionsApp.PredictionProcessor>();
 
         const string expectedMessageId = "123";
 
@@ -96,7 +97,7 @@ internal sealed class PredictionProcessor
 
         var cancellationToken = new CancellationToken();
 
-        var processor = new OddsCollector.Functions.Processors.PredictionProcessor(loggerMock, strategyStub);
+        var processor = new FunctionsApp.PredictionProcessor(loggerMock, strategyStub);
 
         // Act
         var predictions = await processor.ProcessMessagesAsync([message], actionsMock, cancellationToken).ConfigureAwait(false);
@@ -131,7 +132,7 @@ internal sealed class PredictionProcessor
         // Arrange
         var actionsMock = Substitute.For<ServiceBusMessageActions>();
 
-        var loggerStub = new FakeLogger<OddsCollector.Functions.Processors.PredictionProcessor>();
+        var loggerStub = new FakeLogger<FunctionsApp.PredictionProcessor>();
 
         const string expectedMessageId = "123";
 
@@ -144,7 +145,7 @@ internal sealed class PredictionProcessor
 
         var cancellationToken = await CancellationTokenGenerator.GetRequestedForCancellationToken();
 
-        var processor = new OddsCollector.Functions.Processors.PredictionProcessor(loggerStub, strategyStub);
+        var processor = new FunctionsApp.PredictionProcessor(loggerStub, strategyStub);
 
         // Act
         var predictions = await processor.ProcessMessagesAsync([message], actionsMock, cancellationToken).ConfigureAwait(false);
