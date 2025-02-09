@@ -13,11 +13,11 @@ internal sealed class EventResultProcessor
     public async Task GetEventResultsAsync_WithNoEvents_ReturnsNoEventAngLogsWarning()
     {
         // Arrange
-        IEnumerable<EventResult> expectedEventResults = [];
+        EventResult[] expectedEventResults = [];
 
         var loggerMock = new FakeLogger<FunctionsApp.EventResultProcessor>();
 
-        var clientMock = Substitute.For<IOddsApiClient>();
+        var clientMock = Substitute.For<IEventResultsClient>();
         clientMock.GetEventResultsAsync(Arg.Any<CancellationToken>()).Returns(Task.FromResult(expectedEventResults));
 
         var processor = new FunctionsApp.EventResultProcessor(loggerMock, clientMock);
@@ -42,11 +42,11 @@ internal sealed class EventResultProcessor
         // Arrange
         var expectedEventResult = new EventResult();
 
-        IEnumerable<EventResult> expectedEventResults = [expectedEventResult];
+        EventResult[] expectedEventResults = [expectedEventResult];
 
         var loggerMock = new FakeLogger<FunctionsApp.EventResultProcessor>();
 
-        var clientMock = Substitute.For<IOddsApiClient>();
+        var clientMock = Substitute.For<IEventResultsClient>();
         clientMock.GetEventResultsAsync(Arg.Any<CancellationToken>()).Returns(Task.FromResult(expectedEventResults));
 
         var processor = new FunctionsApp.EventResultProcessor(loggerMock, clientMock);

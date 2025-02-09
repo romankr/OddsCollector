@@ -4,11 +4,11 @@ using OddsCollector.Functions.OddsApi;
 
 namespace OddsCollector.Functions.Processors;
 
-internal sealed class EventResultProcessor(ILogger<EventResultProcessor> logger, IOddsApiClient client) : IEventResultProcessor
+internal sealed class EventResultProcessor(ILogger<EventResultProcessor> logger, IEventResultsClient client) : IEventResultProcessor
 {
     public async Task<EventResult[]> GetEventResultsAsync(CancellationToken cancellationToken)
     {
-        var result = (await client.GetEventResultsAsync(cancellationToken)).ToArray();
+        var result = await client.GetEventResultsAsync(cancellationToken);
 
         if (result.Length == 0)
         {

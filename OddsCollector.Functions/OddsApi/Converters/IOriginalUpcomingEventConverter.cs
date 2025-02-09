@@ -1,10 +1,9 @@
 ﻿using OddsCollector.Functions.Models;
 using OddsCollector.Functions.OddsApi.WebApi;
 
-namespace OddsCollector.Functions.OddsApi.Converter;
+namespace OddsCollector.Functions.OddsApi.Converters;
 
-internal interface IOddsApiObjectConverter
+internal interface IOriginalUpcomingEventConverter
 {
     IEnumerable<UpcomingEvent> ToUpcomingEvents(ICollection<Anonymous2>? events);
-    IEnumerable<EventResult> ToEventResults(ICollection<Anonymous3>? events);
 }
