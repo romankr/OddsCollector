@@ -14,11 +14,15 @@ internal static class ServiceBusReceivedMessageFactory
 
         var message = new AmqpMessageBody(serialized);
 
-        var annotatedMessage = new AmqpAnnotatedMessage(message);
-
-        annotatedMessage.Properties.MessageId = messageId is not null
-            ? new AmqpMessageId(messageId)
-            : null;
+        var annotatedMessage = new AmqpAnnotatedMessage(message)
+        {
+            Properties =
+            {
+                MessageId = messageId is not null
+                    ? new AmqpMessageId(messageId)
+                    : null
+            }
+        };
 
         return ServiceBusReceivedMessage.FromAmqpMessage(
             annotatedMessage, new BinaryData([]));

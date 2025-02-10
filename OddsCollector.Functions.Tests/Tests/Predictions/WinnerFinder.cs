@@ -1,6 +1,5 @@
 ﻿using OddsCollector.Functions.Models;
-using OddsCollector.Functions.Predictions;
-using FunctionsApp = OddsCollector.Functions.Predictions;
+using FunctionApp = OddsCollector.Functions.Predictions;
 
 namespace OddsCollector.Functions.Tests.Tests.Predictions;
 
@@ -12,25 +11,16 @@ internal sealed class WinnerFinder
         // Arrange
         const string expectedWinner = nameof(expectedWinner);
 
-        var calculatorStub = Substitute.For<IScoreCalculator>();
+        var calculatorStub = Substitute.For<FunctionApp.IScoreCalculator>();
         calculatorStub.GetScores(Arg.Any<ICollection<Odd>>()).Returns(
             [
-                new OutcomeScore() {
-                    Outcome = expectedWinner,
-                    Score = 2.0
-                },
-                new OutcomeScore() {
-                    Outcome = "loser",
-                    Score = 1.0
-                },
-                new OutcomeScore() {
-                    Outcome = "draw",
-                    Score = 0.5
-                }
+                new FunctionApp.OutcomeScore { Outcome = expectedWinner, Score = 2.0 },
+                new FunctionApp.OutcomeScore { Outcome = "loser", Score = 1.0 },
+                new FunctionApp.OutcomeScore { Outcome = "draw", Score = 0.5 }
             ]
         );
 
-        var finder = new FunctionsApp.WinnerFinder(calculatorStub);
+        var finder = new FunctionApp.WinnerFinder(calculatorStub);
 
         // Act
         var winner = finder.GetWinner([new Odd()]);
@@ -42,7 +32,7 @@ internal sealed class WinnerFinder
     [Test]
     public void GetWinner_WithNoOdds_ThrowsException()
     {
-        var finder = new FunctionsApp.WinnerFinder(null!);
+        var finder = new FunctionApp.WinnerFinder(null!);
 
         var action = () => finder.GetWinner([]);
 

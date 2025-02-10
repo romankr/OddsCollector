@@ -7,7 +7,9 @@ internal class WinnerConverter(IScoreModelsConverter converter) : IWinnerConvert
 {
     public string GetWinner(ICollection<ScoreModel>? scores)
     {
-        var convertedScores = converter.Convert(scores);
+        ArgumentNullException.ThrowIfNull(scores);
+
+        var convertedScores = converter.Convert(scores).ToList();
 
         if (convertedScores.ElementAt(0).Score == convertedScores.ElementAt(1).Score)
         {

@@ -6,7 +6,10 @@ using OddsCollector.Functions.OddsApi.WebApi;
 
 namespace OddsCollector.Functions.OddsApi;
 
-internal sealed class EventResultsClient(IOptions<OddsApiClientOptions> options, IClient client, IOriginalCompletedEventConverter converter) : IEventResultsClient
+internal sealed class EventResultsClient(
+    IOptions<OddsApiClientOptions> options,
+    IClient client,
+    IOriginalCompletedEventConverter converter) : IEventResultsClient
 {
     private const int DaysFromToday = 3;
 
@@ -21,7 +24,8 @@ internal sealed class EventResultsClient(IOptions<OddsApiClientOptions> options,
                 break;
             }
 
-            var results = await client.ScoresAsync(league, options.Value.ApiKey, DaysFromToday, cancellationToken).ConfigureAwait(false);
+            var results = await client.ScoresAsync(league, options.Value.ApiKey, DaysFromToday, cancellationToken)
+                .ConfigureAwait(false);
 
             result.AddRange(converter.ToEventResults(results));
         }

@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using OddsCollector.Functions.Predictions;
 using OddsCollector.Functions.Predictions.Configuration;
-using FunctionsApp = OddsCollector.Functions.Predictions;
+using FunctionApp = OddsCollector.Functions.Predictions;
 
 namespace OddsCollector.Functions.Tests.Tests.Predictions.Configuration;
 
@@ -16,8 +15,8 @@ internal sealed class ServiceCollectionExtensions
 
         var descriptor =
             services.FirstOrDefault(
-                x => x.ServiceType == typeof(IPredictionStrategy)
-                     && x.ImplementationType == typeof(FunctionsApp.PredictionStrategy)
+                x => x.ServiceType == typeof(FunctionApp.IPredictionStrategy)
+                     && x.ImplementationType == typeof(FunctionApp.PredictionStrategy)
                      && x.Lifetime == ServiceLifetime.Singleton);
 
         descriptor.Should().NotBeNull();
@@ -32,8 +31,8 @@ internal sealed class ServiceCollectionExtensions
 
         var strategyDescriptor =
             services.FirstOrDefault(
-                x => x.ServiceType == typeof(IWinnerFinder)
-                     && x.ImplementationType == typeof(FunctionsApp.WinnerFinder)
+                x => x.ServiceType == typeof(FunctionApp.IWinnerFinder)
+                     && x.ImplementationType == typeof(FunctionApp.WinnerFinder)
                      && x.Lifetime == ServiceLifetime.Singleton);
 
         strategyDescriptor.Should().NotBeNull();
@@ -48,8 +47,8 @@ internal sealed class ServiceCollectionExtensions
 
         var strategyDescriptor =
             services.FirstOrDefault(
-                x => x.ServiceType == typeof(IScoreCalculator)
-                     && x.ImplementationType == typeof(FunctionsApp.ScoreCalculator)
+                x => x.ServiceType == typeof(FunctionApp.IScoreCalculator)
+                     && x.ImplementationType == typeof(FunctionApp.ScoreCalculator)
                      && x.Lifetime == ServiceLifetime.Singleton);
 
         strategyDescriptor.Should().NotBeNull();

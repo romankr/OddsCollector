@@ -6,5 +6,6 @@ namespace OddsCollector.Functions.Processors;
 
 internal interface IPredictionProcessor
 {
-    Task<EventPrediction[]> ProcessMessagesAsync(ServiceBusReceivedMessage[] messages, ServiceBusMessageActions messageActions, CancellationToken cancellationToken);
+    Task<EventPrediction[]> ProcessMessagesAsync(ServiceBusReceivedMessage[] messages,
+        ServiceBusMessageActions messageActions, CancellationToken cancellationToken);
 }

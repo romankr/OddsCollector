@@ -10,13 +10,11 @@ internal sealed class ScoreModelConverter : IScoreModelConverter
 
         if (!int.TryParse(scoreModel.Score, out var score))
         {
-            throw new ArgumentException($"{nameof(scoreModel)} must have an integer score. Actual score: {scoreModel.Score}", nameof(scoreModel));
+            throw new ArgumentException(
+                $"{nameof(scoreModel)} must have an integer score. Actual score: {scoreModel.Score}",
+                nameof(scoreModel.Score));
         }
 
-        return new EventScore
-        {
-            Score = score,
-            Name = scoreModel.Name
-        };
+        return new EventScore { Score = score, Name = scoreModel.Name };
     }
 }

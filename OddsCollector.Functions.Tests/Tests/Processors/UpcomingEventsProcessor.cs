@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using OddsCollector.Functions.Models;
 using OddsCollector.Functions.OddsApi;
-using FunctionsApp = OddsCollector.Functions.Processors;
+using FunctionApp = OddsCollector.Functions.Processors;
 
 namespace OddsCollector.Functions.Tests.Tests.Processors;
 
@@ -15,15 +15,16 @@ internal sealed class UpcomingEventsProcessor
         // Arrange
         UpcomingEvent[] expectedUpcomingEvents = [];
 
-        var loggerMock = new FakeLogger<FunctionsApp.UpcomingEventsProcessor>();
+        var loggerMock = new FakeLogger<FunctionApp.UpcomingEventsProcessor>();
 
         var clientMock = Substitute.For<IUpcomingEventsClient>();
-        clientMock.GetUpcomingEventsAsync(Arg.Any<CancellationToken>()).Returns(Task.FromResult(expectedUpcomingEvents));
+        clientMock.GetUpcomingEventsAsync(Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult(expectedUpcomingEvents));
 
-        var processor = new FunctionsApp.UpcomingEventsProcessor(loggerMock, clientMock);
+        var processor = new FunctionApp.UpcomingEventsProcessor(loggerMock, clientMock);
 
         // Act
-        var actualEventResults = await processor.GetUpcomingEventsAsync(new CancellationToken());
+        var actualEventResults = await processor.GetUpcomingEventsAsync(CancellationToken.None);
 
         // Assert
         actualEventResults.Should().NotBeNull().And.BeEmpty();
@@ -44,15 +45,16 @@ internal sealed class UpcomingEventsProcessor
 
         UpcomingEvent[] expectedUpcomingEvents = [expectedUpcomingEvent];
 
-        var loggerMock = new FakeLogger<FunctionsApp.UpcomingEventsProcessor>();
+        var loggerMock = new FakeLogger<FunctionApp.UpcomingEventsProcessor>();
 
         var clientMock = Substitute.For<IUpcomingEventsClient>();
-        clientMock.GetUpcomingEventsAsync(Arg.Any<CancellationToken>()).Returns(Task.FromResult(expectedUpcomingEvents));
+        clientMock.GetUpcomingEventsAsync(Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult(expectedUpcomingEvents));
 
-        var processor = new FunctionsApp.UpcomingEventsProcessor(loggerMock, clientMock);
+        var processor = new FunctionApp.UpcomingEventsProcessor(loggerMock, clientMock);
 
         // Act
-        var actualEventResults = await processor.GetUpcomingEventsAsync(new CancellationToken());
+        var actualEventResults = await processor.GetUpcomingEventsAsync(CancellationToken.None);
 
         // Assert
         actualEventResults.Should().NotBeNull().And.HaveCount(1);

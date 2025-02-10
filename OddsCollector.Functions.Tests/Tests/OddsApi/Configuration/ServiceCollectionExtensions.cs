@@ -1,10 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using OddsCollector.Functions.OddsApi;
 using OddsCollector.Functions.OddsApi.Configuration;
 using OddsCollector.Functions.OddsApi.Converters;
 using OddsCollector.Functions.OddsApi.WebApi;
-using FunctionsApp = OddsCollector.Functions.OddsApi;
+using FunctionApp = OddsCollector.Functions.OddsApi;
 
 namespace OddsCollector.Functions.Tests.Tests.OddsApi.Configuration;
 
@@ -19,7 +18,8 @@ internal sealed class ServiceCollectionExtensions
 
         var descriptor =
             services.FirstOrDefault(
-                x => x.ServiceType == typeof(IConfigureOptions<FunctionsApp.Configuration.OddsApiClientOptions>)
+                x => x.ServiceType ==
+                     typeof(IConfigureOptions<OddsCollector.Functions.OddsApi.Configuration.OddsApiClientOptions>)
                      && x.Lifetime == ServiceLifetime.Singleton);
 
         descriptor.Should().NotBeNull();
@@ -65,8 +65,8 @@ internal sealed class ServiceCollectionExtensions
 
         var descriptor =
             services.FirstOrDefault(
-                x => x.ImplementationType == typeof(FunctionsApp.UpcomingEventsClient)
-                     && x.ServiceType == typeof(IUpcomingEventsClient)
+                x => x.ImplementationType == typeof(FunctionApp.UpcomingEventsClient)
+                     && x.ServiceType == typeof(FunctionApp.IUpcomingEventsClient)
                      && x.Lifetime == ServiceLifetime.Singleton);
 
         descriptor.Should().NotBeNull();
@@ -145,8 +145,8 @@ internal sealed class ServiceCollectionExtensions
 
         var descriptor =
             services.FirstOrDefault(
-                x => x.ImplementationType == typeof(FunctionsApp.EventResultsClient)
-                     && x.ServiceType == typeof(IEventResultsClient)
+                x => x.ImplementationType == typeof(FunctionApp.EventResultsClient)
+                     && x.ServiceType == typeof(FunctionApp.IEventResultsClient)
                      && x.Lifetime == ServiceLifetime.Singleton);
 
         descriptor.Should().NotBeNull();

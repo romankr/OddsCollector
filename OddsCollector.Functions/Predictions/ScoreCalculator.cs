@@ -6,14 +6,16 @@ internal sealed class ScoreCalculator : IScoreCalculator
 {
     public OutcomeScore[] GetScores(ICollection<Odd> odds)
     {
-        return [
+        return
+        [
             Calculate(OutcomeTypes.Draw, odds, 0.057, x => x.Draw),
             Calculate(OutcomeTypes.AwayTeam, odds, 0.034, x => x.Away),
             Calculate(OutcomeTypes.HomeTeam, odds, 0.037, x => x.Home)
         ];
     }
 
-    private static OutcomeScore Calculate(string outcome, ICollection<Odd> odds, double adjustment, Func<Odd, double> valueExtractor)
+    private static OutcomeScore Calculate(string outcome, ICollection<Odd> odds, double adjustment,
+        Func<Odd, double> valueExtractor)
     {
         var score = GetConsensusScore(odds, valueExtractor);
         score = AdjustScore(score, adjustment);
@@ -27,7 +29,7 @@ internal sealed class ScoreCalculator : IScoreCalculator
 
     private static double AdjustScore(double score, double adjustment)
     {
-        return score == 0 ? 0 : 1 / score - adjustment;
+        return score == 0 ? 0 : (1 / score) - adjustment;
     }
 
     private static OutcomeScore ToOutcomeScore(string outcome, double score)

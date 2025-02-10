@@ -3,7 +3,8 @@ using OddsCollector.Functions.OddsApi.WebApi;
 
 namespace OddsCollector.Functions.OddsApi.Converters;
 
-internal sealed class OriginalUpcomingEventConverter(IBookmakerConverter bookmakerConverter) : IOriginalUpcomingEventConverter
+internal sealed class OriginalUpcomingEventConverter(IBookmakerConverter bookmakerConverter)
+    : IOriginalUpcomingEventConverter
 {
     public IEnumerable<UpcomingEvent> ToUpcomingEvents(ICollection<Anonymous2>? originalEvents)
     {
@@ -23,7 +24,8 @@ internal sealed class OriginalUpcomingEventConverter(IBookmakerConverter bookmak
             .SetId(originalEvent.Id)
             .SetCommenceTime(originalEvent.Commence_time)
             .SetOdds(
-                bookmakerConverter.ToOdds(originalEvent.Bookmakers, originalEvent.Away_team, originalEvent.Home_team).ToList()
+                bookmakerConverter.ToOdds(originalEvent.Bookmakers, originalEvent.Away_team, originalEvent.Home_team)
+                    .ToList()
             )
             .Instance;
     }
