@@ -6,7 +6,7 @@ internal sealed class EventResult
 {
     public DateTime CommenceTime { get; set; } = DateTime.MinValue;
 
-    // fixed id for cosmosdb
+    // cosmosdb requires lowercase
     [JsonPropertyName("id")] public string Id { get; set; } = string.Empty;
     public string Winner { get; set; } = string.Empty;
 }

@@ -9,9 +9,9 @@ internal static class ServiceCollectionExtensions
     public static void AddOddsApiClientWithDependencies(this IServiceCollection services, string? leagues,
         string? apiKey)
     {
+        // workaround for https://github.com/MicrosoftDocs/azure-docs/issues/32962
         services.Configure<OddsApiClientOptions>(o =>
         {
-            // workaround for https://github.com/MicrosoftDocs/azure-docs/issues/32962
             o.AddLeagues(leagues);
             o.SetApiKey(apiKey);
         });
