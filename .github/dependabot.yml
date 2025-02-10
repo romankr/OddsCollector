@@ -4,3 +4,6 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
+ignore:
+  - dependency-name: "FluentAssertions"
+    versions: [ ">=8.0.0" ]
