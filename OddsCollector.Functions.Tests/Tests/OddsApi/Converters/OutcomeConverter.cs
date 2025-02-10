@@ -32,18 +32,12 @@ internal sealed class OutcomeConverter
         var converter = new FunctionApp.OutcomeConverter();
 
         var action = () => converter.ToOdd([
-            new Outcome(){
-                Name = "homeTeam",
-                Price = 1.1
-            },
-            new Outcome(){
-                Name = "Draw",
-                Price = 1.1
-            }
-        ],
-        "bookmaker",
-        "awayTeam",
-        "homeTeam");
+                new Outcome { Name = "homeTeam", Price = 1.1 },
+                new Outcome { Name = "Draw", Price = 1.1 }
+            ],
+            "bookmaker",
+            "awayTeam",
+            "homeTeam");
 
         action.Should().Throw<InvalidOperationException>();
     }
@@ -54,18 +48,12 @@ internal sealed class OutcomeConverter
         var converter = new FunctionApp.OutcomeConverter();
 
         var action = () => converter.ToOdd([
-            new Outcome(){
-                Name = "awayTeam",
-                Price = 1.1
-            },
-            new Outcome(){
-                Name = "Draw",
-                Price = 1.1
-            }
-        ],
-        "bookmaker",
-        "awayTeam",
-        "homeTeam");
+                new Outcome { Name = "awayTeam", Price = 1.1 },
+                new Outcome { Name = "Draw", Price = 1.1 }
+            ],
+            "bookmaker",
+            "awayTeam",
+            "homeTeam");
 
         action.Should().Throw<InvalidOperationException>();
     }
@@ -76,18 +64,12 @@ internal sealed class OutcomeConverter
         var converter = new FunctionApp.OutcomeConverter();
 
         var action = () => converter.ToOdd([
-            new Outcome(){
-                Name = "awayTeam",
-                Price = 1.1
-            },
-            new Outcome(){
-                Name = "homeTeam",
-                Price = 1.1
-            }
-        ],
-        "bookmaker",
-        "awayTeam",
-        "homeTeam");
+                new Outcome { Name = "awayTeam", Price = 1.1 },
+                new Outcome { Name = "homeTeam", Price = 1.1 }
+            ],
+            "bookmaker",
+            "awayTeam",
+            "homeTeam");
 
         action.Should().Throw<InvalidOperationException>();
     }

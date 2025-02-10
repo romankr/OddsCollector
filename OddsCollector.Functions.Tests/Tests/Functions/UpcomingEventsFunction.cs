@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging.Testing;
 using NSubstitute.ExceptionExtensions;
 using OddsCollector.Functions.Models;
 using OddsCollector.Functions.Processors;
-using FunctionsApp = OddsCollector.Functions.Functions;
+using FunctionApp = OddsCollector.Functions.Functions;
 
 namespace OddsCollector.Functions.Tests.Tests.Functions;
 
@@ -16,16 +16,17 @@ internal sealed class UpcomingEventsFunction
         // Arrange
         UpcomingEvent[] expectedEventResults = [new()];
 
-        var loggerStub = new FakeLogger<FunctionsApp.UpcomingEventsFunction>();
+        var loggerStub = new FakeLogger<FunctionApp.UpcomingEventsFunction>();
 
         var processorStub = Substitute.For<IUpcomingEventsProcessor>();
 
-        processorStub.GetUpcomingEventsAsync(Arg.Any<CancellationToken>()).Returns(Task.FromResult(expectedEventResults));
+        processorStub.GetUpcomingEventsAsync(Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult(expectedEventResults));
 
-        var function = new FunctionsApp.UpcomingEventsFunction(loggerStub, processorStub);
+        var function = new FunctionApp.UpcomingEventsFunction(loggerStub, processorStub);
 
         // Act
-        var eventResults = await function.Run(new CancellationToken());
+        var eventResults = await function.Run(CancellationToken.None);
 
         // Assert
         eventResults.Should().NotBeNull().And.BeEquivalentTo(expectedEventResults);
@@ -37,16 +38,16 @@ internal sealed class UpcomingEventsFunction
         // Arrange
         var exception = new Exception();
 
-        var loggerMock = new FakeLogger<FunctionsApp.UpcomingEventsFunction>();
+        var loggerMock = new FakeLogger<FunctionApp.UpcomingEventsFunction>();
 
         var processorStub = Substitute.For<IUpcomingEventsProcessor>();
 
         processorStub.GetUpcomingEventsAsync(Arg.Any<CancellationToken>()).Throws(exception);
 
-        var function = new FunctionsApp.UpcomingEventsFunction(loggerMock, processorStub);
+        var function = new FunctionApp.UpcomingEventsFunction(loggerMock, processorStub);
 
         // Act
-        var eventResults = await function.Run(new CancellationToken());
+        var eventResults = await function.Run(CancellationToken.None);
 
         // Assert
         eventResults.Should().NotBeNull().And.BeEmpty();

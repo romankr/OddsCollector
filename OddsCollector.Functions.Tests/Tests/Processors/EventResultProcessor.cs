@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using OddsCollector.Functions.Models;
 using OddsCollector.Functions.OddsApi;
-using FunctionsApp = OddsCollector.Functions.Processors;
+using FunctionApp = OddsCollector.Functions.Processors;
 
 namespace OddsCollector.Functions.Tests.Tests.Processors;
 
@@ -15,15 +15,15 @@ internal sealed class EventResultProcessor
         // Arrange
         EventResult[] expectedEventResults = [];
 
-        var loggerMock = new FakeLogger<FunctionsApp.EventResultProcessor>();
+        var loggerMock = new FakeLogger<FunctionApp.EventResultProcessor>();
 
         var clientMock = Substitute.For<IEventResultsClient>();
         clientMock.GetEventResultsAsync(Arg.Any<CancellationToken>()).Returns(Task.FromResult(expectedEventResults));
 
-        var processor = new FunctionsApp.EventResultProcessor(loggerMock, clientMock);
+        var processor = new FunctionApp.EventResultProcessor(loggerMock, clientMock);
 
         // Act
-        var actualEventResults = await processor.GetEventResultsAsync(new CancellationToken());
+        var actualEventResults = await processor.GetEventResultsAsync(CancellationToken.None);
 
         // Assert
         actualEventResults.Should().NotBeNull().And.BeEmpty();
@@ -44,15 +44,15 @@ internal sealed class EventResultProcessor
 
         EventResult[] expectedEventResults = [expectedEventResult];
 
-        var loggerMock = new FakeLogger<FunctionsApp.EventResultProcessor>();
+        var loggerMock = new FakeLogger<FunctionApp.EventResultProcessor>();
 
         var clientMock = Substitute.For<IEventResultsClient>();
         clientMock.GetEventResultsAsync(Arg.Any<CancellationToken>()).Returns(Task.FromResult(expectedEventResults));
 
-        var processor = new FunctionsApp.EventResultProcessor(loggerMock, clientMock);
+        var processor = new FunctionApp.EventResultProcessor(loggerMock, clientMock);
 
         // Act
-        var actualEventResults = await processor.GetEventResultsAsync(new CancellationToken());
+        var actualEventResults = await processor.GetEventResultsAsync(CancellationToken.None);
 
         // Assert
         actualEventResults.Should().NotBeNull().And.HaveCount(1);

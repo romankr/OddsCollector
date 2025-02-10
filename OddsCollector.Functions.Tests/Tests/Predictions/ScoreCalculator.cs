@@ -1,6 +1,6 @@
 ﻿using FluentAssertions.Execution;
 using OddsCollector.Functions.Models;
-using FunctionsApp = OddsCollector.Functions.Predictions;
+using FunctionApp = OddsCollector.Functions.Predictions;
 
 namespace OddsCollector.Functions.Tests.Tests.Predictions;
 
@@ -10,12 +10,13 @@ internal sealed class ScoreCalculator
     public void GetScores_WithOdds_ReturnsAdjustedConsensusScoresForDraw()
     {
         // Arrange
-        List<Odd> odds = [
-            new Odd() { Away = 1, Draw = 2, Home = 3 },
-            new Odd() { Away = 3, Draw = 2, Home = 1 }
+        List<Odd> odds =
+        [
+            new() { Away = 1, Draw = 2, Home = 3 },
+            new() { Away = 3, Draw = 2, Home = 1 }
         ];
 
-        var calculator = new FunctionsApp.ScoreCalculator();
+        var calculator = new FunctionApp.ScoreCalculator();
 
         // Act
         var scores = calculator.GetScores(odds);
@@ -36,12 +37,13 @@ internal sealed class ScoreCalculator
     public void GetScores_WithOdds_ReturnsAdjustedConsensusScoresForAwayTeam()
     {
         // Arrange
-        List<Odd> odds = [
-            new Odd() { Away = 1, Draw = 2, Home = 3 },
-            new Odd() { Away = 3, Draw = 2, Home = 1 }
+        List<Odd> odds =
+        [
+            new() { Away = 1, Draw = 2, Home = 3 },
+            new() { Away = 3, Draw = 2, Home = 1 }
         ];
 
-        var calculator = new FunctionsApp.ScoreCalculator();
+        var calculator = new FunctionApp.ScoreCalculator();
 
         // Act
         var scores = calculator.GetScores(odds);
@@ -62,12 +64,13 @@ internal sealed class ScoreCalculator
     public void GetScores_WithOdds_ReturnsAdjustedConsensusScoresForHomeTeam()
     {
         // Arrange
-        List<Odd> odds = [
-            new Odd() { Away = 1, Draw = 2, Home = 3 },
-            new Odd() { Away = 3, Draw = 2, Home = 1 }
+        List<Odd> odds =
+        [
+            new() { Away = 1, Draw = 2, Home = 3 },
+            new() { Away = 3, Draw = 2, Home = 1 }
         ];
 
-        var calculator = new FunctionsApp.ScoreCalculator();
+        var calculator = new FunctionApp.ScoreCalculator();
 
         // Act
         var scores = calculator.GetScores(odds);

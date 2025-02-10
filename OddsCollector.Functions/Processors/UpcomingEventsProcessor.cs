@@ -4,7 +4,8 @@ using OddsCollector.Functions.OddsApi;
 
 namespace OddsCollector.Functions.Processors;
 
-internal sealed class UpcomingEventsProcessor(ILogger<UpcomingEventsProcessor> logger, IUpcomingEventsClient client) : IUpcomingEventsProcessor
+internal sealed class UpcomingEventsProcessor(ILogger<UpcomingEventsProcessor> logger, IUpcomingEventsClient client)
+    : IUpcomingEventsProcessor
 {
     public async Task<UpcomingEvent[]> GetUpcomingEventsAsync(CancellationToken cancellationToken)
     {

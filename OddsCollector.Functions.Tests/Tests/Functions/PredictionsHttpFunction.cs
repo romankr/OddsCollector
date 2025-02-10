@@ -5,17 +5,17 @@ using NSubstitute.ExceptionExtensions;
 using OddsCollector.Functions.Models;
 using OddsCollector.Functions.Processors;
 using OddsCollector.Functions.Tests.Infrastructure.Http;
-using FunctionsApp = OddsCollector.Functions.Functions;
+using FunctionApp = OddsCollector.Functions.Functions;
 
 namespace OddsCollector.Functions.Tests.Tests.Functions;
 
 internal sealed class PredictionsHttpFunction
 {
     [Test]
-    public void Run_WithPredictions_ReturnsSuccessfullHttpResponse()
+    public void Run_WithPredictions_ReturnsSuccessfulHttpResponse()
     {
         // Arrange
-        var loggerStub = new FakeLogger<FunctionsApp.PredictionsHttpFunction>();
+        var loggerStub = new FakeLogger<FunctionApp.PredictionsHttpFunction>();
 
         const string expectedString = "{}";
 
@@ -25,7 +25,7 @@ internal sealed class PredictionsHttpFunction
 
         var requestStub = HttpRequestDataFactory.Create();
 
-        var function = new FunctionsApp.PredictionsHttpFunction(loggerStub, processorStub);
+        var function = new FunctionApp.PredictionsHttpFunction(loggerStub, processorStub);
 
         // Act
         var response = function.Run(requestStub, []);
@@ -41,7 +41,7 @@ internal sealed class PredictionsHttpFunction
     public void Run_WithException_ReturnsErrorHttpResponseAndLogsException()
     {
         // Arrange
-        var loggerMock = new FakeLogger<FunctionsApp.PredictionsHttpFunction>();
+        var loggerMock = new FakeLogger<FunctionApp.PredictionsHttpFunction>();
 
         var processorStub = Substitute.For<IPredictionHttpRequestProcessor>();
 
@@ -53,7 +53,7 @@ internal sealed class PredictionsHttpFunction
 
         var requestStub = HttpRequestDataFactory.Create();
 
-        var function = new FunctionsApp.PredictionsHttpFunction(loggerMock, processorStub);
+        var function = new FunctionApp.PredictionsHttpFunction(loggerMock, processorStub);
 
         // Act
         var response = function.Run(requestStub, []);

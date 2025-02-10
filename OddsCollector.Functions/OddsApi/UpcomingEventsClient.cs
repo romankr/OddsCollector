@@ -27,7 +27,8 @@ internal sealed class UpcomingEventsClient(
                 break;
             }
 
-            var events = await client.OddsAsync(league, options.Value.ApiKey, EuropeanRegion, HeadToHeadMarket, IsoDateFormat, DecimalOddsFormat, null, null, cancellationToken).ConfigureAwait(false);
+            var events = await client.OddsAsync(league, options.Value.ApiKey, EuropeanRegion, HeadToHeadMarket,
+                IsoDateFormat, DecimalOddsFormat, null, null, cancellationToken).ConfigureAwait(false);
 
             result.AddRange(converter.ToUpcomingEvents(events));
         }

@@ -6,9 +6,11 @@ using OddsCollector.Functions.Predictions;
 
 namespace OddsCollector.Functions.Processors;
 
-internal sealed class PredictionProcessor(ILogger<PredictionProcessor> logger, IPredictionStrategy strategy) : IPredictionProcessor
+internal sealed class PredictionProcessor(ILogger<PredictionProcessor> logger, IPredictionStrategy strategy)
+    : IPredictionProcessor
 {
-    public async Task<EventPrediction[]> ProcessMessagesAsync(ServiceBusReceivedMessage[] messages, ServiceBusMessageActions messageActions, CancellationToken cancellationToken)
+    public async Task<EventPrediction[]> ProcessMessagesAsync(ServiceBusReceivedMessage[] messages,
+        ServiceBusMessageActions messageActions, CancellationToken cancellationToken)
     {
         var result = new List<EventPrediction>();
 
@@ -42,7 +44,8 @@ internal sealed class PredictionProcessor(ILogger<PredictionProcessor> logger, I
         return [.. result];
     }
 
-    private async Task<EventPrediction> GetPredictionAndCompleteMessageAsync(ServiceBusReceivedMessage message, ServiceBusMessageActions messageActions, CancellationToken cancellationToken)
+    private async Task<EventPrediction> GetPredictionAndCompleteMessageAsync(ServiceBusReceivedMessage message,
+        ServiceBusMessageActions messageActions, CancellationToken cancellationToken)
     {
         var upcomingEvent = message.Body.ToObjectFromJson<UpcomingEvent>();
 

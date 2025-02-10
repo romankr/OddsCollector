@@ -1,7 +1,6 @@
 ﻿using FluentAssertions.Execution;
 using OddsCollector.Functions.Models;
-using OddsCollector.Functions.Predictions;
-using FunctionsApp = OddsCollector.Functions.Predictions;
+using FunctionApp = OddsCollector.Functions.Predictions;
 
 namespace OddsCollector.Functions.Tests.Tests.Predictions;
 
@@ -16,7 +15,7 @@ internal sealed class PredictionStrategy
         var expectedCommenceTime = new DateTime(2023, 11, 25, 12, 30, 0);
         var expectedId = Guid.NewGuid().ToString();
 
-        var upcomingEvent = new UpcomingEvent()
+        var upcomingEvent = new UpcomingEvent
         {
             AwayTeam = expectedAwayTeam,
             CommenceTime = expectedCommenceTime,
@@ -24,10 +23,10 @@ internal sealed class PredictionStrategy
             Id = expectedId
         };
 
-        var finderStub = Substitute.For<IWinnerFinder>();
+        var finderStub = Substitute.For<FunctionApp.IWinnerFinder>();
         finderStub.GetWinner(Arg.Any<ICollection<Odd>>()).Returns(expectedHomeTeam);
 
-        var strategy = new FunctionsApp.PredictionStrategy(finderStub);
+        var strategy = new FunctionApp.PredictionStrategy(finderStub);
 
         // Act
         var prediction = strategy.GetPrediction(upcomingEvent);
@@ -48,9 +47,9 @@ internal sealed class PredictionStrategy
     [Test]
     public void GetPrediction_WithNullUpcomingEvent_ThrowsException()
     {
-        var finderStub = Substitute.For<IWinnerFinder>();
+        var finderStub = Substitute.For<FunctionApp.IWinnerFinder>();
 
-        var strategy = new FunctionsApp.PredictionStrategy(finderStub);
+        var strategy = new FunctionApp.PredictionStrategy(finderStub);
 
         var action = () => strategy.GetPrediction(null);
 

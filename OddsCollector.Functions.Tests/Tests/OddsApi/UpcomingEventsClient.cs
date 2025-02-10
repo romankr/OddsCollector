@@ -4,7 +4,7 @@ using OddsCollector.Functions.OddsApi.Configuration;
 using OddsCollector.Functions.OddsApi.Converters;
 using OddsCollector.Functions.OddsApi.WebApi;
 using OddsCollector.Functions.Tests.Infrastructure.CancellationToken;
-using FunctionsApp = OddsCollector.Functions.OddsApi;
+using FunctionApp = OddsCollector.Functions.OddsApi;
 
 namespace OddsCollector.Functions.Tests.Tests.OddsApi;
 
@@ -19,24 +19,22 @@ internal sealed class UpcomingEventsClient
         const string league = nameof(league);
 
         var optionsStub = Substitute.For<IOptions<OddsApiClientOptions>>();
-        optionsStub.Value.Returns(new OddsApiClientOptions
-        {
-            Leagues = [league],
-            ApiKey = secretValue
-        });
+        optionsStub.Value.Returns(new OddsApiClientOptions { Leagues = [league], ApiKey = secretValue });
 
-        ICollection<Anonymous2>? rawUpcomingEvents = [new Anonymous2()];
+        ICollection<Anonymous2> rawUpcomingEvents = [new()];
         var webApiClientMock = Substitute.For<IClient>();
-        webApiClientMock.OddsAsync(league, secretValue, Regions.Eu, Markets.H2h, DateFormat.Iso, OddsFormat.Decimal, null, null, Arg.Any<CancellationToken>()).Returns(Task.FromResult(rawUpcomingEvents));
+        webApiClientMock
+            .OddsAsync(league, secretValue, Regions.Eu, Markets.H2h, DateFormat.Iso, OddsFormat.Decimal, null, null,
+                Arg.Any<CancellationToken>()).Returns(Task.FromResult(rawUpcomingEvents));
 
-        UpcomingEvent[] upcomingEvents = [new UpcomingEvent()];
+        UpcomingEvent[] upcomingEvents = [new()];
         var converterMock = Substitute.For<IOriginalUpcomingEventConverter>();
         converterMock.ToUpcomingEvents(rawUpcomingEvents).Returns(upcomingEvents);
 
-        var oddsClient = new FunctionsApp.UpcomingEventsClient(optionsStub, webApiClientMock, converterMock);
+        var oddsClient = new FunctionApp.UpcomingEventsClient(optionsStub, webApiClientMock, converterMock);
 
         // Act
-        var results = await oddsClient.GetUpcomingEventsAsync(new CancellationToken());
+        var results = await oddsClient.GetUpcomingEventsAsync(CancellationToken.None);
 
         // Assert
         results.Should().NotBeNull().And.HaveCount(1).And.Equal(upcomingEvents);
@@ -51,21 +49,19 @@ internal sealed class UpcomingEventsClient
         const string league = nameof(league);
 
         var optionsStub = Substitute.For<IOptions<OddsApiClientOptions>>();
-        optionsStub.Value.Returns(new OddsApiClientOptions
-        {
-            Leagues = [league],
-            ApiKey = secretValue
-        });
+        optionsStub.Value.Returns(new OddsApiClientOptions { Leagues = [league], ApiKey = secretValue });
 
-        ICollection<Anonymous2>? rawUpcomingEvents = [new Anonymous2()];
+        ICollection<Anonymous2> rawUpcomingEvents = [new()];
         var webApiClientMock = Substitute.For<IClient>();
-        webApiClientMock.OddsAsync(league, secretValue, Regions.Eu, Markets.H2h, DateFormat.Iso, OddsFormat.Decimal, null, null, Arg.Any<CancellationToken>()).Returns(Task.FromResult(rawUpcomingEvents));
+        webApiClientMock
+            .OddsAsync(league, secretValue, Regions.Eu, Markets.H2h, DateFormat.Iso, OddsFormat.Decimal, null, null,
+                Arg.Any<CancellationToken>()).Returns(Task.FromResult(rawUpcomingEvents));
 
-        UpcomingEvent[] upcomingEvents = [new UpcomingEvent()];
+        UpcomingEvent[] upcomingEvents = [new()];
         var converterMock = Substitute.For<IOriginalUpcomingEventConverter>();
         converterMock.ToUpcomingEvents(rawUpcomingEvents).Returns(upcomingEvents);
 
-        var oddsClient = new FunctionsApp.UpcomingEventsClient(optionsStub, webApiClientMock, converterMock);
+        var oddsClient = new FunctionApp.UpcomingEventsClient(optionsStub, webApiClientMock, converterMock);
 
         var cancellationToken = await CancellationTokenGenerator.GetRequestedForCancellationToken();
 

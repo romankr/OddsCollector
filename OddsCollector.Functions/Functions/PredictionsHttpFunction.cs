@@ -7,7 +7,9 @@ using OddsCollector.Functions.Processors;
 
 namespace OddsCollector.Functions.Functions;
 
-internal sealed class PredictionsHttpFunction(ILogger<PredictionsHttpFunction> logger, IPredictionHttpRequestProcessor processor)
+internal sealed class PredictionsHttpFunction(
+    ILogger<PredictionsHttpFunction> logger,
+    IPredictionHttpRequestProcessor processor)
 {
     [Function(nameof(PredictionsHttpFunction))]
     public HttpResponseData Run(
@@ -30,12 +32,12 @@ internal sealed class PredictionsHttpFunction(ILogger<PredictionsHttpFunction> l
         }
         catch (Exception exception)
         {
-            const string ErrorMessage = "Failed to get predictions";
+            const string errorMessage = "Failed to get predictions";
 
             statusCode = HttpStatusCode.InternalServerError;
-            body = ErrorMessage;
+            body = errorMessage;
 
-            logger.LogError(exception, ErrorMessage);
+            logger.LogError(exception, errorMessage);
         }
 
         var response = request.CreateResponse(statusCode);

@@ -1,5 +1,4 @@
-﻿using OddsCollector.Functions.OddsApi.Converters;
-using FunctionApp = OddsCollector.Functions.OddsApi.Converters;
+﻿using FunctionApp = OddsCollector.Functions.OddsApi.Converters;
 
 namespace OddsCollector.Functions.Tests.Tests.OddsApi.Converters;
 
@@ -8,7 +7,7 @@ internal sealed class BookmakerConverter
     [Test]
     public void ToOdds_WithNullBookmakers_ThrowsException()
     {
-        var marketConverter = Substitute.For<IMarketConverter>();
+        var marketConverter = Substitute.For<FunctionApp.IMarketConverter>();
 
         var bookmakerConverter = new FunctionApp.BookmakerConverter(marketConverter);
 
@@ -21,7 +20,7 @@ internal sealed class BookmakerConverter
     [TestCase(null, TestName = "ToOdds_WithNullAwayTeam_ThrowsException")]
     public void ToOdds_WithNullOrEmptyAwayTeam_ThrowsException(string? awayTeam)
     {
-        var marketConverter = Substitute.For<IMarketConverter>();
+        var marketConverter = Substitute.For<FunctionApp.IMarketConverter>();
 
         var bookmakerConverter = new FunctionApp.BookmakerConverter(marketConverter);
 
@@ -34,7 +33,7 @@ internal sealed class BookmakerConverter
     [TestCase(null, TestName = "ToOdds_WithNullHomeTeam_ThrowsException")]
     public void ToOdds_WithNullOrEmptyHomeTeam_ThrowsException(string? homeTeam)
     {
-        var marketConverter = Substitute.For<IMarketConverter>();
+        var marketConverter = Substitute.For<FunctionApp.IMarketConverter>();
 
         var bookmakerConverter = new FunctionApp.BookmakerConverter(marketConverter);
 

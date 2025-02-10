@@ -1,5 +1,5 @@
-﻿using FluentAssertions.Execution;
-using OddsCollector.Functions.OddsApi.Converters;
+﻿using System.Globalization;
+using FluentAssertions.Execution;
 using OddsCollector.Functions.OddsApi.WebApi;
 using FunctionApp = OddsCollector.Functions.OddsApi.Converters;
 
@@ -12,26 +12,21 @@ internal sealed class OriginalCompletedEventConverter
     {
         // Arrange
         var expectedCommenceTime = DateTime.UtcNow;
-        var expectedWinner = "homeTeam";
+        const string expectedWinner = "homeTeam";
         var expectedId = Guid.NewGuid().ToString();
 
-        var originalEventData = new Anonymous3()
+        var originalEventData = new Anonymous3
         {
             Away_team = "awayTeam",
             Commence_time = expectedCommenceTime,
             Completed = true,
             Home_team = expectedWinner,
             Id = expectedId,
-            Last_update = DateTime.UtcNow.ToString(),
-            Scores = [
-                new(){
-                    Name = "awayTeam",
-                    Score = "1"
-                },
-                new(){
-                    Name = expectedWinner,
-                    Score = "2"
-                }
+            Last_update = DateTime.UtcNow.ToString(CultureInfo.InvariantCulture),
+            Scores =
+            [
+                new ScoreModel { Name = "awayTeam", Score = "1" },
+                new ScoreModel { Name = expectedWinner, Score = "2" }
             ]
         };
 
@@ -69,7 +64,7 @@ internal sealed class OriginalCompletedEventConverter
     [Test]
     public void ToEventResult_WithNullEventData_ThrowsException()
     {
-        var winnerConverter = Substitute.For<IWinnerConverter>();
+        var winnerConverter = Substitute.For<FunctionApp.IWinnerConverter>();
 
         var converter = new FunctionApp.OriginalCompletedEventConverter(winnerConverter);
 

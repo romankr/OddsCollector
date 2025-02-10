@@ -1,5 +1,4 @@
-﻿using OddsCollector.Functions.OddsApi.Converters;
-using OddsCollector.Functions.OddsApi.WebApi;
+﻿using OddsCollector.Functions.OddsApi.WebApi;
 using FunctionApp = OddsCollector.Functions.OddsApi.Converters;
 
 namespace OddsCollector.Functions.Tests.Tests.OddsApi.Converters;
@@ -9,7 +8,7 @@ internal sealed class MarketConverter
     [Test]
     public void ToOdd_WithNullBookmakers_ThrowsException()
     {
-        var outcomeConverter = Substitute.For<IOutcomeConverter>();
+        var outcomeConverter = Substitute.For<FunctionApp.IOutcomeConverter>();
 
         var markerConverter = new FunctionApp.MarketConverter(outcomeConverter);
 
@@ -21,7 +20,7 @@ internal sealed class MarketConverter
     [Test]
     public void ToOdd_WithEmptyBookmakers_ThrowsException()
     {
-        var outcomeConverter = Substitute.For<IOutcomeConverter>();
+        var outcomeConverter = Substitute.For<FunctionApp.IOutcomeConverter>();
 
         var markerConverter = new FunctionApp.MarketConverter(outcomeConverter);
 
@@ -33,11 +32,12 @@ internal sealed class MarketConverter
     [Test]
     public void ToOdd_WithUnexpectedMarket_ThrowsException()
     {
-        var outcomeConverter = Substitute.For<IOutcomeConverter>();
+        var outcomeConverter = Substitute.For<FunctionApp.IOutcomeConverter>();
 
         var markerConverter = new FunctionApp.MarketConverter(outcomeConverter);
 
-        var action = () => markerConverter.ToOdd([new Markets2() { Key = Markets2Key.Totals }], "bookmaker", "awayTeam", "homeTeam");
+        var action = () =>
+            markerConverter.ToOdd([new Markets2 { Key = Markets2Key.Totals }], "bookmaker", "awayTeam", "homeTeam");
 
         action.Should().Throw<InvalidOperationException>();
     }

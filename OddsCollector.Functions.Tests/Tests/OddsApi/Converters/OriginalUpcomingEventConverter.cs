@@ -1,5 +1,4 @@
 ﻿using FluentAssertions.Execution;
-using OddsCollector.Functions.OddsApi.Converters;
 using OddsCollector.Functions.OddsApi.WebApi;
 using FunctionApp = OddsCollector.Functions.OddsApi.Converters;
 
@@ -20,35 +19,30 @@ internal class OriginalUpcomingEventConverter
         var expectedAwayScore = 1.2;
         var expectedDrawScore = 1.3;
 
-        var originalEvent = new Anonymous2()
+        var originalEvent = new Anonymous2
         {
             Away_team = expectedAwayTeam,
             Commence_time = expectedCommenceTime,
             Home_team = expectedHomeTeam,
             Id = expectedId,
-            Bookmakers = [
-                new Bookmakers()
+            Bookmakers =
+            [
+                new Bookmakers
                 {
                     Key = expectedBookmaker,
-                    Markets = [
-                        new Markets2(){
+                    Markets =
+                    [
+                        new Markets2
+                        {
                             Key = Markets2Key.H2h,
-                            Outcomes = [
-                               new Outcome(){
-                                   Name = expectedHomeTeam,
-                                   Price = expectedHomeScore
-                               },
-                               new Outcome(){
-                                   Name = expectedAwayTeam,
-                                   Price = expectedAwayScore
-                               },
-                               new Outcome(){
-                                   Name = "Draw",
-                                   Price = expectedDrawScore
-                               }
+                            Outcomes =
+                            [
+                                new Outcome { Name = expectedHomeTeam, Price = expectedHomeScore },
+                                new Outcome { Name = expectedAwayTeam, Price = expectedAwayScore },
+                                new Outcome { Name = "Draw", Price = expectedDrawScore }
                             ]
                         }
-                    ],
+                    ]
                 }
             ]
         };
@@ -83,7 +77,7 @@ internal class OriginalUpcomingEventConverter
     [Test]
     public void ToUpcomingEvents_WithNoEventData_ReturnsNoEvents()
     {
-        var bookmakerConverter = Substitute.For<IBookmakerConverter>();
+        var bookmakerConverter = Substitute.For<FunctionApp.IBookmakerConverter>();
 
         var converter = new FunctionApp.OriginalUpcomingEventConverter(bookmakerConverter);
 
@@ -95,7 +89,7 @@ internal class OriginalUpcomingEventConverter
     [Test]
     public void ToUpcomingEvents_WithNullEventData_ThrowsException()
     {
-        var bookmakerConverter = Substitute.For<IBookmakerConverter>();
+        var bookmakerConverter = Substitute.For<FunctionApp.IBookmakerConverter>();
 
         var converter = new FunctionApp.OriginalUpcomingEventConverter(bookmakerConverter);
 
