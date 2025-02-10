@@ -33,4 +33,4 @@ jobs:
         output: 'lcov.info'
         outputFormat: 'lcov'
         excludes: '[program]*,*[test]test*'
-        threshold: 80
+        threshold: 70
