@@ -26,3 +26,11 @@ jobs:
       run: dotnet build --no-restore
     - name: Test
       run: dotnet test --no-build --verbosity normal
+    - name: Check coverage
+      uses: b3b00/coverlet-action@1.2.5
+      with:
+        testProject: 'OddsCollector.Functions.Tests/OddsCollector.Functions.Tests.csproj'
+        output: 'lcov.info'
+        outputFormat: 'lcov'
+        excludes: '[program]*,*[test]test*'
+        threshold: 70
