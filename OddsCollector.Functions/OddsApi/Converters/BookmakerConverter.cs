@@ -11,7 +11,12 @@ internal sealed class BookmakerConverter(IMarketConverter converter) : IBookmake
 
         foreach (var bookmaker in bookmakers!)
         {
-            yield return converter.ToOdd(bookmaker.Markets, bookmaker.Key, awayTeam!, homeTeam!);
+            var odd = converter.ToOdd(bookmaker.Markets, bookmaker.Key, awayTeam!, homeTeam!);
+
+            if (odd is not null)
+            {
+                yield return odd;
+            }
         }
     }
 

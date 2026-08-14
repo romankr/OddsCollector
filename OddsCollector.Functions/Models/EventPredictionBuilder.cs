@@ -15,7 +15,10 @@ internal sealed class EventPredictionBuilder
 
     public EventPredictionBuilder SetCommenceTime(DateTime? commenceTime)
     {
-        ArgumentNullException.ThrowIfNull(commenceTime);
+        if (!commenceTime.HasValue)
+        {
+            throw new ArgumentNullException(nameof(commenceTime));
+        }
 
         Instance.CommenceTime = commenceTime.Value;
 
@@ -40,11 +43,11 @@ internal sealed class EventPredictionBuilder
         return this;
     }
 
-    public EventPredictionBuilder SetWinner(string? winner)
+    public EventPredictionBuilder SetOutcome(string? outcome)
     {
-        ArgumentException.ThrowIfNullOrEmpty(winner);
+        ArgumentException.ThrowIfNullOrEmpty(outcome);
 
-        Instance.Winner = winner;
+        Instance.Outcome = outcome;
 
         return this;
     }

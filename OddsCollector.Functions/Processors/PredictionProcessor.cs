@@ -29,16 +29,16 @@ internal sealed class PredictionProcessor(ILogger<PredictionProcessor> logger, I
             catch (Exception exception)
             {
                 logger.LogError(exception, "Failed to process message with id {Id}", message.MessageId);
+                try
+                {
+                    await messageActions.DeadLetterMessageAsync(message, cancellationToken: cancellationToken);
+                }
+                catch (Exception deadLetterException)
+                {
+                    logger.LogError(deadLetterException, "Failed to put message with id {Id} to the dead letter queue",
+                        message.MessageId);
+                }
             }
-        }
-
-        if (result.Count == 0)
-        {
-            logger.LogWarning("Processed 0 messages");
-        }
-        else
-        {
-            logger.LogInformation("Processed {Count} message(s)", result.Count);
         }
 
         return [.. result];

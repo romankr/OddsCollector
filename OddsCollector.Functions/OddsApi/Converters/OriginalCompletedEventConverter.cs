@@ -3,7 +3,7 @@ using OddsCollector.Functions.OddsApi.WebApi;
 
 namespace OddsCollector.Functions.OddsApi.Converters;
 
-internal sealed class OriginalCompletedEventConverter(IWinnerConverter converter) : IOriginalCompletedEventConverter
+internal sealed class OriginalCompletedEventConverter(IOutcomeConverter converter) : IOriginalCompletedEventConverter
 {
     public IEnumerable<EventResult> ToEventResults(ICollection<Anonymous3>? originalEvents)
     {
@@ -20,7 +20,7 @@ internal sealed class OriginalCompletedEventConverter(IWinnerConverter converter
         return new EventResultBuilder()
             .SetId(originalEvent.Id)
             .SetCommenceTime(originalEvent.Commence_time)
-            .SetWinner(converter.GetWinner(originalEvent.Scores))
+            .SetOutcome(converter.GetOutcome(originalEvent.Scores))
             .Instance;
     }
 

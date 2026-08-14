@@ -13,18 +13,21 @@ internal sealed class EventResultBuilder
         return this;
     }
 
-    public EventResultBuilder SetWinner(string? winner)
+    public EventResultBuilder SetOutcome(string? outcome)
     {
-        ArgumentException.ThrowIfNullOrEmpty(winner);
+        ArgumentException.ThrowIfNullOrEmpty(outcome);
 
-        Instance.Winner = winner;
+        Instance.Outcome = outcome;
 
         return this;
     }
 
     public EventResultBuilder SetCommenceTime(DateTime? commenceTime)
     {
-        ArgumentNullException.ThrowIfNull(commenceTime);
+        if (!commenceTime.HasValue)
+        {
+            throw new ArgumentNullException(nameof(commenceTime));
+        }
 
         Instance.CommenceTime = commenceTime.Value;
 

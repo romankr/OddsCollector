@@ -23,8 +23,8 @@ internal sealed class PredictionStrategy
             Id = expectedId
         };
 
-        var finderStub = Substitute.For<FunctionApp.IWinnerFinder>();
-        finderStub.GetWinner(Arg.Any<ICollection<Odd>>()).Returns(expectedHomeTeam);
+        var finderStub = Substitute.For<FunctionApp.IOutcomeFinder>();
+        finderStub.GetOutcome(Arg.Any<ICollection<Odd>>()).Returns(expectedHomeTeam);
 
         var strategy = new FunctionApp.PredictionStrategy(finderStub);
 
@@ -41,13 +41,13 @@ internal sealed class PredictionStrategy
         prediction.HomeTeam.Should().NotBeNullOrEmpty().And.Be(expectedHomeTeam);
         prediction.CommenceTime.Should().Be(expectedCommenceTime);
         prediction.Id.Should().NotBeNullOrEmpty().And.Be(expectedId);
-        prediction.Winner.Should().Be(expectedHomeTeam);
+        prediction.Outcome.Should().Be(expectedHomeTeam);
     }
 
     [Test]
     public void GetPrediction_WithNullUpcomingEvent_ThrowsException()
     {
-        var finderStub = Substitute.For<FunctionApp.IWinnerFinder>();
+        var finderStub = Substitute.For<FunctionApp.IOutcomeFinder>();
 
         var strategy = new FunctionApp.PredictionStrategy(finderStub);
 

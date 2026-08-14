@@ -22,10 +22,7 @@ internal sealed class UpcomingEventsClient(
 
         foreach (var league in options.Value.Leagues)
         {
-            if (cancellationToken.IsCancellationRequested)
-            {
-                break;
-            }
+            cancellationToken.ThrowIfCancellationRequested();
 
             var events = await client.OddsAsync(league, options.Value.ApiKey, EuropeanRegion, HeadToHeadMarket,
                 IsoDateFormat, DecimalOddsFormat, null, null, cancellationToken).ConfigureAwait(false);

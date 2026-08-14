@@ -4,7 +4,7 @@ internal sealed class OddsApiClientOptions
 {
     public HashSet<string> Leagues { get; init; } = [];
 
-    public string ApiKey { get; set; } = string.Empty;
+    public string ApiKey { get; private set; } = string.Empty;
 
     public void AddLeagues(string? leagues)
     {

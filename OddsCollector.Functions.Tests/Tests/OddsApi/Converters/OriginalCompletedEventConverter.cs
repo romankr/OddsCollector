@@ -12,7 +12,7 @@ internal sealed class OriginalCompletedEventConverter
     {
         // Arrange
         var expectedCommenceTime = DateTime.UtcNow;
-        const string expectedWinner = "homeTeam";
+        const string expectedOutcome = "homeTeam";
         var expectedId = Guid.NewGuid().ToString();
 
         var originalEventData = new Anonymous3
@@ -20,18 +20,18 @@ internal sealed class OriginalCompletedEventConverter
             Away_team = "awayTeam",
             Commence_time = expectedCommenceTime,
             Completed = true,
-            Home_team = expectedWinner,
+            Home_team = expectedOutcome,
             Id = expectedId,
             Last_update = DateTime.UtcNow.ToString(CultureInfo.InvariantCulture),
             Scores =
             [
                 new ScoreModel { Name = "awayTeam", Score = "1" },
-                new ScoreModel { Name = expectedWinner, Score = "2" }
+                new ScoreModel { Name = expectedOutcome, Score = "2" }
             ]
         };
 
         var converter = new FunctionApp.OriginalCompletedEventConverter(
-            new FunctionApp.WinnerConverter(
+            new FunctionApp.OutcomeConverter(
                 new FunctionApp.ScoreModelsConverter(
                     new FunctionApp.ScoreModelConverter())));
 
@@ -44,7 +44,7 @@ internal sealed class OriginalCompletedEventConverter
         using var scope = new AssertionScope();
 
         eventResults[0].CommenceTime.Should().Be(expectedCommenceTime);
-        eventResults[0].Winner.Should().Be(expectedWinner);
+        eventResults[0].Outcome.Should().Be(expectedOutcome);
         eventResults[0].Id.Should().Be(expectedId);
     }
 
@@ -52,7 +52,7 @@ internal sealed class OriginalCompletedEventConverter
     public void ToEventResult_WithNoEventData_ReturnsNoEvents()
     {
         var converter = new FunctionApp.OriginalCompletedEventConverter(
-            new FunctionApp.WinnerConverter(
+            new FunctionApp.OutcomeConverter(
                 new FunctionApp.ScoreModelsConverter(
                     new FunctionApp.ScoreModelConverter())));
 
@@ -64,11 +64,11 @@ internal sealed class OriginalCompletedEventConverter
     [Test]
     public void ToEventResult_WithNullEventData_ThrowsException()
     {
-        var winnerConverter = Substitute.For<FunctionApp.IWinnerConverter>();
+        var outcomeConverter = Substitute.For<FunctionApp.IOutcomeConverter>();
 
-        var converter = new FunctionApp.OriginalCompletedEventConverter(winnerConverter);
+        var eventConverter = new FunctionApp.OriginalCompletedEventConverter(outcomeConverter);
 
-        var action = () => converter.ToEventResults(null).ToList();
+        var action = () => eventConverter.ToEventResults(null).ToList();
 
         action.Should().Throw<ArgumentNullException>().WithParameterName("originalEvents");
     }
