@@ -12,5 +12,5 @@ internal sealed class EventPrediction
 
     // cosmosdb requires lowercase
     [JsonPropertyName("id")] public string Id { get; set; } = string.Empty;
-    public string Winner { get; set; } = string.Empty;
+    public string Outcome { get; set; } = string.Empty;
 }

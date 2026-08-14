@@ -26,13 +26,13 @@ jobs:
       run: dotnet build --no-restore
     - name: Run SonarAnalyzer.CSharp
       run: dotnet build --no-restore --no-incremental -warnaserror
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
-    - name: Check coverage
-      uses: b3b00/coverlet-action@1.2.5
-      with:
-        testProject: 'OddsCollector.Functions.Tests/OddsCollector.Functions.Tests.csproj'
-        output: 'lcov.info'
-        outputFormat: 'lcov'
-        excludes: '[program]*,*[test]test*'
-        threshold: 70
+    - name: Test and check coverage
+      run: >
+        dotnet test OddsCollector.Functions.Tests/OddsCollector.Functions.Tests.csproj
+        --no-build --verbosity normal
+        /p:CollectCoverage=true
+        /p:Include="[OddsCollector.Functions]*"
+        /p:CoverletOutputFormat=lcov
+        /p:CoverletOutput=lcov.info
+        /p:Threshold=70
+        /p:ThresholdType=line

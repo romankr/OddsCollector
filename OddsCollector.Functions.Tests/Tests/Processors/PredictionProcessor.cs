@@ -41,14 +41,9 @@ internal sealed class PredictionProcessor
         predictions.Should().NotBeNull().And.NotBeEmpty().And.HaveCount(1);
         predictions[0].Should().NotBeNull().And.Be(expectedPrediction);
 
-        await actionsMock.Received(Quantity.Exactly(1)).CompleteMessageAsync(message, cancellationToken);
+        await actionsMock.Received(1).CompleteMessageAsync(message, cancellationToken);
 
-        loggerMock.Collector.Count.Should().Be(1);
-
-        using var scope = new AssertionScope();
-
-        loggerMock.LatestRecord.Level.Should().Be(LogLevel.Information);
-        loggerMock.LatestRecord.Message.Should().Be("Processed 1 message(s)");
+        loggerMock.Collector.Count.Should().Be(0);
     }
 
     [Test]
@@ -72,12 +67,7 @@ internal sealed class PredictionProcessor
 
         actionsMock.Received(Quantity.Exactly(0));
 
-        loggerMock.Collector.Count.Should().Be(1);
-
-        using var scope = new AssertionScope();
-
-        loggerMock.LatestRecord.Level.Should().Be(LogLevel.Warning);
-        loggerMock.LatestRecord.Message.Should().Be("Processed 0 messages");
+        loggerMock.Collector.Count.Should().Be(0);
     }
 
     [Test]
@@ -108,25 +98,19 @@ internal sealed class PredictionProcessor
         // Assert
         predictions.Should().NotBeNull().And.BeEmpty();
 
-        actionsMock.Received(Quantity.Exactly(0));
+        await actionsMock.Received(1).DeadLetterMessageAsync(message, cancellationToken: cancellationToken);
 
-        loggerMock.Collector.Count.Should().Be(2);
+        loggerMock.Collector.Count.Should().Be(1);
 
         using var scope = new AssertionScope();
 
-        loggerMock.Collector.GetSnapshot().Count.Should().Be(2);
+        loggerMock.Collector.GetSnapshot().Count.Should().Be(1);
 
         var firstRecord = loggerMock.Collector.GetSnapshot()[0];
 
         firstRecord.Should().NotBeNull();
         firstRecord.Level.Should().Be(LogLevel.Error);
         firstRecord.Message.Should().Be("Failed to process message with id 123");
-
-        var secondRecord = loggerMock.Collector.GetSnapshot()[1];
-
-        secondRecord.Should().NotBeNull();
-        secondRecord.Level.Should().Be(LogLevel.Warning);
-        secondRecord.Message.Should().Be("Processed 0 messages");
     }
 
     [Test]

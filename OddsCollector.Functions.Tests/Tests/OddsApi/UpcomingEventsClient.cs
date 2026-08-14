@@ -19,7 +19,9 @@ internal sealed class UpcomingEventsClient
         const string league = nameof(league);
 
         var optionsStub = Substitute.For<IOptions<OddsApiClientOptions>>();
-        optionsStub.Value.Returns(new OddsApiClientOptions { Leagues = [league], ApiKey = secretValue });
+        var apiOptions = new OddsApiClientOptions { Leagues = [league] };
+        apiOptions.SetApiKey(secretValue);
+        optionsStub.Value.Returns(apiOptions);
 
         ICollection<Anonymous2> rawUpcomingEvents = [new()];
         var webApiClientMock = Substitute.For<IClient>();
@@ -49,7 +51,9 @@ internal sealed class UpcomingEventsClient
         const string league = nameof(league);
 
         var optionsStub = Substitute.For<IOptions<OddsApiClientOptions>>();
-        optionsStub.Value.Returns(new OddsApiClientOptions { Leagues = [league], ApiKey = secretValue });
+        var apiOptions = new OddsApiClientOptions { Leagues = [league] };
+        apiOptions.SetApiKey(secretValue);
+        optionsStub.Value.Returns(apiOptions);
 
         ICollection<Anonymous2> rawUpcomingEvents = [new()];
         var webApiClientMock = Substitute.For<IClient>();
@@ -66,9 +70,9 @@ internal sealed class UpcomingEventsClient
         var cancellationToken = await CancellationTokenGenerator.GetRequestedForCancellationToken();
 
         // Act
-        var results = await oddsClient.GetUpcomingEventsAsync(cancellationToken);
+        var action = async () => await oddsClient.GetUpcomingEventsAsync(cancellationToken);
 
         // Assert
-        results.Should().NotBeNull().And.HaveCount(0);
+        await action.Should().ThrowExactlyAsync<OperationCanceledException>();
     }
 }

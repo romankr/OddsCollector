@@ -3,16 +3,13 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using OddsCollector.Functions.Models;
-using OddsCollector.Functions.Processors;
 
 namespace OddsCollector.Functions.Functions;
 
-internal sealed class PredictionsHttpFunction(
-    ILogger<PredictionsHttpFunction> logger,
-    IPredictionHttpRequestProcessor processor)
+internal sealed class PredictionsHttpFunction(ILogger<PredictionsHttpFunction> logger)
 {
     [Function(nameof(PredictionsHttpFunction))]
-    public HttpResponseData Run(
+    public async Task<HttpResponseData> Run(
         [HttpTrigger(AuthorizationLevel.Admin, "get")]
         HttpRequestData request,
         [CosmosDBInput(
@@ -22,26 +19,22 @@ internal sealed class PredictionsHttpFunction(
             SqlQuery = "SELECT * FROM p WHERE p.CommenceTime > GetCurrentDateTime()")]
         EventPrediction[] predictions)
     {
-        HttpStatusCode statusCode;
-        string body;
-
         try
         {
-            statusCode = HttpStatusCode.OK;
-            body = processor.Serialize(predictions);
+            var response = request.CreateResponse(HttpStatusCode.OK);
+            await response.WriteAsJsonAsync(predictions);
+
+            return response;
         }
         catch (Exception exception)
         {
             const string errorMessage = "Failed to get predictions";
-
-            statusCode = HttpStatusCode.InternalServerError;
-            body = errorMessage;
-
             logger.LogError(exception, errorMessage);
-        }
 
-        var response = request.CreateResponse(statusCode);
-        response.WriteString(body);
-        return response;
+            var response = request.CreateResponse(HttpStatusCode.InternalServerError);
+            await response.WriteAsJsonAsync(errorMessage);
+
+            return response;
+        }
     }
 }

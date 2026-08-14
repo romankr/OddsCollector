@@ -37,15 +37,15 @@ internal sealed class EventPredictionBuilder
         action.Should().Throw<ArgumentException>().WithParameterName(nameof(homeTeam));
     }
 
-    [TestCase("", TestName = "SetWinner_WithEmptyString_ThrowsException")]
-    [TestCase(null, TestName = "SetWinner_WithNullString_ThrowsException")]
-    public void SetWinner_WithNullOrEmptyString_ThrowsException(string? winner)
+    [TestCase("", TestName = "SetOutcome_WithEmptyString_ThrowsException")]
+    [TestCase(null, TestName = "SetOutcome_WithNullString_ThrowsException")]
+    public void SetOutcome_WithNullOrEmptyString_ThrowsException(string? outcome)
     {
         var builder = new FunctionApp.EventPredictionBuilder();
 
-        var action = () => builder.SetWinner(winner);
+        var action = () => builder.SetOutcome(outcome);
 
-        action.Should().Throw<ArgumentException>().WithParameterName(nameof(winner));
+        action.Should().Throw<ArgumentException>().WithParameterName(nameof(outcome));
     }
 
     [Test]

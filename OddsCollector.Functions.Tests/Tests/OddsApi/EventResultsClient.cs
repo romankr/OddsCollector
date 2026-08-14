@@ -19,7 +19,9 @@ internal sealed class EventResultsClient
         const string league = nameof(league);
 
         var optionsStub = Substitute.For<IOptions<OddsApiClientOptions>>();
-        optionsStub.Value.Returns(new OddsApiClientOptions { Leagues = [league], ApiKey = secretValue });
+        var apiOptions = new OddsApiClientOptions { Leagues = [league] };
+        apiOptions.SetApiKey(secretValue);
+        optionsStub.Value.Returns(apiOptions);
 
         ICollection<Anonymous3> rawEventResults = [new()];
         var webApiClientStub = Substitute.For<IClient>();
@@ -48,7 +50,9 @@ internal sealed class EventResultsClient
         const string league = nameof(league);
 
         var optionsStub = Substitute.For<IOptions<OddsApiClientOptions>>();
-        optionsStub.Value.Returns(new OddsApiClientOptions { Leagues = [league], ApiKey = secretValue });
+        var apiOptions = new OddsApiClientOptions { Leagues = [league] };
+        apiOptions.SetApiKey(secretValue);
+        optionsStub.Value.Returns(apiOptions);
 
         ICollection<Anonymous3> rawEventResults = [new()];
         var webApiClientStub = Substitute.For<IClient>();
@@ -64,9 +68,9 @@ internal sealed class EventResultsClient
         var cancellationToken = await CancellationTokenGenerator.GetRequestedForCancellationToken();
 
         // Act
-        var results = await oddsClient.GetEventResultsAsync(cancellationToken);
+        var action = async () => await oddsClient.GetEventResultsAsync(cancellationToken);
 
         // Assert
-        results.Should().NotBeNull().And.HaveCount(0);
+        await action.Should().ThrowExactlyAsync<OperationCanceledException>();
     }
 }

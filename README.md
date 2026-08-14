@@ -2,7 +2,7 @@
 
 # Purpose
 
-The project is designed to have fun with the algorithm described in "[Beating the bookies with their own numbers - and how the online sports betting market is rigged](https://www.researchgate.net/publication/320296375_Beating_the_bookies_with_their_own_numbers_-_and_how_the_online_sports_betting_market_is_rigged)" using The Odds API as the main source of odds data. There is also an improvement on the original algorithm that increases prediction accuracy from 40% to 60-70%.
+The project is designed to have fun with the algorithm described in "[Beating the bookies with their own numbers - and how the online sports betting market is rigged](https://www.researchgate.net/publication/320296375_Beating_the_bookies_with_their_own_numbers_-_and_how_the_online_sports_betting_market_is_rigged)" using The Odds API as the main source of odds data. There is also an improvement on the original algorithm that increases prediction accuracy from 40% to 60-70%. But this limits the project's applicability strictly to football matches.
 
 # Features
 

@@ -3,22 +3,21 @@ using OddsCollector.Functions.OddsApi.WebApi;
 
 namespace OddsCollector.Functions.OddsApi.Converters;
 
-internal sealed class OutcomeConverter : IOutcomeConverter
+internal sealed class OutcomeConverter(IScoreModelsConverter converter) : IOutcomeConverter
 {
-    public Odd ToOdd(ICollection<Outcome>? outcomes, string? bookmaker, string awayTeam, string homeTeam)
+    public string GetOutcome(ICollection<ScoreModel>? scores)
     {
-        ArgumentNullException.ThrowIfNull(outcomes);
-        ArgumentException.ThrowIfNullOrEmpty(bookmaker);
+        ArgumentNullException.ThrowIfNull(scores);
 
-        return new OddBuilder()
-            .SetBookmaker(bookmaker)
-            .SetHome(GetScore(outcomes, homeTeam))
-            .SetAway(GetScore(outcomes, awayTeam))
-            .SetDraw(GetScore(outcomes, OutcomeTypes.Draw)).Instance;
-    }
+        var convertedScores = converter.Convert(scores).ToList();
 
-    private static double? GetScore(IEnumerable<Outcome> outcomes, string oddType)
-    {
-        return outcomes.First(o => o.Name == oddType).Price;
+        if (convertedScores[0].Score == convertedScores[1].Score)
+        {
+            return OutcomeTypes.Draw;
+        }
+
+        return convertedScores[0].Score > convertedScores[1].Score
+            ? convertedScores[0].Name
+            : convertedScores[1].Name;
     }
 }

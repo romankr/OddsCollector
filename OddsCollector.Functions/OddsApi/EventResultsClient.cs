@@ -19,10 +19,7 @@ internal sealed class EventResultsClient(
 
         foreach (var league in options.Value.Leagues)
         {
-            if (cancellationToken.IsCancellationRequested)
-            {
-                break;
-            }
+            cancellationToken.ThrowIfCancellationRequested();
 
             var results = await client.ScoresAsync(league, options.Value.ApiKey, DaysFromToday, cancellationToken)
                 .ConfigureAwait(false);

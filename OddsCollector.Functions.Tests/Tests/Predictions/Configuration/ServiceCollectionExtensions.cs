@@ -13,29 +13,21 @@ internal sealed class ServiceCollectionExtensions
 
         services.AddPredictionStrategy();
 
-        var descriptor =
-            services.FirstOrDefault(
-                x => x.ServiceType == typeof(FunctionApp.IPredictionStrategy)
-                     && x.ImplementationType == typeof(FunctionApp.PredictionStrategy)
-                     && x.Lifetime == ServiceLifetime.Singleton);
-
-        descriptor.Should().NotBeNull();
+        var provider = services.BuildServiceProvider();
+        var service = provider.GetService<FunctionApp.IPredictionStrategy>();
+        service.Should().NotBeNull();
     }
 
     [Test]
-    public void AddPredictionStrategy_AddsWinnerFinder()
+    public void AddPredictionStrategy_AddsOutcomeFinder()
     {
         var services = new ServiceCollection();
 
         services.AddPredictionStrategy();
 
-        var strategyDescriptor =
-            services.FirstOrDefault(
-                x => x.ServiceType == typeof(FunctionApp.IWinnerFinder)
-                     && x.ImplementationType == typeof(FunctionApp.WinnerFinder)
-                     && x.Lifetime == ServiceLifetime.Singleton);
-
-        strategyDescriptor.Should().NotBeNull();
+        var provider = services.BuildServiceProvider();
+        var service = provider.GetService<FunctionApp.IOutcomeFinder>();
+        service.Should().NotBeNull();
     }
 
     [Test]
@@ -45,12 +37,8 @@ internal sealed class ServiceCollectionExtensions
 
         services.AddPredictionStrategy();
 
-        var strategyDescriptor =
-            services.FirstOrDefault(
-                x => x.ServiceType == typeof(FunctionApp.IScoreCalculator)
-                     && x.ImplementationType == typeof(FunctionApp.ScoreCalculator)
-                     && x.Lifetime == ServiceLifetime.Singleton);
-
-        strategyDescriptor.Should().NotBeNull();
+        var provider = services.BuildServiceProvider();
+        var service = provider.GetService<FunctionApp.IScoreCalculator>();
+        service.Should().NotBeNull();
     }
 }

@@ -1,9 +1,7 @@
 ﻿using System.Net;
+using FluentAssertions.Execution;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
-using NSubstitute.ExceptionExtensions;
-using OddsCollector.Functions.Models;
-using OddsCollector.Functions.Processors;
 using OddsCollector.Functions.Tests.Infrastructure.Http;
 using FunctionApp = OddsCollector.Functions.Functions;
 
@@ -12,23 +10,19 @@ namespace OddsCollector.Functions.Tests.Tests.Functions;
 internal sealed class PredictionsHttpFunction
 {
     [Test]
-    public void Run_WithPredictions_ReturnsSuccessfulHttpResponse()
+    public async Task Run_WithPredictions_ReturnsSuccessfulHttpResponse()
     {
         // Arrange
         var loggerStub = new FakeLogger<FunctionApp.PredictionsHttpFunction>();
 
-        const string expectedString = "{}";
-
-        var processorStub = Substitute.For<IPredictionHttpRequestProcessor>();
-
-        processorStub.Serialize(Arg.Any<EventPrediction[]>()).Returns(expectedString);
+        const string expectedString = "[]";
 
         var requestStub = HttpRequestDataFactory.Create();
 
-        var function = new FunctionApp.PredictionsHttpFunction(loggerStub, processorStub);
+        var function = new FunctionApp.PredictionsHttpFunction(loggerStub);
 
         // Act
-        var response = function.Run(requestStub, []);
+        var response = await function.Run(requestStub, []);
 
         // Assert
         response.Should().NotBeNull();
@@ -38,33 +32,33 @@ internal sealed class PredictionsHttpFunction
     }
 
     [Test]
-    public void Run_WithException_ReturnsErrorHttpResponseAndLogsException()
+    public async Task Run_WithException_ReturnsErrorHttpResponseAndLogsException()
     {
         // Arrange
         var loggerMock = new FakeLogger<FunctionApp.PredictionsHttpFunction>();
 
-        var processorStub = Substitute.For<IPredictionHttpRequestProcessor>();
-
         const string expectedErrorMessage = "Failed to get predictions";
 
-        var exception = new Exception();
+        var exception = new InvalidOperationException("Response body is not writable");
 
-        processorStub.Serialize(Arg.Any<EventPrediction[]>()).Throws(exception);
+        var requestStub = HttpRequestDataFactory.CreateWithFailingResponse(exception);
 
-        var requestStub = HttpRequestDataFactory.Create();
-
-        var function = new FunctionApp.PredictionsHttpFunction(loggerMock, processorStub);
+        var function = new FunctionApp.PredictionsHttpFunction(loggerMock);
 
         // Act
-        var response = function.Run(requestStub, []);
+        var response = await function.Run(requestStub, []);
 
         // Assert
         response.Should().NotBeNull();
         response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
 
-        response.ReadBodyAsString().Should().NotBeNullOrEmpty().And.Be(expectedErrorMessage);
+        // The error message is written with WriteAsJsonAsync, so it lands in the body as a quoted JSON string.
+        response.ReadBodyAsString().Should().NotBeNullOrEmpty().And.Be($"\"{expectedErrorMessage}\"");
 
         loggerMock.Collector.Count.Should().Be(1);
+
+        using var scope = new AssertionScope();
+
         loggerMock.LatestRecord.Level.Should().Be(LogLevel.Error);
         loggerMock.LatestRecord.Message.Should().Be(expectedErrorMessage);
         loggerMock.LatestRecord.Exception.Should().Be(exception);

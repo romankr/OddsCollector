@@ -3,38 +3,38 @@ using FunctionApp = OddsCollector.Functions.Predictions;
 
 namespace OddsCollector.Functions.Tests.Tests.Predictions;
 
-internal sealed class WinnerFinder
+internal sealed class OutcomeFinder
 {
     [Test]
-    public void GetWinner_WithOdds_ReturnsWinner()
+    public void GetOutcome_WithOdds_ReturnsOutcome()
     {
         // Arrange
-        const string expectedWinner = nameof(expectedWinner);
+        const string expectedOutcome = nameof(expectedOutcome);
 
         var calculatorStub = Substitute.For<FunctionApp.IScoreCalculator>();
         calculatorStub.GetScores(Arg.Any<ICollection<Odd>>()).Returns(
             [
-                new FunctionApp.OutcomeScore { Outcome = expectedWinner, Score = 2.0 },
+                new FunctionApp.OutcomeScore { Outcome = expectedOutcome, Score = 2.0 },
                 new FunctionApp.OutcomeScore { Outcome = "loser", Score = 1.0 },
                 new FunctionApp.OutcomeScore { Outcome = "draw", Score = 0.5 }
             ]
         );
 
-        var finder = new FunctionApp.WinnerFinder(calculatorStub);
+        var finder = new FunctionApp.OutcomeFinder(calculatorStub);
 
         // Act
-        var winner = finder.GetWinner([new Odd()]);
+        var outcome = finder.GetOutcome([new Odd()]);
 
         // Assert
-        winner.Should().NotBeNullOrEmpty().And.Be(expectedWinner);
+        outcome.Should().NotBeNullOrEmpty().And.Be(expectedOutcome);
     }
 
     [Test]
-    public void GetWinner_WithNoOdds_ThrowsException()
+    public void GetOutcome_WithNoOdds_ThrowsException()
     {
-        var finder = new FunctionApp.WinnerFinder(null!);
+        var finder = new FunctionApp.OutcomeFinder(null!);
 
-        var action = () => finder.GetWinner([]);
+        var action = () => finder.GetOutcome([]);
 
         action.Should().Throw<ArgumentException>().WithParameterName("odds");
     }

@@ -19,7 +19,7 @@ internal sealed class ServiceCollectionExtensions
         var descriptor =
             services.FirstOrDefault(
                 x => x.ServiceType ==
-                     typeof(IConfigureOptions<OddsCollector.Functions.OddsApi.Configuration.OddsApiClientOptions>)
+                     typeof(IConfigureOptions<FunctionApp.Configuration.OddsApiClientOptions>)
                      && x.Lifetime == ServiceLifetime.Singleton);
 
         descriptor.Should().NotBeNull();
@@ -49,9 +49,8 @@ internal sealed class ServiceCollectionExtensions
 
         var descriptor =
             services.FirstOrDefault(
-                x => x.ImplementationType == typeof(Client)
-                     && x.ServiceType == typeof(IClient)
-                     && x.Lifetime == ServiceLifetime.Singleton);
+                x => x.ServiceType == typeof(IClient)
+                     && x.Lifetime == ServiceLifetime.Transient);
 
         descriptor.Should().NotBeNull();
     }
@@ -121,7 +120,7 @@ internal sealed class ServiceCollectionExtensions
     }
 
     [Test]
-    public void AddOddsApiClientWithDependencies_AddsOutcomeConverter()
+    public void AddOddsApiClientWithDependencies_AddsOddConverter()
     {
         var services = new ServiceCollection();
 
@@ -129,8 +128,8 @@ internal sealed class ServiceCollectionExtensions
 
         var descriptor =
             services.FirstOrDefault(
-                x => x.ImplementationType == typeof(OutcomeConverter)
-                     && x.ServiceType == typeof(IOutcomeConverter)
+                x => x.ImplementationType == typeof(OddConverter)
+                     && x.ServiceType == typeof(IOddConverter)
                      && x.Lifetime == ServiceLifetime.Singleton);
 
         descriptor.Should().NotBeNull();
@@ -169,7 +168,7 @@ internal sealed class ServiceCollectionExtensions
     }
 
     [Test]
-    public void AddOddsApiClientWithDependencies_AddsWinnerConverter()
+    public void AddOddsApiClientWithDependencies_AddsOutcomeConverter()
     {
         var services = new ServiceCollection();
 
@@ -177,8 +176,8 @@ internal sealed class ServiceCollectionExtensions
 
         var descriptor =
             services.FirstOrDefault(
-                x => x.ImplementationType == typeof(WinnerConverter)
-                     && x.ServiceType == typeof(IWinnerConverter)
+                x => x.ImplementationType == typeof(OutcomeConverter)
+                     && x.ServiceType == typeof(IOutcomeConverter)
                      && x.Lifetime == ServiceLifetime.Singleton);
 
         descriptor.Should().NotBeNull();

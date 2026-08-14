@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using NSubstitute.ExceptionExtensions;
 using OddsCollector.Functions.Models;
-using OddsCollector.Functions.Processors;
+using OddsCollector.Functions.OddsApi;
 using FunctionApp = OddsCollector.Functions.Functions;
 
 namespace OddsCollector.Functions.Tests.Tests.Functions;
@@ -18,12 +18,11 @@ internal sealed class UpcomingEventsFunction
 
         var loggerStub = new FakeLogger<FunctionApp.UpcomingEventsFunction>();
 
-        var processorStub = Substitute.For<IUpcomingEventsProcessor>();
-
-        processorStub.GetUpcomingEventsAsync(Arg.Any<CancellationToken>())
+        var clientMock = Substitute.For<IUpcomingEventsClient>();
+        clientMock.GetUpcomingEventsAsync(Arg.Any<CancellationToken>())
             .Returns(Task.FromResult(expectedEventResults));
 
-        var function = new FunctionApp.UpcomingEventsFunction(loggerStub, processorStub);
+        var function = new FunctionApp.UpcomingEventsFunction(loggerStub, clientMock);
 
         // Act
         var eventResults = await function.Run(CancellationToken.None);
@@ -40,11 +39,10 @@ internal sealed class UpcomingEventsFunction
 
         var loggerMock = new FakeLogger<FunctionApp.UpcomingEventsFunction>();
 
-        var processorStub = Substitute.For<IUpcomingEventsProcessor>();
+        var clientMock = Substitute.For<IUpcomingEventsClient>();
+        clientMock.GetUpcomingEventsAsync(Arg.Any<CancellationToken>()).Throws(exception);
 
-        processorStub.GetUpcomingEventsAsync(Arg.Any<CancellationToken>()).Throws(exception);
-
-        var function = new FunctionApp.UpcomingEventsFunction(loggerMock, processorStub);
+        var function = new FunctionApp.UpcomingEventsFunction(loggerMock, clientMock);
 
         // Act
         var eventResults = await function.Run(CancellationToken.None);
