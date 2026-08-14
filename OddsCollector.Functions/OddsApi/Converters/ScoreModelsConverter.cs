@@ -4,18 +4,23 @@ namespace OddsCollector.Functions.OddsApi.Converters;
 
 internal sealed class ScoreModelsConverter(IScoreModelConverter converter) : IScoreModelsConverter
 {
-    public IEnumerable<EventScore> Convert(ICollection<ScoreModel>? scoreModels)
+    public IEnumerable<EventScore> Convert(ICollection<ScoreModel>? scores)
     {
-        ArgumentNullException.ThrowIfNull(scoreModels);
+        CheckParameters(scores);
 
-        if (scoreModels.Count != 2)
-        {
-            throw new ArgumentException($"{nameof(scoreModels)} must have 2 elements", nameof(scoreModels));
-        }
-
-        foreach (var scoreModel in scoreModels)
+        foreach (var scoreModel in scores!)
         {
             yield return converter.ToEventScore(scoreModel);
+        }
+    }
+
+    private static void CheckParameters(ICollection<ScoreModel>? scores)
+    {
+        ArgumentNullException.ThrowIfNull(scores);
+
+        if (scores.Count != 2)
+        {
+            throw new ArgumentException($"{nameof(scores)} must have 2 elements", nameof(scores));
         }
     }
 }

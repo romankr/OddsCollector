@@ -10,9 +10,9 @@ internal sealed class PredictionStrategy
     public void GetPrediction_WithUpcomingEvent_ReturnsPrediction()
     {
         // Arrange
-        var expectedAwayTeam = "Liverpool";
-        var expectedHomeTeam = "Manchester City";
-        var expectedCommenceTime = new DateTime(2023, 11, 25, 12, 30, 0);
+        const string expectedAwayTeam = "Liverpool";
+        const string expectedHomeTeam = "Manchester City";
+        var expectedCommenceTime = new DateTime(2023, 11, 25, 12, 30, 0, DateTimeKind.Utc);
         var expectedId = Guid.NewGuid().ToString();
 
         var upcomingEvent = new UpcomingEvent

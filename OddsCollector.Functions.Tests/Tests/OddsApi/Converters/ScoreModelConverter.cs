@@ -27,6 +27,6 @@ internal sealed class ScoreModelConverter
 
         var action = () => converter.ToEventScore(model);
 
-        action.Should().Throw<ArgumentException>().WithParameterName("Score");
+        action.Should().Throw<ArgumentException>().WithParameterName("scoreModel");
     }
 }

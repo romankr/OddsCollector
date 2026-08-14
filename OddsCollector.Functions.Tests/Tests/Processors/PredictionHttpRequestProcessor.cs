@@ -16,6 +16,6 @@ internal sealed class PredictionHttpRequestProcessor
         var deserialized = JsonSerializer.Deserialize<EventPrediction[]>(serialized);
 
         deserialized.Should().NotBeNullOrEmpty().And.HaveCount(1);
-        deserialized![0].Should().NotBeNull().And.BeEquivalentTo(prediction);
+        deserialized[0].Should().NotBeNull().And.BeEquivalentTo(prediction);
     }
 }

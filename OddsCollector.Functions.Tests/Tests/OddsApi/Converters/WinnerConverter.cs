@@ -96,6 +96,6 @@ internal sealed class WinnerConverter
 
         var action = () => converter.ToEventScore(new ScoreModel { Score = "test", Name = "name" });
 
-        action.Should().Throw<ArgumentException>().WithParameterName("Score");
+        action.Should().Throw<ArgumentException>().WithParameterName("scoreModel");
     }
 }

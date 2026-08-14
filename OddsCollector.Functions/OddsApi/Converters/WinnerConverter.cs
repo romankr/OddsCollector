@@ -11,13 +11,13 @@ internal class WinnerConverter(IScoreModelsConverter converter) : IWinnerConvert
 
         var convertedScores = converter.Convert(scores).ToList();
 
-        if (convertedScores.ElementAt(0).Score == convertedScores.ElementAt(1).Score)
+        if (convertedScores[0].Score == convertedScores[1].Score)
         {
             return OutcomeTypes.Draw;
         }
 
-        return convertedScores.ElementAt(0).Score > convertedScores.ElementAt(1).Score
-            ? convertedScores.ElementAt(0).Name
-            : convertedScores.ElementAt(1).Name;
+        return convertedScores[0].Score > convertedScores[1].Score
+            ? convertedScores[0].Name
+            : convertedScores[1].Name;
     }
 }
