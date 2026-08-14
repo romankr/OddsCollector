@@ -120,7 +120,7 @@ internal sealed class PredictionProcessor
 
         firstRecord.Should().NotBeNull();
         firstRecord.Level.Should().Be(LogLevel.Error);
-        firstRecord.Message.Should().Be("Failed to processes message with id 123");
+        firstRecord.Message.Should().Be("Failed to process message with id 123");
 
         var secondRecord = loggerMock.Collector.GetSnapshot()[1];
 

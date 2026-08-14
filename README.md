@@ -1,8 +1,8 @@
-**Odds Collector** is a software project aimed at gathering and analyzing odds data for various sports from [The Odds API](https://the-odds-api.com/) while leveraging the infrastructure of Microsoft Azure. This application provides an instrument to access historical odds information and predictions for sporting events.
+**Odds Collector** is a software project aimed at gathering and analyzing odds data for various sports from [The Odds API](https://the-odds-api.com/) while leveraging the infrastructure of Microsoft Azure. This application provides a tool for accessing historical odds information and predictions for sporting events.
 
 # Purpose
 
-The project is designed to have fun with algorythm described in "[Beating the bookies with their own numbers - and how the online sports betting market is rigged](https://www.researchgate.net/publication/320296375_Beating_the_bookies_with_their_own_numbers_-_and_how_the_online_sports_betting_market_is_rigged)" using The Odds API as the main source of odds data. There is also an improvement upon the original algorythm that increases prediction accuracy from 40% up to 60-70%.
+The project is designed to have fun with the algorithm described in "[Beating the bookies with their own numbers - and how the online sports betting market is rigged](https://www.researchgate.net/publication/320296375_Beating_the_bookies_with_their_own_numbers_-_and_how_the_online_sports_betting_market_is_rigged)" using The Odds API as the main source of odds data. There is also an improvement on the original algorithm that increases prediction accuracy from 40% to 60-70%.
 
 # Features
 
@@ -36,6 +36,6 @@ dotnet build
 
 # Special thanks
 
-Special thanks to JetBrains and their [Open Source Support Program](https://www.jetbrains.com/community/opensource/#support) for providing a free licence for their products.
+Special thanks to JetBrains and their [Open Source Support Program](https://www.jetbrains.com/community/opensource/#support) for providing a free license for their products.
 
 ![JetBrains Logo (Main) logo](https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png)

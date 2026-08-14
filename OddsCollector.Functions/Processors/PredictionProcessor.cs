@@ -28,7 +28,7 @@ internal sealed class PredictionProcessor(ILogger<PredictionProcessor> logger, I
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, "Failed to processes message with id {Id}", message.MessageId);
+                logger.LogError(exception, "Failed to process message with id {Id}", message.MessageId);
             }
         }
 
