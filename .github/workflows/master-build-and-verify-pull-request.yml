@@ -24,6 +24,8 @@ jobs:
       run: dotnet format --verify-no-changes
     - name: Build
       run: dotnet build --no-restore
+    - name: Run SonarAnalyzer.CSharp
+      run: dotnet build --no-restore --no-incremental -warnaserror
     - name: Test
       run: dotnet test --no-build --verbosity normal
     - name: Check coverage

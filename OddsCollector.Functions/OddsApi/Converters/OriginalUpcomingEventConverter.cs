@@ -6,11 +6,11 @@ namespace OddsCollector.Functions.OddsApi.Converters;
 internal sealed class OriginalUpcomingEventConverter(IBookmakerConverter bookmakerConverter)
     : IOriginalUpcomingEventConverter
 {
-    public IEnumerable<UpcomingEvent> ToUpcomingEvents(ICollection<Anonymous2>? originalEvents)
+    public IEnumerable<UpcomingEvent> ToUpcomingEvents(ICollection<Anonymous2>? events)
     {
-        ArgumentNullException.ThrowIfNull(originalEvents);
+        CheckParameters(events);
 
-        foreach (var originalEvent in originalEvents)
+        foreach (var originalEvent in events!)
         {
             yield return ToUpcomingEvent(originalEvent);
         }
@@ -28,5 +28,10 @@ internal sealed class OriginalUpcomingEventConverter(IBookmakerConverter bookmak
                     .ToList()
             )
             .Instance;
+    }
+
+    private static void CheckParameters(ICollection<Anonymous2>? events)
+    {
+        ArgumentNullException.ThrowIfNull(events);
     }
 }

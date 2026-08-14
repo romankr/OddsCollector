@@ -95,6 +95,6 @@ internal class OriginalUpcomingEventConverter
 
         var action = () => converter.ToUpcomingEvents(null).ToList();
 
-        action.Should().Throw<ArgumentNullException>().WithParameterName("originalEvents");
+        action.Should().Throw<ArgumentNullException>().WithParameterName("events");
     }
 }

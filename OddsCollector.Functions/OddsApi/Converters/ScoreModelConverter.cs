@@ -12,7 +12,7 @@ internal sealed class ScoreModelConverter : IScoreModelConverter
         {
             throw new ArgumentException(
                 $"{nameof(scoreModel)} must have an integer score. Actual score: {scoreModel.Score}",
-                nameof(scoreModel.Score));
+                nameof(scoreModel));
         }
 
         return new EventScore { Score = score, Name = scoreModel.Name };
