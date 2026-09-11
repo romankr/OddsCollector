@@ -9,7 +9,7 @@ internal static class HttpRequestDataFactory
     {
         var context = Substitute.For<FunctionContext>();
 
-        var headers = Substitute.For<HttpHeadersCollection>();
+        var headers = new HttpHeadersCollection();
 
         var stream = new MemoryStream();
 
