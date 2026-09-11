@@ -17,7 +17,7 @@ internal sealed class ServiceCollectionExtensions
             services.FirstOrDefault(
                 x => x.ServiceType == typeof(FunctionApp.IEventResultProcessor)
                      && x.ImplementationType == typeof(FunctionApp.EventResultProcessor)
-                     && x.Lifetime == ServiceLifetime.Singleton);
+                     && x.Lifetime == ServiceLifetime.Transient);
 
         descriptor.Should().NotBeNull();
     }
@@ -33,7 +33,7 @@ internal sealed class ServiceCollectionExtensions
             services.FirstOrDefault(
                 x => x.ServiceType == typeof(FunctionApp.IUpcomingEventsProcessor)
                      && x.ImplementationType == typeof(FunctionApp.UpcomingEventsProcessor)
-                     && x.Lifetime == ServiceLifetime.Singleton);
+                     && x.Lifetime == ServiceLifetime.Transient);
 
         descriptor.Should().NotBeNull();
     }

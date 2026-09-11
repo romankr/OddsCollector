@@ -16,14 +16,14 @@ internal static class ServiceCollectionExtensions
             o.SetApiKey(apiKey);
         });
 
-        services.AddHttpClient<Client>();
-        services.AddSingleton<IClient, Client>();
-        services.AddSingleton<IUpcomingEventsClient, UpcomingEventsClient>();
+        services.AddHttpClient<IClient, Client>();
+        services.AddTransient<IUpcomingEventsClient, UpcomingEventsClient>();
+        services.AddTransient<IEventResultsClient, EventResultsClient>();
+
         services.AddSingleton<IOriginalUpcomingEventConverter, OriginalUpcomingEventConverter>();
         services.AddSingleton<IBookmakerConverter, BookmakerConverter>();
         services.AddSingleton<IMarketConverter, MarketConverter>();
         services.AddSingleton<IOutcomeConverter, OutcomeConverter>();
-        services.AddSingleton<IEventResultsClient, EventResultsClient>();
         services.AddSingleton<IOriginalCompletedEventConverter, OriginalCompletedEventConverter>();
         services.AddSingleton<IWinnerConverter, WinnerConverter>();
         services.AddSingleton<IScoreModelsConverter, ScoreModelsConverter>();

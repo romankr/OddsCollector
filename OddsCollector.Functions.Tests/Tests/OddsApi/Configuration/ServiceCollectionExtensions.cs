@@ -41,19 +41,15 @@ internal sealed class ServiceCollectionExtensions
     }
 
     [Test]
-    public void AddOddsApiClientWithDependencies_AddsClient()
+    public void AddOddsApiClientWithDependencies_ResolvesClient()
     {
         var services = new ServiceCollection();
 
         services.AddOddsApiClientWithDependencies("leagues", "key");
 
-        var descriptor =
-            services.FirstOrDefault(
-                x => x.ImplementationType == typeof(Client)
-                     && x.ServiceType == typeof(IClient)
-                     && x.Lifetime == ServiceLifetime.Singleton);
+        using var provider = services.BuildServiceProvider();
 
-        descriptor.Should().NotBeNull();
+        provider.GetRequiredService<IClient>().Should().NotBeNull().And.BeOfType<Client>();
     }
 
     [Test]
@@ -67,7 +63,7 @@ internal sealed class ServiceCollectionExtensions
             services.FirstOrDefault(
                 x => x.ImplementationType == typeof(FunctionApp.UpcomingEventsClient)
                      && x.ServiceType == typeof(FunctionApp.IUpcomingEventsClient)
-                     && x.Lifetime == ServiceLifetime.Singleton);
+                     && x.Lifetime == ServiceLifetime.Transient);
 
         descriptor.Should().NotBeNull();
     }
@@ -147,7 +143,7 @@ internal sealed class ServiceCollectionExtensions
             services.FirstOrDefault(
                 x => x.ImplementationType == typeof(FunctionApp.EventResultsClient)
                      && x.ServiceType == typeof(FunctionApp.IEventResultsClient)
-                     && x.Lifetime == ServiceLifetime.Singleton);
+                     && x.Lifetime == ServiceLifetime.Transient);
 
         descriptor.Should().NotBeNull();
     }
