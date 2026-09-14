@@ -7,7 +7,7 @@ namespace OddsCollector.Functions.Tests.Tests.OddsApi.Converters;
 internal class OriginalUpcomingEventConverter
 {
     [Test]
-    public void ToUpcomingEvents_WithOriginalEventData_ReturnsEventResult()
+    public void ToUpcomingEvents_WithOriginalEventData_ReturnsUpcomingEvent()
     {
         // Arrange
         var expectedCommenceTime = DateTime.UtcNow;

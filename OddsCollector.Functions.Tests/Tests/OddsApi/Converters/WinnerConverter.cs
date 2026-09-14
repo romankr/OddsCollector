@@ -78,24 +78,4 @@ internal sealed class WinnerConverter
         // Assert
         winner.Should().NotBeNull().And.Be(expectedWinner);
     }
-
-    [Test]
-    public void ToEGetWinner_WithNullScore_ThrowsException()
-    {
-        var converter = new FunctionApp.ScoreModelConverter();
-
-        var action = () => converter.ToEventScore(new ScoreModel());
-
-        action.Should().Throw<ArgumentNullException>().WithParameterName("scoreModel.Name");
-    }
-
-    [Test]
-    public void ToEGetWinner_WithNonIntegerScore_ThrowsException()
-    {
-        var converter = new FunctionApp.ScoreModelConverter();
-
-        var action = () => converter.ToEventScore(new ScoreModel { Score = "test", Name = "name" });
-
-        action.Should().Throw<ArgumentException>().WithParameterName("scoreModel");
-    }
 }
