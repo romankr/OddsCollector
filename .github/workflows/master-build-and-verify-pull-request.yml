@@ -22,9 +22,7 @@ jobs:
       run: dotnet restore
     - name: Check code formatting
       run: dotnet format --verify-no-changes
-    - name: Build
-      run: dotnet build --no-restore
-    - name: Run SonarAnalyzer.CSharp
+    - name: Build and run SonarAnalyzer.CSharp
       run: dotnet build --no-restore --no-incremental -warnaserror
     - name: Test
       run: dotnet test --no-build --verbosity normal
