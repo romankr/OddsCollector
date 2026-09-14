@@ -34,5 +34,4 @@ jobs:
         testProject: 'OddsCollector.Functions.Tests/OddsCollector.Functions.Tests.csproj'
         output: 'lcov.info'
         outputFormat: 'lcov'
-        excludes: '[program]*,*[test]test*'
         threshold: 70
