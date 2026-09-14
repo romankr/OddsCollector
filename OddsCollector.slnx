@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="OddsCollector.Functions/OddsCollector.Functions.csproj" />
+  <Project Path="OddsCollector.Functions.Tests/OddsCollector.Functions.Tests.csproj" />
+</Solution>
