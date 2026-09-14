@@ -6,7 +6,7 @@ namespace OddsCollector.Functions.Tests.Tests.OddsApi.Converters;
 internal sealed class OutcomeConverter
 {
     [Test]
-    public void ToOdd_WithNullBookmakers_ThrowsException()
+    public void ToOdd_WithNullOutcomes_ThrowsException()
     {
         var converter = new FunctionApp.OutcomeConverter();
 
@@ -15,9 +15,9 @@ internal sealed class OutcomeConverter
         action.Should().Throw<ArgumentNullException>().WithParameterName("outcomes");
     }
 
-    [TestCase("", TestName = "ToOdds_WithEmptyBookmaker_ThrowsException")]
-    [TestCase(null, TestName = "ToOdds_WithNullBookmaker_ThrowsException")]
-    public void ToOdds_WithNullOrEmptyBookmaker_ThrowsException(string? bookmaker)
+    [TestCase("", TestName = "ToOdd_WithEmptyBookmaker_ThrowsException")]
+    [TestCase(null, TestName = "ToOdd_WithNullBookmaker_ThrowsException")]
+    public void ToOdd_WithNullOrEmptyBookmaker_ThrowsException(string? bookmaker)
     {
         var converter = new FunctionApp.OutcomeConverter();
 
@@ -27,7 +27,7 @@ internal sealed class OutcomeConverter
     }
 
     [Test]
-    public void ToOdds_WithoutAwayTeam_ThrowsException()
+    public void ToOdd_WithoutAwayTeam_ThrowsException()
     {
         var converter = new FunctionApp.OutcomeConverter();
 
@@ -43,7 +43,7 @@ internal sealed class OutcomeConverter
     }
 
     [Test]
-    public void ToOdds_WithoutHomeTeam_ThrowsException()
+    public void ToOdd_WithoutHomeTeam_ThrowsException()
     {
         var converter = new FunctionApp.OutcomeConverter();
 
@@ -59,7 +59,7 @@ internal sealed class OutcomeConverter
     }
 
     [Test]
-    public void ToOdds_WithoutDraw_ThrowsException()
+    public void ToOdd_WithoutDraw_ThrowsException()
     {
         var converter = new FunctionApp.OutcomeConverter();
 

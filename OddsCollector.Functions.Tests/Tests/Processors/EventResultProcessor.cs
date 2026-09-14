@@ -10,7 +10,7 @@ namespace OddsCollector.Functions.Tests.Tests.Processors;
 internal sealed class EventResultProcessor
 {
     [Test]
-    public async Task GetEventResultsAsync_WithNoEvents_ReturnsNoEventAngLogsWarning()
+    public async Task GetEventResultsAsync_WithNoEvents_ReturnsNoEventsAndLogsWarning()
     {
         // Arrange
         EventResult[] expectedEventResults = [];
@@ -37,7 +37,7 @@ internal sealed class EventResultProcessor
     }
 
     [Test]
-    public async Task GetEventResultsAsync_WithSingleEvent_ReturnsSingleEventAngLogsInformation()
+    public async Task GetEventResultsAsync_WithSingleEvent_ReturnsSingleEventAndLogsInformation()
     {
         // Arrange
         var expectedEventResult = new EventResult();

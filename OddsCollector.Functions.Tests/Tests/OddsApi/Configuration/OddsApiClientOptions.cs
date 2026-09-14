@@ -5,7 +5,7 @@ namespace OddsCollector.Functions.Tests.Tests.OddsApi.Configuration;
 internal sealed class OddsApiClientOptions
 {
     [Test]
-    public void SetLeagues_WithOneLeague_ReturnsOneLeague()
+    public void AddLeagues_WithOneLeague_ReturnsOneLeague()
     {
         var options = new FunctionApp.OddsApiClientOptions();
 
@@ -15,7 +15,7 @@ internal sealed class OddsApiClientOptions
     }
 
     [Test]
-    public void SetLeagues_WithMultipleLeagues_ReturnsMultipleLeagues()
+    public void AddLeagues_WithMultipleLeagues_ReturnsMultipleLeagues()
     {
         var options = new FunctionApp.OddsApiClientOptions();
 
@@ -25,7 +25,7 @@ internal sealed class OddsApiClientOptions
     }
 
     [Test]
-    public void SetLeagues_WithDuplicateLeagues_ReturnsOnlyOneLeague()
+    public void AddLeagues_WithDuplicateLeagues_ReturnsOnlyOneLeague()
     {
         var options = new FunctionApp.OddsApiClientOptions();
 
@@ -35,7 +35,7 @@ internal sealed class OddsApiClientOptions
     }
 
     [Test]
-    public void SetLeagues_WithEmptyLeague_ReturnsNoLeagues()
+    public void AddLeagues_WithEmptyLeague_ReturnsNoLeagues()
     {
         var options = new FunctionApp.OddsApiClientOptions();
 
@@ -45,7 +45,7 @@ internal sealed class OddsApiClientOptions
     }
 
     [Test]
-    public void SetLeagues_WithLeadingAndTrailingCharacters_ReturnsCorrectLeagues()
+    public void AddLeagues_WithLeadingAndTrailingCharacters_ReturnsCorrectLeagues()
     {
         var options = new FunctionApp.OddsApiClientOptions();
 
@@ -55,7 +55,7 @@ internal sealed class OddsApiClientOptions
     }
 
     [Test]
-    public void SetLeagues_WithNullOrEmptyLeagues_ThrowsException()
+    public void AddLeagues_WithEmptyLeagues_ThrowsException()
     {
         var options = new FunctionApp.OddsApiClientOptions();
 
@@ -65,7 +65,7 @@ internal sealed class OddsApiClientOptions
     }
 
     [Test]
-    public void SetLeagues_WithNullLeagues_ThrowsException()
+    public void AddLeagues_WithNullLeagues_ThrowsException()
     {
         var options = new FunctionApp.OddsApiClientOptions();
 

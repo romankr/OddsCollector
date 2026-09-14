@@ -8,7 +8,7 @@ namespace OddsCollector.Functions.Tests.Tests.OddsApi.Converters;
 internal sealed class OriginalCompletedEventConverter
 {
     [Test]
-    public void ToEventResult_WithOriginalEventData_ReturnsEventResult()
+    public void ToEventResults_WithOriginalEventData_ReturnsEventResult()
     {
         // Arrange
         var expectedCommenceTime = DateTime.UtcNow;
@@ -49,7 +49,7 @@ internal sealed class OriginalCompletedEventConverter
     }
 
     [Test]
-    public void ToEventResult_WithNoEventData_ReturnsNoEvents()
+    public void ToEventResults_WithNoEventData_ReturnsNoEvents()
     {
         var converter = new FunctionApp.OriginalCompletedEventConverter(
             new FunctionApp.WinnerConverter(
@@ -62,7 +62,7 @@ internal sealed class OriginalCompletedEventConverter
     }
 
     [Test]
-    public void ToEventResult_WithNullEventData_ThrowsException()
+    public void ToEventResults_WithNullEventData_ThrowsException()
     {
         var winnerConverter = Substitute.For<FunctionApp.IWinnerConverter>();
 

@@ -11,7 +11,7 @@ namespace OddsCollector.Functions.Tests.Tests.Functions;
 internal sealed class EventResultsFunction
 {
     [Test]
-    public async Task Run_WithValidMessages_ReturnsEventResultList()
+    public async Task Run_WithEventResults_ReturnsEventResults()
     {
         // Arrange
         EventResult[] expectedEventResults = [new()];

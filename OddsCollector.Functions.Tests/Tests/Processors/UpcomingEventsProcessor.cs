@@ -10,7 +10,7 @@ namespace OddsCollector.Functions.Tests.Tests.Processors;
 internal sealed class UpcomingEventsProcessor
 {
     [Test]
-    public async Task GetUpcomingEventsAsync_WithNoEvents_ReturnsNoEventAngLogsWarning()
+    public async Task GetUpcomingEventsAsync_WithNoEvents_ReturnsNoEventsAndLogsWarning()
     {
         // Arrange
         UpcomingEvent[] expectedUpcomingEvents = [];
@@ -38,7 +38,7 @@ internal sealed class UpcomingEventsProcessor
     }
 
     [Test]
-    public async Task GetUpcomingEventsAsync_WithSingleEvent_ReturnsSingleEventAngLogsInformation()
+    public async Task GetUpcomingEventsAsync_WithSingleEvent_ReturnsSingleEventAndLogsInformation()
     {
         // Arrange
         var expectedUpcomingEvent = new UpcomingEvent();

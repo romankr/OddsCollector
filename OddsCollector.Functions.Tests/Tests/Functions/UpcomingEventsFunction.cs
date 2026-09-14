@@ -11,7 +11,7 @@ namespace OddsCollector.Functions.Tests.Tests.Functions;
 internal sealed class UpcomingEventsFunction
 {
     [Test]
-    public async Task Run_WithValidMessages_ReturnsEventResultList()
+    public async Task Run_WithUpcomingEvents_ReturnsUpcomingEvents()
     {
         // Arrange
         UpcomingEvent[] expectedEventResults = [new()];
@@ -33,7 +33,7 @@ internal sealed class UpcomingEventsFunction
     }
 
     [Test]
-    public async Task Run_WithException_ReturnsEmptyEventResultListAndLogsException()
+    public async Task Run_WithException_ReturnsEmptyUpcomingEventListAndLogsException()
     {
         // Arrange
         var exception = new Exception();
