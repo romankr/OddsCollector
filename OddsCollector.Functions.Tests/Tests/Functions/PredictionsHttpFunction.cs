@@ -34,6 +34,9 @@ internal sealed class PredictionsHttpFunction
         response.Should().NotBeNull();
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
+        response.Headers.GetValues("Content-Type").Should().ContainSingle()
+            .Which.Should().StartWith("application/json");
+
         response.ReadBodyAsString().Should().NotBeNullOrEmpty().And.Be(expectedString);
     }
 
@@ -46,6 +49,7 @@ internal sealed class PredictionsHttpFunction
         var processorStub = Substitute.For<IPredictionHttpRequestProcessor>();
 
         const string expectedErrorMessage = "Failed to get predictions";
+        const string expectedBody = """{"error":"Failed to get predictions"}""";
 
         var exception = new Exception();
 
@@ -62,7 +66,10 @@ internal sealed class PredictionsHttpFunction
         response.Should().NotBeNull();
         response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
 
-        response.ReadBodyAsString().Should().NotBeNullOrEmpty().And.Be(expectedErrorMessage);
+        response.Headers.GetValues("Content-Type").Should().ContainSingle()
+            .Which.Should().StartWith("application/json");
+
+        response.ReadBodyAsString().Should().NotBeNullOrEmpty().And.Be(expectedBody);
 
         loggerMock.Collector.Count.Should().Be(1);
         loggerMock.LatestRecord.Level.Should().Be(LogLevel.Error);
