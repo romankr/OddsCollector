@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using NSubstitute.ExceptionExtensions;
 using OddsCollector.Functions.Models;
-using OddsCollector.Functions.Processors;
+using OddsCollector.Functions.OddsApi;
 using FunctionApp = OddsCollector.Functions.Functions;
 
 namespace OddsCollector.Functions.Tests.Tests.Functions;
@@ -11,24 +11,58 @@ namespace OddsCollector.Functions.Tests.Tests.Functions;
 internal sealed class EventResultsFunction
 {
     [Test]
-    public async Task Run_WithEventResults_ReturnsEventResults()
+    public async Task Run_WithEventResults_ReturnsEventResultsAndLogsInformation()
     {
         // Arrange
-        EventResult[] expectedEventResults = [new()];
+        var expected = new EventResult();
+        EventResult[] expectedResults = [expected];
 
-        var loggerStub = new FakeLogger<FunctionApp.EventResultsFunction>();
+        var loggerMock = new FakeLogger<FunctionApp.EventResultsFunction>();
 
-        var processorStub = Substitute.For<IEventResultProcessor>();
+        var clientStub = Substitute.For<IEventResultsClient>();
+        clientStub.GetEventResultsAsync(Arg.Any<CancellationToken>()).Returns(Task.FromResult(expectedResults));
 
-        processorStub.GetEventResultsAsync(Arg.Any<CancellationToken>()).Returns(Task.FromResult(expectedEventResults));
-
-        var function = new FunctionApp.EventResultsFunction(loggerStub, processorStub);
+        var function = new FunctionApp.EventResultsFunction(loggerMock, clientStub);
 
         // Act
-        var actualEventResults = await function.Run(CancellationToken.None);
+        var results = await function.Run(CancellationToken.None);
 
         // Assert
-        actualEventResults.Should().NotBeNull().And.BeEquivalentTo(expectedEventResults);
+        results.Should().NotBeNull().And.BeEquivalentTo(expectedResults);
+
+        loggerMock.Collector.Count.Should().Be(1);
+
+        using var scope = new AssertionScope();
+
+        loggerMock.LatestRecord.Level.Should().Be(LogLevel.Information);
+        loggerMock.LatestRecord.Message.Should().Be("1 event(s) received");
+    }
+
+    [Test]
+    public async Task Run_WithNoEventResults_ReturnsNoEventResultsAndLogsWarning()
+    {
+        // Arrange
+        EventResult[] expectedResults = [];
+
+        var loggerMock = new FakeLogger<FunctionApp.EventResultsFunction>();
+
+        var clientStub = Substitute.For<IEventResultsClient>();
+        clientStub.GetEventResultsAsync(Arg.Any<CancellationToken>()).Returns(Task.FromResult(expectedResults));
+
+        var function = new FunctionApp.EventResultsFunction(loggerMock, clientStub);
+
+        // Act
+        var results = await function.Run(CancellationToken.None);
+
+        // Assert
+        results.Should().NotBeNull().And.BeEmpty();
+
+        loggerMock.Collector.Count.Should().Be(1);
+
+        using var scope = new AssertionScope();
+
+        loggerMock.LatestRecord.Level.Should().Be(LogLevel.Warning);
+        loggerMock.LatestRecord.Message.Should().Be("No events received");
     }
 
     [Test]
@@ -39,17 +73,16 @@ internal sealed class EventResultsFunction
 
         var loggerMock = new FakeLogger<FunctionApp.EventResultsFunction>();
 
-        var processorStub = Substitute.For<IEventResultProcessor>();
+        var clientStub = Substitute.For<IEventResultsClient>();
+        clientStub.GetEventResultsAsync(Arg.Any<CancellationToken>()).Throws(exception);
 
-        processorStub.GetEventResultsAsync(Arg.Any<CancellationToken>()).Throws(exception);
-
-        var function = new FunctionApp.EventResultsFunction(loggerMock, processorStub);
+        var function = new FunctionApp.EventResultsFunction(loggerMock, clientStub);
 
         // Act
-        var actualEventResults = await function.Run(CancellationToken.None);
+        var results = await function.Run(CancellationToken.None);
 
         // Assert
-        actualEventResults.Should().NotBeNull().And.BeEmpty();
+        results.Should().NotBeNull().And.BeEmpty();
 
         loggerMock.Collector.Count.Should().Be(1);
 

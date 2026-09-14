@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using NSubstitute.ExceptionExtensions;
 using OddsCollector.Functions.Models;
-using OddsCollector.Functions.Processors;
+using OddsCollector.Functions.OddsApi;
 using FunctionApp = OddsCollector.Functions.Functions;
 
 namespace OddsCollector.Functions.Tests.Tests.Functions;
@@ -11,25 +11,58 @@ namespace OddsCollector.Functions.Tests.Tests.Functions;
 internal sealed class UpcomingEventsFunction
 {
     [Test]
-    public async Task Run_WithUpcomingEvents_ReturnsUpcomingEvents()
+    public async Task Run_WithUpcomingEvents_ReturnsUpcomingEventsAndLogsInformation()
     {
         // Arrange
-        UpcomingEvent[] expectedEventResults = [new()];
+        var expected = new UpcomingEvent();
+        UpcomingEvent[] expectedResults = [expected];
 
-        var loggerStub = new FakeLogger<FunctionApp.UpcomingEventsFunction>();
+        var loggerMock = new FakeLogger<FunctionApp.UpcomingEventsFunction>();
 
-        var processorStub = Substitute.For<IUpcomingEventsProcessor>();
+        var clientStub = Substitute.For<IUpcomingEventsClient>();
+        clientStub.GetUpcomingEventsAsync(Arg.Any<CancellationToken>()).Returns(Task.FromResult(expectedResults));
 
-        processorStub.GetUpcomingEventsAsync(Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult(expectedEventResults));
-
-        var function = new FunctionApp.UpcomingEventsFunction(loggerStub, processorStub);
+        var function = new FunctionApp.UpcomingEventsFunction(loggerMock, clientStub);
 
         // Act
-        var eventResults = await function.Run(CancellationToken.None);
+        var results = await function.Run(CancellationToken.None);
 
         // Assert
-        eventResults.Should().NotBeNull().And.BeEquivalentTo(expectedEventResults);
+        results.Should().NotBeNull().And.BeEquivalentTo(expectedResults);
+
+        loggerMock.Collector.Count.Should().Be(1);
+
+        using var scope = new AssertionScope();
+
+        loggerMock.LatestRecord.Level.Should().Be(LogLevel.Information);
+        loggerMock.LatestRecord.Message.Should().Be("1 event(s) received");
+    }
+
+    [Test]
+    public async Task Run_WithNoUpcomingEvents_ReturnsNoUpcomingEventsAndLogsWarning()
+    {
+        // Arrange
+        UpcomingEvent[] expectedResults = [];
+
+        var loggerMock = new FakeLogger<FunctionApp.UpcomingEventsFunction>();
+
+        var clientStub = Substitute.For<IUpcomingEventsClient>();
+        clientStub.GetUpcomingEventsAsync(Arg.Any<CancellationToken>()).Returns(Task.FromResult(expectedResults));
+
+        var function = new FunctionApp.UpcomingEventsFunction(loggerMock, clientStub);
+
+        // Act
+        var results = await function.Run(CancellationToken.None);
+
+        // Assert
+        results.Should().NotBeNull().And.BeEmpty();
+
+        loggerMock.Collector.Count.Should().Be(1);
+
+        using var scope = new AssertionScope();
+
+        loggerMock.LatestRecord.Level.Should().Be(LogLevel.Warning);
+        loggerMock.LatestRecord.Message.Should().Be("No events received");
     }
 
     [Test]
@@ -40,17 +73,16 @@ internal sealed class UpcomingEventsFunction
 
         var loggerMock = new FakeLogger<FunctionApp.UpcomingEventsFunction>();
 
-        var processorStub = Substitute.For<IUpcomingEventsProcessor>();
+        var clientStub = Substitute.For<IUpcomingEventsClient>();
+        clientStub.GetUpcomingEventsAsync(Arg.Any<CancellationToken>()).Throws(exception);
 
-        processorStub.GetUpcomingEventsAsync(Arg.Any<CancellationToken>()).Throws(exception);
-
-        var function = new FunctionApp.UpcomingEventsFunction(loggerMock, processorStub);
+        var function = new FunctionApp.UpcomingEventsFunction(loggerMock, clientStub);
 
         // Act
-        var eventResults = await function.Run(CancellationToken.None);
+        var results = await function.Run(CancellationToken.None);
 
         // Assert
-        eventResults.Should().NotBeNull().And.BeEmpty();
+        results.Should().NotBeNull().And.BeEmpty();
 
         loggerMock.Collector.Count.Should().Be(1);
 

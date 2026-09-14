@@ -7,38 +7,6 @@ namespace OddsCollector.Functions.Tests.Tests.Processors.Configuration;
 internal sealed class ServiceCollectionExtensions
 {
     [Test]
-    public void AddFunctionProcessors_AddsEventResultProcessor()
-    {
-        var services = new ServiceCollection();
-
-        services.AddFunctionProcessors();
-
-        var descriptor =
-            services.FirstOrDefault(
-                x => x.ServiceType == typeof(FunctionApp.IEventResultProcessor)
-                     && x.ImplementationType == typeof(FunctionApp.EventResultProcessor)
-                     && x.Lifetime == ServiceLifetime.Transient);
-
-        descriptor.Should().NotBeNull();
-    }
-
-    [Test]
-    public void AddFunctionProcessors_AddsUpcomingEventsProcessor()
-    {
-        var services = new ServiceCollection();
-
-        services.AddFunctionProcessors();
-
-        var descriptor =
-            services.FirstOrDefault(
-                x => x.ServiceType == typeof(FunctionApp.IUpcomingEventsProcessor)
-                     && x.ImplementationType == typeof(FunctionApp.UpcomingEventsProcessor)
-                     && x.Lifetime == ServiceLifetime.Transient);
-
-        descriptor.Should().NotBeNull();
-    }
-
-    [Test]
     public void AddFunctionProcessors_AddsPredictionProcessor()
     {
         var services = new ServiceCollection();
