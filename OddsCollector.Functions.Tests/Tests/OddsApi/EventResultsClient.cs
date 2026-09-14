@@ -90,7 +90,8 @@ internal sealed class EventResultsClient
         var optionsStub = Substitute.For<IOptions<OddsApiClientOptions>>();
         optionsStub.Value.Returns(new OddsApiClientOptions
         {
-            Leagues = [failingLeague, workingLeague], ApiKey = SecretValue
+            Leagues = [failingLeague, workingLeague],
+            ApiKey = SecretValue
         });
 
         ICollection<Anonymous3> rawItems = [new()];
