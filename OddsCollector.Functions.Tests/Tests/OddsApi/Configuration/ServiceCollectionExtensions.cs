@@ -45,11 +45,27 @@ internal sealed class ServiceCollectionExtensions
     {
         var services = new ServiceCollection();
 
+        services.AddLogging();
         services.AddOddsApiClientWithDependencies("leagues", "key");
 
         using var provider = services.BuildServiceProvider();
 
         provider.GetRequiredService<IClient>().Should().NotBeNull().And.BeOfType<Client>();
+    }
+
+    [Test]
+    public void AddOddsApiClientWithDependencies_AddsQuotaLoggingHandler()
+    {
+        var services = new ServiceCollection();
+
+        services.AddOddsApiClientWithDependencies("leagues", "key");
+
+        var descriptor =
+            services.FirstOrDefault(
+                x => x.ServiceType == typeof(FunctionApp.QuotaLoggingHandler)
+                     && x.Lifetime == ServiceLifetime.Transient);
+
+        descriptor.Should().NotBeNull();
     }
 
     [Test]

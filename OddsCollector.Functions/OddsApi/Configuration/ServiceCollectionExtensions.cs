@@ -16,7 +16,13 @@ internal static class ServiceCollectionExtensions
             o.SetApiKey(apiKey);
         });
 
-        services.AddHttpClient<IClient, Client>();
+        services.AddTransient<QuotaLoggingHandler>();
+
+        var clientBuilder = services.AddHttpClient<IClient, Client>();
+
+        clientBuilder.AddStandardResilienceHandler();
+        clientBuilder.AddHttpMessageHandler<QuotaLoggingHandler>();
+
         services.AddTransient<IUpcomingEventsClient, UpcomingEventsClient>();
         services.AddTransient<IEventResultsClient, EventResultsClient>();
 
