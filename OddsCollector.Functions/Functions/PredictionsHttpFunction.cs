@@ -11,6 +11,10 @@ internal sealed class PredictionsHttpFunction(
     ILogger<PredictionsHttpFunction> logger,
     IPredictionHttpRequestProcessor processor)
 {
+    private const string ContentType = "application/json; charset=utf-8";
+    private const string ErrorMessage = "Failed to get predictions";
+    private const string ErrorBody = """{"error":"Failed to get predictions"}""";
+
     [Function(nameof(PredictionsHttpFunction))]
     public HttpResponseData Run(
         [HttpTrigger(AuthorizationLevel.Admin, "get")]
@@ -32,15 +36,14 @@ internal sealed class PredictionsHttpFunction(
         }
         catch (Exception exception)
         {
-            const string errorMessage = "Failed to get predictions";
-
             statusCode = HttpStatusCode.InternalServerError;
-            body = errorMessage;
+            body = ErrorBody;
 
-            logger.LogError(exception, errorMessage);
+            logger.LogError(exception, ErrorMessage);
         }
 
         var response = request.CreateResponse(statusCode);
+        response.Headers.Add("Content-Type", ContentType);
         response.WriteString(body);
         return response;
     }
