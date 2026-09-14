@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using OddsCollector.Functions.Models;
 using OddsCollector.Functions.OddsApi.Configuration;
 using OddsCollector.Functions.OddsApi.Converters;
@@ -7,6 +8,7 @@ using OddsCollector.Functions.OddsApi.WebApi;
 namespace OddsCollector.Functions.OddsApi;
 
 internal sealed class EventResultsClient(
+    ILogger<EventResultsClient> logger,
     IOptions<OddsApiClientOptions> options,
     IClient client,
     IOriginalCompletedEventConverter converter) : IEventResultsClient
@@ -24,10 +26,17 @@ internal sealed class EventResultsClient(
                 break;
             }
 
-            var results = await client.ScoresAsync(league, options.Value.ApiKey, DaysFromToday, cancellationToken)
-                .ConfigureAwait(false);
+            try
+            {
+                var results = await client.ScoresAsync(league, options.Value.ApiKey, DaysFromToday, cancellationToken)
+                    .ConfigureAwait(false);
 
-            result.AddRange(converter.ToEventResults(results));
+                result.AddRange(converter.ToEventResults(results));
+            }
+            catch (Exception exception)
+            {
+                logger.LogError(exception, "Failed to get event results for {League}", league);
+            }
         }
 
         return [.. result];
