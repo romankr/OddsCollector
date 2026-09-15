@@ -20,6 +20,28 @@ The project is designed to have fun with the algorithm described in "[Beating th
 - [Azure Development Tools](https://learn.microsoft.com/en-us/azure/azure-functions/functions-reference?tabs=blob&pivots=programming-language-csharp#development-tools)
 - (Optional) [NSwag Studio](https://github.com/RicoSuter/NSwag/wiki/NSwagStudio). The repository already has [The Odds API C# client](https://github.com/romankr/OddsCollector/blob/master/OddsCollector.Functions/OddsApi/WebApi/WebApiClient.cs). However, you can use [parameters.nswag](https://github.com/romankr/OddsCollector/blob/master/OddsCollector.Functions/OddsApi/WebApi/parameters.nswag) to modify it.
 
+# Application settings
+
+Every setting below has to be present before the app runs. Locally they belong in
+`OddsCollector.Functions/local.settings.json` under `Values`; in Azure they are the function
+app's application settings.
+
+| Setting | Purpose |
+| --- | --- |
+| `OddsApiClient:ApiKey` | The Odds API key. |
+| `OddsApiClient:Leagues` | Semicolon-separated sport keys to collect, for example `soccer_epl;soccer_spain_la_liga`. Empty entries are dropped and surrounding whitespace is trimmed. |
+| `CosmosDb:Connection` | Connection string for the Cosmos DB account. |
+| `CosmosDb:Database` | Cosmos DB database name. |
+| `CosmosDb:EventPredictionsContainer` | Container `PredictionFunction` writes predictions to and `PredictionsHttpFunction` reads them from. |
+| `CosmosDb:EventResultsContainer` | Container `EventResultsFunction` writes completed results to. |
+| `ServiceBus:Connection` | Connection string for the Service Bus namespace. |
+| `ServiceBus:Queue` | Queue carrying upcoming events from `UpcomingEventsFunction` to `PredictionFunction`. |
+| `EventResultsFunction:TimerInterval` | How often results are collected, as an NCRONTAB expression or a `TimeSpan`. |
+| `UpcomingEventsFunction:TimerInterval` | How often upcoming events are collected, as an NCRONTAB expression or a `TimeSpan`. |
+| `APPLICATIONINSIGHTS_CONNECTION_STRING` | Application Insights connection string, read by the OpenTelemetry exporter. |
+| `AzureWebJobsStorage` | Storage account the Functions host uses for timer schedules and leases. |
+| `FUNCTIONS_WORKER_RUNTIME` | Has to be `dotnet-isolated`. |
+
 # Local development
 
 [Code and test Azure Functions locally](https://learn.microsoft.com/en-us/azure/azure-functions/functions-develop-local)
