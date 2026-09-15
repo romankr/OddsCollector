@@ -24,12 +24,11 @@ jobs:
       run: dotnet format --verify-no-changes
     - name: Build and run SonarAnalyzer.CSharp
       run: dotnet build --no-restore --no-incremental -warnaserror
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
-    - name: Check coverage
-      uses: b3b00/coverlet-action@1.2.5
-      with:
-        testProject: 'OddsCollector.Functions.Tests/OddsCollector.Functions.Tests.csproj'
-        output: 'lcov.info'
-        outputFormat: 'lcov'
-        threshold: 70
+    - name: Test and check coverage
+      run: >
+        dotnet test --no-restore --verbosity normal
+        /p:CollectCoverage=true
+        /p:CoverletOutputFormat=lcov
+        /p:CoverletOutput=lcov.info
+        /p:Threshold=70
+        /p:ThresholdType=line
