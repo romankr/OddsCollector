@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using FluentAssertions.Execution;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using OddsCollector.Functions.OddsApi.Configuration;
 using OddsCollector.Functions.OddsApi.Converters;
@@ -9,222 +10,197 @@ namespace OddsCollector.Functions.Tests.Tests.OddsApi.Configuration;
 
 internal sealed class ServiceCollectionExtensions
 {
-    [Test]
-    public void AddOddsApiClientWithDependencies_AddsOddsApiClientOptions()
+    // Resolving the API first builds its first pipeline, and the handlers in it need a
+    // logger, as do the two league clients.
+    private static ServiceProvider BuildProvider()
     {
         var services = new ServiceCollection();
 
-        services.AddOddsApiClientWithDependencies("leagues", "key");
+        services.AddLogging();
+        services.AddOddsApiClientWithDependencies("league1;league2", "key");
 
-        var descriptor =
-            services.FirstOrDefault(
-                x => x.ServiceType ==
-                     typeof(IConfigureOptions<OddsCollector.Functions.OddsApi.Configuration.OddsApiClientOptions>)
-                     && x.Lifetime == ServiceLifetime.Singleton);
-
-        descriptor.Should().NotBeNull();
+        return services.BuildServiceProvider();
     }
 
     [Test]
-    public void AddOddsApiClientWithDependencies_AddsHttpClient()
+    public void AddOddsApiClientWithDependencies_ResolvesOddsApiClientOptions()
     {
-        var services = new ServiceCollection();
+        using var provider = BuildProvider();
 
-        services.AddOddsApiClientWithDependencies("leagues", "key");
+        var options = provider.GetRequiredService<IOptions<FunctionApp.Configuration.OddsApiClientOptions>>().Value;
 
-        var descriptor =
-            services.FirstOrDefault(
-                x => x.ServiceType == typeof(HttpClient)
-                     && x.Lifetime == ServiceLifetime.Transient);
+        using var scope = new AssertionScope();
 
-        descriptor.Should().NotBeNull();
+        options.Leagues.Should().BeEquivalentTo("league1", "league2");
+        options.ApiKey.Should().Be("key");
+    }
+
+    [Test]
+    public void AddOddsApiClientWithDependencies_ResolvesHttpClient()
+    {
+        using var provider = BuildProvider();
+
+        var first = provider.GetRequiredService<HttpClient>();
+
+        using var scope = new AssertionScope();
+
+        first.Should().NotBeNull();
+        provider.GetRequiredService<HttpClient>().Should().NotBeSameAs(first);
+    }
+
+    [Test]
+    public void AddOddsApiClientWithDependencies_ResolvesQuotaLoggingHandler()
+    {
+        using var provider = BuildProvider();
+
+        var first = provider.GetRequiredService<FunctionApp.QuotaLoggingHandler>();
+
+        using var scope = new AssertionScope();
+
+        first.Should().NotBeNull();
+        provider.GetRequiredService<FunctionApp.QuotaLoggingHandler>().Should().NotBeSameAs(first);
     }
 
     [Test]
     public void AddOddsApiClientWithDependencies_ResolvesClient()
     {
-        var services = new ServiceCollection();
+        using var provider = BuildProvider();
 
-        services.AddLogging();
-        services.AddOddsApiClientWithDependencies("leagues", "key");
+        var first = provider.GetRequiredService<IClient>();
 
-        using var provider = services.BuildServiceProvider();
+        using var scope = new AssertionScope();
 
-        provider.GetRequiredService<IClient>().Should().NotBeNull().And.BeOfType<Client>();
+        first.Should().BeOfType<Client>();
+        provider.GetRequiredService<IClient>().Should().NotBeSameAs(first);
     }
 
     [Test]
-    public void AddOddsApiClientWithDependencies_AddsQuotaLoggingHandler()
+    public void AddOddsApiClientWithDependencies_ResolvesUpcomingEventsClient()
     {
-        var services = new ServiceCollection();
+        using var provider = BuildProvider();
 
-        services.AddOddsApiClientWithDependencies("leagues", "key");
+        var first = provider.GetRequiredService<FunctionApp.IUpcomingEventsClient>();
 
-        var descriptor =
-            services.FirstOrDefault(
-                x => x.ServiceType == typeof(FunctionApp.QuotaLoggingHandler)
-                     && x.Lifetime == ServiceLifetime.Transient);
+        using var scope = new AssertionScope();
 
-        descriptor.Should().NotBeNull();
+        first.Should().BeOfType<FunctionApp.UpcomingEventsClient>();
+        provider.GetRequiredService<FunctionApp.IUpcomingEventsClient>().Should().NotBeSameAs(first);
     }
 
     [Test]
-    public void AddOddsApiClientWithDependencies_AddsUpcomingEventsClient()
+    public void AddOddsApiClientWithDependencies_ResolvesEventResultsClient()
     {
-        var services = new ServiceCollection();
+        using var provider = BuildProvider();
 
-        services.AddOddsApiClientWithDependencies("leagues", "key");
+        var first = provider.GetRequiredService<FunctionApp.IEventResultsClient>();
 
-        var descriptor =
-            services.FirstOrDefault(
-                x => x.ImplementationType == typeof(FunctionApp.UpcomingEventsClient)
-                     && x.ServiceType == typeof(FunctionApp.IUpcomingEventsClient)
-                     && x.Lifetime == ServiceLifetime.Transient);
+        using var scope = new AssertionScope();
 
-        descriptor.Should().NotBeNull();
+        first.Should().BeOfType<FunctionApp.EventResultsClient>();
+        provider.GetRequiredService<FunctionApp.IEventResultsClient>().Should().NotBeSameAs(first);
     }
 
     [Test]
-    public void AddOddsApiClientWithDependencies_AddsOriginalUpcomingEventConverter()
+    public void AddOddsApiClientWithDependencies_ResolvesOriginalUpcomingEventConverter()
     {
-        var services = new ServiceCollection();
+        using var provider = BuildProvider();
 
-        services.AddOddsApiClientWithDependencies("leagues", "key");
+        var first = provider.GetRequiredService<IOriginalUpcomingEventConverter>();
 
-        var descriptor =
-            services.FirstOrDefault(
-                x => x.ImplementationType == typeof(OriginalUpcomingEventConverter)
-                     && x.ServiceType == typeof(IOriginalUpcomingEventConverter)
-                     && x.Lifetime == ServiceLifetime.Singleton);
+        using var scope = new AssertionScope();
 
-        descriptor.Should().NotBeNull();
+        first.Should().BeOfType<OriginalUpcomingEventConverter>();
+        provider.GetRequiredService<IOriginalUpcomingEventConverter>().Should().BeSameAs(first);
     }
 
     [Test]
-    public void AddOddsApiClientWithDependencies_AddsBookmakerConverter()
+    public void AddOddsApiClientWithDependencies_ResolvesBookmakerConverter()
     {
-        var services = new ServiceCollection();
+        using var provider = BuildProvider();
 
-        services.AddOddsApiClientWithDependencies("leagues", "key");
+        var first = provider.GetRequiredService<IBookmakerConverter>();
 
-        var descriptor =
-            services.FirstOrDefault(
-                x => x.ImplementationType == typeof(BookmakerConverter)
-                     && x.ServiceType == typeof(IBookmakerConverter)
-                     && x.Lifetime == ServiceLifetime.Singleton);
+        using var scope = new AssertionScope();
 
-        descriptor.Should().NotBeNull();
+        first.Should().BeOfType<BookmakerConverter>();
+        provider.GetRequiredService<IBookmakerConverter>().Should().BeSameAs(first);
     }
 
     [Test]
-    public void AddOddsApiClientWithDependencies_AddsMarketConverter()
+    public void AddOddsApiClientWithDependencies_ResolvesMarketConverter()
     {
-        var services = new ServiceCollection();
+        using var provider = BuildProvider();
 
-        services.AddOddsApiClientWithDependencies("leagues", "key");
+        var first = provider.GetRequiredService<IMarketConverter>();
 
-        var descriptor =
-            services.FirstOrDefault(
-                x => x.ImplementationType == typeof(MarketConverter)
-                     && x.ServiceType == typeof(IMarketConverter)
-                     && x.Lifetime == ServiceLifetime.Singleton);
+        using var scope = new AssertionScope();
 
-        descriptor.Should().NotBeNull();
+        first.Should().BeOfType<MarketConverter>();
+        provider.GetRequiredService<IMarketConverter>().Should().BeSameAs(first);
     }
 
     [Test]
-    public void AddOddsApiClientWithDependencies_AddsOutcomeConverter()
+    public void AddOddsApiClientWithDependencies_ResolvesOutcomeConverter()
     {
-        var services = new ServiceCollection();
+        using var provider = BuildProvider();
 
-        services.AddOddsApiClientWithDependencies("leagues", "key");
+        var first = provider.GetRequiredService<IOutcomeConverter>();
 
-        var descriptor =
-            services.FirstOrDefault(
-                x => x.ImplementationType == typeof(OutcomeConverter)
-                     && x.ServiceType == typeof(IOutcomeConverter)
-                     && x.Lifetime == ServiceLifetime.Singleton);
+        using var scope = new AssertionScope();
 
-        descriptor.Should().NotBeNull();
+        first.Should().BeOfType<OutcomeConverter>();
+        provider.GetRequiredService<IOutcomeConverter>().Should().BeSameAs(first);
     }
 
     [Test]
-    public void AddOddsApiClientWithDependencies_AddsEventResultsClient()
+    public void AddOddsApiClientWithDependencies_ResolvesOriginalCompletedEventConverter()
     {
-        var services = new ServiceCollection();
+        using var provider = BuildProvider();
 
-        services.AddOddsApiClientWithDependencies("leagues", "key");
+        var first = provider.GetRequiredService<IOriginalCompletedEventConverter>();
 
-        var descriptor =
-            services.FirstOrDefault(
-                x => x.ImplementationType == typeof(FunctionApp.EventResultsClient)
-                     && x.ServiceType == typeof(FunctionApp.IEventResultsClient)
-                     && x.Lifetime == ServiceLifetime.Transient);
+        using var scope = new AssertionScope();
 
-        descriptor.Should().NotBeNull();
+        first.Should().BeOfType<OriginalCompletedEventConverter>();
+        provider.GetRequiredService<IOriginalCompletedEventConverter>().Should().BeSameAs(first);
     }
 
     [Test]
-    public void AddOddsApiClientWithDependencies_AddsOriginalCompletedEventConverter()
+    public void AddOddsApiClientWithDependencies_ResolvesWinnerConverter()
     {
-        var services = new ServiceCollection();
+        using var provider = BuildProvider();
 
-        services.AddOddsApiClientWithDependencies("leagues", "key");
+        var first = provider.GetRequiredService<IWinnerConverter>();
 
-        var descriptor =
-            services.FirstOrDefault(
-                x => x.ImplementationType == typeof(OriginalCompletedEventConverter)
-                     && x.ServiceType == typeof(IOriginalCompletedEventConverter)
-                     && x.Lifetime == ServiceLifetime.Singleton);
+        using var scope = new AssertionScope();
 
-        descriptor.Should().NotBeNull();
+        first.Should().BeOfType<WinnerConverter>();
+        provider.GetRequiredService<IWinnerConverter>().Should().BeSameAs(first);
     }
 
     [Test]
-    public void AddOddsApiClientWithDependencies_AddsWinnerConverter()
+    public void AddOddsApiClientWithDependencies_ResolvesScoreModelsConverter()
     {
-        var services = new ServiceCollection();
+        using var provider = BuildProvider();
 
-        services.AddOddsApiClientWithDependencies("leagues", "key");
+        var first = provider.GetRequiredService<IScoreModelsConverter>();
 
-        var descriptor =
-            services.FirstOrDefault(
-                x => x.ImplementationType == typeof(WinnerConverter)
-                     && x.ServiceType == typeof(IWinnerConverter)
-                     && x.Lifetime == ServiceLifetime.Singleton);
+        using var scope = new AssertionScope();
 
-        descriptor.Should().NotBeNull();
+        first.Should().BeOfType<ScoreModelsConverter>();
+        provider.GetRequiredService<IScoreModelsConverter>().Should().BeSameAs(first);
     }
 
     [Test]
-    public void AddOddsApiClientWithDependencies_AddsScoreModelsConverter()
+    public void AddOddsApiClientWithDependencies_ResolvesScoreModelConverter()
     {
-        var services = new ServiceCollection();
+        using var provider = BuildProvider();
 
-        services.AddOddsApiClientWithDependencies("leagues", "key");
+        var first = provider.GetRequiredService<IScoreModelConverter>();
 
-        var descriptor =
-            services.FirstOrDefault(
-                x => x.ImplementationType == typeof(ScoreModelsConverter)
-                     && x.ServiceType == typeof(IScoreModelsConverter)
-                     && x.Lifetime == ServiceLifetime.Singleton);
+        using var scope = new AssertionScope();
 
-        descriptor.Should().NotBeNull();
-    }
-
-    [Test]
-    public void AddOddsApiClientWithDependencies_AddsScoreModelConverter()
-    {
-        var services = new ServiceCollection();
-
-        services.AddOddsApiClientWithDependencies("leagues", "key");
-
-        var descriptor =
-            services.FirstOrDefault(
-                x => x.ImplementationType == typeof(ScoreModelConverter)
-                     && x.ServiceType == typeof(IScoreModelConverter)
-                     && x.Lifetime == ServiceLifetime.Singleton);
-
-        descriptor.Should().NotBeNull();
+        first.Should().BeOfType<ScoreModelConverter>();
+        provider.GetRequiredService<IScoreModelConverter>().Should().BeSameAs(first);
     }
 }
