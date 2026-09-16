@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using FluentAssertions.Execution;
+using Microsoft.Extensions.DependencyInjection;
 using OddsCollector.Functions.Predictions.Configuration;
 using FunctionApp = OddsCollector.Functions.Predictions;
 
@@ -6,51 +7,51 @@ namespace OddsCollector.Functions.Tests.Tests.Predictions.Configuration;
 
 internal sealed class ServiceCollectionExtensions
 {
-    [Test]
-    public void AddPredictionStrategy_AddsPredictionStrategy()
+    private static ServiceProvider BuildProvider()
     {
         var services = new ServiceCollection();
 
         services.AddPredictionStrategy();
 
-        var descriptor =
-            services.FirstOrDefault(
-                x => x.ServiceType == typeof(FunctionApp.IPredictionStrategy)
-                     && x.ImplementationType == typeof(FunctionApp.PredictionStrategy)
-                     && x.Lifetime == ServiceLifetime.Singleton);
-
-        descriptor.Should().NotBeNull();
+        return services.BuildServiceProvider();
     }
 
     [Test]
-    public void AddPredictionStrategy_AddsWinnerFinder()
+    public void AddPredictionStrategy_ResolvesPredictionStrategy()
     {
-        var services = new ServiceCollection();
+        using var provider = BuildProvider();
 
-        services.AddPredictionStrategy();
+        var first = provider.GetRequiredService<FunctionApp.IPredictionStrategy>();
 
-        var strategyDescriptor =
-            services.FirstOrDefault(
-                x => x.ServiceType == typeof(FunctionApp.IWinnerFinder)
-                     && x.ImplementationType == typeof(FunctionApp.WinnerFinder)
-                     && x.Lifetime == ServiceLifetime.Singleton);
+        using var scope = new AssertionScope();
 
-        strategyDescriptor.Should().NotBeNull();
+        first.Should().BeOfType<FunctionApp.PredictionStrategy>();
+        provider.GetRequiredService<FunctionApp.IPredictionStrategy>().Should().BeSameAs(first);
     }
 
     [Test]
-    public void AddPredictionStrategy_AddsScoreCalculator()
+    public void AddPredictionStrategy_ResolvesWinnerFinder()
     {
-        var services = new ServiceCollection();
+        using var provider = BuildProvider();
 
-        services.AddPredictionStrategy();
+        var first = provider.GetRequiredService<FunctionApp.IWinnerFinder>();
 
-        var strategyDescriptor =
-            services.FirstOrDefault(
-                x => x.ServiceType == typeof(FunctionApp.IScoreCalculator)
-                     && x.ImplementationType == typeof(FunctionApp.ScoreCalculator)
-                     && x.Lifetime == ServiceLifetime.Singleton);
+        using var scope = new AssertionScope();
 
-        strategyDescriptor.Should().NotBeNull();
+        first.Should().BeOfType<FunctionApp.WinnerFinder>();
+        provider.GetRequiredService<FunctionApp.IWinnerFinder>().Should().BeSameAs(first);
+    }
+
+    [Test]
+    public void AddPredictionStrategy_ResolvesScoreCalculator()
+    {
+        using var provider = BuildProvider();
+
+        var first = provider.GetRequiredService<FunctionApp.IScoreCalculator>();
+
+        using var scope = new AssertionScope();
+
+        first.Should().BeOfType<FunctionApp.ScoreCalculator>();
+        provider.GetRequiredService<FunctionApp.IScoreCalculator>().Should().BeSameAs(first);
     }
 }
