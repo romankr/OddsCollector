@@ -28,6 +28,10 @@ internal sealed class UpcomingEventsFunction(ILogger<UpcomingEventsFunction> log
 
             return events;
         }
+        catch (OperationCanceledException exception)
+        {
+            logger.LogInformation(exception, "Collection was cancelled");
+        }
         catch (Exception exception)
         {
             logger.LogError(exception, "Failed to get events");
