@@ -8,7 +8,6 @@ internal static class ServiceCollectionExtensions
     {
         public void AddFunctionProcessors()
         {
-            services.AddSingleton<IPredictionProcessor, PredictionProcessor>();
             services.AddSingleton<IPredictionHttpRequestProcessor, PredictionHttpRequestProcessor>();
         }
     }
