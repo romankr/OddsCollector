@@ -6,6 +6,59 @@ namespace OddsCollector.Functions.Tests.Tests.Predictions;
 
 internal sealed class ScoreCalculator
 {
+    [Test]
+    public void GetScores_WithBookmakersDisagreeing_RanksOnTheMeanOfWhatEachImplies()
+    {
+        // Arrange: one book quotes the draw at 1.5 and two at 6.0. Inverting the mean of the
+        // odds scores the draw 0.165 and hands the prediction to the away team; the mean of
+        // what each book implies scores it 0.276 and hands it to the draw.
+        List<Odd> odds =
+        [
+            new() { Home = 4.5, Draw = 1.5, Away = 4.5 },
+            new() { Home = 4.5, Draw = 6.0, Away = 4.5 },
+            new() { Home = 4.5, Draw = 6.0, Away = 4.5 }
+        ];
+
+        var calculator = new FunctionApp.ScoreCalculator();
+
+        // Act
+        var scores = calculator.GetScores(odds);
+
+        // Assert
+        using var scope = new AssertionScope();
+
+        scores[0].Outcome.Should().Be(OutcomeTypes.Draw);
+        scores[0].Score.Should().BeApproximately(0.2763, 0.0001);
+        scores[1].Score.Should().BeApproximately(0.1882, 0.0001);
+        scores[2].Score.Should().BeApproximately(0.1852, 0.0001);
+
+        scores.MaxBy(s => s.Score)!.Outcome.Should().Be(OutcomeTypes.Draw);
+    }
+
+    [Test]
+    public void GetScores_WithOneUnusableQuote_LeavesItOutOfTheConsensus()
+    {
+        // Arrange: the middle book quotes nothing usable for the draw. Dropping it has to
+        // leave the consensus of the other two untouched, rather than averaging in a zero.
+        List<Odd> odds =
+        [
+            new() { Home = 2, Draw = 2, Away = 2 },
+            new() { Home = 2, Draw = 0, Away = 2 },
+            new() { Home = 2, Draw = 2, Away = 2 }
+        ];
+
+        var calculator = new FunctionApp.ScoreCalculator();
+
+        // Act
+        var scores = calculator.GetScores(odds);
+
+        // Assert
+        using var scope = new AssertionScope();
+
+        scores[0].Outcome.Should().Be(OutcomeTypes.Draw);
+        scores[0].Score.Should().BeApproximately(0.443, 0.0001);
+    }
+
     [TestCase(0, TestName = "GetScores_WithZeroOdds_ScoresNothing")]
     [TestCase(1e-300, TestName = "GetScores_WithNearZeroOdds_ScoresNothing")]
     [TestCase(0.5, TestName = "GetScores_WithOddsBelowOne_ScoresNothing")]
@@ -46,7 +99,7 @@ internal sealed class ScoreCalculator
         using var scope = new AssertionScope();
 
         drawScore.Outcome.Should().NotBeNullOrEmpty().And.Be(OutcomeTypes.Draw);
-        drawScore.Score.Should().BeApproximately(0.443, 0.001);
+        drawScore.Score.Should().BeApproximately(0.443, 0.0001);
     }
 
     [Test]
@@ -73,7 +126,7 @@ internal sealed class ScoreCalculator
         using var scope = new AssertionScope();
 
         awayScore.Outcome.Should().NotBeNullOrEmpty().And.Be(OutcomeTypes.AwayTeam);
-        awayScore.Score.Should().BeApproximately(0.466, 0.001);
+        awayScore.Score.Should().BeApproximately(0.6327, 0.0001);
     }
 
     [Test]
@@ -100,6 +153,6 @@ internal sealed class ScoreCalculator
         using var scope = new AssertionScope();
 
         homeScore.Outcome.Should().NotBeNullOrEmpty().And.Be(OutcomeTypes.HomeTeam);
-        homeScore.Score.Should().BeApproximately(0.463, 0.001);
+        homeScore.Score.Should().BeApproximately(0.6297, 0.0001);
     }
 }

@@ -19,19 +19,28 @@ internal sealed class ScoreCalculator : IScoreCalculator
     private static OutcomeScore Calculate(string outcome, ICollection<Odd> odds, double adjustment,
         Func<Odd, double> valueExtractor)
     {
-        var score = GetConsensusScore(odds, valueExtractor);
-        score = AdjustScore(score, adjustment);
+        var probabilities = GetImpliedProbabilities(odds, valueExtractor);
+
+        // Without a usable quote there is nothing to score, and taking the adjustment off
+        // nothing would leave a negative one.
+        var score = probabilities.Count == 0 ? 0 : probabilities.Average() - adjustment;
+
         return ToOutcomeScore(outcome, score);
     }
 
-    private static double GetConsensusScore(ICollection<Odd> odds, Func<Odd, double> valueExtractor)
+    /// <remarks>
+    ///     The consensus is the mean of what each bookmaker implies, not what the mean of
+    ///     their odds implies. 1 / mean(odds) is not mean(1 / odds), and the two diverge the
+    ///     more the bookmakers disagree, which held contested outcomes down.
+    /// </remarks>
+    private static List<double> GetImpliedProbabilities(ICollection<Odd> odds, Func<Odd, double> valueExtractor)
     {
-        return odds.Select(valueExtractor).Average();
-    }
-
-    private static double AdjustScore(double score, double adjustment)
-    {
-        return score < MinimumDecimalOdds ? 0 : (1 / score) - adjustment;
+        // Decimal odds never fall below 1, so a quote under it is unusable. It is left out
+        // rather than averaged in as a zero, which would drag the consensus down.
+        return odds.Select(valueExtractor)
+            .Where(o => o >= MinimumDecimalOdds)
+            .Select(o => 1 / o)
+            .ToList();
     }
 
     private static OutcomeScore ToOutcomeScore(string outcome, double score)
