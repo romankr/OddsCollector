@@ -4,9 +4,12 @@ namespace OddsCollector.Functions.Processors.Configuration;
 
 internal static class ServiceCollectionExtensions
 {
-    public static void AddFunctionProcessors(this IServiceCollection services)
+    extension(IServiceCollection services)
     {
-        services.AddSingleton<IPredictionProcessor, PredictionProcessor>();
-        services.AddSingleton<IPredictionHttpRequestProcessor, PredictionHttpRequestProcessor>();
+        public void AddFunctionProcessors()
+        {
+            services.AddSingleton<IPredictionProcessor, PredictionProcessor>();
+            services.AddSingleton<IPredictionHttpRequestProcessor, PredictionHttpRequestProcessor>();
+        }
     }
 }
