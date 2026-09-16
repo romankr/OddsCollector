@@ -14,17 +14,27 @@ internal sealed class QuotaLoggingHandler
     {
         var response = new HttpResponseMessage(HttpStatusCode.OK);
 
-        response.Headers.Add(FunctionApp.QuotaLoggingHandler.RemainingHeader, remaining);
-        response.Headers.Add(FunctionApp.QuotaLoggingHandler.UsedHeader, used);
-        response.Headers.Add(FunctionApp.QuotaLoggingHandler.LastCallHeader, lastCall);
+        AddHeader(response, FunctionApp.QuotaLoggingHandler.RemainingHeader, remaining);
+        AddHeader(response, FunctionApp.QuotaLoggingHandler.UsedHeader, used);
+        AddHeader(response, FunctionApp.QuotaLoggingHandler.LastCallHeader, lastCall);
 
         return response;
     }
 
-    private static async Task<(HttpResponseMessage Response, FakeLogger<FunctionApp.QuotaLoggingHandler> Logger)>
-        SendAsync(HttpResponseMessage response)
+    // null leaves the header off the response, rather than adding it with an empty value,
+    // so that the missing-header cases exercise a genuinely missing header.
+    private static void AddHeader(HttpResponseMessage response, string name, string? value)
     {
-        var logger = new FakeLogger<FunctionApp.QuotaLoggingHandler>();
+        if (value is not null)
+        {
+            response.Headers.Add(name, value);
+        }
+    }
+
+    private static async Task<(HttpResponseMessage Response, FakeLogger<FunctionApp.QuotaLoggingHandler> Logger)>
+        SendAsync(HttpResponseMessage response, FakeLogger<FunctionApp.QuotaLoggingHandler>? logger = null)
+    {
+        logger ??= new FakeLogger<FunctionApp.QuotaLoggingHandler>();
 
         var handler = new FunctionApp.QuotaLoggingHandler(logger)
         {
@@ -40,7 +50,7 @@ internal sealed class QuotaLoggingHandler
     }
 
     [Test]
-    public async Task SendAsync_WithRemainingCredits_LogsInformation()
+    public async Task SendAsync_WithEveryQuotaHeader_LogsAllOfThem()
     {
         using var response = CreateResponse("250");
 
@@ -62,33 +72,11 @@ internal sealed class QuotaLoggingHandler
 
         var (_, logger) = await SendAsync(response);
 
-        logger.Collector.Count.Should().Be(1);
-
-        using var scope = new AssertionScope();
-
-        logger.LatestRecord.Level.Should().Be(LogLevel.Information);
-        logger.LatestRecord.Message.Should()
-            .Be("Odds API credits: ");
+        logger.Collector.Count.Should().Be(0);
     }
 
     [Test]
-    public async Task SendAsync_WithNonNumericRemainingCredits_LogsOnlyAPart()
-    {
-        using var response = CreateResponse("unknown");
-
-        var (_, logger) = await SendAsync(response);
-
-        logger.Collector.Count.Should().Be(1);
-
-        using var scope = new AssertionScope();
-
-        logger.LatestRecord.Level.Should().Be(LogLevel.Information);
-        logger.LatestRecord.Message.Should()
-            .Be("Odds API credits: , 30 used, 1 spent on the last call");
-    }
-
-    [Test]
-    public async Task SendAsync_WithMissingUsedCredits_LogsOnlyAPart()
+    public async Task SendAsync_WithOnlyRemainingCredits_LogsThatAlone()
     {
         using var response = CreateResponse("250", null, null);
 
@@ -99,8 +87,50 @@ internal sealed class QuotaLoggingHandler
         using var scope = new AssertionScope();
 
         logger.LatestRecord.Level.Should().Be(LogLevel.Information);
-        logger.LatestRecord.Message.Should()
-            .Be("Odds API credits: 250 remaining");
+        logger.LatestRecord.Message.Should().Be("Odds API credits: 250 remaining");
+    }
+
+    [Test]
+    public async Task SendAsync_WithOnlyTheLastCallHeader_DoesNotLeadWithASeparator()
+    {
+        using var response = CreateResponse(null, null, "2");
+
+        var (_, logger) = await SendAsync(response);
+
+        logger.Collector.Count.Should().Be(1);
+
+        using var scope = new AssertionScope();
+
+        logger.LatestRecord.Level.Should().Be(LogLevel.Information);
+        logger.LatestRecord.Message.Should().Be("Odds API credits: 2 spent on the last call");
+    }
+
+    [Test]
+    public async Task SendAsync_WithUnparsableRemainingCredits_LeavesItOut()
+    {
+        using var response = CreateResponse("unknown");
+
+        var (_, logger) = await SendAsync(response);
+
+        logger.Collector.Count.Should().Be(1);
+
+        using var scope = new AssertionScope();
+
+        logger.LatestRecord.Level.Should().Be(LogLevel.Information);
+        logger.LatestRecord.Message.Should().Be("Odds API credits: 30 used, 1 spent on the last call");
+    }
+
+    [Test]
+    public async Task SendAsync_WithInformationLoggingOff_LogsNothing()
+    {
+        using var response = CreateResponse("250");
+
+        var logger = new FakeLogger<FunctionApp.QuotaLoggingHandler>();
+        logger.ControlLevel(LogLevel.Information, false);
+
+        var (_, actualLogger) = await SendAsync(response, logger);
+
+        actualLogger.Collector.Count.Should().Be(0);
     }
 
     [Test]
