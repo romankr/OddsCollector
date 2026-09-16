@@ -13,7 +13,7 @@ internal sealed class OutcomeScoreBuilder
 
     public OutcomeScoreBuilder SetOutcome(string? outcome)
     {
-        ArgumentException.ThrowIfNullOrEmpty(outcome);
+        ArgumentException.ThrowIfNullOrWhiteSpace(outcome);
 
         Instance.Outcome = outcome;
 

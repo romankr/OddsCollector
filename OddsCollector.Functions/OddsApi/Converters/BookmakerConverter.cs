@@ -7,18 +7,18 @@ internal sealed class BookmakerConverter(IMarketConverter converter) : IBookmake
 {
     public IEnumerable<Odd> ToOdds(ICollection<Bookmakers>? bookmakers, string? awayTeam, string? homeTeam)
     {
-        CheckParameters(bookmakers, awayTeam, homeTeam);
+        ArgumentNullException.ThrowIfNull(bookmakers);
+        ArgumentException.ThrowIfNullOrWhiteSpace(awayTeam);
+        ArgumentException.ThrowIfNullOrWhiteSpace(homeTeam);
 
-        foreach (var bookmaker in bookmakers!)
-        {
-            yield return converter.ToOdd(bookmaker.Markets, bookmaker.Key, awayTeam!, homeTeam!);
-        }
+        return Iterate(bookmakers, awayTeam, homeTeam);
     }
 
-    private static void CheckParameters(ICollection<Bookmakers>? bookmakers, string? awayTeam, string? homeTeam)
+    private IEnumerable<Odd> Iterate(ICollection<Bookmakers> bookmakers, string awayTeam, string homeTeam)
     {
-        ArgumentNullException.ThrowIfNull(bookmakers);
-        ArgumentException.ThrowIfNullOrEmpty(awayTeam);
-        ArgumentException.ThrowIfNullOrEmpty(homeTeam);
+        foreach (var bookmaker in bookmakers)
+        {
+            yield return converter.ToOdd(bookmaker.Markets, bookmaker.Key, awayTeam, homeTeam);
+        }
     }
 }

@@ -7,6 +7,7 @@ internal sealed class ScoreModelConverter
 {
     [TestCase("", TestName = "ToEventScore_WithEmptyName_ThrowsException")]
     [TestCase(null, TestName = "ToEventScore_WithNullName_ThrowsException")]
+    [TestCase(" ", TestName = "ToEventScore_WithWhitespaceName_ThrowsException")]
     public void ToEventScore_WithNullOrEmptyName_ThrowsException(string? name)
     {
         var converter = new FunctionApp.ScoreModelConverter();

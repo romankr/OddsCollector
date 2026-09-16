@@ -17,6 +17,7 @@ internal sealed class OutcomeConverter
 
     [TestCase("", TestName = "ToOdd_WithEmptyBookmaker_ThrowsException")]
     [TestCase(null, TestName = "ToOdd_WithNullBookmaker_ThrowsException")]
+    [TestCase(" ", TestName = "ToOdd_WithWhitespaceBookmaker_ThrowsException")]
     public void ToOdd_WithNullOrEmptyBookmaker_ThrowsException(string? bookmaker)
     {
         var converter = new FunctionApp.OutcomeConverter();

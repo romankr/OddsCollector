@@ -6,7 +6,7 @@ internal sealed class ScoreModelConverter : IScoreModelConverter
 {
     public EventScore ToEventScore(ScoreModel scoreModel)
     {
-        ArgumentException.ThrowIfNullOrEmpty(scoreModel.Name);
+        ArgumentException.ThrowIfNullOrWhiteSpace(scoreModel.Name);
 
         if (!int.TryParse(scoreModel.Score, out var score))
         {

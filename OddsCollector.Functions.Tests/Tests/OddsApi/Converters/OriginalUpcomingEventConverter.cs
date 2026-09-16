@@ -93,7 +93,7 @@ internal class OriginalUpcomingEventConverter
 
         var converter = new FunctionApp.OriginalUpcomingEventConverter(bookmakerConverter);
 
-        var action = () => converter.ToUpcomingEvents(null).ToList();
+        var action = () => converter.ToUpcomingEvents(null);
 
         action.Should().Throw<ArgumentNullException>().WithParameterName("events");
     }

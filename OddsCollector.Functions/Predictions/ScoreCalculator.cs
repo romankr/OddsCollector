@@ -4,6 +4,8 @@ namespace OddsCollector.Functions.Predictions;
 
 internal sealed class ScoreCalculator : IScoreCalculator
 {
+    private const double MinimumDecimalOdds = 1;
+
     public OutcomeScore[] GetScores(ICollection<Odd> odds)
     {
         return
@@ -29,7 +31,7 @@ internal sealed class ScoreCalculator : IScoreCalculator
 
     private static double AdjustScore(double score, double adjustment)
     {
-        return score == 0 ? 0 : (1 / score) - adjustment;
+        return score < MinimumDecimalOdds ? 0 : (1 / score) - adjustment;
     }
 
     private static OutcomeScore ToOutcomeScore(string outcome, double score)

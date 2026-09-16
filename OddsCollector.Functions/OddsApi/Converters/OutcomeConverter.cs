@@ -8,7 +8,7 @@ internal sealed class OutcomeConverter : IOutcomeConverter
     public Odd ToOdd(ICollection<Outcome>? outcomes, string? bookmaker, string awayTeam, string homeTeam)
     {
         ArgumentNullException.ThrowIfNull(outcomes);
-        ArgumentException.ThrowIfNullOrEmpty(bookmaker);
+        ArgumentException.ThrowIfNullOrWhiteSpace(bookmaker);
 
         return new OddBuilder()
             .SetBookmaker(bookmaker)

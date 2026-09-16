@@ -3,7 +3,7 @@ using OddsCollector.Functions.OddsApi.WebApi;
 
 namespace OddsCollector.Functions.OddsApi.Converters;
 
-internal class WinnerConverter(IScoreModelsConverter converter) : IWinnerConverter
+internal sealed class WinnerConverter(IScoreModelsConverter converter) : IWinnerConverter
 {
     public string GetWinner(ICollection<ScoreModel>? scores)
     {
