@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using System.Text;
 using Microsoft.Extensions.Logging;
 
 namespace OddsCollector.Functions.OddsApi;
@@ -22,28 +21,36 @@ internal sealed class QuotaLoggingHandler(ILogger<QuotaLoggingHandler> logger) :
 
     private void LogQuota(HttpResponseMessage response)
     {
-        var builder = new StringBuilder("Odds API credits: ");
+        // Reading the headers is only worth the work when the entry is going to be written.
+        if (!logger.IsEnabled(LogLevel.Information))
+        {
+            return;
+        }
+
+        List<string> credits = [];
 
         if (TryGetCredits(response, RemainingHeader, out var remaining))
         {
-            builder.Append($"{remaining} remaining");
+            credits.Add($"{remaining} remaining");
         }
 
         if (TryGetCredits(response, UsedHeader, out var used))
         {
-            builder.Append($", {used} used");
+            credits.Add($"{used} used");
         }
 
         if (TryGetCredits(response, LastCallHeader, out var lastCall))
         {
-            builder.Append($", {lastCall} spent on the last call");
+            credits.Add($"{lastCall} spent on the last call");
         }
 
-#pragma warning disable CA2254
-#pragma warning disable CA1873
-        logger.LogInformation(builder.ToString());
-#pragma warning restore CA1873
-#pragma warning restore CA2254
+        // A response carrying no usable quota header says nothing worth an entry.
+        if (credits.Count == 0)
+        {
+            return;
+        }
+
+        logger.LogInformation("Odds API credits: {Credits}", string.Join(", ", credits));
     }
 
     private static bool TryGetCredits(HttpResponseMessage response, string name, out int credits)
