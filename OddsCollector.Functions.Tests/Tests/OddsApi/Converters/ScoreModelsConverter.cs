@@ -11,7 +11,7 @@ internal sealed class ScoreModelsConverter
             new FunctionApp.ScoreModelsConverter(
                 Substitute.For<FunctionApp.IScoreModelConverter>());
 
-        var action = () => converter.Convert(null).ToList();
+        var action = () => converter.Convert(null);
 
         action.Should().Throw<ArgumentNullException>().WithParameterName("scores");
     }
@@ -23,7 +23,7 @@ internal sealed class ScoreModelsConverter
             new FunctionApp.ScoreModelsConverter(
                 Substitute.For<FunctionApp.IScoreModelConverter>());
 
-        var action = () => converter.Convert([]).ToList();
+        var action = () => converter.Convert([]);
 
         action.Should().Throw<ArgumentException>().WithParameterName("scores")
             .Which.Message.Should().Be("scores must have 2 elements (Parameter 'scores')");

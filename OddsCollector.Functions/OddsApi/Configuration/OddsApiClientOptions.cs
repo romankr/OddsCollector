@@ -8,7 +8,7 @@ internal sealed class OddsApiClientOptions
 
     public void AddLeagues(string? leagues)
     {
-        ArgumentException.ThrowIfNullOrEmpty(leagues);
+        ArgumentException.ThrowIfNullOrWhiteSpace(leagues);
 
         var deserialized =
             leagues.Split(";", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
@@ -18,7 +18,7 @@ internal sealed class OddsApiClientOptions
 
     public void SetApiKey(string? apiKey)
     {
-        ArgumentException.ThrowIfNullOrEmpty(apiKey);
+        ArgumentException.ThrowIfNullOrWhiteSpace(apiKey);
 
         ApiKey = apiKey;
     }

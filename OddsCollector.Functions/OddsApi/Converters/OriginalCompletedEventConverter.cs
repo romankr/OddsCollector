@@ -7,9 +7,14 @@ internal sealed class OriginalCompletedEventConverter(IWinnerConverter converter
 {
     public IEnumerable<EventResult> ToEventResults(ICollection<Anonymous3>? originalEvents)
     {
-        CheckParameters(originalEvents);
+        ArgumentNullException.ThrowIfNull(originalEvents);
 
-        foreach (var originalEvent in originalEvents!)
+        return Iterate(originalEvents);
+    }
+
+    private IEnumerable<EventResult> Iterate(ICollection<Anonymous3> originalEvents)
+    {
+        foreach (var originalEvent in originalEvents)
         {
             yield return ToEventResult(originalEvent);
         }
@@ -22,10 +27,5 @@ internal sealed class OriginalCompletedEventConverter(IWinnerConverter converter
             .SetCommenceTime(originalEvent.Commence_time)
             .SetWinner(converter.GetWinner(originalEvent.Scores))
             .Instance;
-    }
-
-    private static void CheckParameters(ICollection<Anonymous3>? originalEvents)
-    {
-        ArgumentNullException.ThrowIfNull(originalEvents);
     }
 }

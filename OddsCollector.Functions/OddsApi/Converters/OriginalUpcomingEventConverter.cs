@@ -8,9 +8,14 @@ internal sealed class OriginalUpcomingEventConverter(IBookmakerConverter bookmak
 {
     public IEnumerable<UpcomingEvent> ToUpcomingEvents(ICollection<Anonymous2>? events)
     {
-        CheckParameters(events);
+        ArgumentNullException.ThrowIfNull(events);
 
-        foreach (var originalEvent in events!)
+        return Iterate(events);
+    }
+
+    private IEnumerable<UpcomingEvent> Iterate(ICollection<Anonymous2> events)
+    {
+        foreach (var originalEvent in events)
         {
             yield return ToUpcomingEvent(originalEvent);
         }
@@ -28,10 +33,5 @@ internal sealed class OriginalUpcomingEventConverter(IBookmakerConverter bookmak
                     .ToList()
             )
             .Instance;
-    }
-
-    private static void CheckParameters(ICollection<Anonymous2>? events)
-    {
-        ArgumentNullException.ThrowIfNull(events);
     }
 }

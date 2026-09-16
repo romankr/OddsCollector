@@ -6,7 +6,7 @@ internal sealed class EventPredictionBuilder
 
     public EventPredictionBuilder SetAwayTeam(string? awayTeam)
     {
-        ArgumentException.ThrowIfNullOrEmpty(awayTeam);
+        ArgumentException.ThrowIfNullOrWhiteSpace(awayTeam);
 
         Instance.AwayTeam = awayTeam;
 
@@ -24,7 +24,7 @@ internal sealed class EventPredictionBuilder
 
     public EventPredictionBuilder SetHomeTeam(string? homeTeam)
     {
-        ArgumentException.ThrowIfNullOrEmpty(homeTeam);
+        ArgumentException.ThrowIfNullOrWhiteSpace(homeTeam);
 
         Instance.HomeTeam = homeTeam;
 
@@ -33,7 +33,7 @@ internal sealed class EventPredictionBuilder
 
     public EventPredictionBuilder SetId(string? id)
     {
-        ArgumentException.ThrowIfNullOrEmpty(id);
+        ArgumentException.ThrowIfNullOrWhiteSpace(id);
 
         Instance.Id = id;
 
@@ -42,7 +42,7 @@ internal sealed class EventPredictionBuilder
 
     public EventPredictionBuilder SetWinner(string? winner)
     {
-        ArgumentException.ThrowIfNullOrEmpty(winner);
+        ArgumentException.ThrowIfNullOrWhiteSpace(winner);
 
         Instance.Winner = winner;
 

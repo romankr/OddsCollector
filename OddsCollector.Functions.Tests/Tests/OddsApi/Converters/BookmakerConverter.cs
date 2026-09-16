@@ -11,33 +11,35 @@ internal sealed class BookmakerConverter
 
         var bookmakerConverter = new FunctionApp.BookmakerConverter(marketConverter);
 
-        var action = () => bookmakerConverter.ToOdds(null, "awayTeam", "homeTeam").ToList();
+        var action = () => bookmakerConverter.ToOdds(null, "awayTeam", "homeTeam");
 
         action.Should().Throw<ArgumentNullException>().WithParameterName("bookmakers");
     }
 
     [TestCase("", TestName = "ToOdds_WithEmptyAwayTeam_ThrowsException")]
     [TestCase(null, TestName = "ToOdds_WithNullAwayTeam_ThrowsException")]
+    [TestCase(" ", TestName = "ToOdds_WithWhitespaceAwayTeam_ThrowsException")]
     public void ToOdds_WithNullOrEmptyAwayTeam_ThrowsException(string? awayTeam)
     {
         var marketConverter = Substitute.For<FunctionApp.IMarketConverter>();
 
         var bookmakerConverter = new FunctionApp.BookmakerConverter(marketConverter);
 
-        var action = () => bookmakerConverter.ToOdds([], awayTeam, "homeTeam").ToList();
+        var action = () => bookmakerConverter.ToOdds([], awayTeam, "homeTeam");
 
         action.Should().Throw<ArgumentException>().WithParameterName(nameof(awayTeam));
     }
 
     [TestCase("", TestName = "ToOdds_WithEmptyHomeTeam_ThrowsException")]
     [TestCase(null, TestName = "ToOdds_WithNullHomeTeam_ThrowsException")]
+    [TestCase(" ", TestName = "ToOdds_WithWhitespaceHomeTeam_ThrowsException")]
     public void ToOdds_WithNullOrEmptyHomeTeam_ThrowsException(string? homeTeam)
     {
         var marketConverter = Substitute.For<FunctionApp.IMarketConverter>();
 
         var bookmakerConverter = new FunctionApp.BookmakerConverter(marketConverter);
 
-        var action = () => bookmakerConverter.ToOdds([], "awayTeam", homeTeam).ToList();
+        var action = () => bookmakerConverter.ToOdds([], "awayTeam", homeTeam);
 
         action.Should().Throw<ArgumentException>().WithParameterName(nameof(homeTeam));
     }

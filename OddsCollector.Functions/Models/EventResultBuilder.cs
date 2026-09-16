@@ -6,7 +6,7 @@ internal sealed class EventResultBuilder
 
     public EventResultBuilder SetId(string? id)
     {
-        ArgumentException.ThrowIfNullOrEmpty(id);
+        ArgumentException.ThrowIfNullOrWhiteSpace(id);
 
         Instance.Id = id;
 
@@ -15,7 +15,7 @@ internal sealed class EventResultBuilder
 
     public EventResultBuilder SetWinner(string? winner)
     {
-        ArgumentException.ThrowIfNullOrEmpty(winner);
+        ArgumentException.ThrowIfNullOrWhiteSpace(winner);
 
         Instance.Winner = winner;
 

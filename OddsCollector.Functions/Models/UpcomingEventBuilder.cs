@@ -6,7 +6,7 @@ internal sealed class UpcomingEventBuilder
 
     public UpcomingEventBuilder SetAwayTeam(string? awayTeam)
     {
-        ArgumentException.ThrowIfNullOrEmpty(awayTeam);
+        ArgumentException.ThrowIfNullOrWhiteSpace(awayTeam);
 
         Instance.AwayTeam = awayTeam;
 
@@ -24,7 +24,7 @@ internal sealed class UpcomingEventBuilder
 
     public UpcomingEventBuilder SetHomeTeam(string? homeTeam)
     {
-        ArgumentException.ThrowIfNullOrEmpty(homeTeam);
+        ArgumentException.ThrowIfNullOrWhiteSpace(homeTeam);
 
         Instance.HomeTeam = homeTeam;
 
@@ -33,7 +33,7 @@ internal sealed class UpcomingEventBuilder
 
     public UpcomingEventBuilder SetId(string? id)
     {
-        ArgumentException.ThrowIfNullOrEmpty(id);
+        ArgumentException.ThrowIfNullOrWhiteSpace(id);
 
         Instance.Id = id;
 

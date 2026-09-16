@@ -68,7 +68,7 @@ internal sealed class OriginalCompletedEventConverter
 
         var converter = new FunctionApp.OriginalCompletedEventConverter(winnerConverter);
 
-        var action = () => converter.ToEventResults(null).ToList();
+        var action = () => converter.ToEventResults(null);
 
         action.Should().Throw<ArgumentNullException>().WithParameterName("originalEvents");
     }

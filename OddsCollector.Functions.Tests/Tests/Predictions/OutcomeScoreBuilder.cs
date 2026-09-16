@@ -6,6 +6,7 @@ internal sealed class OutcomeScoreBuilder
 {
     [TestCase("", TestName = "SetOutcome_WithEmptyString_ThrowsException")]
     [TestCase(null, TestName = "SetOutcome_WithNullString_ThrowsException")]
+    [TestCase(" ", TestName = "SetOutcome_WithWhitespaceString_ThrowsException")]
     public void SetOutcome_WithNullOrEmptyString_ThrowsException(string? outcome)
     {
         var builder = new FunctionApp.OutcomeScoreBuilder();

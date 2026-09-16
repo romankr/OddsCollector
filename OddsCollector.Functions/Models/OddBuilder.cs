@@ -6,7 +6,7 @@ internal sealed class OddBuilder
 
     public OddBuilder SetBookmaker(string? bookmaker)
     {
-        ArgumentException.ThrowIfNullOrEmpty(bookmaker);
+        ArgumentException.ThrowIfNullOrWhiteSpace(bookmaker);
 
         Instance.Bookmaker = bookmaker;
 

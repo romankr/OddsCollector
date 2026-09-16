@@ -6,6 +6,7 @@ internal sealed class EventPredictionBuilder
 {
     [TestCase("", TestName = "SetId_WithEmptyString_ThrowsException")]
     [TestCase(null, TestName = "SetId_WithNullString_ThrowsException")]
+    [TestCase(" ", TestName = "SetId_WithWhitespaceString_ThrowsException")]
     public void SetId_WithNullOrEmptyString_ThrowsException(string? id)
     {
         var builder = new FunctionApp.EventPredictionBuilder();
@@ -17,6 +18,7 @@ internal sealed class EventPredictionBuilder
 
     [TestCase("", TestName = "SetAwayTeam_WithEmptyString_ThrowsException")]
     [TestCase(null, TestName = "SetAwayTeam_WithNullString_ThrowsException")]
+    [TestCase(" ", TestName = "SetAwayTeam_WithWhitespaceString_ThrowsException")]
     public void SetAwayTeam_WithNullOrEmptyString_ThrowsException(string? awayTeam)
     {
         var builder = new FunctionApp.EventPredictionBuilder();
@@ -28,6 +30,7 @@ internal sealed class EventPredictionBuilder
 
     [TestCase("", TestName = "SetHomeTeam_WithEmptyString_ThrowsException")]
     [TestCase(null, TestName = "SetHomeTeam_WithNullString_ThrowsException")]
+    [TestCase(" ", TestName = "SetHomeTeam_WithWhitespaceString_ThrowsException")]
     public void SetHomeTeam_WithNullOrEmptyString_ThrowsException(string? homeTeam)
     {
         var builder = new FunctionApp.EventPredictionBuilder();
@@ -39,6 +42,7 @@ internal sealed class EventPredictionBuilder
 
     [TestCase("", TestName = "SetWinner_WithEmptyString_ThrowsException")]
     [TestCase(null, TestName = "SetWinner_WithNullString_ThrowsException")]
+    [TestCase(" ", TestName = "SetWinner_WithWhitespaceString_ThrowsException")]
     public void SetWinner_WithNullOrEmptyString_ThrowsException(string? winner)
     {
         var builder = new FunctionApp.EventPredictionBuilder();

@@ -6,6 +6,22 @@ namespace OddsCollector.Functions.Tests.Tests.Predictions;
 
 internal sealed class ScoreCalculator
 {
+    [TestCase(0, TestName = "GetScores_WithZeroOdds_ScoresNothing")]
+    [TestCase(1e-300, TestName = "GetScores_WithNearZeroOdds_ScoresNothing")]
+    [TestCase(0.5, TestName = "GetScores_WithOddsBelowOne_ScoresNothing")]
+    public void GetScores_WithUnusableOdds_ScoresNothing(double value)
+    {
+        List<Odd> odds = [new() { Away = value, Draw = value, Home = value }];
+
+        var calculator = new FunctionApp.ScoreCalculator();
+
+        // Act
+        var scores = calculator.GetScores(odds);
+
+        // Assert
+        scores.Should().HaveCount(3).And.OnlyContain(s => s.Score == 0);
+    }
+
     [Test]
     public void GetScores_WithOdds_ReturnsAdjustedConsensusScoresForDraw()
     {
