@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using FluentAssertions.Execution;
+using Microsoft.Extensions.DependencyInjection;
+using OddsCollector.Functions.Predictions.Configuration;
 using OddsCollector.Functions.Processors.Configuration;
 using FunctionApp = OddsCollector.Functions.Processors;
 
@@ -6,35 +8,42 @@ namespace OddsCollector.Functions.Tests.Tests.Processors.Configuration;
 
 internal sealed class ServiceCollectionExtensions
 {
-    [Test]
-    public void AddFunctionProcessors_AddsPredictionProcessor()
+    // PredictionProcessor takes an IPredictionStrategy, which AddFunctionProcessors does not
+    // register, so the provider composes both extensions the way HostProvider does.
+    private static ServiceProvider BuildProvider()
     {
         var services = new ServiceCollection();
 
+        services.AddLogging();
+        services.AddPredictionStrategy();
         services.AddFunctionProcessors();
 
-        var descriptor =
-            services.FirstOrDefault(
-                x => x.ServiceType == typeof(FunctionApp.IPredictionProcessor)
-                     && x.ImplementationType == typeof(FunctionApp.PredictionProcessor)
-                     && x.Lifetime == ServiceLifetime.Singleton);
-
-        descriptor.Should().NotBeNull();
+        return services.BuildServiceProvider();
     }
 
     [Test]
-    public void AddFunctionProcessors_AddsPredictionHttpRequestProcessor()
+    public void AddFunctionProcessors_ResolvesPredictionProcessor()
     {
-        var services = new ServiceCollection();
+        using var provider = BuildProvider();
 
-        services.AddFunctionProcessors();
+        var first = provider.GetRequiredService<FunctionApp.IPredictionProcessor>();
 
-        var descriptor =
-            services.FirstOrDefault(
-                x => x.ServiceType == typeof(FunctionApp.IPredictionHttpRequestProcessor)
-                     && x.ImplementationType == typeof(FunctionApp.PredictionHttpRequestProcessor)
-                     && x.Lifetime == ServiceLifetime.Singleton);
+        using var scope = new AssertionScope();
 
-        descriptor.Should().NotBeNull();
+        first.Should().BeOfType<FunctionApp.PredictionProcessor>();
+        provider.GetRequiredService<FunctionApp.IPredictionProcessor>().Should().BeSameAs(first);
+    }
+
+    [Test]
+    public void AddFunctionProcessors_ResolvesPredictionHttpRequestProcessor()
+    {
+        using var provider = BuildProvider();
+
+        var first = provider.GetRequiredService<FunctionApp.IPredictionHttpRequestProcessor>();
+
+        using var scope = new AssertionScope();
+
+        first.Should().BeOfType<FunctionApp.PredictionHttpRequestProcessor>();
+        provider.GetRequiredService<FunctionApp.IPredictionHttpRequestProcessor>().Should().BeSameAs(first);
     }
 }
