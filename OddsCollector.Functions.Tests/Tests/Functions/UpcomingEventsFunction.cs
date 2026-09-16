@@ -66,6 +66,31 @@ internal sealed class UpcomingEventsFunction
     }
 
     [Test]
+    public async Task Run_WithCancellation_ReturnsNothingAndLogsInformation()
+    {
+        // Arrange
+        var loggerMock = new FakeLogger<FunctionApp.UpcomingEventsFunction>();
+
+        var clientStub = Substitute.For<IUpcomingEventsClient>();
+        clientStub.GetUpcomingEventsAsync(Arg.Any<CancellationToken>()).Throws(new OperationCanceledException());
+
+        var function = new FunctionApp.UpcomingEventsFunction(loggerMock, clientStub);
+
+        // Act
+        var results = await function.Run(CancellationToken.None);
+
+        // Assert: the host winding a run down is not a failure to report.
+        results.Should().NotBeNull().And.BeEmpty();
+
+        loggerMock.Collector.Count.Should().Be(1);
+
+        using var scope = new AssertionScope();
+
+        loggerMock.LatestRecord.Level.Should().Be(LogLevel.Information);
+        loggerMock.LatestRecord.Message.Should().Be("Collection was cancelled");
+    }
+
+    [Test]
     public async Task Run_WithException_ReturnsEmptyUpcomingEventListAndLogsException()
     {
         // Arrange
