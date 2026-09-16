@@ -4,10 +4,13 @@ namespace OddsCollector.Functions.Predictions.Configuration;
 
 internal static class ServiceCollectionExtensions
 {
-    public static void AddPredictionStrategy(this IServiceCollection services)
+    extension(IServiceCollection services)
     {
-        services.AddSingleton<IPredictionStrategy, PredictionStrategy>();
-        services.AddSingleton<IWinnerFinder, WinnerFinder>();
-        services.AddSingleton<IScoreCalculator, ScoreCalculator>();
+        public void AddPredictionStrategy()
+        {
+            services.AddSingleton<IPredictionStrategy, PredictionStrategy>();
+            services.AddSingleton<IWinnerFinder, WinnerFinder>();
+            services.AddSingleton<IScoreCalculator, ScoreCalculator>();
+        }
     }
 }
