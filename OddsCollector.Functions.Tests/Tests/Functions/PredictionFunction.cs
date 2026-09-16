@@ -1,11 +1,9 @@
-﻿using Azure.Messaging.ServiceBus;
-using FluentAssertions.Execution;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using NSubstitute.ExceptionExtensions;
 using OddsCollector.Functions.Models;
-using OddsCollector.Functions.Processors;
+using OddsCollector.Functions.Predictions;
+using OddsCollector.Functions.Tests.Infrastructure.ServiceBus;
 using FunctionApp = OddsCollector.Functions.Functions;
 
 namespace OddsCollector.Functions.Tests.Tests.Functions;
@@ -13,56 +11,49 @@ namespace OddsCollector.Functions.Tests.Tests.Functions;
 internal sealed class PredictionFunction
 {
     [Test]
-    public async Task Run_WithServiceBusMessage_ReturnsEventPrediction()
+    public void Run_WithServiceBusMessage_ReturnsPredictionAndLogsIt()
     {
         // Arrange
-        var loggerStub = new FakeLogger<FunctionApp.PredictionFunction>();
+        var expectedPrediction = new EventPrediction { Id = "id", Winner = OutcomeTypes.HomeTeam };
 
-        var expectedPrediction = new EventPrediction();
-        EventPrediction[] expectedPredictions = [expectedPrediction];
+        var strategyStub = Substitute.For<IPredictionStrategy>();
+        strategyStub.GetPrediction(Arg.Any<UpcomingEvent>()).Returns(expectedPrediction);
 
-        var processorStub = Substitute.For<IPredictionProcessor>();
-        processorStub.ProcessMessagesAsync(Arg.Any<ServiceBusReceivedMessage[]>(),
-            Arg.Any<ServiceBusMessageActions>(), Arg.Any<CancellationToken>()).Returns(expectedPredictions);
+        var loggerMock = new FakeLogger<FunctionApp.PredictionFunction>();
 
-        var function = new FunctionApp.PredictionFunction(loggerStub, processorStub);
+        var function = new FunctionApp.PredictionFunction(loggerMock, strategyStub);
 
         // Act
-        var predictions = await function.Run([null!], null!, CancellationToken.None).ConfigureAwait(false);
+        var prediction = function.Run(ServiceBusReceivedMessageFactory.CreateFromObject(new UpcomingEvent()));
 
         // Assert
-        predictions.Should().NotBeNull().And.HaveCount(1);
-        predictions[0].Should().NotBeNull().And.Be(expectedPrediction);
+        prediction.Should().BeSameAs(expectedPrediction);
+
+        loggerMock.Collector.Count.Should().Be(1);
+        loggerMock.LatestRecord.Level.Should().Be(LogLevel.Information);
+        loggerMock.LatestRecord.Message.Should().Be("Predicted HomeTeam for event id");
     }
 
     [Test]
-    public async Task Run_WithException_ReturnsEmptyPredictionListAndLogsException()
+    public void Run_WithException_LetsItReachTheHost()
     {
         // Arrange
+        var expectedException = new Exception();
+
+        var strategyStub = Substitute.For<IPredictionStrategy>();
+        strategyStub.GetPrediction(Arg.Any<UpcomingEvent>()).Throws(expectedException);
+
         var loggerMock = new FakeLogger<FunctionApp.PredictionFunction>();
 
-        var exception = new Exception();
-
-        var processorStub = Substitute.For<IPredictionProcessor>();
-        processorStub.ProcessMessagesAsync(Arg.Any<ServiceBusReceivedMessage[]>(),
-            Arg.Any<ServiceBusMessageActions>(), Arg.Any<CancellationToken>()).Throws(exception);
-
-        var function = new FunctionApp.PredictionFunction(loggerMock, processorStub);
+        var function = new FunctionApp.PredictionFunction(loggerMock, strategyStub);
 
         // Act
-        var predictions = await function.Run([null!], null!, CancellationToken.None).ConfigureAwait(false);
+        var action = () => function.Run(ServiceBusReceivedMessageFactory.CreateFromObject(new UpcomingEvent()));
 
-        // Assert
-        predictions.Should().NotBeNull().And.HaveCount(0);
+        // Assert: the host abandons the message on a failure so it can be redelivered.
+        // Swallowing would have it complete a message whose prediction was never stored.
+        action.Should().Throw<Exception>().Which.Should().BeSameAs(expectedException);
 
-        loggerMock.Collector.Count.Should().BeGreaterThanOrEqualTo(1);
-
-        var logRecord = loggerMock.Collector.GetSnapshot()[0];
-
-        using var scope = new AssertionScope();
-
-        logRecord.Level.Should().Be(LogLevel.Error);
-        logRecord.Message.Should().Be("Failed to make predictions");
-        logRecord.Exception.Should().Be(exception);
+        loggerMock.Collector.Count.Should().Be(0);
     }
 }
