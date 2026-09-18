@@ -29,6 +29,12 @@ internal sealed class EventResultsFunction(ILogger<EventResultsFunction> logger,
 
             return results;
         }
+        catch (OperationCanceledException)
+        {
+            // The host is winding the run down. Whatever was collected is dropped rather
+            // than written, because a part of a run reads like a whole one once stored.
+            logger.LogInformation("Collection was cancelled");
+        }
         catch (Exception exception)
         {
             logger.LogError(exception, "Failed to get events");
