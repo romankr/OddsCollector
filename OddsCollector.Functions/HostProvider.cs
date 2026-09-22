@@ -4,7 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using OddsCollector.Functions.OddsApi.Configuration;
 using OddsCollector.Functions.Predictions.Configuration;
-using OddsCollector.Functions.Processors.Configuration;
 
 namespace OddsCollector.Functions;
 
@@ -17,7 +16,6 @@ internal static class HostProvider
             .ConfigureServices(services =>
             {
                 services.AddPredictionStrategy();
-                services.AddFunctionProcessors();
                 services.AddOpenTelemetry()
                     .UseFunctionsWorkerDefaults()
                     .UseAzureMonitorExporter();
