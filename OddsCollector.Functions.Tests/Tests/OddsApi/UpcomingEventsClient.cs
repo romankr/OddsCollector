@@ -48,7 +48,7 @@ internal sealed class UpcomingEventsClient
     }
 
     [Test]
-    public async Task GetUpcomingEventsAsync_WithLeaguesAndRequestedCancellation_ReturnsNoUpcomingEvents()
+    public async Task GetUpcomingEventsAsync_WithRequestedCancellation_ThrowsRatherThanReturningPart()
     {
         // Arrange
         const string league = nameof(league);
@@ -74,10 +74,11 @@ internal sealed class UpcomingEventsClient
         var cancellationToken = await CancellationTokenGenerator.GetRequestedForCancellationToken();
 
         // Act
-        var results = await oddsClient.GetUpcomingEventsAsync(cancellationToken);
+        var action = async () => await oddsClient.GetUpcomingEventsAsync(cancellationToken);
 
-        // Assert
-        results.Should().NotBeNull().And.HaveCount(0);
+        // Assert: handing back whatever was collected lets the caller write a part of a run
+        // as though it were a whole one.
+        await action.Should().ThrowAsync<OperationCanceledException>();
     }
 
     [Test]

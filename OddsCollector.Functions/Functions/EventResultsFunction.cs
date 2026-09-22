@@ -29,6 +29,10 @@ internal sealed class EventResultsFunction(ILogger<EventResultsFunction> logger,
 
             return results;
         }
+        catch (OperationCanceledException exception)
+        {
+            logger.LogInformation(exception, "Collection was cancelled");
+        }
         catch (Exception exception)
         {
             logger.LogError(exception, "Failed to get events");
