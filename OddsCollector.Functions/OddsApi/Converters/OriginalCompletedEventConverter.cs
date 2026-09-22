@@ -14,7 +14,7 @@ internal sealed class OriginalCompletedEventConverter(IWinnerConverter converter
 
     private IEnumerable<EventResult> Iterate(ICollection<Anonymous3> originalEvents)
     {
-        foreach (var originalEvent in originalEvents)
+        foreach (var originalEvent in originalEvents.Where(e => e.Completed == true))
         {
             yield return ToEventResult(originalEvent);
         }
