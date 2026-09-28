@@ -6,13 +6,19 @@ internal sealed class ScoreCalculator : IScoreCalculator
 {
     private const double MinimumDecimalOdds = 1;
 
+    // The regression intercepts from the paper cited on PredictionStrategy: the actual
+    // probability of an outcome is roughly the bookmakers' consensus minus these.
+    private const double DrawAdjustment = 0.057;
+    private const double HomeTeamAdjustment = 0.034;
+    private const double AwayTeamAdjustment = 0.037;
+
     public OutcomeScore[] GetScores(ICollection<Odd> odds)
     {
         return
         [
-            Calculate(OutcomeTypes.Draw, odds, 0.057, x => x.Draw),
-            Calculate(OutcomeTypes.AwayTeam, odds, 0.034, x => x.Away),
-            Calculate(OutcomeTypes.HomeTeam, odds, 0.037, x => x.Home)
+            Calculate(OutcomeTypes.Draw, odds, DrawAdjustment, x => x.Draw),
+            Calculate(OutcomeTypes.AwayTeam, odds, AwayTeamAdjustment, x => x.Away),
+            Calculate(OutcomeTypes.HomeTeam, odds, HomeTeamAdjustment, x => x.Home)
         ];
     }
 
