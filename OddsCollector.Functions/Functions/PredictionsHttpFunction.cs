@@ -12,7 +12,7 @@ internal sealed class PredictionsHttpFunction(ILogger<PredictionsHttpFunction> l
 
     [Function(nameof(PredictionsHttpFunction))]
     public async Task<HttpResponseData> Run(
-        [HttpTrigger(AuthorizationLevel.Admin, "get")]
+        [HttpTrigger(AuthorizationLevel.Function, "get")]
         HttpRequestData request,
         [CosmosDBInput(
             "%CosmosDb:Database%",
