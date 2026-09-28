@@ -1,4 +1,5 @@
-﻿using OddsCollector.Functions.OddsApi.WebApi;
+﻿using System.Globalization;
+using OddsCollector.Functions.OddsApi.WebApi;
 
 namespace OddsCollector.Functions.OddsApi.Converters;
 
@@ -8,7 +9,7 @@ internal sealed class ScoreModelConverter : IScoreModelConverter
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(scoreModel.Name);
 
-        if (!int.TryParse(scoreModel.Score, out var score))
+        if (!int.TryParse(scoreModel.Score, NumberStyles.Integer, CultureInfo.InvariantCulture, out var score))
         {
             throw new ArgumentException(
                 $"{nameof(scoreModel)} must have an integer score. Actual score: {scoreModel.Score}",
