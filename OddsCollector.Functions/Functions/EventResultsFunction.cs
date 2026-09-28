@@ -36,13 +36,12 @@ internal sealed class EventResultsFunction(ILogger<EventResultsFunction> logger,
 
             return results;
         }
+        // Only a cancelled run is caught. Anything else fails the invocation, so a broken
+        // run shows up in the failure metrics instead of passing as one that found nothing.
+        // The clients already absorb a single league failing, so what arrives here is the run.
         catch (OperationCanceledException exception)
         {
             logger.LogInformation(exception, "Collection was cancelled");
-        }
-        catch (Exception exception)
-        {
-            logger.LogError(exception, "Failed to get events");
         }
 
         return [];

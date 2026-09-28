@@ -121,10 +121,10 @@ internal sealed class EventResultsFunction
     }
 
     [Test]
-    public async Task Run_WithException_ReturnsEmptyEventResultListAndLogsException()
+    public async Task Run_WithException_Throws()
     {
         // Arrange
-        var exception = new Exception();
+        var exception = new InvalidOperationException();
 
         var loggerMock = new FakeLogger<FunctionApp.EventResultsFunction>();
 
@@ -134,17 +134,11 @@ internal sealed class EventResultsFunction
         var function = new FunctionApp.EventResultsFunction(loggerMock, clientStub);
 
         // Act
-        var results = await function.Run(new TimerInfo(), CancellationToken.None);
+        var action = () => function.Run(new TimerInfo(), CancellationToken.None);
 
-        // Assert
-        results.Should().NotBeNull().And.BeEmpty();
+        // Assert: the failure reaches the host, which logs it and marks the run failed.
+        (await action.Should().ThrowAsync<InvalidOperationException>()).Which.Should().Be(exception);
 
-        loggerMock.Collector.Count.Should().Be(1);
-
-        using var scope = new AssertionScope();
-
-        loggerMock.LatestRecord.Level.Should().Be(LogLevel.Error);
-        loggerMock.LatestRecord.Message.Should().Be("Failed to get events");
-        loggerMock.LatestRecord.Exception.Should().Be(exception);
+        loggerMock.Collector.Count.Should().Be(0);
     }
 }
