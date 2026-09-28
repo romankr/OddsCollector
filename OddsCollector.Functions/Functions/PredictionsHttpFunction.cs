@@ -1,15 +1,12 @@
 ﻿using System.Net;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
-using Microsoft.Extensions.Logging;
 using OddsCollector.Functions.Models;
 
 namespace OddsCollector.Functions.Functions;
 
-internal sealed class PredictionsHttpFunction(ILogger<PredictionsHttpFunction> logger)
+internal sealed class PredictionsHttpFunction
 {
-    private const string ErrorMessage = "Failed to get predictions";
-
     [Function(nameof(PredictionsHttpFunction))]
     public async Task<HttpResponseData> Run(
         [HttpTrigger(AuthorizationLevel.Function, "get")]
@@ -21,19 +18,10 @@ internal sealed class PredictionsHttpFunction(ILogger<PredictionsHttpFunction> l
             SqlQuery = "SELECT * FROM p WHERE p.CommenceTime > GetCurrentDateTime() ORDER BY p.CommenceTime")]
         EventPrediction[] predictions)
     {
-        try
-        {
-            var response = request.CreateResponse(HttpStatusCode.OK);
-            await response.WriteAsJsonAsync(predictions);
-            return response;
-        }
-        catch (Exception exception)
-        {
-            logger.LogError(exception, ErrorMessage);
-
-            var errorResponse = request.CreateResponse(HttpStatusCode.InternalServerError);
-            await errorResponse.WriteAsJsonAsync(new { error = ErrorMessage });
-            return errorResponse;
-        }
+        // Not caught: a failure here, like one in the Cosmos input binding before the call,
+        // is left to the host, which logs it and answers with a 500.
+        var response = request.CreateResponse(HttpStatusCode.OK);
+        await response.WriteAsJsonAsync(predictions);
+        return response;
     }
 }
