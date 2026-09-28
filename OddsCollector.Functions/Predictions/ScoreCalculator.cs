@@ -9,8 +9,8 @@ internal sealed class ScoreCalculator : IScoreCalculator
     // The regression intercepts from the paper cited on PredictionStrategy: the actual
     // probability of an outcome is roughly the bookmakers' consensus minus these.
     private const double DrawAdjustment = 0.057;
-    private const double AwayTeamAdjustment = 0.034;
-    private const double HomeTeamAdjustment = 0.037;
+    private const double HomeTeamAdjustment = 0.034;
+    private const double AwayTeamAdjustment = 0.037;
 
     public OutcomeScore[] GetScores(ICollection<Odd> odds)
     {

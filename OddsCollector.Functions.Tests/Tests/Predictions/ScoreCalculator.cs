@@ -10,7 +10,7 @@ internal sealed class ScoreCalculator
     public void GetScores_WithBookmakersDisagreeing_RanksOnTheMeanOfWhatEachImplies()
     {
         // Arrange: one book quotes the draw at 1.5 and two at 6.0. Inverting the mean of the
-        // odds scores the draw 0.165 and hands the prediction to the away team; the mean of
+        // odds scores the draw 0.165 and hands the prediction to the home team; the mean of
         // what each book implies scores it 0.276 and hands it to the draw.
         List<Odd> odds =
         [
@@ -29,8 +29,8 @@ internal sealed class ScoreCalculator
 
         scores[0].Outcome.Should().Be(OutcomeTypes.Draw);
         scores[0].Score.Should().BeApproximately(0.2763, 0.0001);
-        scores[1].Score.Should().BeApproximately(0.1882, 0.0001);
-        scores[2].Score.Should().BeApproximately(0.1852, 0.0001);
+        scores[1].Score.Should().BeApproximately(0.1852, 0.0001);
+        scores[2].Score.Should().BeApproximately(0.1882, 0.0001);
 
         scores.MaxBy(s => s.Score)!.Outcome.Should().Be(OutcomeTypes.Draw);
     }
@@ -126,7 +126,7 @@ internal sealed class ScoreCalculator
         using var scope = new AssertionScope();
 
         awayScore.Outcome.Should().NotBeNullOrEmpty().And.Be(OutcomeTypes.AwayTeam);
-        awayScore.Score.Should().BeApproximately(0.6327, 0.0001);
+        awayScore.Score.Should().BeApproximately(0.6297, 0.0001);
     }
 
     [Test]
@@ -153,6 +153,6 @@ internal sealed class ScoreCalculator
         using var scope = new AssertionScope();
 
         homeScore.Outcome.Should().NotBeNullOrEmpty().And.Be(OutcomeTypes.HomeTeam);
-        homeScore.Score.Should().BeApproximately(0.6297, 0.0001);
+        homeScore.Score.Should().BeApproximately(0.6327, 0.0001);
     }
 }
