@@ -13,15 +13,13 @@ internal static class HostProvider
     {
         return new HostBuilder()
             .ConfigureFunctionsWorkerDefaults()
-            .ConfigureServices(services =>
+            .ConfigureServices((context, services) =>
             {
                 services.AddPredictionStrategy();
                 services.AddOpenTelemetry()
                     .UseFunctionsWorkerDefaults()
                     .UseAzureMonitorExporter();
-                services.AddOddsApiClientWithDependencies(
-                    Environment.GetEnvironmentVariable("OddsApiClient:Leagues"),
-                    Environment.GetEnvironmentVariable("OddsApiClient:ApiKey"));
+                services.AddOddsApiClientWithDependencies(context.Configuration);
             })
             .Build();
     }

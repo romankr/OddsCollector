@@ -1,4 +1,4 @@
-**Odds Collector** is a software project aimed at gathering and analyzing odds data for various sports from [The Odds API](https://the-odds-api.com/) while leveraging the infrastructure of Microsoft Azure. This application provides a tool for accessing historical odds information and predictions for sporting events.
+﻿**Odds Collector** is a software project aimed at gathering and analyzing odds data for various sports from [The Odds API](https://the-odds-api.com/) while leveraging the infrastructure of Microsoft Azure. This application provides a tool for accessing historical odds information and predictions for sporting events.
 
 # Purpose
 
@@ -24,7 +24,10 @@ The project is designed to have fun with the algorithm described in "[Beating th
 
 Every setting below has to be present before the app runs. Locally they belong in
 `OddsCollector.Functions/local.settings.json` under `Values`; in Azure they are the function
-app's application settings.
+app's application settings. On a Linux plan, write the `:` in a setting name as `__`
+(for example `OddsApiClient__ApiKey`); both forms are read the same way.
+
+A missing `OddsApiClient:ApiKey` or `OddsApiClient:Leagues` stops the app at startup.
 
 | Setting | Purpose |
 | --- | --- |
