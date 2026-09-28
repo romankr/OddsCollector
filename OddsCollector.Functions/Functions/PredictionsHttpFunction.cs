@@ -18,7 +18,7 @@ internal sealed class PredictionsHttpFunction(ILogger<PredictionsHttpFunction> l
             "%CosmosDb:Database%",
             "%CosmosDb:EventPredictionsContainer%",
             Connection = "CosmosDb:Connection",
-            SqlQuery = "SELECT * FROM p WHERE p.CommenceTime > GetCurrentDateTime()")]
+            SqlQuery = "SELECT * FROM p WHERE p.CommenceTime > GetCurrentDateTime() ORDER BY p.CommenceTime")]
         EventPrediction[] predictions)
     {
         try
