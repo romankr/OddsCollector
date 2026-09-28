@@ -1,8 +1,6 @@
 ﻿using System.Net;
 using System.Text.Json;
 using Azure.Core.Serialization;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Testing;
 using OddsCollector.Functions.Models;
 using OddsCollector.Functions.Tests.Infrastructure.Http;
 using FunctionApp = OddsCollector.Functions.Functions;
@@ -15,8 +13,6 @@ internal sealed class PredictionsHttpFunction
     public async Task Run_WithPredictions_ReturnsSuccessfulHttpResponse()
     {
         // Arrange
-        var loggerStub = new FakeLogger<FunctionApp.PredictionsHttpFunction>();
-
         EventPrediction[] predictions =
         [
             new()
@@ -31,7 +27,7 @@ internal sealed class PredictionsHttpFunction
 
         var requestStub = HttpRequestDataFactory.Create();
 
-        var function = new FunctionApp.PredictionsHttpFunction(loggerStub);
+        var function = new FunctionApp.PredictionsHttpFunction();
 
         // Act
         var response = await function.Run(requestStub, predictions);
@@ -47,8 +43,6 @@ internal sealed class PredictionsHttpFunction
 
         body.Should().Be(JsonSerializer.Serialize(predictions));
         JsonSerializer.Deserialize<EventPrediction[]>(body).Should().BeEquivalentTo(predictions);
-
-        loggerStub.Collector.Count.Should().Be(0);
     }
 
     [Test]
@@ -56,7 +50,7 @@ internal sealed class PredictionsHttpFunction
     {
         var requestStub = HttpRequestDataFactory.Create();
 
-        var function = new FunctionApp.PredictionsHttpFunction(new FakeLogger<FunctionApp.PredictionsHttpFunction>());
+        var function = new FunctionApp.PredictionsHttpFunction();
 
         var response = await function.Run(requestStub, []);
 
@@ -65,40 +59,24 @@ internal sealed class PredictionsHttpFunction
     }
 
     [Test]
-    public async Task Run_WithSerializationException_ReturnsErrorHttpResponseAndLogsException()
+    public async Task Run_WithSerializationException_Throws()
     {
         // Arrange
-        var loggerMock = new FakeLogger<FunctionApp.PredictionsHttpFunction>();
-
-        const string expectedErrorMessage = "Failed to get predictions";
-        const string expectedBody = """{"error":"Failed to get predictions"}""";
-
         var exception = new InvalidOperationException();
 
         var requestStub = HttpRequestDataFactory.Create(new PredictionsThrowingSerializer(exception));
 
-        var function = new FunctionApp.PredictionsHttpFunction(loggerMock);
+        var function = new FunctionApp.PredictionsHttpFunction();
 
         // Act
-        var response = await function.Run(requestStub, [new EventPrediction()]);
+        var action = () => function.Run(requestStub, [new EventPrediction()]);
 
-        // Assert
-        response.Should().NotBeNull();
-        response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
-
-        response.Headers.GetValues("Content-Type").Should().ContainSingle()
-            .Which.Should().StartWith("application/json");
-
-        response.ReadBodyAsString().Should().Be(expectedBody);
-
-        loggerMock.Collector.Count.Should().Be(1);
-        loggerMock.LatestRecord.Level.Should().Be(LogLevel.Error);
-        loggerMock.LatestRecord.Message.Should().Be(expectedErrorMessage);
-        loggerMock.LatestRecord.Exception.Should().Be(exception);
+        // Assert: the failure reaches the host, which logs it and answers with a 500.
+        (await action.Should().ThrowAsync<InvalidOperationException>()).Which.Should().Be(exception);
     }
 
     /// <summary>
-    /// Fails for the predictions payload only, so the error body can still be written.
+    /// Fails for the predictions payload only.
     /// </summary>
     private sealed class PredictionsThrowingSerializer(Exception exception) : ObjectSerializer
     {
