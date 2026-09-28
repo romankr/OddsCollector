@@ -1,4 +1,5 @@
 ﻿using FluentAssertions.Execution;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using NSubstitute.ExceptionExtensions;
@@ -10,6 +11,35 @@ namespace OddsCollector.Functions.Tests.Tests.Functions;
 
 internal sealed class EventResultsFunction
 {
+    [Test]
+    public async Task Run_WhenPastDue_LogsWarningAndStillCollects()
+    {
+        // Arrange
+        EventResult[] expectedResults = [new EventResult()];
+
+        var loggerMock = new FakeLogger<FunctionApp.EventResultsFunction>();
+
+        var clientStub = Substitute.For<IEventResultsClient>();
+        clientStub.GetEventResultsAsync(Arg.Any<CancellationToken>()).Returns(Task.FromResult(expectedResults));
+
+        var function = new FunctionApp.EventResultsFunction(loggerMock, clientStub);
+
+        // Act
+        var results = await function.Run(new TimerInfo { IsPastDue = true }, CancellationToken.None);
+
+        // Assert
+        results.Should().BeEquivalentTo(expectedResults);
+
+        var records = loggerMock.Collector.GetSnapshot();
+
+        using var scope = new AssertionScope();
+
+        records.Should().HaveCount(2);
+        records[0].Level.Should().Be(LogLevel.Warning);
+        records[0].Message.Should().Be("Run is past due");
+        records[1].Level.Should().Be(LogLevel.Information);
+    }
+
     [Test]
     public async Task Run_WithEventResults_ReturnsEventResultsAndLogsInformation()
     {
@@ -25,7 +55,7 @@ internal sealed class EventResultsFunction
         var function = new FunctionApp.EventResultsFunction(loggerMock, clientStub);
 
         // Act
-        var results = await function.Run(CancellationToken.None);
+        var results = await function.Run(new TimerInfo(), CancellationToken.None);
 
         // Assert
         results.Should().NotBeNull().And.BeEquivalentTo(expectedResults);
@@ -52,7 +82,7 @@ internal sealed class EventResultsFunction
         var function = new FunctionApp.EventResultsFunction(loggerMock, clientStub);
 
         // Act
-        var results = await function.Run(CancellationToken.None);
+        var results = await function.Run(new TimerInfo(), CancellationToken.None);
 
         // Assert
         results.Should().NotBeNull().And.BeEmpty();
@@ -77,7 +107,7 @@ internal sealed class EventResultsFunction
         var function = new FunctionApp.EventResultsFunction(loggerMock, clientStub);
 
         // Act
-        var results = await function.Run(CancellationToken.None);
+        var results = await function.Run(new TimerInfo(), CancellationToken.None);
 
         // Assert: the host winding a run down is not a failure to report.
         results.Should().NotBeNull().And.BeEmpty();
@@ -104,7 +134,7 @@ internal sealed class EventResultsFunction
         var function = new FunctionApp.EventResultsFunction(loggerMock, clientStub);
 
         // Act
-        var results = await function.Run(CancellationToken.None);
+        var results = await function.Run(new TimerInfo(), CancellationToken.None);
 
         // Assert
         results.Should().NotBeNull().And.BeEmpty();
