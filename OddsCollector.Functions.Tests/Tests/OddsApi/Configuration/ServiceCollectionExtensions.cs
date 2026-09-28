@@ -1,4 +1,5 @@
 ﻿using FluentAssertions.Execution;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using OddsCollector.Functions.OddsApi.Configuration;
@@ -12,14 +13,44 @@ internal sealed class ServiceCollectionExtensions
 {
     // Resolving the API first builds its first pipeline, and the handlers in it need a
     // logger, as do the two league clients.
-    private static ServiceProvider BuildProvider()
+    private static ServiceProvider BuildProvider(string? leagues = "league1;league2", string? apiKey = "key")
     {
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["OddsApiClient:Leagues"] = leagues,
+                ["OddsApiClient:ApiKey"] = apiKey
+            })
+            .Build();
+
         var services = new ServiceCollection();
 
         services.AddLogging();
-        services.AddOddsApiClientWithDependencies("league1;league2", "key");
+        services.AddOddsApiClientWithDependencies(configuration);
 
         return services.BuildServiceProvider();
+    }
+
+    [Test]
+    public void AddOddsApiClientWithDependencies_WithAllSettings_PassesStartupValidation()
+    {
+        using var provider = BuildProvider();
+
+        var action = () => provider.GetRequiredService<IStartupValidator>().Validate();
+
+        action.Should().NotThrow();
+    }
+
+    [TestCase(null, "key", "leagues", TestName = "AddOddsApiClientWithDependencies_WithoutLeagues_FailsStartupValidation")]
+    [TestCase("league1", null, "apiKey", TestName = "AddOddsApiClientWithDependencies_WithoutApiKey_FailsStartupValidation")]
+    public void AddOddsApiClientWithDependencies_WithMissingSetting_FailsStartupValidation(string? leagues,
+        string? apiKey, string parameterName)
+    {
+        using var provider = BuildProvider(leagues, apiKey);
+
+        var action = () => provider.GetRequiredService<IStartupValidator>().Validate();
+
+        action.Should().Throw<ArgumentException>().WithParameterName(parameterName);
     }
 
     [Test]

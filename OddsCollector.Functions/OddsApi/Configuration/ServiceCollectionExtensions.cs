@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using OddsCollector.Functions.OddsApi.Converters;
 using OddsCollector.Functions.OddsApi.WebApi;
 
@@ -8,14 +9,19 @@ internal static class ServiceCollectionExtensions
 {
     extension(IServiceCollection services)
     {
-        public void AddOddsApiClientWithDependencies(string? leagues, string? apiKey)
+        public void AddOddsApiClientWithDependencies(IConfiguration configuration)
         {
-            // workaround for https://github.com/MicrosoftDocs/azure-docs/issues/32962
-            services.Configure<OddsApiClientOptions>(o =>
-            {
-                o.AddLeagues(leagues);
-                o.SetApiKey(apiKey);
-            });
+            // Read through IConfiguration rather than the environment directly, so a setting
+            // named OddsApiClient__ApiKey (the only form Linux plans allow) is found as well.
+            // ValidateOnStart builds the options when the host starts, so a missing setting
+            // stops the app there instead of failing every run.
+            services.AddOptions<OddsApiClientOptions>()
+                .Configure(o =>
+                {
+                    o.AddLeagues(configuration["OddsApiClient:Leagues"]);
+                    o.SetApiKey(configuration["OddsApiClient:ApiKey"]);
+                })
+                .ValidateOnStart();
 
             services.AddTransient<QuotaLoggingHandler>();
 
