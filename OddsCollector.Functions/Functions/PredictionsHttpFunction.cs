@@ -18,8 +18,6 @@ internal sealed class PredictionsHttpFunction
             SqlQuery = "SELECT * FROM p WHERE p.CommenceTime > GetCurrentDateTime() ORDER BY p.CommenceTime")]
         EventPrediction[] predictions)
     {
-        // Not caught: a failure here, like one in the Cosmos input binding before the call,
-        // is left to the host, which logs it and answers with a 500.
         var response = request.CreateResponse(HttpStatusCode.OK);
         await response.WriteAsJsonAsync(predictions);
         return response;

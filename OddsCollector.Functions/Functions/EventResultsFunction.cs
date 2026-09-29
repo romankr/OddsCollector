@@ -29,16 +29,9 @@ internal sealed class EventResultsFunction(ILogger<EventResultsFunction> logger,
             {
                 logger.LogWarning("No events received");
             }
-            else
-            {
-                logger.LogInformation("{Length} event(s) received", results.Length);
-            }
 
             return results;
         }
-        // Only a cancelled run is caught. Anything else fails the invocation, so a broken
-        // run shows up in the failure metrics instead of passing as one that found nothing.
-        // The clients already absorb a single league failing, so what arrives here is the run.
         catch (OperationCanceledException exception)
         {
             logger.LogInformation(exception, "Collection was cancelled");

@@ -14,7 +14,6 @@ internal sealed class UpcomingEventsFunction(ILogger<UpcomingEventsFunction> log
         TimerInfo timer,
         CancellationToken cancellationToken)
     {
-        // A late run still collects everything, so it is worth a warning rather than a skip.
         if (timer.IsPastDue)
         {
             logger.LogWarning("Run is past due");
@@ -28,16 +27,9 @@ internal sealed class UpcomingEventsFunction(ILogger<UpcomingEventsFunction> log
             {
                 logger.LogWarning("No events received");
             }
-            else
-            {
-                logger.LogInformation("{Length} event(s) received", events.Length);
-            }
 
             return events;
         }
-        // Only a cancelled run is caught. Anything else fails the invocation, so a broken
-        // run shows up in the failure metrics instead of passing as one that found nothing.
-        // The clients already absorb a single league failing, so what arrives here is the run.
         catch (OperationCanceledException exception)
         {
             logger.LogInformation(exception, "Collection was cancelled");

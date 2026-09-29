@@ -34,10 +34,9 @@ internal sealed class UpcomingEventsFunction
 
         using var scope = new AssertionScope();
 
-        records.Should().HaveCount(2);
+        records.Should().HaveCount(1);
         records[0].Level.Should().Be(LogLevel.Warning);
         records[0].Message.Should().Be("Run is past due");
-        records[1].Level.Should().Be(LogLevel.Information);
     }
 
     [Test]
@@ -60,12 +59,7 @@ internal sealed class UpcomingEventsFunction
         // Assert
         results.Should().NotBeNull().And.BeEquivalentTo(expectedResults);
 
-        loggerMock.Collector.Count.Should().Be(1);
-
-        using var scope = new AssertionScope();
-
-        loggerMock.LatestRecord.Level.Should().Be(LogLevel.Information);
-        loggerMock.LatestRecord.Message.Should().Be("1 event(s) received");
+        loggerMock.Collector.Count.Should().Be(0);
     }
 
     [Test]
