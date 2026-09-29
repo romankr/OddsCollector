@@ -3,7 +3,7 @@ using OddsCollector.Functions.OddsApi.WebApi;
 
 namespace OddsCollector.Functions.OddsApi.Converters;
 
-internal sealed class MarketConverter(IOutcomeConverter converter) : IMarketConverter
+internal sealed class MarketConverter(IOddConverter converter) : IMarketConverter
 {
     public Odd ToOdd(ICollection<Markets2>? markets, string? bookmaker, string awayTeam, string homeTeam)
     {

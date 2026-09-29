@@ -50,7 +50,7 @@ internal class OriginalUpcomingEventConverter
         var converter = new FunctionApp.OriginalUpcomingEventConverter(
             new FunctionApp.BookmakerConverter(
                 new FunctionApp.MarketConverter(
-                    new FunctionApp.OutcomeConverter())));
+                    new FunctionApp.OddConverter())));
 
         // Act
         var upcomingEvent = converter.ToUpcomingEvents([originalEvent]).ToList();

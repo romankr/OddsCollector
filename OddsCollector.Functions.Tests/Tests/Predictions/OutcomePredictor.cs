@@ -3,48 +3,46 @@ using FunctionApp = OddsCollector.Functions.Predictions;
 
 namespace OddsCollector.Functions.Tests.Tests.Predictions;
 
-internal sealed class WinnerFinder
+internal sealed class OutcomePredictor
 {
     [Test]
-    public void GetWinner_WithOdds_ReturnsWinner()
+    public void GetOutcome_WithOdds_ReturnsOutcome()
     {
         // Arrange
-        const string expectedWinner = nameof(expectedWinner);
+        const string expectedOutcome = nameof(expectedOutcome);
 
         var calculatorStub = Substitute.For<FunctionApp.IScoreCalculator>();
         calculatorStub.GetScores(Arg.Any<ICollection<Odd>>()).Returns(
             [
-                new FunctionApp.OutcomeScore { Outcome = expectedWinner, Score = 2.0 },
+                new FunctionApp.OutcomeScore { Outcome = expectedOutcome, Score = 2.0 },
                 new FunctionApp.OutcomeScore { Outcome = "loser", Score = 1.0 },
                 new FunctionApp.OutcomeScore { Outcome = "draw", Score = 0.5 }
             ]
         );
 
-        var finder = new FunctionApp.WinnerFinder(calculatorStub);
+        var finder = new FunctionApp.OutcomePredictor(calculatorStub);
 
         // Act
-        var winner = finder.GetWinner([new Odd()]);
+        var outcome = finder.GetOutcome([new Odd()]);
 
         // Assert
-        winner.Should().NotBeNullOrEmpty().And.Be(expectedWinner);
+        outcome.Should().NotBeNullOrEmpty().And.Be(expectedOutcome);
     }
 
     [Test]
-    public void GetWinner_WithNoOdds_ThrowsException()
+    public void GetOutcome_WithNoOdds_ThrowsException()
     {
-        var finder = new FunctionApp.WinnerFinder(null!);
+        var finder = new FunctionApp.OutcomePredictor(null!);
 
-        var action = () => finder.GetWinner([]);
+        var action = () => finder.GetOutcome([]);
 
         action.Should().Throw<ArgumentException>().WithParameterName("odds")
             .WithMessage("odds cannot be empty*");
     }
 
     [Test]
-    public void GetWinner_WithNothingScoring_ThrowsException()
+    public void GetOutcome_WithNothingScoring_ThrowsException()
     {
-        // Every outcome at the same zero is what the calculator returns when no bookmaker
-        // quoted anything usable. MaxBy would pick the first of them.
         var calculatorStub = Substitute.For<FunctionApp.IScoreCalculator>();
         calculatorStub.GetScores(Arg.Any<ICollection<Odd>>()).Returns(
             [
@@ -54,22 +52,20 @@ internal sealed class WinnerFinder
             ]
         );
 
-        var finder = new FunctionApp.WinnerFinder(calculatorStub);
+        var finder = new FunctionApp.OutcomePredictor(calculatorStub);
 
-        var action = () => finder.GetWinner([new Odd()]);
+        var action = () => finder.GetOutcome([new Odd()]);
 
         action.Should().Throw<ArgumentException>().WithParameterName("odds")
             .WithMessage("odds has no usable quote*");
     }
 
     [Test]
-    public void GetWinner_WithUnusableOdds_ThrowsInsteadOfPredictingADraw()
+    public void GetOutcome_WithUnusableOdds_ThrowsInsteadOfPredictingADraw()
     {
-        // The real calculator, so that this pins the whole path: quotes below the minimum
-        // decimal odd score nothing, and nothing must not become a prediction.
-        var finder = new FunctionApp.WinnerFinder(new FunctionApp.ScoreCalculator());
+        var finder = new FunctionApp.OutcomePredictor(new FunctionApp.ScoreCalculator());
 
-        var action = () => finder.GetWinner([new Odd { Home = 0, Draw = 0, Away = 0 }]);
+        var action = () => finder.GetOutcome([new Odd { Home = 0, Draw = 0, Away = 0 }]);
 
         action.Should().Throw<ArgumentException>().WithParameterName("odds")
             .WithMessage("odds has no usable quote*");

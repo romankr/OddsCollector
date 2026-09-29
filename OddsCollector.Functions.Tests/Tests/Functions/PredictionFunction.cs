@@ -12,7 +12,7 @@ internal sealed class PredictionFunction
     public void Run_WithServiceBusMessage_ReturnsPredictionAndLogsIt()
     {
         // Arrange
-        var expectedPrediction = new EventPrediction { Id = "id", Winner = OutcomeTypes.HomeTeam };
+        var expectedPrediction = new EventPrediction { Id = "id", Outcome = OutcomeTypes.HomeTeam };
 
         var strategyStub = Substitute.For<IPredictionStrategy>();
         strategyStub.GetPrediction(Arg.Any<UpcomingEvent>()).Returns(expectedPrediction);

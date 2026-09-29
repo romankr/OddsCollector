@@ -13,11 +13,11 @@ internal sealed class EventResultBuilder
         return this;
     }
 
-    public EventResultBuilder SetWinner(string? winner)
+    public EventResultBuilder SetOutcome(string? outcome)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(winner);
+        ArgumentException.ThrowIfNullOrWhiteSpace(outcome);
 
-        Instance.Winner = winner;
+        Instance.Outcome = outcome;
 
         return this;
     }
