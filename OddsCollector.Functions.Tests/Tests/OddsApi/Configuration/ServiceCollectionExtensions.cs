@@ -171,16 +171,16 @@ internal sealed class ServiceCollectionExtensions
     }
 
     [Test]
-    public void AddOddsApiClientWithDependencies_ResolvesOutcomeConverter()
+    public void AddOddsApiClientWithDependencies_ResolvesOddConverter()
     {
         using var provider = BuildProvider();
 
-        var first = provider.GetRequiredService<IOutcomeConverter>();
+        var first = provider.GetRequiredService<IOddConverter>();
 
         using var scope = new AssertionScope();
 
-        first.Should().BeOfType<OutcomeConverter>();
-        provider.GetRequiredService<IOutcomeConverter>().Should().BeSameAs(first);
+        first.Should().BeOfType<OddConverter>();
+        provider.GetRequiredService<IOddConverter>().Should().BeSameAs(first);
     }
 
     [Test]
@@ -197,16 +197,16 @@ internal sealed class ServiceCollectionExtensions
     }
 
     [Test]
-    public void AddOddsApiClientWithDependencies_ResolvesWinnerConverter()
+    public void AddOddsApiClientWithDependencies_ResolvesOutcomeConverter()
     {
         using var provider = BuildProvider();
 
-        var first = provider.GetRequiredService<IWinnerConverter>();
+        var first = provider.GetRequiredService<IOutcomeConverter>();
 
         using var scope = new AssertionScope();
 
-        first.Should().BeOfType<WinnerConverter>();
-        provider.GetRequiredService<IWinnerConverter>().Should().BeSameAs(first);
+        first.Should().BeOfType<OutcomeConverter>();
+        provider.GetRequiredService<IOutcomeConverter>().Should().BeSameAs(first);
     }
 
     [Test]

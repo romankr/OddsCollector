@@ -20,7 +20,7 @@ internal sealed class PredictionsHttpFunction
                 Id = "1",
                 AwayTeam = "Away",
                 HomeTeam = "Home",
-                Winner = "Home",
+                Outcome = "Home",
                 CommenceTime = new DateTime(2026, 9, 22, 18, 0, 0, DateTimeKind.Utc)
             }
         ];

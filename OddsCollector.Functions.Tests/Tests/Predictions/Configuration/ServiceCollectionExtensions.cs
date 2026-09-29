@@ -30,16 +30,16 @@ internal sealed class ServiceCollectionExtensions
     }
 
     [Test]
-    public void AddPredictionStrategy_ResolvesWinnerFinder()
+    public void AddPredictionStrategy_ResolvesOutcomePredictor()
     {
         using var provider = BuildProvider();
 
-        var first = provider.GetRequiredService<FunctionApp.IWinnerFinder>();
+        var first = provider.GetRequiredService<FunctionApp.IOutcomePredictor>();
 
         using var scope = new AssertionScope();
 
-        first.Should().BeOfType<FunctionApp.WinnerFinder>();
-        provider.GetRequiredService<FunctionApp.IWinnerFinder>().Should().BeSameAs(first);
+        first.Should().BeOfType<FunctionApp.OutcomePredictor>();
+        provider.GetRequiredService<FunctionApp.IOutcomePredictor>().Should().BeSameAs(first);
     }
 
     [Test]

@@ -2,7 +2,7 @@
 
 namespace OddsCollector.Functions.Predictions;
 
-internal interface IWinnerFinder
+internal interface IOutcomePredictor
 {
-    string GetWinner(ICollection<Odd> odds);
+    string GetOutcome(ICollection<Odd> odds);
 }

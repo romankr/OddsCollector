@@ -40,11 +40,11 @@ internal sealed class EventPredictionBuilder
         return this;
     }
 
-    public EventPredictionBuilder SetWinner(string? winner)
+    public EventPredictionBuilder SetOutcome(string? outcome)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(winner);
+        ArgumentException.ThrowIfNullOrWhiteSpace(outcome);
 
-        Instance.Winner = winner;
+        Instance.Outcome = outcome;
 
         return this;
     }

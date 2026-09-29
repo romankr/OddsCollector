@@ -36,9 +36,9 @@ internal static class ServiceCollectionExtensions
             services.AddSingleton<IOriginalUpcomingEventConverter, OriginalUpcomingEventConverter>();
             services.AddSingleton<IBookmakerConverter, BookmakerConverter>();
             services.AddSingleton<IMarketConverter, MarketConverter>();
-            services.AddSingleton<IOutcomeConverter, OutcomeConverter>();
+            services.AddSingleton<IOddConverter, OddConverter>();
             services.AddSingleton<IOriginalCompletedEventConverter, OriginalCompletedEventConverter>();
-            services.AddSingleton<IWinnerConverter, WinnerConverter>();
+            services.AddSingleton<IOutcomeConverter, OutcomeConverter>();
             services.AddSingleton<IScoreModelsConverter, ScoreModelsConverter>();
             services.AddSingleton<IScoreModelConverter, ScoreModelConverter>();
         }

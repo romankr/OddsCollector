@@ -9,7 +9,7 @@ internal static class ServiceCollectionExtensions
         public void AddPredictionStrategy()
         {
             services.AddSingleton<IPredictionStrategy, PredictionStrategy>();
-            services.AddSingleton<IWinnerFinder, WinnerFinder>();
+            services.AddSingleton<IOutcomePredictor, OutcomePredictor>();
             services.AddSingleton<IScoreCalculator, ScoreCalculator>();
         }
     }

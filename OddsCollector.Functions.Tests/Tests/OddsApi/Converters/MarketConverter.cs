@@ -8,7 +8,7 @@ internal sealed class MarketConverter
     [Test]
     public void ToOdd_WithNullMarkets_ThrowsException()
     {
-        var outcomeConverter = Substitute.For<FunctionApp.IOutcomeConverter>();
+        var outcomeConverter = Substitute.For<FunctionApp.IOddConverter>();
 
         var markerConverter = new FunctionApp.MarketConverter(outcomeConverter);
 
@@ -20,7 +20,7 @@ internal sealed class MarketConverter
     [Test]
     public void ToOdd_WithEmptyMarkets_ThrowsException()
     {
-        var outcomeConverter = Substitute.For<FunctionApp.IOutcomeConverter>();
+        var outcomeConverter = Substitute.For<FunctionApp.IOddConverter>();
 
         var markerConverter = new FunctionApp.MarketConverter(outcomeConverter);
 
@@ -32,7 +32,7 @@ internal sealed class MarketConverter
     [Test]
     public void ToOdd_WithUnexpectedMarket_ThrowsException()
     {
-        var outcomeConverter = Substitute.For<FunctionApp.IOutcomeConverter>();
+        var outcomeConverter = Substitute.For<FunctionApp.IOddConverter>();
 
         var markerConverter = new FunctionApp.MarketConverter(outcomeConverter);
 
