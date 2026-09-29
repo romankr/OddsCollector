@@ -34,10 +34,9 @@ internal sealed class EventResultsFunction
 
         using var scope = new AssertionScope();
 
-        records.Should().HaveCount(2);
+        records.Should().HaveCount(1);
         records[0].Level.Should().Be(LogLevel.Warning);
         records[0].Message.Should().Be("Run is past due");
-        records[1].Level.Should().Be(LogLevel.Information);
     }
 
     [Test]
@@ -60,12 +59,7 @@ internal sealed class EventResultsFunction
         // Assert
         results.Should().NotBeNull().And.BeEquivalentTo(expectedResults);
 
-        loggerMock.Collector.Count.Should().Be(1);
-
-        using var scope = new AssertionScope();
-
-        loggerMock.LatestRecord.Level.Should().Be(LogLevel.Information);
-        loggerMock.LatestRecord.Message.Should().Be("1 event(s) received");
+        loggerMock.Collector.Count.Should().Be(0);
     }
 
     [Test]
@@ -109,7 +103,7 @@ internal sealed class EventResultsFunction
         // Act
         var results = await function.Run(new TimerInfo(), CancellationToken.None);
 
-        // Assert: the host winding a run down is not a failure to report.
+        // Assert
         results.Should().NotBeNull().And.BeEmpty();
 
         loggerMock.Collector.Count.Should().Be(1);
@@ -136,7 +130,7 @@ internal sealed class EventResultsFunction
         // Act
         var action = () => function.Run(new TimerInfo(), CancellationToken.None);
 
-        // Assert: the failure reaches the host, which logs it and marks the run failed.
+        // Assert
         (await action.Should().ThrowAsync<InvalidOperationException>()).Which.Should().Be(exception);
 
         loggerMock.Collector.Count.Should().Be(0);
