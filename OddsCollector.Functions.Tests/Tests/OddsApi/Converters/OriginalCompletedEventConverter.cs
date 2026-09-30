@@ -1,5 +1,8 @@
 ﻿using System.Globalization;
 using FluentAssertions.Execution;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Logging.Testing;
 using OddsCollector.Functions.OddsApi.WebApi;
 using FunctionApp = OddsCollector.Functions.OddsApi.Converters;
 
@@ -31,6 +34,7 @@ internal sealed class OriginalCompletedEventConverter
         };
 
         var converter = new FunctionApp.OriginalCompletedEventConverter(
+            NullLogger<FunctionApp.OriginalCompletedEventConverter>.Instance,
             new FunctionApp.OutcomeConverter(
                 new FunctionApp.ScoreModelsConverter(
                     new FunctionApp.ScoreModelConverter())));
@@ -63,6 +67,7 @@ internal sealed class OriginalCompletedEventConverter
         };
 
         var converter = new FunctionApp.OriginalCompletedEventConverter(
+            NullLogger<FunctionApp.OriginalCompletedEventConverter>.Instance,
             new FunctionApp.OutcomeConverter(
                 new FunctionApp.ScoreModelsConverter(
                     new FunctionApp.ScoreModelConverter())));
@@ -93,6 +98,7 @@ internal sealed class OriginalCompletedEventConverter
         };
 
         var converter = new FunctionApp.OriginalCompletedEventConverter(
+            NullLogger<FunctionApp.OriginalCompletedEventConverter>.Instance,
             new FunctionApp.OutcomeConverter(
                 new FunctionApp.ScoreModelsConverter(
                     new FunctionApp.ScoreModelConverter())));
@@ -146,6 +152,7 @@ internal sealed class OriginalCompletedEventConverter
         ];
 
         var converter = new FunctionApp.OriginalCompletedEventConverter(
+            NullLogger<FunctionApp.OriginalCompletedEventConverter>.Instance,
             new FunctionApp.OutcomeConverter(
                 new FunctionApp.ScoreModelsConverter(
                     new FunctionApp.ScoreModelConverter())));
@@ -162,6 +169,7 @@ internal sealed class OriginalCompletedEventConverter
     public void ToEventResults_WithNoEventData_ReturnsNoEvents()
     {
         var converter = new FunctionApp.OriginalCompletedEventConverter(
+            NullLogger<FunctionApp.OriginalCompletedEventConverter>.Instance,
             new FunctionApp.OutcomeConverter(
                 new FunctionApp.ScoreModelsConverter(
                     new FunctionApp.ScoreModelConverter())));
@@ -176,10 +184,85 @@ internal sealed class OriginalCompletedEventConverter
     {
         var outcomeConverter = Substitute.For<FunctionApp.IOutcomeConverter>();
 
-        var converter = new FunctionApp.OriginalCompletedEventConverter(outcomeConverter);
+        var converter = new FunctionApp.OriginalCompletedEventConverter(
+            NullLogger<FunctionApp.OriginalCompletedEventConverter>.Instance, outcomeConverter);
 
         var action = () => converter.ToEventResults(null);
 
         action.Should().Throw<ArgumentNullException>().WithParameterName("originalEvents");
+    }
+
+    [TestCase("abc", TestName = "ToEventResults_WithUnreadableScore_SkipsItAndReturnsTheRest")]
+    [TestCase("", TestName = "ToEventResults_WithEmptyScore_SkipsItAndReturnsTheRest")]
+    public void ToEventResults_WithBrokenScore_SkipsItAndReturnsTheRest(string score)
+    {
+        // Arrange
+        var loggerMock = new FakeLogger<FunctionApp.OriginalCompletedEventConverter>();
+
+        var converter = new FunctionApp.OriginalCompletedEventConverter(loggerMock, CreateOutcomeConverter());
+
+        var broken = CreateCompletedEvent("broken");
+        broken.Scores!.First().Score = score;
+
+        var working = CreateCompletedEvent("working");
+
+        // Act
+        var eventResults = converter.ToEventResults([broken, working]).ToList();
+
+        // Assert
+        eventResults.Should().ContainSingle().Which.Id.Should().Be("working");
+
+        loggerMock.Collector.Count.Should().Be(1);
+        loggerMock.LatestRecord.Level.Should().Be(LogLevel.Warning);
+        loggerMock.LatestRecord.Message.Should().Be("Skipped event broken");
+        loggerMock.LatestRecord.Exception.Should().BeAssignableTo<ArgumentException>();
+    }
+
+    [Test]
+    public void ToEventResults_WithCompletedEventWithoutScores_SkipsIt()
+    {
+        // Arrange
+        var loggerMock = new FakeLogger<FunctionApp.OriginalCompletedEventConverter>();
+
+        var converter = new FunctionApp.OriginalCompletedEventConverter(loggerMock, CreateOutcomeConverter());
+
+        var withoutScores = CreateCompletedEvent("withoutScores");
+        withoutScores.Scores = null;
+
+        var withOneScore = CreateCompletedEvent("withOneScore");
+        withOneScore.Scores!.Remove(withOneScore.Scores.First());
+
+        var working = CreateCompletedEvent("working");
+
+        // Act
+        var eventResults = converter.ToEventResults([withoutScores, withOneScore, working]).ToList();
+
+        // Assert
+        eventResults.Should().ContainSingle().Which.Id.Should().Be("working");
+        loggerMock.Collector.Count.Should().Be(2);
+    }
+
+    private static FunctionApp.OutcomeConverter CreateOutcomeConverter()
+    {
+        return new FunctionApp.OutcomeConverter(
+            new FunctionApp.ScoreModelsConverter(
+                new FunctionApp.ScoreModelConverter()));
+    }
+
+    private static Anonymous3 CreateCompletedEvent(string id)
+    {
+        return new Anonymous3
+        {
+            Away_team = "awayTeam",
+            Commence_time = DateTime.UtcNow.AddDays(-1),
+            Completed = true,
+            Home_team = "homeTeam",
+            Id = id,
+            Scores =
+            [
+                new ScoreModel { Name = "awayTeam", Score = "1" },
+                new ScoreModel { Name = "homeTeam", Score = "2" }
+            ]
+        };
     }
 }
