@@ -9,7 +9,12 @@ internal static class ServiceBusReceivedMessageFactory
 {
     public static ServiceBusReceivedMessage CreateFromObject(object obj, string? messageId = null)
     {
-        var serialized = Encoding.ASCII.GetBytes(JsonSerializer.Serialize(obj))
+        return CreateFromText(JsonSerializer.Serialize(obj), messageId);
+    }
+
+    public static ServiceBusReceivedMessage CreateFromText(string text, string? messageId = null)
+    {
+        var serialized = Encoding.ASCII.GetBytes(text)
             .Select(x => new ReadOnlyMemory<byte>([x]));
 
         var message = new AmqpMessageBody(serialized);
