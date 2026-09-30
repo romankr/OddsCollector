@@ -15,12 +15,6 @@ internal sealed class EventResultsFunction(ILogger<EventResultsFunction> logger,
         TimerInfo timer,
         CancellationToken cancellationToken)
     {
-        // A late run still collects everything, so it is worth a warning rather than a skip.
-        if (timer.IsPastDue)
-        {
-            logger.LogWarning("Run is past due");
-        }
-
         try
         {
             var results = await client.GetEventResultsAsync(cancellationToken);
