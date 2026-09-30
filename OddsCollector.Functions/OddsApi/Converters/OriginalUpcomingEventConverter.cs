@@ -6,7 +6,8 @@ namespace OddsCollector.Functions.OddsApi.Converters;
 
 internal sealed class OriginalUpcomingEventConverter(
     ILogger<OriginalUpcomingEventConverter> logger,
-    IBookmakerConverter bookmakerConverter)
+    IBookmakerConverter bookmakerConverter,
+    TimeProvider timeProvider)
     : IOriginalUpcomingEventConverter
 {
     public IEnumerable<UpcomingEvent> ToUpcomingEvents(ICollection<Anonymous2>? events)
@@ -18,8 +19,19 @@ internal sealed class OriginalUpcomingEventConverter(
 
     private IEnumerable<UpcomingEvent> Iterate(ICollection<Anonymous2> events)
     {
+        var now = timeProvider.GetUtcNow().UtcDateTime;
+
         foreach (var originalEvent in events)
         {
+            // The odds endpoint also returns games in play. Their odds already reflect the
+            // score, and a prediction made from them would overwrite the pre-match one.
+            if (originalEvent.Commence_time <= now)
+            {
+                logger.LogDebug("Skipped event {Id}: already started", originalEvent.Id);
+
+                continue;
+            }
+
             var upcomingEvent = TryToUpcomingEvent(originalEvent);
 
             if (upcomingEvent is not null)

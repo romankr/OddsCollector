@@ -54,4 +54,12 @@ internal sealed class ServiceCollectionExtensions
         first.Should().BeOfType<FunctionApp.ScoreCalculator>();
         provider.GetRequiredService<FunctionApp.IScoreCalculator>().Should().BeSameAs(first);
     }
+
+    [Test]
+    public void AddPredictionStrategy_ResolvesSystemTimeProvider()
+    {
+        using var provider = BuildProvider();
+
+        provider.GetRequiredService<TimeProvider>().Should().BeSameAs(TimeProvider.System);
+    }
 }

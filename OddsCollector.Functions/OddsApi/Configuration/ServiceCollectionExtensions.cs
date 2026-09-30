@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using OddsCollector.Functions.OddsApi.Converters;
 using OddsCollector.Functions.OddsApi.WebApi;
 
@@ -37,6 +38,8 @@ internal static class ServiceCollectionExtensions
             services.AddSingleton<IOutcomeConverter, OutcomeConverter>();
             services.AddSingleton<IScoreModelsConverter, ScoreModelsConverter>();
             services.AddSingleton<IScoreModelConverter, ScoreModelConverter>();
+
+            services.TryAddSingleton(TimeProvider.System);
         }
     }
 }
