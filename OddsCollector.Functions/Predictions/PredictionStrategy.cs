@@ -6,13 +6,13 @@ namespace OddsCollector.Functions.Predictions;
 ///     Based on this article
 ///     https://www.researchgate.net/publication/320296375_Beating_the_bookies_with_their_own_numbers_-_and_how_the_online_sports_betting_market_is_rigged.
 /// </remarks>
-internal sealed class PredictionStrategy(IOutcomePredictor finder) : IPredictionStrategy
+internal sealed class PredictionStrategy(IOutcomePredictor predictor) : IPredictionStrategy
 {
     public EventPrediction GetPrediction(UpcomingEvent? upcomingEvent)
     {
         ArgumentNullException.ThrowIfNull(upcomingEvent);
 
-        var outcome = finder.GetOutcome([.. upcomingEvent.Odds]);
+        var outcome = predictor.GetOutcome([.. upcomingEvent.Odds]);
 
         return ToEventPrediction(outcome, upcomingEvent);
     }

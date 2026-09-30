@@ -14,11 +14,6 @@ internal sealed class UpcomingEventsFunction(ILogger<UpcomingEventsFunction> log
         TimerInfo timer,
         CancellationToken cancellationToken)
     {
-        if (timer.IsPastDue)
-        {
-            logger.LogWarning("Run is past due");
-        }
-
         try
         {
             var events = await client.GetUpcomingEventsAsync(cancellationToken);

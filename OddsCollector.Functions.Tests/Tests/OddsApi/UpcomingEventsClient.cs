@@ -76,8 +76,7 @@ internal sealed class UpcomingEventsClient
         // Act
         var action = async () => await oddsClient.GetUpcomingEventsAsync(cancellationToken);
 
-        // Assert: handing back whatever was collected lets the caller write a part of a run
-        // as though it were a whole one.
+        // Assert
         await action.Should().ThrowAsync<OperationCanceledException>();
     }
 

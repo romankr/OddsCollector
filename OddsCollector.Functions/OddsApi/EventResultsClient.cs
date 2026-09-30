@@ -21,8 +21,6 @@ internal sealed class EventResultsClient(
 
         foreach (var league in options.Value.Leagues)
         {
-            // Breaking here would return the leagues collected so far, and the caller
-            // writes what it is given as though the run had finished.
             cancellationToken.ThrowIfCancellationRequested();
 
             try
@@ -32,9 +30,6 @@ internal sealed class EventResultsClient(
 
                 result.AddRange(converter.ToEventResults(results));
             }
-            // A cancelled run is not a league that failed, so it is left to propagate.
-            // The filter, rather than catching OperationCanceledException, keeps a client
-            // timeout surfacing as the failure of one league.
             catch (Exception exception) when (!cancellationToken.IsCancellationRequested)
             {
                 logger.LogError(exception, "Failed to get event results for {League}", league);

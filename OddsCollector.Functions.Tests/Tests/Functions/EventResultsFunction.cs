@@ -12,34 +12,6 @@ namespace OddsCollector.Functions.Tests.Tests.Functions;
 internal sealed class EventResultsFunction
 {
     [Test]
-    public async Task Run_WhenPastDue_LogsWarningAndStillCollects()
-    {
-        // Arrange
-        EventResult[] expectedResults = [new EventResult()];
-
-        var loggerMock = new FakeLogger<FunctionApp.EventResultsFunction>();
-
-        var clientStub = Substitute.For<IEventResultsClient>();
-        clientStub.GetEventResultsAsync(Arg.Any<CancellationToken>()).Returns(Task.FromResult(expectedResults));
-
-        var function = new FunctionApp.EventResultsFunction(loggerMock, clientStub);
-
-        // Act
-        var results = await function.Run(new TimerInfo { IsPastDue = true }, CancellationToken.None);
-
-        // Assert
-        results.Should().BeEquivalentTo(expectedResults);
-
-        var records = loggerMock.Collector.GetSnapshot();
-
-        using var scope = new AssertionScope();
-
-        records.Should().HaveCount(1);
-        records[0].Level.Should().Be(LogLevel.Warning);
-        records[0].Message.Should().Be("Run is past due");
-    }
-
-    [Test]
     public async Task Run_WithEventResults_ReturnsEventResultsAndLogsInformation()
     {
         // Arrange

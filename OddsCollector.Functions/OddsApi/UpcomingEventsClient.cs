@@ -24,8 +24,6 @@ internal sealed class UpcomingEventsClient(
 
         foreach (var league in options.Value.Leagues)
         {
-            // Breaking here would return the leagues collected so far, and the caller
-            // writes what it is given as though the run had finished.
             cancellationToken.ThrowIfCancellationRequested();
 
             try
@@ -35,10 +33,6 @@ internal sealed class UpcomingEventsClient(
 
                 result.AddRange(converter.ToUpcomingEvents(events));
             }
-            // One unavailable or malformed league must not discard the ones that worked. A
-            // cancelled run is not such a league, so it is left to propagate; the filter,
-            // rather than catching OperationCanceledException, keeps a client timeout
-            // surfacing as the failure of one league.
             catch (Exception exception) when (!cancellationToken.IsCancellationRequested)
             {
                 logger.LogError(exception, "Failed to get upcoming events for {League}", league);

@@ -74,8 +74,7 @@ internal sealed class EventResultsClient
         // Act
         var action = async () => await oddsClient.GetEventResultsAsync(cancellationToken);
 
-        // Assert: handing back whatever was collected lets the caller write a part of a run
-        // as though it were a whole one.
+        // Assert
         await action.Should().ThrowAsync<OperationCanceledException>();
     }
 

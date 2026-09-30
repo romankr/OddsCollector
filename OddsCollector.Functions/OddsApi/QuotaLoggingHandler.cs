@@ -21,7 +21,6 @@ internal sealed class QuotaLoggingHandler(ILogger<QuotaLoggingHandler> logger) :
 
     private void LogQuota(HttpResponseMessage response)
     {
-        // Reading the headers is only worth the work when the entry is going to be written.
         if (!logger.IsEnabled(LogLevel.Information))
         {
             return;
@@ -44,7 +43,6 @@ internal sealed class QuotaLoggingHandler(ILogger<QuotaLoggingHandler> logger) :
             credits.Add($"{lastCall} spent on the last call");
         }
 
-        // A response carrying no usable quota header says nothing worth an entry.
         if (credits.Count == 0)
         {
             return;
