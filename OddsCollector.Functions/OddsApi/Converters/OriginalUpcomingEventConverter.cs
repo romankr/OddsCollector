@@ -60,8 +60,7 @@ internal sealed class OriginalUpcomingEventConverter(
             .SetId(originalEvent.Id)
             .SetCommenceTime(originalEvent.Commence_time)
             .SetOdds(
-                bookmakerConverter.ToOdds(originalEvent.Bookmakers, originalEvent.Away_team, originalEvent.Home_team)
-                    .ToList()
+                [.. bookmakerConverter.ToOdds(originalEvent.Bookmakers, originalEvent.Away_team, originalEvent.Home_team)]
             )
             .Instance;
     }
