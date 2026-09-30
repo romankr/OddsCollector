@@ -29,8 +29,6 @@ internal sealed class BookmakerConverter(ILogger<BookmakerConverter> logger, IMa
         }
     }
 
-    // One bookmaker without a head-to-head market or a price for every outcome must not
-    // take the others, and with them the whole league, down with it.
     private Odd? TryToOdd(Bookmakers bookmaker, string awayTeam, string homeTeam)
     {
         try

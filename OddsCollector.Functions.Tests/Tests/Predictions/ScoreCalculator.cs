@@ -9,9 +9,7 @@ internal sealed class ScoreCalculator
     [Test]
     public void GetScores_WithBookmakersDisagreeing_RanksOnTheMeanOfWhatEachImplies()
     {
-        // Arrange: one book quotes the draw at 1.5 and two at 6.0. Inverting the mean of the
-        // odds scores the draw 0.165 and hands the prediction to the home team; the mean of
-        // what each book implies scores it 0.276 and hands it to the draw.
+        // Arrange
         List<Odd> odds =
         [
             new() { Home = 4.5, Draw = 1.5, Away = 4.5 },
@@ -38,8 +36,7 @@ internal sealed class ScoreCalculator
     [Test]
     public void GetScores_WithOneUnusableQuote_LeavesItOutOfTheConsensus()
     {
-        // Arrange: the middle book quotes nothing usable for the draw. Dropping it has to
-        // leave the consensus of the other two untouched, rather than averaging in a zero.
+        // Arrange
         List<Odd> odds =
         [
             new() { Home = 2, Draw = 2, Away = 2 },

@@ -11,8 +11,6 @@ namespace OddsCollector.Functions.Tests.Tests.OddsApi.Configuration;
 
 internal sealed class ServiceCollectionExtensions
 {
-    // Resolving the API first builds its first pipeline, and the handlers in it need a
-    // logger, as do the two league clients.
     private static ServiceProvider BuildProvider(string? leagues = "league1;league2", string? apiKey = "key")
     {
         var configuration = new ConfigurationBuilder()

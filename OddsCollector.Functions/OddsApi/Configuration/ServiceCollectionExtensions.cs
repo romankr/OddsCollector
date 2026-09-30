@@ -11,10 +11,6 @@ internal static class ServiceCollectionExtensions
     {
         public void AddOddsApiClientWithDependencies(IConfiguration configuration)
         {
-            // Read through IConfiguration rather than the environment directly, so a setting
-            // named OddsApiClient__ApiKey (the only form Linux plans allow) is found as well.
-            // ValidateOnStart builds the options when the host starts, so a missing setting
-            // stops the app there instead of failing every run.
             services.AddOptions<OddsApiClientOptions>()
                 .Configure(o =>
                 {

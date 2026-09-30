@@ -28,8 +28,6 @@ internal sealed class OriginalCompletedEventConverter(
         }
     }
 
-    // One completed event with missing or unreadable scores must not discard the rest of
-    // its league.
     private EventResult? TryToEventResult(Anonymous3 originalEvent)
     {
         try

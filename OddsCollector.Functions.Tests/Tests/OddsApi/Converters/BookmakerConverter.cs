@@ -144,7 +144,7 @@ internal sealed class BookmakerConverter
         var action = () => bookmakerConverter.ToOdds([new Bookmakers { Key = "bookmaker" }], AwayTeam, HomeTeam)
             .ToList();
 
-        // Assert: only a malformed bookmaker is skipped; anything else is a fault in the run.
+        // Assert
         action.Should().Throw<NotSupportedException>().Which.Should().BeSameAs(expectedException);
     }
 

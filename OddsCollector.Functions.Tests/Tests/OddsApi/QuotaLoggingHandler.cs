@@ -21,8 +21,6 @@ internal sealed class QuotaLoggingHandler
         return response;
     }
 
-    // null leaves the header off the response, rather than adding it with an empty value,
-    // so that the missing-header cases exercise a genuinely missing header.
     private static void AddHeader(HttpResponseMessage response, string name, string? value)
     {
         if (value is not null)

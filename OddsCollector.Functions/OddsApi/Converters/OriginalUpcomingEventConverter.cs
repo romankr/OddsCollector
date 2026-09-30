@@ -29,15 +29,12 @@ internal sealed class OriginalUpcomingEventConverter(
         }
     }
 
-    // One malformed event must not discard the rest of its league.
     private UpcomingEvent? TryToUpcomingEvent(Anonymous2 originalEvent)
     {
         try
         {
             var upcomingEvent = ToUpcomingEvent(originalEvent);
 
-            // Without a usable quote there is nothing to predict, and a prediction could
-            // only fail on it, so the event is left out rather than sent on.
             if (!upcomingEvent.Odds.Any())
             {
                 logger.LogWarning("Skipped event {Id}: no usable odds", originalEvent.Id);
