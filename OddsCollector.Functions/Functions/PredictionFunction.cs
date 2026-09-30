@@ -7,7 +7,10 @@ using OddsCollector.Functions.Predictions;
 
 namespace OddsCollector.Functions.Functions;
 
-internal sealed class PredictionFunction(ILogger<PredictionFunction> logger, IPredictionStrategy strategy)
+internal sealed class PredictionFunction(
+    ILogger<PredictionFunction> logger,
+    IPredictionStrategy strategy,
+    TimeProvider timeProvider)
 {
     [Function(nameof(PredictionFunction))]
     [CosmosDBOutput("%CosmosDb:Database%", "%CosmosDb:EventPredictionsContainer%",
@@ -22,6 +25,15 @@ internal sealed class PredictionFunction(ILogger<PredictionFunction> logger, IPr
         try
         {
             var @event = message.Body.ToObjectFromJson<UpcomingEvent>();
+
+            // A message can wait in the queue past kick-off. The pre-match prediction stored
+            // by an earlier message is kept rather than replaced by a late one.
+            if (@event is not null && @event.CommenceTime <= timeProvider.GetUtcNow().UtcDateTime)
+            {
+                logger.LogInformation("Skipped event {Id}: already started", @event.Id);
+
+                return null;
+            }
 
             return strategy.GetPrediction(@event);
         }

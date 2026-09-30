@@ -8,6 +8,7 @@ using NSubstitute.ExceptionExtensions;
 using OddsCollector.Functions.Models;
 using OddsCollector.Functions.Predictions;
 using OddsCollector.Functions.Tests.Infrastructure.ServiceBus;
+using OddsCollector.Functions.Tests.Infrastructure.Time;
 using FunctionApp = OddsCollector.Functions.Functions;
 
 namespace OddsCollector.Functions.Tests.Tests.Functions;
@@ -26,10 +27,10 @@ internal sealed class PredictionFunction
         var messageActionsMock = Substitute.For<ServiceBusMessageActions>();
 
         var function = new FunctionApp.PredictionFunction(
-            NullLogger<FunctionApp.PredictionFunction>.Instance, strategyStub);
+            NullLogger<FunctionApp.PredictionFunction>.Instance, strategyStub, FixedTimeProvider.AtNow);
 
         // Act
-        var prediction = await function.Run(ServiceBusReceivedMessageFactory.CreateFromObject(new UpcomingEvent()),
+        var prediction = await function.Run(ServiceBusReceivedMessageFactory.CreateFromObject(CreateUpcomingEvent()),
             messageActionsMock, CancellationToken.None);
 
         // Assert: the host completes the message once the prediction has been stored.
@@ -50,9 +51,9 @@ internal sealed class PredictionFunction
 
         var loggerMock = new FakeLogger<FunctionApp.PredictionFunction>();
 
-        var function = new FunctionApp.PredictionFunction(loggerMock, strategyStub);
+        var function = new FunctionApp.PredictionFunction(loggerMock, strategyStub, FixedTimeProvider.AtNow);
 
-        var message = ServiceBusReceivedMessageFactory.CreateFromObject(new UpcomingEvent(), "messageId");
+        var message = ServiceBusReceivedMessageFactory.CreateFromObject(CreateUpcomingEvent(), "messageId");
 
         // Act
         var prediction = await function.Run(message, messageActionsMock, CancellationToken.None);
@@ -79,7 +80,7 @@ internal sealed class PredictionFunction
         var messageActionsMock = Substitute.For<ServiceBusMessageActions>();
 
         var function = new FunctionApp.PredictionFunction(
-            NullLogger<FunctionApp.PredictionFunction>.Instance, strategy);
+            NullLogger<FunctionApp.PredictionFunction>.Instance, strategy, FixedTimeProvider.AtNow);
 
         var message = ServiceBusReceivedMessageFactory.CreateFromText(body);
 
@@ -106,15 +107,55 @@ internal sealed class PredictionFunction
         var messageActionsMock = Substitute.For<ServiceBusMessageActions>();
 
         var function = new FunctionApp.PredictionFunction(
-            NullLogger<FunctionApp.PredictionFunction>.Instance, strategyStub);
+            NullLogger<FunctionApp.PredictionFunction>.Instance, strategyStub, FixedTimeProvider.AtNow);
 
         // Act
-        var action = () => function.Run(ServiceBusReceivedMessageFactory.CreateFromObject(new UpcomingEvent()),
+        var action = () => function.Run(ServiceBusReceivedMessageFactory.CreateFromObject(CreateUpcomingEvent()),
             messageActionsMock, CancellationToken.None);
 
         // Assert: the host abandons the message so it can be redelivered.
         (await action.Should().ThrowAsync<InvalidOperationException>()).Which.Should().BeSameAs(expectedException);
 
         messageActionsMock.ReceivedCalls().Should().BeEmpty();
+    }
+
+    [TestCase(0, TestName = "Run_WithEventStartingNow_SkipsIt")]
+    [TestCase(-90, TestName = "Run_WithEventInPlay_SkipsIt")]
+    public async Task Run_WithStartedEvent_SkipsIt(int minutesFromNow)
+    {
+        // Arrange
+        var strategyMock = Substitute.For<IPredictionStrategy>();
+
+        var messageActionsMock = Substitute.For<ServiceBusMessageActions>();
+
+        var loggerMock = new FakeLogger<FunctionApp.PredictionFunction>();
+
+        var function = new FunctionApp.PredictionFunction(loggerMock, strategyMock, FixedTimeProvider.AtNow);
+
+        var @event = new UpcomingEvent
+        {
+            Id = "id",
+            CommenceTime = FixedTimeProvider.Now.UtcDateTime.AddMinutes(minutesFromNow)
+        };
+
+        // Act
+        var prediction = await function.Run(ServiceBusReceivedMessageFactory.CreateFromObject(@event),
+            messageActionsMock, CancellationToken.None);
+
+        // Assert: nothing is written, so the pre-match prediction stays, and the host
+        // completes the message.
+        prediction.Should().BeNull();
+
+        strategyMock.ReceivedCalls().Should().BeEmpty();
+        messageActionsMock.ReceivedCalls().Should().BeEmpty();
+
+        loggerMock.Collector.Count.Should().Be(1);
+        loggerMock.LatestRecord.Level.Should().Be(LogLevel.Information);
+        loggerMock.LatestRecord.Message.Should().Be("Skipped event id: already started");
+    }
+
+    private static UpcomingEvent CreateUpcomingEvent()
+    {
+        return new UpcomingEvent { CommenceTime = FixedTimeProvider.Now.UtcDateTime.AddHours(1) };
     }
 }

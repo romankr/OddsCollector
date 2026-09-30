@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Logging.Testing;
 using OddsCollector.Functions.OddsApi.WebApi;
+using OddsCollector.Functions.Tests.Infrastructure.Time;
 using FunctionApp = OddsCollector.Functions.OddsApi.Converters;
 
 namespace OddsCollector.Functions.Tests.Tests.OddsApi.Converters;
@@ -13,7 +14,7 @@ internal class OriginalUpcomingEventConverter
     public void ToUpcomingEvents_WithOriginalEventData_ReturnsUpcomingEvent()
     {
         // Arrange
-        var expectedCommenceTime = DateTime.UtcNow;
+        var expectedCommenceTime = FixedTimeProvider.Now.UtcDateTime.AddHours(1);
         var expectedHomeTeam = "homeTeam";
         var expectedAwayTeam = "awayTeam";
         var expectedId = Guid.NewGuid().ToString();
@@ -54,7 +55,7 @@ internal class OriginalUpcomingEventConverter
             NullLogger<FunctionApp.OriginalUpcomingEventConverter>.Instance,
             new FunctionApp.BookmakerConverter(NullLogger<FunctionApp.BookmakerConverter>.Instance,
                 new FunctionApp.MarketConverter(
-                    new FunctionApp.OddConverter())));
+                    new FunctionApp.OddConverter())), FixedTimeProvider.AtNow);
 
         // Act
         var upcomingEvent = converter.ToUpcomingEvents([originalEvent]).ToList();
@@ -84,7 +85,8 @@ internal class OriginalUpcomingEventConverter
         var bookmakerConverter = Substitute.For<FunctionApp.IBookmakerConverter>();
 
         var converter = new FunctionApp.OriginalUpcomingEventConverter(
-            NullLogger<FunctionApp.OriginalUpcomingEventConverter>.Instance, bookmakerConverter);
+            NullLogger<FunctionApp.OriginalUpcomingEventConverter>.Instance, bookmakerConverter,
+            FixedTimeProvider.AtNow);
 
         var upcomingEvent = converter.ToUpcomingEvents([]).ToList();
 
@@ -97,7 +99,8 @@ internal class OriginalUpcomingEventConverter
         var bookmakerConverter = Substitute.For<FunctionApp.IBookmakerConverter>();
 
         var converter = new FunctionApp.OriginalUpcomingEventConverter(
-            NullLogger<FunctionApp.OriginalUpcomingEventConverter>.Instance, bookmakerConverter);
+            NullLogger<FunctionApp.OriginalUpcomingEventConverter>.Instance, bookmakerConverter,
+            FixedTimeProvider.AtNow);
 
         var action = () => converter.ToUpcomingEvents(null);
 
@@ -110,7 +113,8 @@ internal class OriginalUpcomingEventConverter
         // Arrange
         var loggerMock = new FakeLogger<FunctionApp.OriginalUpcomingEventConverter>();
 
-        var converter = new FunctionApp.OriginalUpcomingEventConverter(loggerMock, CreateBookmakerConverter());
+        var converter = new FunctionApp.OriginalUpcomingEventConverter(loggerMock, CreateBookmakerConverter(),
+            FixedTimeProvider.AtNow);
 
         var malformed = CreateEvent("malformed");
         malformed.Home_team = null;
@@ -135,7 +139,8 @@ internal class OriginalUpcomingEventConverter
         // Arrange
         var loggerMock = new FakeLogger<FunctionApp.OriginalUpcomingEventConverter>();
 
-        var converter = new FunctionApp.OriginalUpcomingEventConverter(loggerMock, CreateBookmakerConverter());
+        var converter = new FunctionApp.OriginalUpcomingEventConverter(loggerMock, CreateBookmakerConverter(),
+            FixedTimeProvider.AtNow);
 
         var withoutBookmakers = CreateEvent("withoutBookmakers");
         withoutBookmakers.Bookmakers = [];
@@ -159,7 +164,8 @@ internal class OriginalUpcomingEventConverter
     {
         // Arrange
         var converter = new FunctionApp.OriginalUpcomingEventConverter(
-            NullLogger<FunctionApp.OriginalUpcomingEventConverter>.Instance, CreateBookmakerConverter());
+            NullLogger<FunctionApp.OriginalUpcomingEventConverter>.Instance, CreateBookmakerConverter(),
+            FixedTimeProvider.AtNow);
 
         var originalEvent = CreateEvent("event");
         originalEvent.Bookmakers!.Add(new Bookmakers { Key = "broken", Markets = [] });
@@ -170,6 +176,33 @@ internal class OriginalUpcomingEventConverter
         // Assert
         upcomingEvents.Should().ContainSingle().Which.Odds.Should().ContainSingle()
             .Which.Bookmaker.Should().Be("bookmaker");
+    }
+
+    [TestCase(0, TestName = "ToUpcomingEvents_WithEventStartingNow_SkipsIt")]
+    [TestCase(-90, TestName = "ToUpcomingEvents_WithEventInPlay_SkipsIt")]
+    public void ToUpcomingEvents_WithStartedEvent_SkipsIt(int minutesFromNow)
+    {
+        // Arrange
+        var loggerMock = new FakeLogger<FunctionApp.OriginalUpcomingEventConverter>();
+
+        var converter =
+            new FunctionApp.OriginalUpcomingEventConverter(loggerMock, CreateBookmakerConverter(),
+                FixedTimeProvider.AtNow);
+
+        var started = CreateEvent("started");
+        started.Commence_time = FixedTimeProvider.Now.UtcDateTime.AddMinutes(minutesFromNow);
+
+        var upcoming = CreateEvent("upcoming");
+
+        // Act
+        var upcomingEvents = converter.ToUpcomingEvents([started, upcoming]).ToList();
+
+        // Assert: odds of a game in play already reflect the score.
+        upcomingEvents.Should().ContainSingle().Which.Id.Should().Be("upcoming");
+
+        loggerMock.Collector.Count.Should().Be(1);
+        loggerMock.LatestRecord.Level.Should().Be(LogLevel.Debug);
+        loggerMock.LatestRecord.Message.Should().Be("Skipped event started: already started");
     }
 
     private static FunctionApp.BookmakerConverter CreateBookmakerConverter()
@@ -183,7 +216,7 @@ internal class OriginalUpcomingEventConverter
         return new Anonymous2
         {
             Away_team = "awayTeam",
-            Commence_time = DateTime.UtcNow,
+            Commence_time = FixedTimeProvider.Now.UtcDateTime.AddHours(1),
             Home_team = "homeTeam",
             Id = id,
             Bookmakers =
