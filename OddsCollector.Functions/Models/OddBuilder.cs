@@ -15,7 +15,10 @@ internal sealed class OddBuilder
 
     public OddBuilder SetAway(double? away)
     {
-        ArgumentNullException.ThrowIfNull(away);
+        if (!away.HasValue)
+        {
+            throw new ArgumentNullException(nameof(away));
+        }
 
         Instance.Away = away.Value;
 

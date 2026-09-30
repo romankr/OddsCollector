@@ -24,7 +24,10 @@ internal sealed class EventResultBuilder
 
     public EventResultBuilder SetCommenceTime(DateTime? commenceTime)
     {
-        ArgumentNullException.ThrowIfNull(commenceTime);
+        if (!commenceTime.HasValue)
+        {
+            throw new ArgumentNullException(nameof(commenceTime));
+        }
 
         Instance.CommenceTime = commenceTime.Value;
 
