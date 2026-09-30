@@ -1,14 +1,18 @@
-﻿**Odds Collector** is a software project aimed at gathering and analyzing odds data for various sports from [The Odds API](https://the-odds-api.com/) while leveraging the infrastructure of Microsoft Azure. This application provides a tool for accessing historical odds information and predictions for sporting events.
+﻿**Odds Collector** is a software project aimed at gathering and analyzing odds data for football (soccer) leagues from [The Odds API](https://the-odds-api.com/) while leveraging the infrastructure of Microsoft Azure. This application provides a tool for accessing historical odds information and predictions for football matches.
 
 # Purpose
 
 The project is designed to have fun with the algorithm described in "[Beating the bookies with their own numbers - and how the online sports betting market is rigged](https://www.researchgate.net/publication/320296375_Beating_the_bookies_with_their_own_numbers_-_and_how_the_online_sports_betting_market_is_rigged)" using The Odds API as the main source of odds data. There is also an improvement on the original algorithm that increases prediction accuracy from 40% to 60-70%.
 
+# Supported sports
+
+Only football (soccer) leagues are supported, and this is by design. Put only `soccer_*` sport keys in `OddsApiClient:Leagues`.
+
 # Features
 
 **Historical Data**: Users can access historical odds data, allowing for in-depth analysis and trend identification.
 
-**The Odds API Integration**: Potential to collect data from over 70 sports and over 40 bookmakers.
+**The Odds API Integration**: Collects head-to-head odds for football (soccer) leagues from over 40 bookmakers.
 
 **Azure Functions Integration**: Optimizes resource consumption by executing specific functions in response to events, ensuring cost-effectiveness and streamlined execution.
 
@@ -32,7 +36,7 @@ A missing `OddsApiClient:ApiKey` or `OddsApiClient:Leagues` stops the app at sta
 | Setting | Purpose |
 | --- | --- |
 | `OddsApiClient:ApiKey` | The Odds API key. |
-| `OddsApiClient:Leagues` | Semicolon-separated sport keys to collect, for example `soccer_epl;soccer_spain_la_liga`. Empty entries are dropped and surrounding whitespace is trimmed. |
+| `OddsApiClient:Leagues` | Semicolon-separated football (soccer) sport keys to collect, for example `soccer_epl;soccer_spain_la_liga`. Other sports are not supported; see [Supported sports](#supported-sports). Empty entries are dropped and surrounding whitespace is trimmed. |
 | `CosmosDb:Connection` | Connection string for the Cosmos DB account. |
 | `CosmosDb:Database` | Cosmos DB database name. |
 | `CosmosDb:EventPredictionsContainer` | Container `PredictionFunction` writes predictions to and `PredictionsHttpFunction` reads them from. |
