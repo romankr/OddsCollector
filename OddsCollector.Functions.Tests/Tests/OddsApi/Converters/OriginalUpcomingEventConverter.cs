@@ -1,4 +1,7 @@
 ﻿using FluentAssertions.Execution;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Logging.Testing;
 using OddsCollector.Functions.OddsApi.WebApi;
 using FunctionApp = OddsCollector.Functions.OddsApi.Converters;
 
@@ -48,7 +51,8 @@ internal class OriginalUpcomingEventConverter
         };
 
         var converter = new FunctionApp.OriginalUpcomingEventConverter(
-            new FunctionApp.BookmakerConverter(
+            NullLogger<FunctionApp.OriginalUpcomingEventConverter>.Instance,
+            new FunctionApp.BookmakerConverter(NullLogger<FunctionApp.BookmakerConverter>.Instance,
                 new FunctionApp.MarketConverter(
                     new FunctionApp.OddConverter())));
 
@@ -79,7 +83,8 @@ internal class OriginalUpcomingEventConverter
     {
         var bookmakerConverter = Substitute.For<FunctionApp.IBookmakerConverter>();
 
-        var converter = new FunctionApp.OriginalUpcomingEventConverter(bookmakerConverter);
+        var converter = new FunctionApp.OriginalUpcomingEventConverter(
+            NullLogger<FunctionApp.OriginalUpcomingEventConverter>.Instance, bookmakerConverter);
 
         var upcomingEvent = converter.ToUpcomingEvents([]).ToList();
 
@@ -91,10 +96,116 @@ internal class OriginalUpcomingEventConverter
     {
         var bookmakerConverter = Substitute.For<FunctionApp.IBookmakerConverter>();
 
-        var converter = new FunctionApp.OriginalUpcomingEventConverter(bookmakerConverter);
+        var converter = new FunctionApp.OriginalUpcomingEventConverter(
+            NullLogger<FunctionApp.OriginalUpcomingEventConverter>.Instance, bookmakerConverter);
 
         var action = () => converter.ToUpcomingEvents(null);
 
         action.Should().Throw<ArgumentNullException>().WithParameterName("events");
+    }
+
+    [Test]
+    public void ToUpcomingEvents_WithMalformedEvent_SkipsItAndReturnsTheRest()
+    {
+        // Arrange
+        var loggerMock = new FakeLogger<FunctionApp.OriginalUpcomingEventConverter>();
+
+        var converter = new FunctionApp.OriginalUpcomingEventConverter(loggerMock, CreateBookmakerConverter());
+
+        var malformed = CreateEvent("malformed");
+        malformed.Home_team = null;
+
+        var working = CreateEvent("working");
+
+        // Act
+        var upcomingEvents = converter.ToUpcomingEvents([malformed, working]).ToList();
+
+        // Assert
+        upcomingEvents.Should().ContainSingle().Which.Id.Should().Be("working");
+
+        loggerMock.Collector.Count.Should().Be(1);
+        loggerMock.LatestRecord.Level.Should().Be(LogLevel.Warning);
+        loggerMock.LatestRecord.Message.Should().Be("Skipped event malformed");
+        loggerMock.LatestRecord.Exception.Should().BeAssignableTo<ArgumentException>();
+    }
+
+    [Test]
+    public void ToUpcomingEvents_WithoutUsableOdds_SkipsEvent()
+    {
+        // Arrange
+        var loggerMock = new FakeLogger<FunctionApp.OriginalUpcomingEventConverter>();
+
+        var converter = new FunctionApp.OriginalUpcomingEventConverter(loggerMock, CreateBookmakerConverter());
+
+        var withoutBookmakers = CreateEvent("withoutBookmakers");
+        withoutBookmakers.Bookmakers = [];
+
+        var withBrokenBookmaker = CreateEvent("withBrokenBookmaker");
+        withBrokenBookmaker.Bookmakers!.First().Markets = [];
+
+        // Act
+        var upcomingEvents = converter.ToUpcomingEvents([withoutBookmakers, withBrokenBookmaker]).ToList();
+
+        // Assert: an event with nothing to predict from would only fail further on.
+        upcomingEvents.Should().BeEmpty();
+
+        loggerMock.Collector.GetSnapshot().Select(r => r.Message).Should().Equal(
+            "Skipped event withoutBookmakers: no usable odds",
+            "Skipped event withBrokenBookmaker: no usable odds");
+    }
+
+    [Test]
+    public void ToUpcomingEvents_WithOneBrokenBookmaker_KeepsEventWithTheOthers()
+    {
+        // Arrange
+        var converter = new FunctionApp.OriginalUpcomingEventConverter(
+            NullLogger<FunctionApp.OriginalUpcomingEventConverter>.Instance, CreateBookmakerConverter());
+
+        var originalEvent = CreateEvent("event");
+        originalEvent.Bookmakers!.Add(new Bookmakers { Key = "broken", Markets = [] });
+
+        // Act
+        var upcomingEvents = converter.ToUpcomingEvents([originalEvent]).ToList();
+
+        // Assert
+        upcomingEvents.Should().ContainSingle().Which.Odds.Should().ContainSingle()
+            .Which.Bookmaker.Should().Be("bookmaker");
+    }
+
+    private static FunctionApp.BookmakerConverter CreateBookmakerConverter()
+    {
+        return new FunctionApp.BookmakerConverter(NullLogger<FunctionApp.BookmakerConverter>.Instance,
+            new FunctionApp.MarketConverter(new FunctionApp.OddConverter()));
+    }
+
+    private static Anonymous2 CreateEvent(string id)
+    {
+        return new Anonymous2
+        {
+            Away_team = "awayTeam",
+            Commence_time = DateTime.UtcNow,
+            Home_team = "homeTeam",
+            Id = id,
+            Bookmakers =
+            [
+                new Bookmakers
+                {
+                    Key = "bookmaker",
+                    Markets =
+                    [
+                        new Markets2
+                        {
+                            Key = Markets2Key.H2h,
+                            Outcomes =
+                            [
+                                new Outcome { Name = "homeTeam", Price = 1.5 },
+                                new Outcome { Name = "awayTeam", Price = 4.0 },
+                                new Outcome { Name = "Draw", Price = 3.5 }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        };
     }
 }
