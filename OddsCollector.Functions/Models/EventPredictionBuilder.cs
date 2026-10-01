@@ -20,6 +20,15 @@ internal sealed class EventPredictionBuilder
             throw new ArgumentNullException(nameof(commenceTime));
         }
 
+        // PredictionsHttpFunction compares the stored value with GetCurrentDateTime() as an
+        // ISO 8601 string, which is only correct when both are UTC and end with "Z".
+        if (commenceTime.Value.Kind != DateTimeKind.Utc)
+        {
+            throw new ArgumentException(
+                $"{nameof(commenceTime)} must be UTC. Actual kind: {commenceTime.Value.Kind}",
+                nameof(commenceTime));
+        }
+
         Instance.CommenceTime = commenceTime.Value;
 
         return this;
