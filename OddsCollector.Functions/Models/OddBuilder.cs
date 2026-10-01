@@ -27,7 +27,10 @@ internal sealed class OddBuilder
 
     public OddBuilder SetDraw(double? draw)
     {
-        ArgumentNullException.ThrowIfNull(draw);
+        if (!draw.HasValue)
+        {
+            throw new ArgumentNullException(nameof(draw));
+        }
 
         Instance.Draw = draw.Value;
 
@@ -36,7 +39,10 @@ internal sealed class OddBuilder
 
     public OddBuilder SetHome(double? home)
     {
-        ArgumentNullException.ThrowIfNull(home);
+        if (!home.HasValue)
+        {
+            throw new ArgumentNullException(nameof(home));
+        }
 
         Instance.Home = home.Value;
 
