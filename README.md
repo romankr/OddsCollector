@@ -2,7 +2,7 @@
 
 # Purpose
 
-The project is designed to have fun with the algorithm described in "[Beating the bookies with their own numbers - and how the online sports betting market is rigged](https://www.researchgate.net/publication/320296375_Beating_the_bookies_with_their_own_numbers_-_and_how_the_online_sports_betting_market_is_rigged)" using The Odds API as the main source of odds data. There is also an improvement on the original algorithm that increases prediction accuracy from 40% to 60-70%.
+The project is designed to implement the algorithm described in "[Beating the bookies with their own numbers - and how the online sports betting market is rigged](https://www.researchgate.net/publication/320296375_Beating_the_bookies_with_their_own_numbers_-_and_how_the_online_sports_betting_market_is_rigged)" using The Odds API as the main source of odds data.
 
 # Supported sports
 
@@ -43,7 +43,7 @@ A missing `OddsApiClient:ApiKey` or `OddsApiClient:Leagues` stops the app at sta
 | `CosmosDb:EventResultsContainer` | Container `EventResultsFunction` writes completed results to. |
 | `ServiceBus:Connection` | Connection string for the Service Bus namespace. |
 | `ServiceBus:Queue` | Queue carrying upcoming events from `UpcomingEventsFunction` to `PredictionFunction`. |
-| `EventResultsFunction:TimerInterval` | How often results are collected, as an NCRONTAB expression or a `TimeSpan`. |
+| `EventResultsFunction:TimerInterval` | How often results are collected, as an NCRONTAB expression or a `TimeSpan`. Each run asks The Odds API for games completed in the last 3 days, so keep the interval shorter than that, or results of games completed in between are never stored. |
 | `UpcomingEventsFunction:TimerInterval` | How often upcoming events are collected, as an NCRONTAB expression or a `TimeSpan`. |
 | `APPLICATIONINSIGHTS_CONNECTION_STRING` | Application Insights connection string, read by the OpenTelemetry exporter. |
 | `AzureWebJobsStorage` | Storage account the Functions host uses for timer schedules and leases. |
