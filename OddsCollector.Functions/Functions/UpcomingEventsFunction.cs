@@ -11,7 +11,7 @@ internal sealed class UpcomingEventsFunction(ILogger<UpcomingEventsFunction> log
     [ServiceBusOutput("%ServiceBus:Queue%", Connection = "ServiceBus:Connection")]
     public async Task<UpcomingEvent[]> Run(
         [TimerTrigger("%UpcomingEventsFunction:TimerInterval%")]
-        TimerInfo timer,
+        TimerInfo _,
         CancellationToken cancellationToken)
     {
         try
