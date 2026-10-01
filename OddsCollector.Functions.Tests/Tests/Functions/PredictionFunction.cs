@@ -1,5 +1,4 @@
 ﻿using System.Text.Json;
-using Azure.Messaging.ServiceBus;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -8,7 +7,6 @@ using NSubstitute.ExceptionExtensions;
 using OddsCollector.Functions.Models;
 using OddsCollector.Functions.Predictions;
 using OddsCollector.Functions.Tests.Infrastructure.ServiceBus;
-using OddsCollector.Functions.Tests.Infrastructure.Time;
 using FunctionApp = OddsCollector.Functions.Functions;
 
 namespace OddsCollector.Functions.Tests.Tests.Functions;

@@ -3,7 +3,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Logging.Testing;
 using OddsCollector.Functions.OddsApi.WebApi;
-using OddsCollector.Functions.Tests.Infrastructure.Time;
 using FunctionApp = OddsCollector.Functions.OddsApi.Converters;
 
 namespace OddsCollector.Functions.Tests.Tests.OddsApi.Converters;
