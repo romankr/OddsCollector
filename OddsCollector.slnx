@@ -1,4 +1,4 @@
 <Solution>
-  <Project Path="OddsCollector.Functions.Tests/OddsCollector.Functions.UnitTests.csproj" />
+  <Project Path="OddsCollector.Functions.UnitTests/OddsCollector.Functions.UnitTests.csproj" />
   <Project Path="OddsCollector.Functions/OddsCollector.Functions.csproj" />
 </Solution>
