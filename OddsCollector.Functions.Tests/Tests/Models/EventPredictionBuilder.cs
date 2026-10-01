@@ -61,4 +61,26 @@ internal sealed class EventPredictionBuilder
 
         action.Should().Throw<ArgumentException>().WithParameterName("commenceTime");
     }
+
+    [TestCase(DateTimeKind.Unspecified, TestName = "SetCommenceTime_WithUnspecifiedKind_ThrowsException")]
+    [TestCase(DateTimeKind.Local, TestName = "SetCommenceTime_WithLocalKind_ThrowsException")]
+    public void SetCommenceTime_WithNonUtcDateTime_ThrowsException(DateTimeKind kind)
+    {
+        var builder = new FunctionApp.EventPredictionBuilder();
+
+        var action = () => builder.SetCommenceTime(new DateTime(2026, 9, 22, 18, 0, 0, kind));
+
+        action.Should().Throw<ArgumentException>().WithParameterName("commenceTime");
+    }
+
+    [Test]
+    public void SetCommenceTime_WithUtcDateTime_SetsCommenceTime()
+    {
+        var commenceTime = new DateTime(2026, 9, 22, 18, 0, 0, DateTimeKind.Utc);
+
+        var prediction = new FunctionApp.EventPredictionBuilder().SetCommenceTime(commenceTime).Instance;
+
+        prediction.CommenceTime.Should().Be(commenceTime);
+        prediction.CommenceTime.Kind.Should().Be(DateTimeKind.Utc);
+    }
 }
