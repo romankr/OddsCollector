@@ -70,9 +70,9 @@ internal sealed class PredictionFunction
         loggerMock.LatestRecord.Message.Should().Be("Dead-lettering message messageId");
     }
 
-    [TestCase("not json", TestName = "Run_WithUnreadableBody_DeadLettersMessage")]
-    [TestCase("null", TestName = "Run_WithNullBody_DeadLettersMessage")]
-    public async Task Run_WithBrokenBody_DeadLettersMessage(string body)
+    [TestCase("not json", "", TestName = "Run_WithUnreadableBody_DeadLettersMessage")]
+    [TestCase("null", "Message body is null", TestName = "Run_WithNullBody_DeadLettersMessage")]
+    public async Task Run_WithBrokenBody_DeadLettersMessage(string body, string expectedDescription)
     {
         // Arrange
         var strategy = new PredictionStrategy(Substitute.For<IOutcomePredictor>());
@@ -91,7 +91,7 @@ internal sealed class PredictionFunction
         prediction.Should().BeNull();
 
         await messageActionsMock.Received(1).DeadLetterMessageAsync(message, Arg.Any<Dictionary<string, object>?>(),
-            Arg.Is<string>(r => r == nameof(JsonException) || r == nameof(ArgumentNullException)), Arg.Any<string>(),
+            nameof(JsonException), Arg.Is<string>(d => d.StartsWith(expectedDescription)),
             Arg.Any<CancellationToken>());
     }
 
