@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Hosting;
 
 [assembly: InternalsVisibleTo("OddsCollector.Functions.UnitTests")]
+[assembly: InternalsVisibleTo("OddsCollector.Functions.IntegrationTests")]
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
 
 namespace OddsCollector.Functions;

@@ -5,6 +5,7 @@
 ## Commands
 - Build: `dotnet build`
 - Test: `dotnet test --no-build`
+- Unit tests only (no Docker / Azure Functions Core Tools needed): `dotnet test --no-build --filter "TestCategory!=Integration"`
 - Run: `dotnet run --project OddsCollector.Functions/OddsCollector.Functions.csproj`
 
 ## Workflow Rules

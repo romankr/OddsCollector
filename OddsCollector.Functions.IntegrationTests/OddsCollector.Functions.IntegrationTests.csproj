@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <OutputType>Exe</OutputType>
+    <EnableNUnitRunner>true</EnableNUnitRunner>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentAssertions" Version="7.2.2"/>
+    <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.63.2"/>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.0"/>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4"/>
+    <PackageReference Include="NUnit" Version="4.4.0"/>
+    <PackageReference Include="NUnit3TestAdapter" Version="5.2.0"/>
+    <PackageReference Include="NUnit.Analyzers" Version="4.10.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Testcontainers" Version="4.15.0"/>
+    <PackageReference Include="Testcontainers.Azurite" Version="4.15.0"/>
+    <PackageReference Include="Testcontainers.ServiceBus" Version="4.15.0"/>
+    <PackageReference Include="WireMock.Net" Version="2.18.0"/>
+  </ItemGroup>
+
+  <!--
+    The tests run the build output of the function app in the Azure Functions host (func) and use
+    its models (internal, see InternalsVisibleTo in Program.cs) to check what it stores and returns.
+  -->
+  <ItemGroup>
+    <ProjectReference Include="..\OddsCollector.Functions\OddsCollector.Functions.csproj"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+      <_Parameter1>FunctionAppDirectory</_Parameter1>
+      <_Parameter2>$(MSBuildThisFileDirectory)..\OddsCollector.Functions\bin\$(Configuration)\$(TargetFramework)</_Parameter2>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Infrastructure\ServiceBus\Config.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

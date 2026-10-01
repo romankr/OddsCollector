@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 using OddsCollector.Functions.OddsApi.Converters;
 using OddsCollector.Functions.OddsApi.WebApi;
 
@@ -17,12 +18,17 @@ internal static class ServiceCollectionExtensions
                 {
                     o.AddLeagues(configuration["OddsApiClient:Leagues"]);
                     o.SetApiKey(configuration["OddsApiClient:ApiKey"]);
+                    o.SetBaseUrl(configuration["OddsApiClient:BaseUrl"]);
                 })
                 .ValidateOnStart();
 
             services.AddTransient<QuotaLoggingHandler>();
 
-            var clientBuilder = services.AddHttpClient<IClient, Client>();
+            var clientBuilder = services.AddHttpClient<IClient, Client>((httpClient, provider) =>
+                new Client(httpClient)
+                {
+                    BaseUrl = provider.GetRequiredService<IOptions<OddsApiClientOptions>>().Value.BaseUrl.AbsoluteUri
+                });
 
             clientBuilder.AddStandardResilienceHandler();
             clientBuilder.AddHttpMessageHandler<QuotaLoggingHandler>();
