@@ -36,6 +36,7 @@ A missing `OddsApiClient:ApiKey` or `OddsApiClient:Leagues` stops the app at sta
 | Setting | Purpose |
 | --- | --- |
 | `OddsApiClient:ApiKey` | The Odds API key. |
+| `OddsApiClient:BaseUrl` | Optional. Base URL of The Odds API, `https://api.the-odds-api.com` when not set. Integration tests point it at a stub. |
 | `OddsApiClient:Leagues` | Semicolon-separated football (soccer) sport keys to collect, for example `soccer_epl;soccer_spain_la_liga`. Other sports are not supported; see [Supported sports](#supported-sports). Empty entries are dropped and surrounding whitespace is trimmed. |
 | `CosmosDb:Connection` | Connection string for the Cosmos DB account. |
 | `CosmosDb:Database` | Cosmos DB database name. |
@@ -58,6 +59,29 @@ A missing `OddsApiClient:ApiKey` or `OddsApiClient:Leagues` stops the app at sta
 ```
 dotnet build
 ```
+
+# Tests
+
+Unit tests:
+
+```
+dotnet test --filter "TestCategory!=Integration"
+```
+
+`OddsCollector.Functions.IntegrationTests` runs every function end to end in a local Azure
+environment it starts itself: Azurite, the Service Bus emulator and the Cosmos DB emulator in Docker,
+a stub of The Odds API and the Azure Functions host. It needs
+[Docker](https://www.docker.com/) and
+[Azure Functions Core Tools](https://learn.microsoft.com/en-us/azure/azure-functions/functions-run-local)
+(`func`) in `PATH`; the first run downloads the emulator images, which takes a few minutes.
+
+```
+dotnet test OddsCollector.Functions.IntegrationTests
+```
+
+`local.settings.json` is not used by the integration tests. Optional environment variables:
+`ODDSCOLLECTOR_FUNC_PATH` (path to `func`), `ODDSCOLLECTOR_FUNCTION_APP_DIRECTORY` (built function app),
+`ODDSCOLLECTOR_COSMOSDB_EMULATOR_IMAGE` (Cosmos DB emulator image).
 
 # Deployment
 
