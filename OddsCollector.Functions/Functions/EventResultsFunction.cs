@@ -12,7 +12,7 @@ internal sealed class EventResultsFunction(ILogger<EventResultsFunction> logger,
         Connection = "CosmosDb:Connection")]
     public async Task<EventResult[]> Run(
         [TimerTrigger("%EventResultsFunction:TimerInterval%")]
-        TimerInfo timer,
+        TimerInfo _,
         CancellationToken cancellationToken)
     {
         try
