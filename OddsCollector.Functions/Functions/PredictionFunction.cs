@@ -24,11 +24,13 @@ internal sealed class PredictionFunction(
     {
         try
         {
-            var @event = message.Body.ToObjectFromJson<UpcomingEvent>();
+            // A body of JSON null deserializes without an error, but there is no event to predict.
+            var @event = message.Body.ToObjectFromJson<UpcomingEvent>()
+                         ?? throw new JsonException("Message body is null");
 
             // A message can wait in the queue past kick-off. The pre-match prediction stored
             // by an earlier message is kept rather than replaced by a late one.
-            if (@event is not null && @event.CommenceTime <= timeProvider.GetUtcNow().UtcDateTime)
+            if (@event.CommenceTime <= timeProvider.GetUtcNow().UtcDateTime)
             {
                 logger.LogInformation("Skipped event {Id}: already started", @event.Id);
 
