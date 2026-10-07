@@ -120,4 +120,20 @@ internal sealed class UpcomingEventsFunction
         (await action.Should().ThrowAsync<InvalidOperationException>()).Which.Should().BeSameAs(expectedException);
         loggerMock.Collector.GetSnapshot().Should().BeEmpty();
     }
+
+    [Test]
+    public void Run_FailedRun_IsRetriedByTheHost()
+    {
+        // Arrange
+        var method = typeof(FunctionApp.UpcomingEventsFunction).GetMethod(nameof(FunctionApp.UpcomingEventsFunction.Run))!;
+
+        // Act
+        var retry = method.GetCustomAttributes(typeof(ExponentialBackoffRetryAttribute), inherit: false)
+            .Cast<ExponentialBackoffRetryAttribute>()
+            .SingleOrDefault();
+
+        // Assert: a timer run that failed is not left until the next schedule.
+        retry.Should().NotBeNull();
+        retry!.MaxRetryCount.Should().BePositive();
+    }
 }

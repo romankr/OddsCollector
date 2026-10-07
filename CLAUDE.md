@@ -14,7 +14,10 @@
 - Keep commits atomic - one logical change per commit
 
 ## Unit and Integration tests
-- Use [these best practices](https://learn.microsoft.com/en-us/dotnet/core/testing/unit-testing-best-practices) for unit and integration tests
+- Unit and integration tests must be compliant with [Unit testing best practices for .NET](https://learn.microsoft.com/en-us/dotnet/core/testing/unit-testing-best-practices)
+
+## Azure functions
+- Azure functions must be compliant with [Best practices for reliable Azure Functions](https://learn.microsoft.com/en-us/azure/azure-functions/functions-best-practices?tabs=csharp) and [Architecture best practices for Azure Functions](https://learn.microsoft.com/en-us/azure/well-architected/service-guides/azure-functions)
 
 ## Build environment for Claude (Cowork)
 This file is only instructions — it cannot grant access. Real build/test access depends on the session setup:
