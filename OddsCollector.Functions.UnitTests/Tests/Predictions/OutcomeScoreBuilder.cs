@@ -4,10 +4,10 @@ namespace OddsCollector.Functions.Tests.Tests.Predictions;
 
 internal sealed class OutcomeScoreBuilder
 {
-    [TestCase("", TestName = "SetOutcome_WithEmptyString_ThrowsException")]
-    [TestCase(null, TestName = "SetOutcome_WithNullString_ThrowsException")]
-    [TestCase(" ", TestName = "SetOutcome_WithWhitespaceString_ThrowsException")]
-    public void SetOutcome_WithNullOrEmptyString_ThrowsException(string? outcome)
+    [TestCase("", TestName = "SetOutcome_WithEmptyString_ThrowsArgumentException")]
+    [TestCase(null, TestName = "SetOutcome_WithNullString_ThrowsArgumentException")]
+    [TestCase(" ", TestName = "SetOutcome_WithWhitespaceString_ThrowsArgumentException")]
+    public void SetOutcome_WithNullOrEmptyString_ThrowsArgumentException(string? outcome)
     {
         var builder = new FunctionApp.OutcomeScoreBuilder();
 

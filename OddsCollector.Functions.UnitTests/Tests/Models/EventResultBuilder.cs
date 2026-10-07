@@ -4,10 +4,10 @@ namespace OddsCollector.Functions.Tests.Tests.Models;
 
 internal sealed class EventResultBuilder
 {
-    [TestCase("", TestName = "SetId_WithEmptyString_ThrowsException")]
-    [TestCase(null, TestName = "SetId_WithNullString_ThrowsException")]
-    [TestCase(" ", TestName = "SetId_WithWhitespaceString_ThrowsException")]
-    public void SetId_WithNullOrEmptyString_ThrowsException(string? id)
+    [TestCase("", TestName = "SetId_WithEmptyString_ThrowsArgumentException")]
+    [TestCase(null, TestName = "SetId_WithNullString_ThrowsArgumentException")]
+    [TestCase(" ", TestName = "SetId_WithWhitespaceString_ThrowsArgumentException")]
+    public void SetId_WithNullOrEmptyString_ThrowsArgumentException(string? id)
     {
         var builder = new FunctionApp.EventResultBuilder();
 
@@ -16,10 +16,10 @@ internal sealed class EventResultBuilder
         action.Should().Throw<ArgumentException>().WithParameterName(nameof(id));
     }
 
-    [TestCase("", TestName = "SetOutcome_WithEmptyString_ThrowsException")]
-    [TestCase(null, TestName = "SetOutcome_WithNullString_ThrowsException")]
-    [TestCase(" ", TestName = "SetOutcome_WithWhitespaceString_ThrowsException")]
-    public void SetOutcome_WithNullOrEmptyString_ThrowsException(string? outcome)
+    [TestCase("", TestName = "SetOutcome_WithEmptyString_ThrowsArgumentException")]
+    [TestCase(null, TestName = "SetOutcome_WithNullString_ThrowsArgumentException")]
+    [TestCase(" ", TestName = "SetOutcome_WithWhitespaceString_ThrowsArgumentException")]
+    public void SetOutcome_WithNullOrEmptyString_ThrowsArgumentException(string? outcome)
     {
         var builder = new FunctionApp.EventResultBuilder();
 
@@ -29,7 +29,7 @@ internal sealed class EventResultBuilder
     }
 
     [Test]
-    public void SetCommenceTime_WithNullDateTime_ThrowsException()
+    public void SetCommenceTime_WithNullDateTime_ThrowsArgumentNullException()
     {
         var builder = new FunctionApp.EventResultBuilder();
 
@@ -49,8 +49,11 @@ internal sealed class EventResultBuilder
             .SetCommenceTime(commenceTime)
             .Instance;
 
-        result.Id.Should().Be("id");
-        result.Outcome.Should().Be(FunctionApp.OutcomeTypes.Draw);
-        result.CommenceTime.Should().Be(commenceTime);
+        result.Should().BeEquivalentTo(new FunctionApp.EventResult
+        {
+            Id = "id",
+            Outcome = FunctionApp.OutcomeTypes.Draw,
+            CommenceTime = commenceTime
+        });
     }
 }

@@ -4,10 +4,10 @@ namespace OddsCollector.Functions.Tests.Tests.Models;
 
 internal sealed class UpcomingEventBuilder
 {
-    [TestCase("", TestName = "SetAwayTeam_WithEmptyString_ThrowsException")]
-    [TestCase(null, TestName = "SetAwayTeam_WithNullString_ThrowsException")]
-    [TestCase(" ", TestName = "SetAwayTeam_WithWhitespaceString_ThrowsException")]
-    public void SetAwayTeam_WithNullOrEmptyString_ThrowsException(string? awayTeam)
+    [TestCase("", TestName = "SetAwayTeam_WithEmptyString_ThrowsArgumentException")]
+    [TestCase(null, TestName = "SetAwayTeam_WithNullString_ThrowsArgumentException")]
+    [TestCase(" ", TestName = "SetAwayTeam_WithWhitespaceString_ThrowsArgumentException")]
+    public void SetAwayTeam_WithNullOrEmptyString_ThrowsArgumentException(string? awayTeam)
     {
         var builder = new FunctionApp.UpcomingEventBuilder();
 
@@ -16,10 +16,10 @@ internal sealed class UpcomingEventBuilder
         action.Should().Throw<ArgumentException>().WithParameterName(nameof(awayTeam));
     }
 
-    [TestCase("", TestName = "SetHomeTeam_WithEmptyString_ThrowsException")]
-    [TestCase(null, TestName = "SetHomeTeam_WithNullString_ThrowsException")]
-    [TestCase(" ", TestName = "SetHomeTeam_WithWhitespaceString_ThrowsException")]
-    public void SetHomeTeam_WithNullOrEmptyString_ThrowsException(string? homeTeam)
+    [TestCase("", TestName = "SetHomeTeam_WithEmptyString_ThrowsArgumentException")]
+    [TestCase(null, TestName = "SetHomeTeam_WithNullString_ThrowsArgumentException")]
+    [TestCase(" ", TestName = "SetHomeTeam_WithWhitespaceString_ThrowsArgumentException")]
+    public void SetHomeTeam_WithNullOrEmptyString_ThrowsArgumentException(string? homeTeam)
     {
         var builder = new FunctionApp.UpcomingEventBuilder();
 
@@ -28,10 +28,10 @@ internal sealed class UpcomingEventBuilder
         action.Should().Throw<ArgumentException>().WithParameterName(nameof(homeTeam));
     }
 
-    [TestCase("", TestName = "SetId_WithEmptyString_ThrowsException")]
-    [TestCase(null, TestName = "SetId_WithNullString_ThrowsException")]
-    [TestCase(" ", TestName = "SetId_WithWhitespaceString_ThrowsException")]
-    public void SetId_WithNullOrEmptyString_ThrowsException(string? id)
+    [TestCase("", TestName = "SetId_WithEmptyString_ThrowsArgumentException")]
+    [TestCase(null, TestName = "SetId_WithNullString_ThrowsArgumentException")]
+    [TestCase(" ", TestName = "SetId_WithWhitespaceString_ThrowsArgumentException")]
+    public void SetId_WithNullOrEmptyString_ThrowsArgumentException(string? id)
     {
         var builder = new FunctionApp.UpcomingEventBuilder();
 
@@ -41,7 +41,7 @@ internal sealed class UpcomingEventBuilder
     }
 
     [Test]
-    public void SetCommenceTime_WithNullDateTime_ThrowsException()
+    public void SetCommenceTime_WithNullDateTime_ThrowsArgumentNullException()
     {
         var builder = new FunctionApp.UpcomingEventBuilder();
 
@@ -51,7 +51,7 @@ internal sealed class UpcomingEventBuilder
     }
 
     [Test]
-    public void SetOdds_WithNullCollection_ThrowsException()
+    public void SetOdds_WithNullCollection_ThrowsArgumentNullException()
     {
         var builder = new FunctionApp.UpcomingEventBuilder();
 
@@ -74,10 +74,13 @@ internal sealed class UpcomingEventBuilder
             .SetOdds(odds)
             .Instance;
 
-        upcomingEvent.AwayTeam.Should().Be("away");
-        upcomingEvent.HomeTeam.Should().Be("home");
-        upcomingEvent.Id.Should().Be("id");
-        upcomingEvent.CommenceTime.Should().Be(commenceTime);
-        upcomingEvent.Odds.Should().BeSameAs(odds);
+        upcomingEvent.Should().BeEquivalentTo(new FunctionApp.UpcomingEvent
+        {
+            AwayTeam = "away",
+            HomeTeam = "home",
+            Id = "id",
+            CommenceTime = commenceTime,
+            Odds = odds
+        });
     }
 }
