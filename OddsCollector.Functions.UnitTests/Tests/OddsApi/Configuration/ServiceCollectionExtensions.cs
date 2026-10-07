@@ -11,13 +11,15 @@ namespace OddsCollector.Functions.Tests.Tests.OddsApi.Configuration;
 
 internal sealed class ServiceCollectionExtensions
 {
-    private static ServiceProvider BuildProvider(string? leagues = "league1;league2", string? apiKey = "key")
+    private static ServiceProvider BuildProvider(string? leagues = "league1;league2", string? apiKey = "key",
+        string? baseUrl = null)
     {
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
                 ["OddsApiClient:Leagues"] = leagues,
-                ["OddsApiClient:ApiKey"] = apiKey
+                ["OddsApiClient:ApiKey"] = apiKey,
+                ["OddsApiClient:BaseUrl"] = baseUrl
             })
             .Build();
 
@@ -101,6 +103,36 @@ internal sealed class ServiceCollectionExtensions
 
         first.Should().BeOfType<Client>();
         provider.GetRequiredService<IClient>().Should().NotBeSameAs(first);
+    }
+
+    [Test]
+    public void AddOddsApiClientWithDependencies_WithoutBaseUrl_ResolvesClientForOddsApi()
+    {
+        using var provider = BuildProvider();
+
+        var client = (Client)provider.GetRequiredService<IClient>();
+
+        client.BaseUrl.Should().Be("https://api.the-odds-api.com/");
+    }
+
+    [Test]
+    public void AddOddsApiClientWithDependencies_WithBaseUrl_ResolvesClientForBaseUrl()
+    {
+        using var provider = BuildProvider(baseUrl: "http://localhost:8080");
+
+        var client = (Client)provider.GetRequiredService<IClient>();
+
+        client.BaseUrl.Should().Be("http://localhost:8080/");
+    }
+
+    [Test]
+    public void AddOddsApiClientWithDependencies_WithInvalidBaseUrl_FailsStartupValidation()
+    {
+        using var provider = BuildProvider(baseUrl: "not a url");
+
+        var action = () => provider.GetRequiredService<IStartupValidator>().Validate();
+
+        action.Should().Throw<ArgumentException>().WithParameterName("baseUrl");
     }
 
     [Test]

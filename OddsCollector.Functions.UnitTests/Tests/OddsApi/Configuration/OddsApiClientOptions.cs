@@ -104,4 +104,46 @@ internal sealed class OddsApiClientOptions
 
         action.Should().ThrowExactly<ArgumentException>().WithParameterName("apiKey");
     }
+
+    [Test]
+    public void BaseUrl_ByDefault_IsOddsApi()
+    {
+        var options = new FunctionApp.OddsApiClientOptions();
+
+        options.BaseUrl.Should().Be(new Uri("https://api.the-odds-api.com"));
+    }
+
+    [Test]
+    public void SetBaseUrl_WithUrl_ReturnsUrl()
+    {
+        var options = new FunctionApp.OddsApiClientOptions();
+
+        options.SetBaseUrl("http://localhost:8080");
+
+        options.BaseUrl.Should().Be(new Uri("http://localhost:8080"));
+    }
+
+    [TestCase(null)]
+    [TestCase("")]
+    [TestCase(" ")]
+    public void SetBaseUrl_WithoutUrl_KeepsDefault(string? baseUrl)
+    {
+        var options = new FunctionApp.OddsApiClientOptions();
+
+        options.SetBaseUrl(baseUrl);
+
+        options.BaseUrl.Should().Be(FunctionApp.OddsApiClientOptions.DefaultBaseUrl);
+    }
+
+    [TestCase("not a url")]
+    [TestCase("/v4/sports")]
+    [TestCase("ftp://localhost")]
+    public void SetBaseUrl_WithInvalidUrl_ThrowsException(string baseUrl)
+    {
+        var options = new FunctionApp.OddsApiClientOptions();
+
+        var action = () => options.SetBaseUrl(baseUrl);
+
+        action.Should().ThrowExactly<ArgumentException>().WithParameterName("baseUrl");
+    }
 }

@@ -26,8 +26,24 @@ jobs:
     - name: Test and check coverage
       run: >
         dotnet test --no-restore --verbosity normal
+        --filter "TestCategory!=Integration"
         /p:CollectCoverage=true
         /p:CoverletOutputFormat=lcov
         /p:CoverletOutput=lcov.info
         /p:Threshold=70
         /p:ThresholdType=line
+
+  integration-tests:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v7
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v6
+      with:
+        dotnet-version: 10.0.x
+    - name: Install Azure Functions Core Tools
+      run: npm install --global azure-functions-core-tools@4 --unsafe-perm true
+    - name: Run integration tests
+      run: dotnet test OddsCollector.Functions.IntegrationTests --verbosity normal
