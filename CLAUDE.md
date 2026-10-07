@@ -13,6 +13,9 @@
 - Run `dotnet test` after every implementation
 - Keep commits atomic - one logical change per commit
 
+## Unit and Integration tests
+- Use [these best practices](https://learn.microsoft.com/en-us/dotnet/core/testing/unit-testing-best-practices) for unit and integration tests
+
 ## Build environment for Claude (Cowork)
 This file is only instructions — it cannot grant access. Real build/test access depends on the session setup:
 
