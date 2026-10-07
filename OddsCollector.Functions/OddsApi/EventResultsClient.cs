@@ -22,16 +22,24 @@ internal sealed class EventResultsClient(
 
         foreach (var league in options.Value.Leagues)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
             try
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 var results = await client.ScoresAsync(league, options.Value.ApiKey, DaysFromToday, cancellationToken)
                     .ConfigureAwait(false);
 
                 result.AddRange(converter.ToEventResults(results));
             }
-            catch (Exception exception) when (!cancellationToken.IsCancellationRequested)
+            // The host winds the run down: what the leagues already answered is kept rather than thrown away.
+            catch (Exception exception) when (cancellationToken.IsCancellationRequested)
+            {
+                logger.LogInformation(exception,
+                    "Collection was cancelled, keeping {Count} event results collected so far", result.Count);
+
+                break;
+            }
+            catch (Exception exception)
             {
                 logger.LogError(exception, "Failed to get event results for {League}", league);
                 failures.Add(exception);

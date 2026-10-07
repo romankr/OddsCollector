@@ -19,7 +19,9 @@ internal sealed class EventResultsFunction(ILogger<EventResultsFunction> logger,
         {
             var results = await client.GetEventResultsAsync(cancellationToken);
 
-            if (results.Length == 0)
+            // A run cancelled before any league answered has nothing to report but the cancellation,
+            // which the client logs.
+            if (results.Length == 0 && !cancellationToken.IsCancellationRequested)
             {
                 logger.LogWarning("No events received");
             }

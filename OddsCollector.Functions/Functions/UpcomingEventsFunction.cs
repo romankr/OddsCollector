@@ -18,7 +18,9 @@ internal sealed class UpcomingEventsFunction(ILogger<UpcomingEventsFunction> log
         {
             var events = await client.GetUpcomingEventsAsync(cancellationToken);
 
-            if (events.Length == 0)
+            // A run cancelled before any league answered has nothing to report but the cancellation,
+            // which the client logs.
+            if (events.Length == 0 && !cancellationToken.IsCancellationRequested)
             {
                 logger.LogWarning("No events received");
             }
