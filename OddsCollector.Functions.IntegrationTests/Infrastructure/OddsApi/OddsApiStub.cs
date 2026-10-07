@@ -13,6 +13,8 @@ namespace OddsCollector.Functions.IntegrationTests.Infrastructure.OddsApi;
 /// <param name="apiKey">The key the function app is configured to send; requests without it get no response.</param>
 internal sealed class OddsApiStub(string league, string apiKey) : IDisposable
 {
+    // One mapping per endpoint, so a test that sets the events of an endpoint replaces those of an earlier test.
+    private readonly Dictionary<string, Guid> _mappings = [];
     private readonly WireMockServer _server = WireMockServer.Start();
 
     public string BaseUrl => _server.Url!;
@@ -81,8 +83,15 @@ internal sealed class OddsApiStub(string league, string apiKey) : IDisposable
 
     private void Respond(string path, object body)
     {
+        if (!_mappings.TryGetValue(path, out var mapping))
+        {
+            mapping = Guid.NewGuid();
+            _mappings[path] = mapping;
+        }
+
         _server
             .Given(Request.Create().WithPath(path).WithParam("apiKey", apiKey).UsingGet())
+            .WithGuid(mapping)
             .RespondWith(Response.Create()
                 .WithStatusCode(200)
                 .WithHeader("Content-Type", "application/json")
