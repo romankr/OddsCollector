@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using FluentAssertions.Execution;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using OddsCollector.Functions.Tests.Infrastructure.Http;
@@ -54,13 +53,8 @@ internal sealed class QuotaLoggingHandler
 
         var (_, logger) = await SendAsync(response);
 
-        logger.Collector.Count.Should().Be(1);
-
-        using var scope = new AssertionScope();
-
-        logger.LatestRecord.Level.Should().Be(LogLevel.Information);
-        logger.LatestRecord.Message.Should()
-            .Be("Odds API credits: 250 remaining, 30 used, 1 spent on the last call");
+        logger.Collector.GetSnapshot().Should().ContainSingle().Which.Should().BeEquivalentTo(
+            new { Level = LogLevel.Information, Message = "Odds API credits: 250 remaining, 30 used, 1 spent on the last call" });
     }
 
     [Test]
@@ -70,7 +64,7 @@ internal sealed class QuotaLoggingHandler
 
         var (_, logger) = await SendAsync(response);
 
-        logger.Collector.Count.Should().Be(0);
+        logger.Collector.GetSnapshot().Should().BeEmpty();
     }
 
     [Test]
@@ -80,12 +74,8 @@ internal sealed class QuotaLoggingHandler
 
         var (_, logger) = await SendAsync(response);
 
-        logger.Collector.Count.Should().Be(1);
-
-        using var scope = new AssertionScope();
-
-        logger.LatestRecord.Level.Should().Be(LogLevel.Information);
-        logger.LatestRecord.Message.Should().Be("Odds API credits: 250 remaining");
+        logger.Collector.GetSnapshot().Should().ContainSingle().Which.Should().BeEquivalentTo(
+            new { Level = LogLevel.Information, Message = "Odds API credits: 250 remaining" });
     }
 
     [Test]
@@ -95,12 +85,8 @@ internal sealed class QuotaLoggingHandler
 
         var (_, logger) = await SendAsync(response);
 
-        logger.Collector.Count.Should().Be(1);
-
-        using var scope = new AssertionScope();
-
-        logger.LatestRecord.Level.Should().Be(LogLevel.Information);
-        logger.LatestRecord.Message.Should().Be("Odds API credits: 2 spent on the last call");
+        logger.Collector.GetSnapshot().Should().ContainSingle().Which.Should().BeEquivalentTo(
+            new { Level = LogLevel.Information, Message = "Odds API credits: 2 spent on the last call" });
     }
 
     [Test]
@@ -110,12 +96,8 @@ internal sealed class QuotaLoggingHandler
 
         var (_, logger) = await SendAsync(response);
 
-        logger.Collector.Count.Should().Be(1);
-
-        using var scope = new AssertionScope();
-
-        logger.LatestRecord.Level.Should().Be(LogLevel.Information);
-        logger.LatestRecord.Message.Should().Be("Odds API credits: 30 used, 1 spent on the last call");
+        logger.Collector.GetSnapshot().Should().ContainSingle().Which.Should().BeEquivalentTo(
+            new { Level = LogLevel.Information, Message = "Odds API credits: 30 used, 1 spent on the last call" });
     }
 
     [Test]
@@ -128,11 +110,11 @@ internal sealed class QuotaLoggingHandler
 
         var (_, actualLogger) = await SendAsync(response, logger);
 
-        actualLogger.Collector.Count.Should().Be(0);
+        actualLogger.Collector.GetSnapshot().Should().BeEmpty();
     }
 
     [Test]
-    public async Task SendAsync_ReturnsResponseFromInnerHandler()
+    public async Task SendAsync_WithInnerHandler_ReturnsItsResponse()
     {
         using var response = CreateResponse("250");
 

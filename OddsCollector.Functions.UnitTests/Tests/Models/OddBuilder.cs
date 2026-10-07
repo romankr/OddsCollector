@@ -4,10 +4,10 @@ namespace OddsCollector.Functions.Tests.Tests.Models;
 
 internal sealed class OddBuilder
 {
-    [TestCase("", TestName = "SetBookmaker_WithEmptyString_ThrowsException")]
-    [TestCase(null, TestName = "SetBookmaker_WithNullString_ThrowsException")]
-    [TestCase(" ", TestName = "SetBookmaker_WithWhitespaceString_ThrowsException")]
-    public void SetBookmaker_WithNullOrEmptyString_ThrowsException(string? bookmaker)
+    [TestCase("", TestName = "SetBookmaker_WithEmptyString_ThrowsArgumentException")]
+    [TestCase(null, TestName = "SetBookmaker_WithNullString_ThrowsArgumentException")]
+    [TestCase(" ", TestName = "SetBookmaker_WithWhitespaceString_ThrowsArgumentException")]
+    public void SetBookmaker_WithNullOrEmptyString_ThrowsArgumentException(string? bookmaker)
     {
         var builder = new FunctionApp.OddBuilder();
 
@@ -17,7 +17,7 @@ internal sealed class OddBuilder
     }
 
     [Test]
-    public void SetAway_WithNullValue_ThrowsException()
+    public void SetAway_WithNullValue_ThrowsArgumentNullException()
     {
         var builder = new FunctionApp.OddBuilder();
 
@@ -27,7 +27,7 @@ internal sealed class OddBuilder
     }
 
     [Test]
-    public void SetDraw_WithNullValue_ThrowsException()
+    public void SetDraw_WithNullValue_ThrowsArgumentNullException()
     {
         var builder = new FunctionApp.OddBuilder();
 
@@ -37,7 +37,7 @@ internal sealed class OddBuilder
     }
 
     [Test]
-    public void SetHome_WithNullValue_ThrowsException()
+    public void SetHome_WithNullValue_ThrowsArgumentNullException()
     {
         var builder = new FunctionApp.OddBuilder();
 
@@ -56,9 +56,6 @@ internal sealed class OddBuilder
             .SetHome(1.8)
             .Instance;
 
-        odd.Bookmaker.Should().Be("bookmaker");
-        odd.Away.Should().Be(4.5);
-        odd.Draw.Should().Be(3.6);
-        odd.Home.Should().Be(1.8);
+        odd.Should().BeEquivalentTo(new FunctionApp.Odd { Bookmaker = "bookmaker", Away = 4.5, Draw = 3.6, Home = 1.8 });
     }
 }

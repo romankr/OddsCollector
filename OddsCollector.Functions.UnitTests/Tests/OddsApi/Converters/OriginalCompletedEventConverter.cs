@@ -1,8 +1,8 @@
-﻿using System.Globalization;
-using FluentAssertions.Execution;
+﻿using FluentAssertions.Execution;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Logging.Testing;
+using OddsCollector.Functions.Models;
 using OddsCollector.Functions.OddsApi.WebApi;
 using FunctionApp = OddsCollector.Functions.OddsApi.Converters;
 
@@ -10,185 +10,73 @@ namespace OddsCollector.Functions.Tests.Tests.OddsApi.Converters;
 
 internal sealed class OriginalCompletedEventConverter
 {
+    private const string AwayTeam = "awayTeam";
+    private const string HomeTeam = "homeTeam";
+
+    private static readonly DateTime CommenceTime = new(2026, 9, 22, 18, 0, 0, DateTimeKind.Utc);
+
     [Test]
-    public void ToEventResults_WithOriginalEventData_ReturnsEventResult()
+    public void ToEventResults_WithCompletedEvent_ReturnsEventResultWithWinnerAsOutcome()
     {
         // Arrange
-        var expectedCommenceTime = DateTime.UtcNow;
-        const string expectedOutcome = "homeTeam";
-        var expectedId = Guid.NewGuid().ToString();
+        var converter = CreateConverter();
 
-        var originalEventData = new Anonymous3
+        var completedEvent = CreateCompletedEvent("id", awayScore: "1", homeScore: "2");
+
+        // Act
+        var eventResults = converter.ToEventResults([completedEvent]);
+
+        // Assert
+        eventResults.Should().ContainSingle().Which.Should().BeEquivalentTo(new EventResult
         {
-            Away_team = "awayTeam",
-            Commence_time = expectedCommenceTime,
-            Completed = true,
-            Home_team = expectedOutcome,
-            Id = expectedId,
-            Last_update = DateTime.UtcNow.ToString(CultureInfo.InvariantCulture),
-            Scores =
-            [
-                new ScoreModel { Name = "awayTeam", Score = "1" },
-                new ScoreModel { Name = expectedOutcome, Score = "2" }
-            ]
-        };
-
-        var converter = new FunctionApp.OriginalCompletedEventConverter(
-            NullLogger<FunctionApp.OriginalCompletedEventConverter>.Instance,
-            new FunctionApp.OutcomeConverter(
-                new FunctionApp.ScoreModelsConverter(
-                    new FunctionApp.ScoreModelConverter())));
-
-        // Act
-        var eventResults = converter.ToEventResults([originalEventData]).ToList();
-
-        // Assert
-        eventResults.Should().NotBeNull().And.HaveCount(1);
-
-        using var scope = new AssertionScope();
-
-        eventResults[0].CommenceTime.Should().Be(expectedCommenceTime);
-        eventResults[0].Outcome.Should().Be(expectedOutcome);
-        eventResults[0].Id.Should().Be(expectedId);
+            Id = "id",
+            CommenceTime = CommenceTime,
+            Outcome = HomeTeam
+        });
     }
 
-    [Test]
-    public void ToEventResults_WithUpcomingEvent_SkipsIt()
+    [TestCase(false, TestName = "ToEventResults_WithEventNotCompleted_SkipsIt")]
+    [TestCase(null, TestName = "ToEventResults_WithEventOfUnknownState_SkipsIt")]
+    public void ToEventResults_WithEventNotKnownToBeCompleted_SkipsIt(bool? completed)
     {
         // Arrange
-        var originalEventData = new Anonymous3
-        {
-            Away_team = "awayTeam",
-            Commence_time = DateTime.UtcNow.AddDays(1),
-            Completed = false,
-            Home_team = "homeTeam",
-            Id = Guid.NewGuid().ToString(),
-            Scores = null
-        };
+        var converter = CreateConverter();
 
-        var converter = new FunctionApp.OriginalCompletedEventConverter(
-            NullLogger<FunctionApp.OriginalCompletedEventConverter>.Instance,
-            new FunctionApp.OutcomeConverter(
-                new FunctionApp.ScoreModelsConverter(
-                    new FunctionApp.ScoreModelConverter())));
+        var liveEvent = CreateCompletedEvent("live", awayScore: "0", homeScore: "1");
+        liveEvent.Completed = completed;
 
         // Act
-        var eventResults = converter.ToEventResults([originalEventData]).ToList();
+        var eventResults = converter.ToEventResults([liveEvent]);
 
         // Assert
-        eventResults.Should().NotBeNull().And.BeEmpty();
+        eventResults.Should().BeEmpty();
     }
 
     [Test]
-    public void ToEventResults_WithLiveEvent_SkipsIt()
+    public void ToEventResults_WithNoEvents_ReturnsNoEventResults()
     {
         // Arrange
-        var originalEventData = new Anonymous3
-        {
-            Away_team = "awayTeam",
-            Commence_time = DateTime.UtcNow,
-            Completed = false,
-            Home_team = "homeTeam",
-            Id = Guid.NewGuid().ToString(),
-            Scores =
-            [
-                new ScoreModel { Name = "awayTeam", Score = "0" },
-                new ScoreModel { Name = "homeTeam", Score = "1" }
-            ]
-        };
-
-        var converter = new FunctionApp.OriginalCompletedEventConverter(
-            NullLogger<FunctionApp.OriginalCompletedEventConverter>.Instance,
-            new FunctionApp.OutcomeConverter(
-                new FunctionApp.ScoreModelsConverter(
-                    new FunctionApp.ScoreModelConverter())));
+        var converter = CreateConverter();
 
         // Act
-        var eventResults = converter.ToEventResults([originalEventData]).ToList();
+        var eventResults = converter.ToEventResults([]);
 
         // Assert
-        eventResults.Should().NotBeNull().And.BeEmpty();
+        eventResults.Should().BeEmpty();
     }
 
     [Test]
-    public void ToEventResults_WithMixedEvents_ReturnsOnlyCompleted()
+    public void ToEventResults_WithNullEvents_ThrowsArgumentNullException()
     {
         // Arrange
-        var completedId = Guid.NewGuid().ToString();
-
-        Anonymous3[] originalEvents =
-        [
-            new()
-            {
-                Away_team = "awayTeam",
-                Commence_time = DateTime.UtcNow.AddDays(-1),
-                Completed = true,
-                Home_team = "homeTeam",
-                Id = completedId,
-                Scores =
-                [
-                    new ScoreModel { Name = "awayTeam", Score = "2" },
-                    new ScoreModel { Name = "homeTeam", Score = "1" }
-                ]
-            },
-            new()
-            {
-                Away_team = "awayTeam",
-                Commence_time = DateTime.UtcNow.AddDays(1),
-                Completed = false,
-                Home_team = "homeTeam",
-                Id = Guid.NewGuid().ToString(),
-                Scores = null
-            },
-            new()
-            {
-                Away_team = "awayTeam",
-                Commence_time = DateTime.UtcNow.AddDays(1),
-                Completed = null,
-                Home_team = "homeTeam",
-                Id = Guid.NewGuid().ToString(),
-                Scores = null
-            }
-        ];
-
         var converter = new FunctionApp.OriginalCompletedEventConverter(
             NullLogger<FunctionApp.OriginalCompletedEventConverter>.Instance,
-            new FunctionApp.OutcomeConverter(
-                new FunctionApp.ScoreModelsConverter(
-                    new FunctionApp.ScoreModelConverter())));
+            Substitute.For<FunctionApp.IOutcomeConverter>());
 
         // Act
-        var eventResults = converter.ToEventResults(originalEvents).ToList();
-
-        // Assert
-        eventResults.Should().ContainSingle().Which.Id.Should().Be(completedId);
-        eventResults[0].Outcome.Should().Be("awayTeam");
-    }
-
-    [Test]
-    public void ToEventResults_WithNoEventData_ReturnsNoEvents()
-    {
-        var converter = new FunctionApp.OriginalCompletedEventConverter(
-            NullLogger<FunctionApp.OriginalCompletedEventConverter>.Instance,
-            new FunctionApp.OutcomeConverter(
-                new FunctionApp.ScoreModelsConverter(
-                    new FunctionApp.ScoreModelConverter())));
-
-        var eventResults = converter.ToEventResults([]).ToList();
-
-        eventResults.Should().NotBeNull().And.BeEmpty();
-    }
-
-    [Test]
-    public void ToEventResults_WithNullEventData_ThrowsException()
-    {
-        var outcomeConverter = Substitute.For<FunctionApp.IOutcomeConverter>();
-
-        var converter = new FunctionApp.OriginalCompletedEventConverter(
-            NullLogger<FunctionApp.OriginalCompletedEventConverter>.Instance, outcomeConverter);
-
         var action = () => converter.ToEventResults(null);
 
+        // Assert
         action.Should().Throw<ArgumentNullException>().WithParameterName("originalEvents");
     }
 
@@ -199,23 +87,23 @@ internal sealed class OriginalCompletedEventConverter
         // Arrange
         var loggerMock = new FakeLogger<FunctionApp.OriginalCompletedEventConverter>();
 
-        var converter = new FunctionApp.OriginalCompletedEventConverter(loggerMock, CreateOutcomeConverter());
+        var converter = CreateConverter(loggerMock);
 
-        var broken = CreateCompletedEvent("broken");
-        broken.Scores!.First().Score = score;
-
-        var working = CreateCompletedEvent("working");
+        var broken = CreateCompletedEvent("broken", awayScore: score, homeScore: "2");
+        var working = CreateCompletedEvent("working", awayScore: "1", homeScore: "2");
 
         // Act
         var eventResults = converter.ToEventResults([broken, working]).ToList();
 
         // Assert
+        using var scope = new AssertionScope();
+
         eventResults.Should().ContainSingle().Which.Id.Should().Be("working");
 
-        loggerMock.Collector.Count.Should().Be(1);
-        loggerMock.LatestRecord.Level.Should().Be(LogLevel.Warning);
-        loggerMock.LatestRecord.Message.Should().Be("Skipped event broken");
-        loggerMock.LatestRecord.Exception.Should().BeAssignableTo<ArgumentException>();
+        var record = loggerMock.Collector.GetSnapshot().Should().ContainSingle().Subject;
+        record.Level.Should().Be(LogLevel.Warning);
+        record.Message.Should().Be("Skipped event broken");
+        record.Exception.Should().BeAssignableTo<ArgumentException>();
     }
 
     [Test]
@@ -224,44 +112,51 @@ internal sealed class OriginalCompletedEventConverter
         // Arrange
         var loggerMock = new FakeLogger<FunctionApp.OriginalCompletedEventConverter>();
 
-        var converter = new FunctionApp.OriginalCompletedEventConverter(loggerMock, CreateOutcomeConverter());
+        var converter = CreateConverter(loggerMock);
 
-        var withoutScores = CreateCompletedEvent("withoutScores");
+        var withoutScores = CreateCompletedEvent("withoutScores", awayScore: "1", homeScore: "2");
         withoutScores.Scores = null;
 
-        var withOneScore = CreateCompletedEvent("withOneScore");
-        withOneScore.Scores!.Remove(withOneScore.Scores.First());
+        var withOneScore = CreateCompletedEvent("withOneScore", awayScore: "1", homeScore: "2");
+        withOneScore.Scores = [new ScoreModel { Name = HomeTeam, Score = "2" }];
 
-        var working = CreateCompletedEvent("working");
+        var working = CreateCompletedEvent("working", awayScore: "1", homeScore: "2");
 
         // Act
         var eventResults = converter.ToEventResults([withoutScores, withOneScore, working]).ToList();
 
         // Assert
+        using var scope = new AssertionScope();
+
         eventResults.Should().ContainSingle().Which.Id.Should().Be("working");
-        loggerMock.Collector.Count.Should().Be(2);
+        loggerMock.Collector.GetSnapshot().Select(r => r.Message).Should().Equal(
+            "Skipped event withoutScores",
+            "Skipped event withOneScore");
     }
 
-    private static FunctionApp.OutcomeConverter CreateOutcomeConverter()
+    private static FunctionApp.OriginalCompletedEventConverter CreateConverter(
+        ILogger<FunctionApp.OriginalCompletedEventConverter>? logger = null)
     {
-        return new FunctionApp.OutcomeConverter(
-            new FunctionApp.ScoreModelsConverter(
-                new FunctionApp.ScoreModelConverter()));
+        return new FunctionApp.OriginalCompletedEventConverter(
+            logger ?? NullLogger<FunctionApp.OriginalCompletedEventConverter>.Instance,
+            new FunctionApp.OutcomeConverter(
+                new FunctionApp.ScoreModelsConverter(
+                    new FunctionApp.ScoreModelConverter())));
     }
 
-    private static Anonymous3 CreateCompletedEvent(string id)
+    private static Anonymous3 CreateCompletedEvent(string id, string awayScore, string homeScore)
     {
         return new Anonymous3
         {
-            Away_team = "awayTeam",
-            Commence_time = DateTime.UtcNow.AddDays(-1),
+            Away_team = AwayTeam,
+            Commence_time = CommenceTime,
             Completed = true,
-            Home_team = "homeTeam",
+            Home_team = HomeTeam,
             Id = id,
             Scores =
             [
-                new ScoreModel { Name = "awayTeam", Score = "1" },
-                new ScoreModel { Name = "homeTeam", Score = "2" }
+                new ScoreModel { Name = AwayTeam, Score = awayScore },
+                new ScoreModel { Name = HomeTeam, Score = homeScore }
             ]
         };
     }

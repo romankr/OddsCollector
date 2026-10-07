@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using Azure.Messaging.ServiceBus;
+using FluentAssertions.Execution;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -15,27 +16,31 @@ namespace OddsCollector.Functions.Tests.Tests.Functions;
 
 internal sealed class PredictionFunction
 {
+    private const string EventId = "eventId";
+    private const string MessageId = "messageId";
+
     [Test]
-    public async Task Run_WithServiceBusMessage_ReturnsPrediction()
+    public async Task Run_WithUpcomingEvent_ReturnsPrediction()
     {
         // Arrange
-        var expectedPrediction = new EventPrediction { Id = "id", Outcome = OutcomeTypes.HomeTeam };
+        var expectedPrediction = new EventPrediction { Id = EventId, Outcome = OutcomeTypes.HomeTeam };
 
         var strategyStub = Substitute.For<IPredictionStrategy>();
         strategyStub.GetPrediction(Arg.Any<UpcomingEvent>()).Returns(expectedPrediction);
 
         var messageActionsMock = Substitute.For<ServiceBusMessageActions>();
 
-        var function = new FunctionApp.PredictionFunction(
-            NullLogger<FunctionApp.PredictionFunction>.Instance, strategyStub, FixedTimeProvider.AtNow);
+        var function = CreateFunction(strategyStub);
+
+        var message = ServiceBusReceivedMessageFactory.CreateFromObject(CreateUpcomingEvent(minutesFromNow: 60));
 
         // Act
-        var prediction = await function.Run(ServiceBusReceivedMessageFactory.CreateFromObject(CreateUpcomingEvent()),
-            messageActionsMock, CancellationToken.None);
+        var prediction = await function.Run(message, messageActionsMock, CancellationToken.None);
 
         // Assert: the host completes the message once the prediction has been stored.
-        prediction.Should().BeSameAs(expectedPrediction);
+        using var scope = new AssertionScope();
 
+        prediction.Should().BeSameAs(expectedPrediction);
         messageActionsMock.ReceivedCalls().Should().BeEmpty();
     }
 
@@ -51,23 +56,25 @@ internal sealed class PredictionFunction
 
         var loggerMock = new FakeLogger<FunctionApp.PredictionFunction>();
 
-        var function = new FunctionApp.PredictionFunction(loggerMock, strategyStub, FixedTimeProvider.AtNow);
+        var function = CreateFunction(strategyStub, loggerMock);
 
-        var message = ServiceBusReceivedMessageFactory.CreateFromObject(CreateUpcomingEvent(), "messageId");
+        var message =
+            ServiceBusReceivedMessageFactory.CreateFromObject(CreateUpcomingEvent(minutesFromNow: 60), MessageId);
 
         // Act
         var prediction = await function.Run(message, messageActionsMock, CancellationToken.None);
 
         // Assert: it would fail the same way on every delivery.
+        using var scope = new AssertionScope();
+
         prediction.Should().BeNull();
 
         await messageActionsMock.Received(1).DeadLetterMessageAsync(message, Arg.Any<Dictionary<string, object>?>(),
             nameof(ArgumentException), Arg.Is<string>(d => d.StartsWith("odds cannot be empty")),
             Arg.Any<CancellationToken>());
 
-        loggerMock.Collector.Count.Should().Be(1);
-        loggerMock.LatestRecord.Level.Should().Be(LogLevel.Error);
-        loggerMock.LatestRecord.Message.Should().Be("Dead-lettering message messageId");
+        loggerMock.Collector.GetSnapshot().Should().ContainSingle().Which.Should().BeEquivalentTo(
+            new { Level = LogLevel.Error, Message = $"Dead-lettering message {MessageId}" });
     }
 
     [TestCase("not json", "", TestName = "Run_WithUnreadableBody_DeadLettersMessage")]
@@ -75,12 +82,9 @@ internal sealed class PredictionFunction
     public async Task Run_WithBrokenBody_DeadLettersMessage(string body, string expectedDescription)
     {
         // Arrange
-        var strategy = new PredictionStrategy(Substitute.For<IOutcomePredictor>());
-
         var messageActionsMock = Substitute.For<ServiceBusMessageActions>();
 
-        var function = new FunctionApp.PredictionFunction(
-            NullLogger<FunctionApp.PredictionFunction>.Instance, strategy, FixedTimeProvider.AtNow);
+        var function = CreateFunction(Substitute.For<IPredictionStrategy>());
 
         var message = ServiceBusReceivedMessageFactory.CreateFromText(body);
 
@@ -88,6 +92,8 @@ internal sealed class PredictionFunction
         var prediction = await function.Run(message, messageActionsMock, CancellationToken.None);
 
         // Assert
+        using var scope = new AssertionScope();
+
         prediction.Should().BeNull();
 
         await messageActionsMock.Received(1).DeadLetterMessageAsync(message, Arg.Any<Dictionary<string, object>?>(),
@@ -106,16 +112,15 @@ internal sealed class PredictionFunction
 
         var messageActionsMock = Substitute.For<ServiceBusMessageActions>();
 
-        var function = new FunctionApp.PredictionFunction(
-            NullLogger<FunctionApp.PredictionFunction>.Instance, strategyStub, FixedTimeProvider.AtNow);
+        var function = CreateFunction(strategyStub);
+
+        var message = ServiceBusReceivedMessageFactory.CreateFromObject(CreateUpcomingEvent(minutesFromNow: 60));
 
         // Act
-        var action = () => function.Run(ServiceBusReceivedMessageFactory.CreateFromObject(CreateUpcomingEvent()),
-            messageActionsMock, CancellationToken.None);
+        var action = () => function.Run(message, messageActionsMock, CancellationToken.None);
 
         // Assert: the host abandons the message so it can be redelivered.
         (await action.Should().ThrowAsync<InvalidOperationException>()).Which.Should().BeSameAs(expectedException);
-
         messageActionsMock.ReceivedCalls().Should().BeEmpty();
     }
 
@@ -130,32 +135,36 @@ internal sealed class PredictionFunction
 
         var loggerMock = new FakeLogger<FunctionApp.PredictionFunction>();
 
-        var function = new FunctionApp.PredictionFunction(loggerMock, strategyMock, FixedTimeProvider.AtNow);
+        var function = CreateFunction(strategyMock, loggerMock);
 
-        var @event = new UpcomingEvent
-        {
-            Id = "id",
-            CommenceTime = FixedTimeProvider.Now.UtcDateTime.AddMinutes(minutesFromNow)
-        };
+        var message = ServiceBusReceivedMessageFactory.CreateFromObject(CreateUpcomingEvent(minutesFromNow));
 
         // Act
-        var prediction = await function.Run(ServiceBusReceivedMessageFactory.CreateFromObject(@event),
-            messageActionsMock, CancellationToken.None);
+        var prediction = await function.Run(message, messageActionsMock, CancellationToken.None);
 
-        // Assert: nothing is written, so the pre-match prediction stays, and the host
-        // completes the message.
+        // Assert: nothing is written, so the pre-match prediction stays, and the host completes the message.
+        using var scope = new AssertionScope();
+
         prediction.Should().BeNull();
-
         strategyMock.ReceivedCalls().Should().BeEmpty();
         messageActionsMock.ReceivedCalls().Should().BeEmpty();
-
-        loggerMock.Collector.Count.Should().Be(1);
-        loggerMock.LatestRecord.Level.Should().Be(LogLevel.Information);
-        loggerMock.LatestRecord.Message.Should().Be("Skipped event id: already started");
+        loggerMock.Collector.GetSnapshot().Should().ContainSingle().Which.Should().BeEquivalentTo(
+            new { Level = LogLevel.Information, Message = $"Skipped event {EventId}: already started" });
     }
 
-    private static UpcomingEvent CreateUpcomingEvent()
+    private static FunctionApp.PredictionFunction CreateFunction(IPredictionStrategy strategy,
+        ILogger<FunctionApp.PredictionFunction>? logger = null)
     {
-        return new UpcomingEvent { CommenceTime = FixedTimeProvider.Now.UtcDateTime.AddHours(1) };
+        return new FunctionApp.PredictionFunction(logger ?? NullLogger<FunctionApp.PredictionFunction>.Instance,
+            strategy, FixedTimeProvider.AtNow);
+    }
+
+    private static UpcomingEvent CreateUpcomingEvent(int minutesFromNow)
+    {
+        return new UpcomingEvent
+        {
+            Id = EventId,
+            CommenceTime = FixedTimeProvider.Now.UtcDateTime.AddMinutes(minutesFromNow)
+        };
     }
 }
