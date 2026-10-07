@@ -30,7 +30,7 @@
 
   <!--
     The tests run the build output of the function app in the Azure Functions host (func) and use
-    its models (internal, see InternalsVisibleTo in Program.cs) to check what it stores and returns.
+    its models (internal, see InternalsVisibleTo in OddsCollector.Functions.csproj) to check what it stores and returns.
   -->
   <ItemGroup>
     <ProjectReference Include="..\OddsCollector.Functions\OddsCollector.Functions.csproj"/>
