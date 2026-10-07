@@ -16,6 +16,11 @@ internal sealed class PredictionFunction(
     [CosmosDBOutput("%CosmosDb:Database%", "%CosmosDb:EventPredictionsContainer%",
         Connection = "CosmosDb:Connection")]
     public async Task<EventPrediction?> Run(
+        // AutoCompleteMessages stays on even though a bad message is dead-lettered below: the
+        // Service Bus processor completes only messages that are not settled yet, so a dead-lettered
+        // message is not completed a second time. Turning it off would mean completing the message
+        // in code before the Cosmos DB output binding writes the prediction, and losing it if that
+        // write fails.
         [ServiceBusTrigger("%ServiceBus:Queue%", Connection = "ServiceBus:Connection",
             AutoCompleteMessages = true)]
         ServiceBusReceivedMessage message,
