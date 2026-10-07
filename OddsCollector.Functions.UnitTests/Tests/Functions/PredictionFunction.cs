@@ -101,6 +101,36 @@ internal sealed class PredictionFunction
             Arg.Any<CancellationToken>());
     }
 
+    [TestCase("2100-01-01T18:00:00", "Unspecified", TestName = "Run_WithUnspecifiedCommenceTime_DeadLettersMessage")]
+    [TestCase("2100-01-01T18:00:00+03:00", "Local", TestName = "Run_WithOffsetCommenceTime_DeadLettersMessage")]
+    public async Task Run_WithNonUtcCommenceTime_DeadLettersMessage(string commenceTime, string expectedKind)
+    {
+        // Arrange
+        var messageActionsMock = Substitute.For<ServiceBusMessageActions>();
+
+        var strategyMock = Substitute.For<IPredictionStrategy>();
+
+        var function = CreateFunction(strategyMock);
+
+        var message = ServiceBusReceivedMessageFactory.CreateFromText(
+            $$"""{"Id":"{{EventId}}","CommenceTime":"{{commenceTime}}"}""");
+
+        // Act
+        var prediction = await function.Run(message, messageActionsMock, CancellationToken.None);
+
+        // Assert
+        using var scope = new AssertionScope();
+
+        prediction.Should().BeNull();
+
+        strategyMock.ReceivedCalls().Should().BeEmpty();
+
+        await messageActionsMock.Received(1).DeadLetterMessageAsync(message, Arg.Any<Dictionary<string, object>?>(),
+            nameof(ArgumentException),
+            Arg.Is<string>(d => d.StartsWith($"commenceTime must be UTC. Actual kind: {expectedKind}")),
+            Arg.Any<CancellationToken>());
+    }
+
     [Test]
     public async Task Run_WithOtherException_LetsItReachTheHost()
     {
