@@ -1,4 +1,5 @@
-﻿using DotNet.Testcontainers.Builders;
+﻿using System.Text.Json;
+using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
 using Microsoft.Azure.Cosmos;
 using OddsCollector.Functions.IntegrationTests.Infrastructure.Network;
@@ -58,7 +59,14 @@ internal sealed class CosmosDbEmulator : IAsyncDisposable
         await _container.StartAsync(cancellationToken);
 
         _client = new CosmosClient(ConnectionString,
-            new CosmosClientOptions { ConnectionMode = ConnectionMode.Gateway, LimitToEndpoint = true });
+            new CosmosClientOptions
+            {
+                ConnectionMode = ConnectionMode.Gateway,
+                LimitToEndpoint = true,
+                // The models name their properties for System.Text.Json (for example "id"), as the
+                // function app stores them.
+                UseSystemTextJsonSerializerWithOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+            });
     }
 
     public async Task CreateContainersAsync(string databaseName, IEnumerable<string> containerNames,
@@ -72,6 +80,13 @@ internal sealed class CosmosDbEmulator : IAsyncDisposable
             await database.CreateContainerIfNotExistsAsync(containerName, "/id",
                 cancellationToken: cancellationToken);
         }
+    }
+
+    public async Task UpsertItemAsync<T>(string databaseName, string containerName, string id, T item,
+        CancellationToken cancellationToken)
+    {
+        await Client.GetContainer(databaseName, containerName)
+            .UpsertItemAsync(item, new PartitionKey(id), cancellationToken: cancellationToken);
     }
 
     public async Task<T?> TryReadItemAsync<T>(string databaseName, string containerName, string id,

@@ -4,8 +4,10 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Reflection;
 using System.Text.Json;
+using OddsCollector.Functions.Functions;
 using OddsCollector.Functions.IntegrationTests.Infrastructure.Network;
 using OddsCollector.Functions.IntegrationTests.Infrastructure.Polling;
+using OddsCollector.Functions.Models;
 
 namespace OddsCollector.Functions.IntegrationTests.Infrastructure.Functions;
 
@@ -116,6 +118,19 @@ internal sealed class FunctionsHost : IAsyncDisposable
             throw new InvalidOperationException(
                 $"Invoking {functionName} returned {(int)response.StatusCode}: {body}{Environment.NewLine}{Logs}");
         }
+    }
+
+    /// <summary>
+    ///     Calls <see cref="PredictionsHttpFunction" />.
+    /// </summary>
+    /// <returns>The predictions, or <c>null</c> when the function does not answer with 200 OK.</returns>
+    public async Task<EventPrediction[]?> TryGetPredictionsAsync(CancellationToken cancellationToken)
+    {
+        using var response = await Client.GetAsync($"api/{nameof(PredictionsHttpFunction)}", cancellationToken);
+
+        return response.StatusCode == HttpStatusCode.OK
+            ? await response.Content.ReadFromJsonAsync<EventPrediction[]>(cancellationToken)
+            : null;
     }
 
     private async Task WaitUntilRunningAsync(CancellationToken cancellationToken)

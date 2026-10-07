@@ -9,7 +9,9 @@ namespace OddsCollector.Functions.IntegrationTests.Infrastructure.OddsApi;
 /// <summary>
 ///     Stands in for The Odds API, the only dependency of the function app outside Azure.
 /// </summary>
-internal sealed class OddsApiStub : IDisposable
+/// <param name="league">The league the function app is configured to collect.</param>
+/// <param name="apiKey">The key the function app is configured to send; requests without it get no response.</param>
+internal sealed class OddsApiStub(string league, string apiKey) : IDisposable
 {
     private readonly WireMockServer _server = WireMockServer.Start();
 
@@ -21,7 +23,7 @@ internal sealed class OddsApiStub : IDisposable
         _server.Dispose();
     }
 
-    public void SetUpcomingEvents(string league, string apiKey, IEnumerable<OddsApiEvent> events)
+    public void SetUpcomingEvents(IEnumerable<OddsApiEvent> events)
     {
         var body = events.Select(e => new
         {
@@ -52,10 +54,10 @@ internal sealed class OddsApiStub : IDisposable
             })
         });
 
-        Respond($"/v4/sports/{league}/odds", apiKey, body);
+        Respond($"/v4/sports/{league}/odds", body);
     }
 
-    public void SetCompletedEvents(string league, string apiKey, IEnumerable<OddsApiCompletedEvent> events)
+    public void SetCompletedEvents(IEnumerable<OddsApiCompletedEvent> events)
     {
         var body = events.Select(e => new
         {
@@ -74,10 +76,10 @@ internal sealed class OddsApiStub : IDisposable
             last_update = ToIso(e.CommenceTime.AddHours(2))
         });
 
-        Respond($"/v4/sports/{league}/scores", apiKey, body);
+        Respond($"/v4/sports/{league}/scores", body);
     }
 
-    private void Respond(string path, string apiKey, object body)
+    private void Respond(string path, object body)
     {
         _server
             .Given(Request.Create().WithPath(path).WithParam("apiKey", apiKey).UsingGet())
