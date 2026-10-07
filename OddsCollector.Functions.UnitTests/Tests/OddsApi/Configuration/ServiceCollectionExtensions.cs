@@ -54,9 +54,9 @@ internal sealed class ServiceCollectionExtensions
     }
 
     [Test]
-    public void AddOddsApiClientWithDependencies_ResolvesOddsApiClientOptions()
+    public void AddOddsApiClientWithDependencies_WithLeaguesAndApiKey_BindsThemToOptions()
     {
-        using var provider = BuildProvider();
+        using var provider = BuildProvider(leagues: "league1;league2", apiKey: "key");
 
         var options = provider.GetRequiredService<IOptions<FunctionApp.Configuration.OddsApiClientOptions>>().Value;
 
@@ -67,33 +67,27 @@ internal sealed class ServiceCollectionExtensions
     }
 
     [Test]
-    public void AddOddsApiClientWithDependencies_ResolvesHttpClient()
+    public void AddOddsApiClientWithDependencies_ResolvingHttpClient_ReturnsTransientInstance()
     {
         using var provider = BuildProvider();
 
         var first = provider.GetRequiredService<HttpClient>();
 
-        using var scope = new AssertionScope();
-
-        first.Should().NotBeNull();
         provider.GetRequiredService<HttpClient>().Should().NotBeSameAs(first);
     }
 
     [Test]
-    public void AddOddsApiClientWithDependencies_ResolvesQuotaLoggingHandler()
+    public void AddOddsApiClientWithDependencies_ResolvingQuotaLoggingHandler_ReturnsTransientInstance()
     {
         using var provider = BuildProvider();
 
         var first = provider.GetRequiredService<FunctionApp.QuotaLoggingHandler>();
 
-        using var scope = new AssertionScope();
-
-        first.Should().NotBeNull();
         provider.GetRequiredService<FunctionApp.QuotaLoggingHandler>().Should().NotBeSameAs(first);
     }
 
     [Test]
-    public void AddOddsApiClientWithDependencies_ResolvesClient()
+    public void AddOddsApiClientWithDependencies_ResolvingClient_ReturnsTransientInstance()
     {
         using var provider = BuildProvider();
 
@@ -136,7 +130,7 @@ internal sealed class ServiceCollectionExtensions
     }
 
     [Test]
-    public void AddOddsApiClientWithDependencies_ResolvesUpcomingEventsClient()
+    public void AddOddsApiClientWithDependencies_ResolvingUpcomingEventsClient_ReturnsTransientInstance()
     {
         using var provider = BuildProvider();
 
@@ -149,7 +143,7 @@ internal sealed class ServiceCollectionExtensions
     }
 
     [Test]
-    public void AddOddsApiClientWithDependencies_ResolvesEventResultsClient()
+    public void AddOddsApiClientWithDependencies_ResolvingEventResultsClient_ReturnsTransientInstance()
     {
         using var provider = BuildProvider();
 
@@ -162,7 +156,7 @@ internal sealed class ServiceCollectionExtensions
     }
 
     [Test]
-    public void AddOddsApiClientWithDependencies_ResolvesOriginalUpcomingEventConverter()
+    public void AddOddsApiClientWithDependencies_ResolvingOriginalUpcomingEventConverter_ReturnsSingletonInstance()
     {
         using var provider = BuildProvider();
 
@@ -175,7 +169,7 @@ internal sealed class ServiceCollectionExtensions
     }
 
     [Test]
-    public void AddOddsApiClientWithDependencies_ResolvesBookmakerConverter()
+    public void AddOddsApiClientWithDependencies_ResolvingBookmakerConverter_ReturnsSingletonInstance()
     {
         using var provider = BuildProvider();
 
@@ -188,7 +182,7 @@ internal sealed class ServiceCollectionExtensions
     }
 
     [Test]
-    public void AddOddsApiClientWithDependencies_ResolvesMarketConverter()
+    public void AddOddsApiClientWithDependencies_ResolvingMarketConverter_ReturnsSingletonInstance()
     {
         using var provider = BuildProvider();
 
@@ -201,7 +195,7 @@ internal sealed class ServiceCollectionExtensions
     }
 
     [Test]
-    public void AddOddsApiClientWithDependencies_ResolvesOddConverter()
+    public void AddOddsApiClientWithDependencies_ResolvingOddConverter_ReturnsSingletonInstance()
     {
         using var provider = BuildProvider();
 
@@ -214,7 +208,7 @@ internal sealed class ServiceCollectionExtensions
     }
 
     [Test]
-    public void AddOddsApiClientWithDependencies_ResolvesOriginalCompletedEventConverter()
+    public void AddOddsApiClientWithDependencies_ResolvingOriginalCompletedEventConverter_ReturnsSingletonInstance()
     {
         using var provider = BuildProvider();
 
@@ -227,7 +221,7 @@ internal sealed class ServiceCollectionExtensions
     }
 
     [Test]
-    public void AddOddsApiClientWithDependencies_ResolvesOutcomeConverter()
+    public void AddOddsApiClientWithDependencies_ResolvingOutcomeConverter_ReturnsSingletonInstance()
     {
         using var provider = BuildProvider();
 
@@ -240,7 +234,7 @@ internal sealed class ServiceCollectionExtensions
     }
 
     [Test]
-    public void AddOddsApiClientWithDependencies_ResolvesScoreModelsConverter()
+    public void AddOddsApiClientWithDependencies_ResolvingScoreModelsConverter_ReturnsSingletonInstance()
     {
         using var provider = BuildProvider();
 
@@ -253,7 +247,7 @@ internal sealed class ServiceCollectionExtensions
     }
 
     [Test]
-    public void AddOddsApiClientWithDependencies_ResolvesScoreModelConverter()
+    public void AddOddsApiClientWithDependencies_ResolvingScoreModelConverter_ReturnsSingletonInstance()
     {
         using var provider = BuildProvider();
 

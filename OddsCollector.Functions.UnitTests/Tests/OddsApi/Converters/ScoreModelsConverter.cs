@@ -5,26 +5,28 @@ namespace OddsCollector.Functions.Tests.Tests.OddsApi.Converters;
 internal sealed class ScoreModelsConverter
 {
     [Test]
-    public void Convert_WithNullModels_ThrowsException()
+    public void Convert_WithNullScores_ThrowsArgumentNullException()
     {
-        var converter =
-            new FunctionApp.ScoreModelsConverter(
-                Substitute.For<FunctionApp.IScoreModelConverter>());
+        // Arrange
+        var converter = new FunctionApp.ScoreModelsConverter(Substitute.For<FunctionApp.IScoreModelConverter>());
 
+        // Act
         var action = () => converter.Convert(null);
 
+        // Assert
         action.Should().Throw<ArgumentNullException>().WithParameterName("scores");
     }
 
     [Test]
-    public void Convert_WithNotEnoughModels_ThrowsException()
+    public void Convert_WithoutTwoScores_ThrowsArgumentException()
     {
-        var converter =
-            new FunctionApp.ScoreModelsConverter(
-                Substitute.For<FunctionApp.IScoreModelConverter>());
+        // Arrange
+        var converter = new FunctionApp.ScoreModelsConverter(Substitute.For<FunctionApp.IScoreModelConverter>());
 
+        // Act
         var action = () => converter.Convert([]);
 
+        // Assert
         action.Should().Throw<ArgumentException>().WithParameterName("scores")
             .Which.Message.Should().Be("scores must have 2 elements (Parameter 'scores')");
     }

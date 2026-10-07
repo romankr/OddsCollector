@@ -5,40 +5,48 @@ namespace OddsCollector.Functions.Tests.Tests.OddsApi.Converters;
 
 internal sealed class MarketConverter
 {
+    private const string Bookmaker = "bookmaker";
+    private const string AwayTeam = "awayTeam";
+    private const string HomeTeam = "homeTeam";
+
     [Test]
-    public void ToOdd_WithNullMarkets_ThrowsException()
+    public void ToOdd_WithNullMarkets_ThrowsArgumentNullException()
     {
-        var outcomeConverter = Substitute.For<FunctionApp.IOddConverter>();
+        // Arrange
+        var marketConverter = new FunctionApp.MarketConverter(Substitute.For<FunctionApp.IOddConverter>());
 
-        var markerConverter = new FunctionApp.MarketConverter(outcomeConverter);
+        // Act
+        var action = () => marketConverter.ToOdd(null, Bookmaker, AwayTeam, HomeTeam);
 
-        var action = () => markerConverter.ToOdd(null, "bookmaker", "awayTeam", "homeTeam");
-
+        // Assert
         action.Should().Throw<ArgumentNullException>().WithParameterName("markets");
     }
 
     [Test]
-    public void ToOdd_WithEmptyMarkets_ThrowsException()
+    public void ToOdd_WithEmptyMarkets_ThrowsInvalidOperationException()
     {
-        var outcomeConverter = Substitute.For<FunctionApp.IOddConverter>();
+        // Arrange
+        var marketConverter = new FunctionApp.MarketConverter(Substitute.For<FunctionApp.IOddConverter>());
 
-        var markerConverter = new FunctionApp.MarketConverter(outcomeConverter);
+        // Act
+        var action = () => marketConverter.ToOdd([], Bookmaker, AwayTeam, HomeTeam);
 
-        var action = () => markerConverter.ToOdd([], "bookmaker", "awayTeam", "homeTeam");
-
+        // Assert
         action.Should().Throw<InvalidOperationException>();
     }
 
     [Test]
-    public void ToOdd_WithUnexpectedMarket_ThrowsException()
+    public void ToOdd_WithoutHeadToHeadMarket_ThrowsInvalidOperationException()
     {
-        var outcomeConverter = Substitute.For<FunctionApp.IOddConverter>();
+        // Arrange
+        var marketConverter = new FunctionApp.MarketConverter(Substitute.For<FunctionApp.IOddConverter>());
 
-        var markerConverter = new FunctionApp.MarketConverter(outcomeConverter);
+        Markets2[] markets = [new() { Key = Markets2Key.Totals }];
 
-        var action = () =>
-            markerConverter.ToOdd([new Markets2 { Key = Markets2Key.Totals }], "bookmaker", "awayTeam", "homeTeam");
+        // Act
+        var action = () => marketConverter.ToOdd(markets, Bookmaker, AwayTeam, HomeTeam);
 
+        // Assert
         action.Should().Throw<InvalidOperationException>();
     }
 }

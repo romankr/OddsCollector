@@ -55,7 +55,7 @@ internal sealed class OddsApiClientOptions
     }
 
     [Test]
-    public void AddLeagues_WithEmptyLeagues_ThrowsException()
+    public void AddLeagues_WithEmptyLeagues_ThrowsArgumentException()
     {
         var options = new FunctionApp.OddsApiClientOptions();
 
@@ -65,7 +65,7 @@ internal sealed class OddsApiClientOptions
     }
 
     [Test]
-    public void AddLeagues_WithNullLeagues_ThrowsException()
+    public void AddLeagues_WithNullLeagues_ThrowsArgumentNullException()
     {
         var options = new FunctionApp.OddsApiClientOptions();
 
@@ -86,7 +86,7 @@ internal sealed class OddsApiClientOptions
     }
 
     [Test]
-    public void SetApiKey_WithNullApiKey_ThrowsException()
+    public void SetApiKey_WithNullApiKey_ThrowsArgumentNullException()
     {
         var options = new FunctionApp.OddsApiClientOptions();
 
@@ -96,7 +96,7 @@ internal sealed class OddsApiClientOptions
     }
 
     [Test]
-    public void SetApiKey_WithEmptyApiKey_ThrowsException()
+    public void SetApiKey_WithEmptyApiKey_ThrowsArgumentException()
     {
         var options = new FunctionApp.OddsApiClientOptions();
 
@@ -138,7 +138,7 @@ internal sealed class OddsApiClientOptions
     [TestCase("not a url")]
     [TestCase("/v4/sports")]
     [TestCase("ftp://localhost")]
-    public void SetBaseUrl_WithInvalidUrl_ThrowsException(string baseUrl)
+    public void SetBaseUrl_WithInvalidUrl_ThrowsArgumentException(string baseUrl)
     {
         var options = new FunctionApp.OddsApiClientOptions();
 
