@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Text.Json;
 using Azure.Core.Serialization;
+using FluentAssertions.Execution;
 using OddsCollector.Functions.Models;
 using OddsCollector.Functions.Tests.Infrastructure.Http;
 using FunctionApp = OddsCollector.Functions.Functions;
@@ -10,17 +11,17 @@ namespace OddsCollector.Functions.Tests.Tests.Functions;
 internal sealed class PredictionsHttpFunction
 {
     [Test]
-    public async Task Run_WithPredictions_ReturnsSuccessfulHttpResponse()
+    public async Task Run_WithPredictions_ReturnsThemAsJson()
     {
         // Arrange
         EventPrediction[] predictions =
         [
             new()
             {
-                Id = "1",
-                AwayTeam = "Away",
-                HomeTeam = "Home",
-                Outcome = "Home",
+                Id = "id",
+                AwayTeam = "awayTeam",
+                HomeTeam = "homeTeam",
+                Outcome = OutcomeTypes.HomeTeam,
                 CommenceTime = new DateTime(2026, 9, 22, 18, 0, 0, DateTimeKind.Utc)
             }
         ];
@@ -33,38 +34,39 @@ internal sealed class PredictionsHttpFunction
         var response = await function.Run(requestStub, predictions);
 
         // Assert
-        response.Should().NotBeNull();
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        using var scope = new AssertionScope();
 
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
         response.Headers.GetValues("Content-Type").Should().ContainSingle()
             .Which.Should().StartWith("application/json");
-
-        var body = response.ReadBodyAsString();
-
-        body.Should().Be(JsonSerializer.Serialize(predictions));
-        JsonSerializer.Deserialize<EventPrediction[]>(body).Should().BeEquivalentTo(predictions);
+        response.ReadBodyAsString().Should().Be(JsonSerializer.Serialize(predictions));
     }
 
     [Test]
-    public async Task Run_WithEmptyPredictions_ReturnsEmptyJsonArray()
+    public async Task Run_WithNoPredictions_ReturnsEmptyJsonArray()
     {
+        // Arrange
         var requestStub = HttpRequestDataFactory.Create();
 
         var function = new FunctionApp.PredictionsHttpFunction();
 
+        // Act
         var response = await function.Run(requestStub, []);
+
+        // Assert
+        using var scope = new AssertionScope();
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         response.ReadBodyAsString().Should().Be("[]");
     }
 
     [Test]
-    public async Task Run_WithSerializationException_Throws()
+    public async Task Run_WithSerializationException_LetsItReachTheHost()
     {
         // Arrange
-        var exception = new InvalidOperationException();
+        var expectedException = new InvalidOperationException();
 
-        var requestStub = HttpRequestDataFactory.Create(new PredictionsThrowingSerializer(exception));
+        var requestStub = HttpRequestDataFactory.Create(new PredictionsThrowingSerializer(expectedException));
 
         var function = new FunctionApp.PredictionsHttpFunction();
 
@@ -72,7 +74,7 @@ internal sealed class PredictionsHttpFunction
         var action = () => function.Run(requestStub, [new EventPrediction()]);
 
         // Assert: the failure reaches the host, which logs it and answers with a 500.
-        (await action.Should().ThrowAsync<InvalidOperationException>()).Which.Should().Be(exception);
+        (await action.Should().ThrowAsync<InvalidOperationException>()).Which.Should().BeSameAs(expectedException);
     }
 
     /// <summary>

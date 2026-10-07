@@ -12,16 +12,15 @@ namespace OddsCollector.Functions.Tests.Tests.Functions;
 internal sealed class EventResultsFunction
 {
     [Test]
-    public async Task Run_WithEventResults_ReturnsEventResultsAndLogsInformation()
+    public async Task Run_WithEventResults_ReturnsThemWithoutLogging()
     {
         // Arrange
-        var expected = new EventResult();
-        EventResult[] expectedResults = [expected];
-
-        var loggerMock = new FakeLogger<FunctionApp.EventResultsFunction>();
+        EventResult[] eventResults = [new()];
 
         var clientStub = Substitute.For<IEventResultsClient>();
-        clientStub.GetEventResultsAsync(Arg.Any<CancellationToken>()).Returns(Task.FromResult(expectedResults));
+        clientStub.GetEventResultsAsync(Arg.Any<CancellationToken>()).Returns(eventResults);
+
+        var loggerMock = new FakeLogger<FunctionApp.EventResultsFunction>();
 
         var function = new FunctionApp.EventResultsFunction(loggerMock, clientStub);
 
@@ -29,21 +28,20 @@ internal sealed class EventResultsFunction
         var results = await function.Run(new TimerInfo(), CancellationToken.None);
 
         // Assert
-        results.Should().NotBeNull().And.BeEquivalentTo(expectedResults);
+        using var scope = new AssertionScope();
 
-        loggerMock.Collector.Count.Should().Be(0);
+        results.Should().Equal(eventResults);
+        loggerMock.Collector.GetSnapshot().Should().BeEmpty();
     }
 
     [Test]
-    public async Task Run_WithNoEventResults_ReturnsNoEventResultsAndLogsWarning()
+    public async Task Run_WithNoEventResults_ReturnsNothingAndLogsWarning()
     {
         // Arrange
-        EventResult[] expectedResults = [];
+        var clientStub = Substitute.For<IEventResultsClient>();
+        clientStub.GetEventResultsAsync(Arg.Any<CancellationToken>()).Returns(Array.Empty<EventResult>());
 
         var loggerMock = new FakeLogger<FunctionApp.EventResultsFunction>();
-
-        var clientStub = Substitute.For<IEventResultsClient>();
-        clientStub.GetEventResultsAsync(Arg.Any<CancellationToken>()).Returns(Task.FromResult(expectedResults));
 
         var function = new FunctionApp.EventResultsFunction(loggerMock, clientStub);
 
@@ -51,60 +49,53 @@ internal sealed class EventResultsFunction
         var results = await function.Run(new TimerInfo(), CancellationToken.None);
 
         // Assert
-        results.Should().NotBeNull().And.BeEmpty();
-
-        loggerMock.Collector.Count.Should().Be(1);
-
         using var scope = new AssertionScope();
 
-        loggerMock.LatestRecord.Level.Should().Be(LogLevel.Warning);
-        loggerMock.LatestRecord.Message.Should().Be("No events received");
+        results.Should().BeEmpty();
+        loggerMock.Collector.GetSnapshot().Should().ContainSingle()
+            .Which.Should().BeEquivalentTo(new { Level = LogLevel.Warning, Message = "No events received" });
     }
 
     [Test]
     public async Task Run_WithCancellation_ReturnsNothingAndLogsInformation()
     {
         // Arrange
-        var loggerMock = new FakeLogger<FunctionApp.EventResultsFunction>();
-
         var clientStub = Substitute.For<IEventResultsClient>();
         clientStub.GetEventResultsAsync(Arg.Any<CancellationToken>()).Throws(new OperationCanceledException());
+
+        var loggerMock = new FakeLogger<FunctionApp.EventResultsFunction>();
 
         var function = new FunctionApp.EventResultsFunction(loggerMock, clientStub);
 
         // Act
         var results = await function.Run(new TimerInfo(), CancellationToken.None);
 
-        // Assert
-        results.Should().NotBeNull().And.BeEmpty();
-
-        loggerMock.Collector.Count.Should().Be(1);
-
+        // Assert: the host winding a run down is not a failure to report.
         using var scope = new AssertionScope();
 
-        loggerMock.LatestRecord.Level.Should().Be(LogLevel.Information);
-        loggerMock.LatestRecord.Message.Should().Be("Collection was cancelled");
+        results.Should().BeEmpty();
+        loggerMock.Collector.GetSnapshot().Should().ContainSingle()
+            .Which.Should().BeEquivalentTo(new { Level = LogLevel.Information, Message = "Collection was cancelled" });
     }
 
     [Test]
-    public async Task Run_WithException_Throws()
+    public async Task Run_WithClientException_LetsItReachTheHost()
     {
         // Arrange
-        var exception = new InvalidOperationException();
-
-        var loggerMock = new FakeLogger<FunctionApp.EventResultsFunction>();
+        var expectedException = new InvalidOperationException();
 
         var clientStub = Substitute.For<IEventResultsClient>();
-        clientStub.GetEventResultsAsync(Arg.Any<CancellationToken>()).Throws(exception);
+        clientStub.GetEventResultsAsync(Arg.Any<CancellationToken>()).Throws(expectedException);
+
+        var loggerMock = new FakeLogger<FunctionApp.EventResultsFunction>();
 
         var function = new FunctionApp.EventResultsFunction(loggerMock, clientStub);
 
         // Act
         var action = () => function.Run(new TimerInfo(), CancellationToken.None);
 
-        // Assert
-        (await action.Should().ThrowAsync<InvalidOperationException>()).Which.Should().Be(exception);
-
-        loggerMock.Collector.Count.Should().Be(0);
+        // Assert: the host logs the failure and marks the run failed.
+        (await action.Should().ThrowAsync<InvalidOperationException>()).Which.Should().BeSameAs(expectedException);
+        loggerMock.Collector.GetSnapshot().Should().BeEmpty();
     }
 }
