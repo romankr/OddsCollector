@@ -17,7 +17,13 @@ internal sealed class OddsApiClientOptions
 
     public string BaseUrl { get; set; } = DefaultBaseUrl;
 
-    public HashSet<string> Leagues { get; init; } = [];
+    private readonly HashSet<string> _leagues = [];
+
+    /// <summary>
+    ///     The leagues to collect, in the order they were added.
+    ///     <see cref="AddLeagues" /> is the only way to change them.
+    /// </summary>
+    public IReadOnlySet<string> Leagues => _leagues;
 
     public string ApiKey { get; set; } = string.Empty;
 
@@ -28,7 +34,7 @@ internal sealed class OddsApiClientOptions
             return;
         }
 
-        Leagues.UnionWith(leagues.Split(";", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
+        _leagues.UnionWith(leagues.Split(";", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
     }
 
     public void SetApiKey(string? apiKey)
