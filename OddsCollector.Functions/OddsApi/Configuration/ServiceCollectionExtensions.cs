@@ -16,18 +16,21 @@ internal static class ServiceCollectionExtensions
             services.AddOptions<OddsApiClientOptions>()
                 .Configure(o =>
                 {
-                    o.AddLeagues(configuration["OddsApiClient:Leagues"]);
-                    o.SetApiKey(configuration["OddsApiClient:ApiKey"]);
-                    o.SetBaseUrl(configuration["OddsApiClient:BaseUrl"]);
+                    o.AddLeagues(configuration[OddsApiClientOptions.LeaguesKey]);
+                    o.SetApiKey(configuration[OddsApiClientOptions.ApiKeyKey]);
+                    o.SetBaseUrl(configuration[OddsApiClientOptions.BaseUrlKey]);
                 })
                 .ValidateOnStart();
+
+            services.AddSingleton<IValidateOptions<OddsApiClientOptions>, OddsApiClientOptionsValidator>();
 
             services.AddTransient<QuotaLoggingHandler>();
 
             var clientBuilder = services.AddHttpClient<IClient, Client>((httpClient, provider) =>
                 new Client(httpClient)
                 {
-                    BaseUrl = provider.GetRequiredService<IOptions<OddsApiClientOptions>>().Value.BaseUrl.AbsoluteUri
+                    BaseUrl = new Uri(provider.GetRequiredService<IOptions<OddsApiClientOptions>>().Value.BaseUrl)
+                        .AbsoluteUri
                 });
 
             clientBuilder.AddStandardResilienceHandler();

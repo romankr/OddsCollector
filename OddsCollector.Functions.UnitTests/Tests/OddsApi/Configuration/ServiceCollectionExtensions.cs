@@ -41,16 +41,29 @@ internal sealed class ServiceCollectionExtensions
         action.Should().NotThrow();
     }
 
-    [TestCase(null, "key", "leagues", TestName = "AddOddsApiClientWithDependencies_WithoutLeagues_FailsStartupValidation")]
-    [TestCase("league1", null, "apiKey", TestName = "AddOddsApiClientWithDependencies_WithoutApiKey_FailsStartupValidation")]
+    [TestCase(null, "key", "OddsApiClient:Leagues",
+        TestName = "AddOddsApiClientWithDependencies_WithoutLeagues_FailsStartupValidation")]
+    [TestCase("league1", null, "OddsApiClient:ApiKey",
+        TestName = "AddOddsApiClientWithDependencies_WithoutApiKey_FailsStartupValidation")]
     public void AddOddsApiClientWithDependencies_WithMissingSetting_FailsStartupValidation(string? leagues,
-        string? apiKey, string parameterName)
+        string? apiKey, string setting)
     {
         using var provider = BuildProvider(leagues, apiKey);
 
         var action = () => provider.GetRequiredService<IStartupValidator>().Validate();
 
-        action.Should().Throw<ArgumentException>().WithParameterName(parameterName);
+        action.Should().Throw<OptionsValidationException>()
+            .Which.Failures.Should().ContainSingle().Which.Should().StartWith(setting);
+    }
+
+    [Test]
+    public void AddOddsApiClientWithDependencies_WithEverySettingInvalid_ReportsEveryFailureAtOnce()
+    {
+        using var provider = BuildProvider(leagues: null, apiKey: null, baseUrl: "not a url");
+
+        var action = () => provider.GetRequiredService<IStartupValidator>().Validate();
+
+        action.Should().Throw<OptionsValidationException>().Which.Failures.Should().HaveCount(3);
     }
 
     [Test]
@@ -126,7 +139,8 @@ internal sealed class ServiceCollectionExtensions
 
         var action = () => provider.GetRequiredService<IStartupValidator>().Validate();
 
-        action.Should().Throw<ArgumentException>().WithParameterName("baseUrl");
+        action.Should().Throw<OptionsValidationException>()
+            .Which.Failures.Should().ContainSingle().Which.Should().StartWith("OddsApiClient:BaseUrl");
     }
 
     [Test]

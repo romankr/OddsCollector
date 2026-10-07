@@ -54,24 +54,16 @@ internal sealed class OddsApiClientOptions
         options.Leagues.Should().NotBeNull().And.BeEquivalentTo("league1", "league2");
     }
 
-    [Test]
-    public void AddLeagues_WithEmptyLeagues_ThrowsArgumentException()
+    [TestCase(null)]
+    [TestCase("")]
+    [TestCase(" ")]
+    public void AddLeagues_WithoutLeagues_AddsNoLeagues(string? leagues)
     {
         var options = new FunctionApp.OddsApiClientOptions();
 
-        var action = () => options.AddLeagues(string.Empty);
+        options.AddLeagues(leagues);
 
-        action.Should().ThrowExactly<ArgumentException>().WithParameterName("leagues");
-    }
-
-    [Test]
-    public void AddLeagues_WithNullLeagues_ThrowsArgumentNullException()
-    {
-        var options = new FunctionApp.OddsApiClientOptions();
-
-        var action = () => options.AddLeagues(null);
-
-        action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("leagues");
+        options.Leagues.Should().BeEmpty();
     }
 
     [Test]
@@ -86,23 +78,13 @@ internal sealed class OddsApiClientOptions
     }
 
     [Test]
-    public void SetApiKey_WithNullApiKey_ThrowsArgumentNullException()
+    public void SetApiKey_WithNullApiKey_SetsEmptyKey()
     {
         var options = new FunctionApp.OddsApiClientOptions();
 
-        var action = () => options.SetApiKey(null);
+        options.SetApiKey(null);
 
-        action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("apiKey");
-    }
-
-    [Test]
-    public void SetApiKey_WithEmptyApiKey_ThrowsArgumentException()
-    {
-        var options = new FunctionApp.OddsApiClientOptions();
-
-        var action = () => options.SetApiKey(string.Empty);
-
-        action.Should().ThrowExactly<ArgumentException>().WithParameterName("apiKey");
+        options.ApiKey.Should().BeEmpty();
     }
 
     [Test]
@@ -110,7 +92,7 @@ internal sealed class OddsApiClientOptions
     {
         var options = new FunctionApp.OddsApiClientOptions();
 
-        options.BaseUrl.Should().Be(new Uri("https://api.the-odds-api.com"));
+        options.BaseUrl.Should().Be("https://api.the-odds-api.com/");
     }
 
     [Test]
@@ -120,7 +102,7 @@ internal sealed class OddsApiClientOptions
 
         options.SetBaseUrl("http://localhost:8080");
 
-        options.BaseUrl.Should().Be(new Uri("http://localhost:8080"));
+        options.BaseUrl.Should().Be("http://localhost:8080");
     }
 
     [TestCase(null)]
@@ -138,12 +120,12 @@ internal sealed class OddsApiClientOptions
     [TestCase("not a url")]
     [TestCase("/v4/sports")]
     [TestCase("ftp://localhost")]
-    public void SetBaseUrl_WithInvalidUrl_ThrowsArgumentException(string baseUrl)
+    public void SetBaseUrl_WithInvalidUrl_KeepsItForValidation(string baseUrl)
     {
         var options = new FunctionApp.OddsApiClientOptions();
 
-        var action = () => options.SetBaseUrl(baseUrl);
+        options.SetBaseUrl(baseUrl);
 
-        action.Should().ThrowExactly<ArgumentException>().WithParameterName("baseUrl");
+        options.BaseUrl.Should().Be(baseUrl);
     }
 }

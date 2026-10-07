@@ -1,10 +1,21 @@
 ﻿namespace OddsCollector.Functions.OddsApi.Configuration;
 
+/// <remarks>
+///     Reading the settings never throws. <see cref="OddsApiClientOptionsValidator" /> checks them at startup
+///     and reports every problem at once.
+/// </remarks>
 internal sealed class OddsApiClientOptions
 {
-    public static readonly Uri DefaultBaseUrl = new("https://api.the-odds-api.com");
+    public const string Section = "OddsApiClient";
+    public const string LeaguesKey = $"{Section}:Leagues";
+    public const string ApiKeyKey = $"{Section}:ApiKey";
+    public const string BaseUrlKey = $"{Section}:BaseUrl";
 
-    public Uri BaseUrl { get; set; } = DefaultBaseUrl;
+    private static readonly Uri OddsApiUrl = new("https://api.the-odds-api.com");
+
+    public static readonly string DefaultBaseUrl = OddsApiUrl.AbsoluteUri;
+
+    public string BaseUrl { get; set; } = DefaultBaseUrl;
 
     public HashSet<string> Leagues { get; init; } = [];
 
@@ -12,19 +23,17 @@ internal sealed class OddsApiClientOptions
 
     public void AddLeagues(string? leagues)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(leagues);
+        if (string.IsNullOrWhiteSpace(leagues))
+        {
+            return;
+        }
 
-        var deserialized =
-            leagues.Split(";", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-
-        Leagues.UnionWith(deserialized);
+        Leagues.UnionWith(leagues.Split(";", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
     }
 
     public void SetApiKey(string? apiKey)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(apiKey);
-
-        ApiKey = apiKey;
+        ApiKey = apiKey ?? string.Empty;
     }
 
     public void SetBaseUrl(string? baseUrl)
@@ -35,13 +44,6 @@ internal sealed class OddsApiClientOptions
             return;
         }
 
-        if (!Uri.TryCreate(baseUrl, UriKind.Absolute, out var uri) ||
-            (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps))
-        {
-            throw new ArgumentException($"{nameof(baseUrl)} must be an absolute HTTP(S) URL. Actual value: {baseUrl}",
-                nameof(baseUrl));
-        }
-
-        BaseUrl = uri;
+        BaseUrl = baseUrl.Trim();
     }
 }
