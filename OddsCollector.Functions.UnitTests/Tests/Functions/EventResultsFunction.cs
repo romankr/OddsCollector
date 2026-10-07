@@ -57,6 +57,27 @@ internal sealed class EventResultsFunction
     }
 
     [Test]
+    public async Task Run_WithNothingCollectedBeforeCancellation_ReturnsNothingWithoutWarning()
+    {
+        // Arrange
+        var clientStub = Substitute.For<IEventResultsClient>();
+        clientStub.GetEventResultsAsync(Arg.Any<CancellationToken>()).Returns(Array.Empty<EventResult>());
+
+        var loggerMock = new FakeLogger<FunctionApp.EventResultsFunction>();
+
+        var function = new FunctionApp.EventResultsFunction(loggerMock, clientStub);
+
+        // Act
+        var results = await function.Run(new TimerInfo(), new CancellationToken(canceled: true));
+
+        // Assert: the client logs the cancellation, an empty run is not worth a warning then.
+        using var scope = new AssertionScope();
+
+        results.Should().BeEmpty();
+        loggerMock.Collector.GetSnapshot().Should().BeEmpty();
+    }
+
+    [Test]
     public async Task Run_WithCancellation_ReturnsNothingAndLogsInformation()
     {
         // Arrange

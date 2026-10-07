@@ -57,6 +57,27 @@ internal sealed class UpcomingEventsFunction
     }
 
     [Test]
+    public async Task Run_WithNothingCollectedBeforeCancellation_ReturnsNothingWithoutWarning()
+    {
+        // Arrange
+        var clientStub = Substitute.For<IUpcomingEventsClient>();
+        clientStub.GetUpcomingEventsAsync(Arg.Any<CancellationToken>()).Returns(Array.Empty<UpcomingEvent>());
+
+        var loggerMock = new FakeLogger<FunctionApp.UpcomingEventsFunction>();
+
+        var function = new FunctionApp.UpcomingEventsFunction(loggerMock, clientStub);
+
+        // Act
+        var results = await function.Run(new TimerInfo(), new CancellationToken(canceled: true));
+
+        // Assert: the client logs the cancellation, an empty run is not worth a warning then.
+        using var scope = new AssertionScope();
+
+        results.Should().BeEmpty();
+        loggerMock.Collector.GetSnapshot().Should().BeEmpty();
+    }
+
+    [Test]
     public async Task Run_WithCancellation_ReturnsNothingAndLogsInformation()
     {
         // Arrange

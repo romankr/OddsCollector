@@ -25,16 +25,24 @@ internal sealed class UpcomingEventsClient(
 
         foreach (var league in options.Value.Leagues)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
             try
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 var events = await client.OddsAsync(league, options.Value.ApiKey, EuropeanRegion, HeadToHeadMarket,
                     IsoDateFormat, DecimalOddsFormat, null, null, cancellationToken).ConfigureAwait(false);
 
                 result.AddRange(converter.ToUpcomingEvents(events));
             }
-            catch (Exception exception) when (!cancellationToken.IsCancellationRequested)
+            // The host winds the run down: what the leagues already answered is kept rather than thrown away.
+            catch (Exception exception) when (cancellationToken.IsCancellationRequested)
+            {
+                logger.LogInformation(exception,
+                    "Collection was cancelled, keeping {Count} upcoming events collected so far", result.Count);
+
+                break;
+            }
+            catch (Exception exception)
             {
                 logger.LogError(exception, "Failed to get upcoming events for {League}", league);
                 failures.Add(exception);

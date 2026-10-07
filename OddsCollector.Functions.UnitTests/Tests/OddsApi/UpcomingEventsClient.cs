@@ -41,17 +41,77 @@ internal sealed class UpcomingEventsClient
     }
 
     [Test]
-    public async Task GetUpcomingEventsAsync_WithRequestedCancellation_ThrowsRatherThanReturningPart()
+    public async Task GetUpcomingEventsAsync_WithCancellationBeforeFirstLeague_ReturnsNothingWithoutCallingApi()
     {
         // Arrange
-        var client = CreateClient([League], Substitute.For<IClient>(),
-            Substitute.For<IOriginalUpcomingEventConverter>());
+        var webApiClientMock = Substitute.For<IClient>();
+
+        var loggerMock = new FakeLogger<FunctionApp.UpcomingEventsClient>();
+
+        var client = CreateClient([League], webApiClientMock, Substitute.For<IOriginalUpcomingEventConverter>(), loggerMock);
 
         // Act
-        var action = () => client.GetUpcomingEventsAsync(new CancellationToken(canceled: true));
+        var results = await client.GetUpcomingEventsAsync(new CancellationToken(canceled: true));
 
         // Assert
-        await action.Should().ThrowAsync<OperationCanceledException>();
+        using var scope = new AssertionScope();
+
+        results.Should().BeEmpty();
+        webApiClientMock.ReceivedCalls().Should().BeEmpty();
+        loggerMock.Collector.GetSnapshot().Should().ContainSingle().Which.Should().BeEquivalentTo(new
+        {
+            Level = LogLevel.Information,
+            Message = "Collection was cancelled, keeping 0 upcoming events collected so far"
+        });
+    }
+
+    [Test]
+    public async Task GetUpcomingEventsAsync_WithCancellationDuringLeague_KeepsResultsOfEarlierLeagues()
+    {
+        // Arrange
+        const string answeredLeague = nameof(answeredLeague);
+        const string cancelledLeague = nameof(cancelledLeague);
+        const string skippedLeague = nameof(skippedLeague);
+
+        using var cancellation = new CancellationTokenSource();
+
+        ICollection<Anonymous2> originalEvents = [new()];
+        var webApiClientMock = Substitute.For<IClient>();
+        webApiClientMock.OddsAsync(answeredLeague, ApiKey, Regions.Eu, Markets.H2h, DateFormat.Iso, OddsFormat.Decimal,
+            null, null, Arg.Any<CancellationToken>())
+            .Returns(originalEvents);
+        webApiClientMock.OddsAsync(cancelledLeague, ApiKey, Regions.Eu, Markets.H2h, DateFormat.Iso, OddsFormat.Decimal,
+            null, null, Arg.Any<CancellationToken>())
+            .Returns(_ =>
+            {
+                // The host cancels the run while the request is in flight.
+                cancellation.Cancel();
+                return Task.FromCanceled<ICollection<Anonymous2>>(cancellation.Token);
+            });
+
+        UpcomingEvent[] converted = [new()];
+        var converterStub = Substitute.For<IOriginalUpcomingEventConverter>();
+        converterStub.ToUpcomingEvents(originalEvents).Returns(converted);
+
+        var loggerMock = new FakeLogger<FunctionApp.UpcomingEventsClient>();
+
+        var client = CreateClient([answeredLeague, cancelledLeague, skippedLeague], webApiClientMock,
+            converterStub, loggerMock);
+
+        // Act
+        var results = await client.GetUpcomingEventsAsync(cancellation.Token);
+
+        // Assert
+        using var scope = new AssertionScope();
+
+        results.Should().Equal(converted);
+        await webApiClientMock.DidNotReceive().OddsAsync(skippedLeague, ApiKey, Regions.Eu, Markets.H2h, DateFormat.Iso, OddsFormat.Decimal,
+            null, null, Arg.Any<CancellationToken>());
+        loggerMock.Collector.GetSnapshot().Should().ContainSingle().Which.Should().BeEquivalentTo(new
+        {
+            Level = LogLevel.Information,
+            Message = "Collection was cancelled, keeping 1 upcoming events collected so far"
+        });
     }
 
     [Test]
