@@ -39,4 +39,9 @@
   <ItemGroup>
     <Using Include="System.Threading.ExecutionContext" Alias="ExecutionContext"/>
   </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="OddsCollector.Functions.UnitTests"/>
+    <InternalsVisibleTo Include="OddsCollector.Functions.IntegrationTests"/>
+    <InternalsVisibleTo Include="DynamicProxyGenAssembly2"/>
+  </ItemGroup>
 </Project>
