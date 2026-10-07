@@ -87,6 +87,35 @@ dotnet test OddsCollector.Functions.IntegrationTests
 
 [Deployment technologies in Azure Functions](https://learn.microsoft.com/en-us/azure/azure-functions/functions-deployment-technologies?tabs=windows)
 
+The code follows [Best practices for reliable Azure Functions](https://learn.microsoft.com/en-us/azure/azure-functions/functions-best-practices?tabs=csharp)
+and the [Azure Well-Architected Framework guide for Azure Functions](https://learn.microsoft.com/en-us/azure/well-architected/service-guides/azure-functions).
+Part of that guidance is about the Azure resources rather than the code; configure the function app as follows.
+
+- **Hosting plan.** The workload is a couple of timers, a queue and a rarely called HTTP endpoint, so
+  the [Flex Consumption plan](https://learn.microsoft.com/en-us/azure/azure-functions/flex-consumption-plan)
+  fits it best. Turn on zone redundancy where the region supports it.
+- **Storage.** Give the function app its own storage account in the same region; do not share
+  `AzureWebJobsStorage` with other apps.
+- **Managed identity instead of secrets.** Turn on a managed identity and use
+  [identity-based connections](https://learn.microsoft.com/en-us/azure/azure-functions/functions-reference#configure-an-identity-based-connection)
+  instead of connection strings. The bindings read them from the same setting prefixes:
+  `CosmosDb:Connection__accountEndpoint` (role: Cosmos DB Built-in Data Contributor),
+  `ServiceBus:Connection__fullyQualifiedNamespace` (roles: Azure Service Bus Data Sender and Receiver) and
+  `AzureWebJobsStorage__accountName` (role: Storage Blob Data Owner).
+- **Key Vault.** Keep `OddsApiClient:ApiKey` in Azure Key Vault and reference it from the app setting with a
+  [Key Vault reference](https://learn.microsoft.com/en-us/azure/app-service/app-service-key-vault-references).
+- **Network and access.** Require HTTPS with TLS 1.2 or later and turn off FTP and basic authentication for
+  deployment. `PredictionsHttpFunction` needs a function key; put it behind Microsoft Entra ID authentication or
+  API Management if it is exposed beyond trusted callers.
+- **Reliability.** `UpcomingEventsFunction` and `EventResultsFunction` have a built-in retry policy for failed runs;
+  The Odds API calls are retried by the standard HTTP resilience handler; Service Bus redelivers a failed
+  `PredictionFunction` message and dead-letters it after the queue's max delivery count. Cosmos DB documents are keyed
+  by the event id, so a retried run or a duplicate message overwrites a document rather than adding another. `host.json` caps a run at 10 minutes.
+- **Deployment.** Deploy the package from CI/CD (run from package), and use rolling updates on Flex Consumption
+  or a staging slot on other plans for zero-downtime releases.
+- **Monitoring.** Set `APPLICATIONINSIGHTS_CONNECTION_STRING`, do not set `AzureWebJobsDashboard`, and add alerts for
+  failed invocations, dead-lettered messages and a low `x-requests-remaining` quota in the `Odds API credits` log.
+
 # Special thanks
 
 Special thanks to JetBrains and their [Open Source Support Program](https://www.jetbrains.com/community/opensource/#support) for providing a free license for their products.
