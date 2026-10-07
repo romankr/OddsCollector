@@ -182,7 +182,10 @@ internal sealed class EventResultsClient
     private static FunctionApp.EventResultsClient CreateClient(HashSet<string> leagues, IClient webApiClient,
         IOriginalCompletedEventConverter converter, ILogger<FunctionApp.EventResultsClient>? logger = null)
     {
-        var options = Options.Create(new OddsApiClientOptions { Leagues = leagues, ApiKey = ApiKey });
+        var clientOptions = new OddsApiClientOptions { ApiKey = ApiKey };
+        clientOptions.AddLeagues(string.Join(';', leagues));
+
+        var options = Options.Create(clientOptions);
 
         return new FunctionApp.EventResultsClient(logger ?? NullLogger<FunctionApp.EventResultsClient>.Instance,
             options, webApiClient, converter);

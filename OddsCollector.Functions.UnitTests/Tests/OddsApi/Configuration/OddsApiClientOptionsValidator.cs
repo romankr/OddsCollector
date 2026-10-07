@@ -7,7 +7,10 @@ internal sealed class OddsApiClientOptionsValidator
 {
     private static FunctionApp.OddsApiClientOptions CreateValidOptions()
     {
-        return new FunctionApp.OddsApiClientOptions { Leagues = ["soccer_epl"], ApiKey = "key" };
+        var options = new FunctionApp.OddsApiClientOptions { ApiKey = "key" };
+        options.AddLeagues("soccer_epl");
+
+        return options;
     }
 
     [Test]
@@ -33,8 +36,7 @@ internal sealed class OddsApiClientOptionsValidator
     [Test]
     public void Validate_WithoutLeagues_FailsNamingTheSetting()
     {
-        var options = CreateValidOptions();
-        options.Leagues.Clear();
+        var options = new FunctionApp.OddsApiClientOptions { ApiKey = "key" };
 
         var result = new FunctionApp.OddsApiClientOptionsValidator().Validate(null, options);
 

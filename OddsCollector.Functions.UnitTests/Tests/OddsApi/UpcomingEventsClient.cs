@@ -184,7 +184,10 @@ internal sealed class UpcomingEventsClient
     private static FunctionApp.UpcomingEventsClient CreateClient(HashSet<string> leagues, IClient webApiClient,
         IOriginalUpcomingEventConverter converter, ILogger<FunctionApp.UpcomingEventsClient>? logger = null)
     {
-        var options = Options.Create(new OddsApiClientOptions { Leagues = leagues, ApiKey = ApiKey });
+        var clientOptions = new OddsApiClientOptions { ApiKey = ApiKey };
+        clientOptions.AddLeagues(string.Join(';', leagues));
+
+        var options = Options.Create(clientOptions);
 
         return new FunctionApp.UpcomingEventsClient(logger ?? NullLogger<FunctionApp.UpcomingEventsClient>.Instance,
             options, webApiClient, converter);
