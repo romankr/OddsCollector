@@ -120,6 +120,22 @@ internal sealed class IntegrationEnvironment : IAsyncDisposable
     }
 
     /// <summary>
+    ///     Waits until PredictionsHttpFunction returns the prediction with the given id and returns the whole response.
+    /// </summary>
+    public Task<EventPrediction[]> WaitForPublishedPredictionsAsync(string containingId,
+        CancellationToken cancellationToken)
+    {
+        return WaitForAsync(
+            async token =>
+            {
+                var predictions = await FunctionsHost.TryGetPredictionsAsync(token);
+
+                return predictions?.Any(p => p.Id == containingId) == true ? predictions : null;
+            },
+            $"PredictionsHttpFunction to return prediction {containingId}", cancellationToken);
+    }
+
+    /// <summary>
     ///     Waits for a side effect of the function app and adds the host log to the error if it never comes.
     /// </summary>
     private async Task<T> WaitForAsync<T>(Func<CancellationToken, Task<T?>> probe, string description,

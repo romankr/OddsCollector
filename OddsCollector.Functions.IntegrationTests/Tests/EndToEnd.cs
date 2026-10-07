@@ -134,6 +134,46 @@ internal sealed class EndToEnd
         publishedPrediction.Should().BeEquivalentTo(prediction);
     }
 
+    /// <remarks>
+    ///     The kick-offs are a few hours away, nearer than those of the other tests (two days away), so the
+    ///     hundred nearest upcoming predictions in the shared container are all from this test.
+    /// </remarks>
+    [Test]
+    [CancelAfter(TestTimeoutMilliseconds)]
+    public async Task PredictionsHttpFunction_MoreThanHundredUpcomingPredictions_ReturnsHundredNearest(
+        CancellationToken cancellationToken)
+    {
+        // Arrange
+        const int returnedCount = 100;
+
+        var firstKickOff = TestData.KickOffInHours(2);
+
+        var predictions = Enumerable.Range(0, returnedCount + 1)
+            .Select(minutes => new EventPrediction
+            {
+                Id = TestData.NewId("nearest"),
+                HomeTeam = "Arsenal",
+                AwayTeam = "Chelsea",
+                CommenceTime = firstKickOff.AddMinutes(minutes),
+                Outcome = OutcomeTypes.HomeTeam
+            })
+            .ToList();
+
+        // Stored in reverse, so the order of the response comes from the query rather than from insertion.
+        foreach (var prediction in Enumerable.Reverse(predictions))
+        {
+            await Environment.StorePredictionAsync(prediction, cancellationToken);
+        }
+
+        // Act
+        var publishedPredictions =
+            await Environment.WaitForPublishedPredictionsAsync(predictions[0].Id, cancellationToken);
+
+        // Assert: the nearest hundred, in kick-off order, without the latest one.
+        publishedPredictions.Select(p => p.Id).Should()
+            .Equal(predictions.Take(returnedCount).Select(p => p.Id));
+    }
+
     /// <summary>
     ///     The whole app as it runs in Azure: both timer functions collect from The Odds API and every
     ///     step after them is triggered by what the previous one produced.
