@@ -1,4 +1,5 @@
 ﻿using OddsCollector.Functions.Models;
+using OddsCollector.Functions.Tests.Infrastructure.Models;
 using FunctionApp = OddsCollector.Functions.Predictions;
 
 namespace OddsCollector.Functions.Tests.Tests.Predictions;
@@ -14,7 +15,8 @@ internal sealed class PredictionStrategy
             Id = "id",
             AwayTeam = "awayTeam",
             HomeTeam = "homeTeam",
-            CommenceTime = new DateTime(2026, 9, 22, 18, 0, 0, DateTimeKind.Utc)
+            CommenceTime = new DateTime(2026, 9, 22, 18, 0, 0, DateTimeKind.Utc),
+            Odds = [ValidModels.CreateOdd()]
         };
 
         var predictorStub = Substitute.For<FunctionApp.IOutcomePredictor>();

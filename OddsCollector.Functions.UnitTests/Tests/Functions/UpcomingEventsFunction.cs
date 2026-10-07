@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging.Testing;
 using NSubstitute.ExceptionExtensions;
 using OddsCollector.Functions.Models;
 using OddsCollector.Functions.OddsApi;
+using OddsCollector.Functions.Tests.Infrastructure.Models;
 using FunctionApp = OddsCollector.Functions.Functions;
 
 namespace OddsCollector.Functions.Tests.Tests.Functions;
@@ -15,7 +16,7 @@ internal sealed class UpcomingEventsFunction
     public async Task Run_WithUpcomingEvents_ReturnsThemWithoutLogging()
     {
         // Arrange
-        UpcomingEvent[] upcomingEvents = [new()];
+        UpcomingEvent[] upcomingEvents = [ValidModels.CreateUpcomingEvent()];
 
         var clientStub = Substitute.For<IUpcomingEventsClient>();
         clientStub.GetUpcomingEventsAsync(Arg.Any<CancellationToken>()).Returns(upcomingEvents);

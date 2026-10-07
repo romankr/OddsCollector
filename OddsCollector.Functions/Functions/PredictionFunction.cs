@@ -29,17 +29,15 @@ internal sealed class PredictionFunction(
     {
         try
         {
-            // A body of JSON null deserializes without an error, but there is no event to predict.
+            // A body of JSON null deserializes without an error, but there is no event to predict. An event
+            // with a missing or invalid value (a time that is not UTC, for example) fails to deserialize.
+            // Either fails the same way on every delivery, so the message is dead-lettered below.
             var @event = message.Body.ToObjectFromJson<UpcomingEvent>()
                          ?? throw new JsonException("Message body is null");
 
-            var commenceTime = @event.CommenceTime;
-
             // A message can wait in the queue past kick-off. The pre-match prediction stored
             // by an earlier message is kept rather than replaced by a late one.
-            // Require throws for a time that is not UTC, as it cannot be compared with now. Such a
-            // message fails the same way on every delivery, so it is dead-lettered below.
-            if (UtcDateTime.Require(commenceTime) <= timeProvider.GetUtcNow().UtcDateTime)
+            if (@event.CommenceTime <= timeProvider.GetUtcNow().UtcDateTime)
             {
                 logger.LogInformation("Skipped event {Id}: already started", @event.Id);
 

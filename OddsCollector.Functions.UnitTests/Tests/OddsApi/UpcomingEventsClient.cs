@@ -8,6 +8,7 @@ using OddsCollector.Functions.Models;
 using OddsCollector.Functions.OddsApi.Configuration;
 using OddsCollector.Functions.OddsApi.Converters;
 using OddsCollector.Functions.OddsApi.WebApi;
+using OddsCollector.Functions.Tests.Infrastructure.Models;
 using FunctionApp = OddsCollector.Functions.OddsApi;
 
 namespace OddsCollector.Functions.Tests.Tests.OddsApi;
@@ -27,7 +28,7 @@ internal sealed class UpcomingEventsClient
         webApiClientStub.OddsAsync(League, ApiKey, Regions.Eu, Markets.H2h, DateFormat.Iso, OddsFormat.Decimal, null,
             null, Arg.Any<CancellationToken>()).Returns(originalEvents);
 
-        UpcomingEvent[] upcomingEvents = [new()];
+        UpcomingEvent[] upcomingEvents = [ValidModels.CreateUpcomingEvent()];
         var converterStub = Substitute.For<IOriginalUpcomingEventConverter>();
         converterStub.ToUpcomingEvents(originalEvents).Returns(upcomingEvents);
 
@@ -89,7 +90,7 @@ internal sealed class UpcomingEventsClient
                 return Task.FromCanceled<ICollection<Anonymous2>>(cancellation.Token);
             });
 
-        UpcomingEvent[] converted = [new()];
+        UpcomingEvent[] converted = [ValidModels.CreateUpcomingEvent()];
         var converterStub = Substitute.For<IOriginalUpcomingEventConverter>();
         converterStub.ToUpcomingEvents(originalEvents).Returns(converted);
 
@@ -130,7 +131,7 @@ internal sealed class UpcomingEventsClient
         webApiClientStub.OddsAsync(workingLeague, ApiKey, Regions.Eu, Markets.H2h, DateFormat.Iso,
             OddsFormat.Decimal, null, null, Arg.Any<CancellationToken>()).Returns(originalEvents);
 
-        UpcomingEvent[] upcomingEvents = [new()];
+        UpcomingEvent[] upcomingEvents = [ValidModels.CreateUpcomingEvent()];
         var converterStub = Substitute.For<IOriginalUpcomingEventConverter>();
         converterStub.ToUpcomingEvents(originalEvents).Returns(upcomingEvents);
 

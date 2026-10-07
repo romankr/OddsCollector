@@ -4,6 +4,7 @@ using Azure.Core.Serialization;
 using FluentAssertions.Execution;
 using OddsCollector.Functions.Models;
 using OddsCollector.Functions.Tests.Infrastructure.Http;
+using OddsCollector.Functions.Tests.Infrastructure.Models;
 using FunctionApp = OddsCollector.Functions.Functions;
 
 namespace OddsCollector.Functions.Tests.Tests.Functions;
@@ -71,7 +72,7 @@ internal sealed class PredictionsHttpFunction
         var function = new FunctionApp.PredictionsHttpFunction();
 
         // Act
-        var action = () => function.Run(requestStub, [new EventPrediction()]);
+        var action = () => function.Run(requestStub, [ValidModels.CreateEventPrediction()]);
 
         // Assert: the failure reaches the host, which logs it and answers with a 500.
         (await action.Should().ThrowAsync<InvalidOperationException>()).Which.Should().BeSameAs(expectedException);

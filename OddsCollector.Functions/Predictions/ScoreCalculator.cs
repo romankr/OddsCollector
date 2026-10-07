@@ -29,7 +29,7 @@ internal sealed class ScoreCalculator : IScoreCalculator
 
         var score = probabilities.Count == 0 ? 0 : probabilities.Average() - adjustment;
 
-        return ToOutcomeScore(outcome, score);
+        return new OutcomeScore { Outcome = outcome, Score = score };
     }
 
     private static List<double> GetImpliedProbabilities(ICollection<Odd> odds, Func<Odd, double> valueExtractor)
@@ -38,13 +38,5 @@ internal sealed class ScoreCalculator : IScoreCalculator
             .Where(o => o >= MinimumDecimalOdds)
             .Select(o => 1 / o)
             .ToList();
-    }
-
-    private static OutcomeScore ToOutcomeScore(string outcome, double score)
-    {
-        return new OutcomeScoreBuilder()
-            .SetOutcome(outcome)
-            .SetScore(score)
-            .Instance;
     }
 }

@@ -19,7 +19,7 @@ internal sealed class ScoreModelConverter
         var action = () => converter.ToEventScore(model);
 
         // Assert
-        action.Should().Throw<ArgumentException>().WithParameterName("scoreModel.Name");
+        action.Should().Throw<ArgumentException>().WithParameterName("Name");
     }
 
     [Test]

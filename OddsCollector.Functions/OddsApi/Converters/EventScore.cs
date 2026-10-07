@@ -1,7 +1,10 @@
-﻿namespace OddsCollector.Functions.OddsApi.Converters;
+﻿using OddsCollector.Functions.Models;
 
-internal sealed class EventScore
+namespace OddsCollector.Functions.OddsApi.Converters;
+
+internal sealed record EventScore
 {
-    public string Name { get; init; } = string.Empty;
-    public int Score { get; init; }
+    public required string Name { get; init => field = Guard.NotBlank(value, nameof(Name)); }
+
+    public required int Score { get; init; }
 }

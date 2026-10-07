@@ -7,8 +7,6 @@ internal sealed class ScoreModelConverter : IScoreModelConverter
 {
     public EventScore ToEventScore(ScoreModel scoreModel)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(scoreModel.Name);
-
         if (!int.TryParse(scoreModel.Score, NumberStyles.Integer, CultureInfo.InvariantCulture, out var score))
         {
             throw new ArgumentException(
@@ -16,6 +14,7 @@ internal sealed class ScoreModelConverter : IScoreModelConverter
                 nameof(scoreModel));
         }
 
-        return new EventScore { Score = score, Name = scoreModel.Name };
+        // A missing name is rejected by EventScore.
+        return new EventScore { Name = scoreModel.Name ?? string.Empty, Score = score };
     }
 }
