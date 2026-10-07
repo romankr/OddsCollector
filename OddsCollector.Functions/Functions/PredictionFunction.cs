@@ -33,9 +33,13 @@ internal sealed class PredictionFunction(
             var @event = message.Body.ToObjectFromJson<UpcomingEvent>()
                          ?? throw new JsonException("Message body is null");
 
+            var commenceTime = @event.CommenceTime;
+
             // A message can wait in the queue past kick-off. The pre-match prediction stored
             // by an earlier message is kept rather than replaced by a late one.
-            if (@event.CommenceTime <= timeProvider.GetUtcNow().UtcDateTime)
+            // Require throws for a time that is not UTC, as it cannot be compared with now. Such a
+            // message fails the same way on every delivery, so it is dead-lettered below.
+            if (UtcDateTime.Require(commenceTime) <= timeProvider.GetUtcNow().UtcDateTime)
             {
                 logger.LogInformation("Skipped event {Id}: already started", @event.Id);
 

@@ -163,6 +163,33 @@ internal sealed class OriginalUpcomingEventConverter
             new { Level = LogLevel.Debug, Message = "Skipped event started: already started" });
     }
 
+    [TestCase(DateTimeKind.Unspecified, TestName = "ToUpcomingEvents_WithUnspecifiedKind_SkipsItWithWarning")]
+    [TestCase(DateTimeKind.Local, TestName = "ToUpcomingEvents_WithLocalKind_SkipsItWithWarning")]
+    public void ToUpcomingEvents_WithNonUtcCommenceTime_SkipsItWithWarning(DateTimeKind kind)
+    {
+        // Arrange
+        var loggerMock = new FakeLogger<FunctionApp.OriginalUpcomingEventConverter>();
+
+        var converter = CreateConverter(loggerMock);
+
+        var nonUtc = CreateEvent("nonUtc");
+        nonUtc.Commence_time = DateTime.SpecifyKind(CommenceTime, kind);
+
+        var upcoming = CreateEvent("upcoming");
+
+        // Act
+        var upcomingEvents = converter.ToUpcomingEvents([nonUtc, upcoming]).ToList();
+
+        // Assert
+        using var scope = new AssertionScope();
+
+        upcomingEvents.Should().ContainSingle().Which.Id.Should().Be("upcoming");
+        var record = loggerMock.Collector.GetSnapshot().Should().ContainSingle().Subject;
+        record.Level.Should().Be(LogLevel.Warning);
+        record.Message.Should().Be("Skipped event nonUtc");
+        record.Exception.Should().BeOfType<ArgumentException>();
+    }
+
     private static FunctionApp.OriginalUpcomingEventConverter CreateConverter(
         ILogger<FunctionApp.OriginalUpcomingEventConverter>? logger = null)
     {

@@ -60,6 +60,17 @@ internal sealed class UpcomingEventBuilder
         action.Should().Throw<ArgumentNullException>().WithParameterName("odds");
     }
 
+    [TestCase(DateTimeKind.Unspecified, TestName = "SetCommenceTime_WithUnspecifiedKind_ThrowsArgumentException")]
+    [TestCase(DateTimeKind.Local, TestName = "SetCommenceTime_WithLocalKind_ThrowsArgumentException")]
+    public void SetCommenceTime_WithNonUtcDateTime_ThrowsArgumentException(DateTimeKind kind)
+    {
+        var builder = new FunctionApp.UpcomingEventBuilder();
+
+        var action = () => builder.SetCommenceTime(new DateTime(2026, 9, 22, 18, 0, 0, kind));
+
+        action.Should().Throw<ArgumentException>().WithParameterName("commenceTime");
+    }
+
     [Test]
     public void Setters_WithValidValues_SetProperties()
     {

@@ -15,12 +15,7 @@ internal sealed class UpcomingEventBuilder
 
     public UpcomingEventBuilder SetCommenceTime(DateTime? commenceTime)
     {
-        if (!commenceTime.HasValue)
-        {
-            throw new ArgumentNullException(nameof(commenceTime));
-        }
-
-        Instance.CommenceTime = commenceTime.Value;
+        Instance.CommenceTime = UtcDateTime.Require(commenceTime);
 
         return this;
     }
