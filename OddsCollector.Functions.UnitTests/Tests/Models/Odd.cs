@@ -1,4 +1,4 @@
-﻿using OddsCollector.Functions.Tests.Infrastructure.Models;
+﻿using OddsCollector.Tests.Infrastructure.Models;
 
 namespace OddsCollector.Functions.Tests.Tests.Models;
 

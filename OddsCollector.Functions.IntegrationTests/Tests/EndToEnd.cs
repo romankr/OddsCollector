@@ -3,6 +3,7 @@ using OddsCollector.Functions.Functions;
 using OddsCollector.Functions.IntegrationTests.Infrastructure;
 using OddsCollector.Functions.IntegrationTests.Infrastructure.OddsApi;
 using OddsCollector.Functions.Models;
+using OddsCollector.Tests.Infrastructure.Models;
 
 namespace OddsCollector.Functions.IntegrationTests.Tests;
 
@@ -116,13 +117,10 @@ internal sealed class EndToEnd
         CancellationToken cancellationToken)
     {
         // Arrange
-        var prediction = new EventPrediction
+        var prediction = ValidModels.CreateEventPrediction() with
         {
             Id = TestData.NewId("prediction"),
-            HomeTeam = "Arsenal",
-            AwayTeam = "Chelsea",
-            CommenceTime = TestData.KickOffInDays(2),
-            Outcome = OutcomeTypes.HomeTeam
+            CommenceTime = TestData.KickOffInDays(2)
         };
 
         await Environment.StorePredictionAsync(prediction, cancellationToken);
@@ -151,13 +149,10 @@ internal sealed class EndToEnd
         var firstKickOff = TestData.KickOffInHours(2);
 
         var predictions = Enumerable.Range(0, returnedCount + 1)
-            .Select(minutes => new EventPrediction
+            .Select(minutes => ValidModels.CreateEventPrediction() with
             {
                 Id = TestData.NewId("nearest"),
-                HomeTeam = "Arsenal",
-                AwayTeam = "Chelsea",
-                CommenceTime = firstKickOff.AddMinutes(minutes),
-                Outcome = OutcomeTypes.HomeTeam
+                CommenceTime = firstKickOff.AddMinutes(minutes)
             })
             .ToList();
 

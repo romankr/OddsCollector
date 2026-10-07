@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Test infrastructure that the unit and the integration tests share. A plain library rather than a test
+    project: it has no tests of its own, so dotnet test skips it.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <IsPackable>false</IsPackable>
+    <IsTestProject>false</IsTestProject>
+  </PropertyGroup>
+
+  <!-- The models of the function app are internal; see InternalsVisibleTo in its Program.cs. -->
+  <ItemGroup>
+    <ProjectReference Include="..\OddsCollector.Functions\OddsCollector.Functions.csproj"/>
+  </ItemGroup>
+
+  <!-- Internal for the same reason: its types expose the internal models. -->
+  <ItemGroup>
+    <InternalsVisibleTo Include="OddsCollector.Functions.UnitTests"/>
+    <InternalsVisibleTo Include="OddsCollector.Functions.IntegrationTests"/>
+  </ItemGroup>
+
+</Project>

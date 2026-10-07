@@ -4,7 +4,7 @@ using Azure.Core.Serialization;
 using FluentAssertions.Execution;
 using OddsCollector.Functions.Models;
 using OddsCollector.Functions.Tests.Infrastructure.Http;
-using OddsCollector.Functions.Tests.Infrastructure.Models;
+using OddsCollector.Tests.Infrastructure.Models;
 using FunctionApp = OddsCollector.Functions.Functions;
 
 namespace OddsCollector.Functions.Tests.Tests.Functions;

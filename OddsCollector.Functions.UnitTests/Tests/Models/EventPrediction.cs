@@ -1,5 +1,5 @@
 ﻿using System.Text.Json;
-using OddsCollector.Functions.Tests.Infrastructure.Models;
+using OddsCollector.Tests.Infrastructure.Models;
 using FunctionApp = OddsCollector.Functions.Models;
 
 namespace OddsCollector.Functions.Tests.Tests.Models;

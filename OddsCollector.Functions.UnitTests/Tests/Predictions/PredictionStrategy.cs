@@ -1,5 +1,5 @@
 ﻿using OddsCollector.Functions.Models;
-using OddsCollector.Functions.Tests.Infrastructure.Models;
+using OddsCollector.Tests.Infrastructure.Models;
 using FunctionApp = OddsCollector.Functions.Predictions;
 
 namespace OddsCollector.Functions.Tests.Tests.Predictions;

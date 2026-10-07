@@ -83,6 +83,9 @@ dotnet test OddsCollector.Functions.IntegrationTests
 `ODDSCOLLECTOR_FUNC_PATH` (path to `func`), `ODDSCOLLECTOR_FUNCTION_APP_DIRECTORY` (built function app),
 `ODDSCOLLECTOR_COSMOSDB_EMULATOR_IMAGE` (Cosmos DB emulator image).
 
+Both test projects build on `OddsCollector.Tests.Infrastructure`, a library with the test infrastructure they
+share, such as `ValidModels` for models with every required member set.
+
 # Deployment
 
 [Deployment technologies in Azure Functions](https://learn.microsoft.com/en-us/azure/azure-functions/functions-deployment-technologies?tabs=windows)

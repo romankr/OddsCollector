@@ -1,6 +1,6 @@
 ﻿using OddsCollector.Functions.Models;
 
-namespace OddsCollector.Functions.Tests.Infrastructure.Models;
+namespace OddsCollector.Tests.Infrastructure.Models;
 
 /// <summary>
 ///     Models with every required member set to a valid value, for tests that only need one to exist.

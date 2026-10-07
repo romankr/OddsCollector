@@ -8,9 +8,9 @@ using Microsoft.Extensions.Logging.Testing;
 using NSubstitute.ExceptionExtensions;
 using OddsCollector.Functions.Models;
 using OddsCollector.Functions.Predictions;
-using OddsCollector.Functions.Tests.Infrastructure.Models;
 using OddsCollector.Functions.Tests.Infrastructure.ServiceBus;
 using OddsCollector.Functions.Tests.Infrastructure.Time;
+using OddsCollector.Tests.Infrastructure.Models;
 using FunctionApp = OddsCollector.Functions.Functions;
 
 namespace OddsCollector.Functions.Tests.Tests.Functions;

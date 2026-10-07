@@ -4,6 +4,7 @@ using Microsoft.Extensions.Hosting;
 
 [assembly: InternalsVisibleTo("OddsCollector.Functions.UnitTests")]
 [assembly: InternalsVisibleTo("OddsCollector.Functions.IntegrationTests")]
+[assembly: InternalsVisibleTo("OddsCollector.Tests.Infrastructure")]
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
 
 namespace OddsCollector.Functions;
