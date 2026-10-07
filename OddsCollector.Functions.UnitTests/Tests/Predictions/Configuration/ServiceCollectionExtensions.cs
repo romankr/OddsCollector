@@ -17,7 +17,7 @@ internal sealed class ServiceCollectionExtensions
     }
 
     [Test]
-    public void AddPredictionStrategy_ResolvesPredictionStrategy()
+    public void AddPredictionStrategy_ResolvingPredictionStrategy_ReturnsSingletonInstance()
     {
         using var provider = BuildProvider();
 
@@ -30,7 +30,7 @@ internal sealed class ServiceCollectionExtensions
     }
 
     [Test]
-    public void AddPredictionStrategy_ResolvesOutcomePredictor()
+    public void AddPredictionStrategy_ResolvingOutcomePredictor_ReturnsSingletonInstance()
     {
         using var provider = BuildProvider();
 
@@ -43,7 +43,7 @@ internal sealed class ServiceCollectionExtensions
     }
 
     [Test]
-    public void AddPredictionStrategy_ResolvesScoreCalculator()
+    public void AddPredictionStrategy_ResolvingScoreCalculator_ReturnsSingletonInstance()
     {
         using var provider = BuildProvider();
 
@@ -56,7 +56,7 @@ internal sealed class ServiceCollectionExtensions
     }
 
     [Test]
-    public void AddPredictionStrategy_ResolvesSystemTimeProvider()
+    public void AddPredictionStrategy_ResolvingTimeProvider_ReturnsSystemTimeProvider()
     {
         using var provider = BuildProvider();
 
