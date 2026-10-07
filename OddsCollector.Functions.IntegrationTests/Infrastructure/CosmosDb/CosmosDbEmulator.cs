@@ -89,6 +89,23 @@ internal sealed class CosmosDbEmulator : IAsyncDisposable
             .UpsertItemAsync(item, new PartitionKey(id), cancellationToken: cancellationToken);
     }
 
+    /// <summary>
+    ///     Deletes an item. An item that does not exist counts as deleted.
+    /// </summary>
+    public async Task DeleteItemAsync(string databaseName, string containerName, string id,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            await Client.GetContainer(databaseName, containerName)
+                .DeleteItemAsync<object>(id, new PartitionKey(id), cancellationToken: cancellationToken);
+        }
+        catch (CosmosException exception) when (exception.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            // Already gone.
+        }
+    }
+
     public async Task<T?> TryReadItemAsync<T>(string databaseName, string containerName, string id,
         CancellationToken cancellationToken) where T : class
     {

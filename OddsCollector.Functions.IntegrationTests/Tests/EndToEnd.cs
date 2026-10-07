@@ -136,7 +136,9 @@ internal sealed class EndToEnd
 
     /// <remarks>
     ///     The kick-offs are a few hours away, nearer than those of the other tests (two days away), so the
-    ///     hundred nearest upcoming predictions in the shared container are all from this test.
+    ///     hundred nearest upcoming predictions in the shared container are all from this test. For the same
+    ///     reason they would push the predictions of the other tests out of the response, so the test deletes
+    ///     them before it ends, whether it passes or not.
     /// </remarks>
     [Test]
     [CancelAfter(TestTimeoutMilliseconds)]
@@ -159,19 +161,30 @@ internal sealed class EndToEnd
             })
             .ToList();
 
-        // Stored in reverse, so the order of the response comes from the query rather than from insertion.
-        foreach (var prediction in Enumerable.Reverse(predictions))
+        try
         {
-            await Environment.StorePredictionAsync(prediction, cancellationToken);
+            // Stored in reverse, so the order of the response comes from the query rather than from insertion.
+            foreach (var prediction in Enumerable.Reverse(predictions))
+            {
+                await Environment.StorePredictionAsync(prediction, cancellationToken);
+            }
+
+            // Act
+            var publishedPredictions =
+                await Environment.WaitForPublishedPredictionsAsync(predictions[0].Id, cancellationToken);
+
+            // Assert: the nearest hundred, in kick-off order, without the latest one.
+            publishedPredictions.Select(p => p.Id).Should()
+                .Equal(predictions.Take(returnedCount).Select(p => p.Id));
         }
-
-        // Act
-        var publishedPredictions =
-            await Environment.WaitForPublishedPredictionsAsync(predictions[0].Id, cancellationToken);
-
-        // Assert: the nearest hundred, in kick-off order, without the latest one.
-        publishedPredictions.Select(p => p.Id).Should()
-            .Equal(predictions.Take(returnedCount).Select(p => p.Id));
+        finally
+        {
+            // Not the test's token: the cleanup has to run even when the test timed out.
+            foreach (var prediction in predictions)
+            {
+                await Environment.DeletePredictionAsync(prediction.Id, CancellationToken.None);
+            }
+        }
     }
 
     /// <summary>
