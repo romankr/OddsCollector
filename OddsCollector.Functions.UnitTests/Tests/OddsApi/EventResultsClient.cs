@@ -8,6 +8,7 @@ using OddsCollector.Functions.Models;
 using OddsCollector.Functions.OddsApi.Configuration;
 using OddsCollector.Functions.OddsApi.Converters;
 using OddsCollector.Functions.OddsApi.WebApi;
+using OddsCollector.Functions.Tests.Infrastructure.Models;
 using FunctionApp = OddsCollector.Functions.OddsApi;
 
 namespace OddsCollector.Functions.Tests.Tests.OddsApi;
@@ -28,7 +29,7 @@ internal sealed class EventResultsClient
         var webApiClientStub = Substitute.For<IClient>();
         webApiClientStub.ScoresAsync(League, ApiKey, DaysFrom, Arg.Any<CancellationToken>()).Returns(originalEvents);
 
-        EventResult[] eventResults = [new()];
+        EventResult[] eventResults = [ValidModels.CreateEventResult()];
         var converterStub = Substitute.For<IOriginalCompletedEventConverter>();
         converterStub.ToEventResults(originalEvents).Returns(eventResults);
 
@@ -88,7 +89,7 @@ internal sealed class EventResultsClient
                 return Task.FromCanceled<ICollection<Anonymous3>>(cancellation.Token);
             });
 
-        EventResult[] converted = [new()];
+        EventResult[] converted = [ValidModels.CreateEventResult()];
         var converterStub = Substitute.For<IOriginalCompletedEventConverter>();
         converterStub.ToEventResults(originalEvents).Returns(converted);
 
@@ -128,7 +129,7 @@ internal sealed class EventResultsClient
         webApiClientStub.ScoresAsync(workingLeague, ApiKey, DaysFrom, Arg.Any<CancellationToken>())
             .Returns(originalEvents);
 
-        EventResult[] eventResults = [new()];
+        EventResult[] eventResults = [ValidModels.CreateEventResult()];
         var converterStub = Substitute.For<IOriginalCompletedEventConverter>();
         converterStub.ToEventResults(originalEvents).Returns(eventResults);
 

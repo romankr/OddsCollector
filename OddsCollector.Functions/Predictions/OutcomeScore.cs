@@ -1,7 +1,10 @@
-﻿namespace OddsCollector.Functions.Predictions;
+﻿using OddsCollector.Functions.Models;
 
-internal sealed class OutcomeScore
+namespace OddsCollector.Functions.Predictions;
+
+internal sealed record OutcomeScore
 {
-    public double Score { get; set; }
-    public string Outcome { get; set; } = string.Empty;
+    public required double Score { get; init; }
+
+    public required string Outcome { get; init => field = Guard.NotBlank(value, nameof(Outcome)); }
 }

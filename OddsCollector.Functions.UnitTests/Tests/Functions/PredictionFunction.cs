@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging.Testing;
 using NSubstitute.ExceptionExtensions;
 using OddsCollector.Functions.Models;
 using OddsCollector.Functions.Predictions;
+using OddsCollector.Functions.Tests.Infrastructure.Models;
 using OddsCollector.Functions.Tests.Infrastructure.ServiceBus;
 using OddsCollector.Functions.Tests.Infrastructure.Time;
 using FunctionApp = OddsCollector.Functions.Functions;
@@ -23,7 +24,7 @@ internal sealed class PredictionFunction
     public async Task Run_WithUpcomingEvent_ReturnsPrediction()
     {
         // Arrange
-        var expectedPrediction = new EventPrediction { Id = EventId, Outcome = OutcomeTypes.HomeTeam };
+        var expectedPrediction = ValidModels.CreateEventPrediction() with { Id = EventId };
 
         var strategyStub = Substitute.For<IPredictionStrategy>();
         strategyStub.GetPrediction(Arg.Any<UpcomingEvent>()).Returns(expectedPrediction);
@@ -113,7 +114,9 @@ internal sealed class PredictionFunction
         var function = CreateFunction(strategyMock);
 
         var message = ServiceBusReceivedMessageFactory.CreateFromText(
-            $$"""{"Id":"{{EventId}}","CommenceTime":"{{commenceTime}}"}""");
+            $$"""
+              {"Id":"{{EventId}}","HomeTeam":"home","AwayTeam":"away","CommenceTime":"{{commenceTime}}","Odds":[]}
+              """);
 
         // Act
         var prediction = await function.Run(message, messageActionsMock, CancellationToken.None);
@@ -127,7 +130,7 @@ internal sealed class PredictionFunction
 
         await messageActionsMock.Received(1).DeadLetterMessageAsync(message, Arg.Any<Dictionary<string, object>?>(),
             nameof(ArgumentException),
-            Arg.Is<string>(d => d.StartsWith($"commenceTime must be UTC. Actual kind: {expectedKind}")),
+            Arg.Is<string>(d => d.StartsWith($"CommenceTime must be UTC. Actual kind: {expectedKind}")),
             Arg.Any<CancellationToken>());
     }
 
@@ -191,10 +194,11 @@ internal sealed class PredictionFunction
 
     private static UpcomingEvent CreateUpcomingEvent(int minutesFromNow)
     {
-        return new UpcomingEvent
+        return ValidModels.CreateUpcomingEvent() with
         {
             Id = EventId,
-            CommenceTime = FixedTimeProvider.Now.UtcDateTime.AddMinutes(minutesFromNow)
+            CommenceTime = FixedTimeProvider.Now.UtcDateTime.AddMinutes(minutesFromNow),
+            Odds = []
         };
     }
 }

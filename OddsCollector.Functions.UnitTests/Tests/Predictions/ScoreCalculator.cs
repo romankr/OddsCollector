@@ -23,8 +23,8 @@ internal sealed class ScoreCalculator
         // Arrange
         List<Odd> odds =
         [
-            new() { Away = 1, Draw = 2, Home = 3 },
-            new() { Away = 3, Draw = 2, Home = 1 }
+            new() { Bookmaker = "bookmaker", Away = 1, Draw = 2, Home = 3 },
+            new() { Bookmaker = "bookmaker", Away = 3, Draw = 2, Home = 1 }
         ];
 
         var calculator = new FunctionApp.ScoreCalculator();
@@ -43,9 +43,9 @@ internal sealed class ScoreCalculator
         // Arrange
         List<Odd> odds =
         [
-            new() { Home = 4.5, Draw = 1.5, Away = 4.5 },
-            new() { Home = 4.5, Draw = 6.0, Away = 4.5 },
-            new() { Home = 4.5, Draw = 6.0, Away = 4.5 }
+            new() { Bookmaker = "bookmaker", Home = 4.5, Draw = 1.5, Away = 4.5 },
+            new() { Bookmaker = "bookmaker", Home = 4.5, Draw = 6.0, Away = 4.5 },
+            new() { Bookmaker = "bookmaker", Home = 4.5, Draw = 6.0, Away = 4.5 }
         ];
 
         var calculator = new FunctionApp.ScoreCalculator();
@@ -70,9 +70,9 @@ internal sealed class ScoreCalculator
         // Arrange
         List<Odd> odds =
         [
-            new() { Home = 2, Draw = 2, Away = 2 },
-            new() { Home = 2, Draw = 0, Away = 2 },
-            new() { Home = 2, Draw = 2, Away = 2 }
+            new() { Bookmaker = "bookmaker", Home = 2, Draw = 2, Away = 2 },
+            new() { Bookmaker = "bookmaker", Home = 2, Draw = 0, Away = 2 },
+            new() { Bookmaker = "bookmaker", Home = 2, Draw = 2, Away = 2 }
         ];
 
         var calculator = new FunctionApp.ScoreCalculator();
@@ -91,7 +91,7 @@ internal sealed class ScoreCalculator
     public void GetScores_WithUnusableOdds_ScoresNothing(double value)
     {
         // Arrange
-        List<Odd> odds = [new() { Away = value, Draw = value, Home = value }];
+        List<Odd> odds = [new() { Bookmaker = "bookmaker", Away = value, Draw = value, Home = value }];
 
         var calculator = new FunctionApp.ScoreCalculator();
 

@@ -44,10 +44,12 @@ internal sealed class OriginalCompletedEventConverter(
 
     private EventResult ToEventResult(Anonymous3 originalEvent)
     {
-        return new EventResultBuilder()
-            .SetId(originalEvent.Id)
-            .SetCommenceTime(originalEvent.Commence_time)
-            .SetOutcome(converter.GetOutcome(originalEvent.Scores))
-            .Instance;
+        // A missing id is rejected by EventResult.
+        return new EventResult
+        {
+            Id = originalEvent.Id ?? string.Empty,
+            CommenceTime = originalEvent.Commence_time,
+            Outcome = converter.GetOutcome(originalEvent.Scores)
+        };
     }
 }

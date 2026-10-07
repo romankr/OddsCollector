@@ -1,9 +1,12 @@
 ﻿namespace OddsCollector.Functions.Models;
 
-internal sealed class Odd
+internal sealed record Odd
 {
-    public double Away { get; set; }
-    public string Bookmaker { get; set; } = string.Empty;
-    public double Draw { get; set; }
-    public double Home { get; set; }
+    public required double Away { get; init; }
+
+    public required string Bookmaker { get; init => field = Guard.NotBlank(value, nameof(Bookmaker)); }
+
+    public required double Draw { get; init; }
+
+    public required double Home { get; init; }
 }

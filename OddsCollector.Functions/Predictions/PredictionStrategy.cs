@@ -19,12 +19,13 @@ internal sealed class PredictionStrategy(IOutcomePredictor predictor) : IPredict
 
     private static EventPrediction ToEventPrediction(string outcome, UpcomingEvent upcomingEvent)
     {
-        return new EventPredictionBuilder()
-            .SetAwayTeam(upcomingEvent.AwayTeam)
-            .SetHomeTeam(upcomingEvent.HomeTeam)
-            .SetCommenceTime(upcomingEvent.CommenceTime)
-            .SetId(upcomingEvent.Id)
-            .SetOutcome(outcome)
-            .Instance;
+        return new EventPrediction
+        {
+            AwayTeam = upcomingEvent.AwayTeam,
+            HomeTeam = upcomingEvent.HomeTeam,
+            CommenceTime = upcomingEvent.CommenceTime,
+            Id = upcomingEvent.Id,
+            Outcome = outcome
+        };
     }
 }

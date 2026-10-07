@@ -1,4 +1,5 @@
 ﻿using OddsCollector.Functions.Models;
+using OddsCollector.Functions.Tests.Infrastructure.Models;
 using FunctionApp = OddsCollector.Functions.Predictions;
 
 namespace OddsCollector.Functions.Tests.Tests.Predictions;
@@ -20,7 +21,7 @@ internal sealed class OutcomePredictor
         var predictor = new FunctionApp.OutcomePredictor(calculatorStub);
 
         // Act
-        var outcome = predictor.GetOutcome([new Odd()]);
+        var outcome = predictor.GetOutcome([ValidModels.CreateOdd()]);
 
         // Assert
         outcome.Should().Be(OutcomeTypes.HomeTeam);
@@ -55,7 +56,7 @@ internal sealed class OutcomePredictor
         var predictor = new FunctionApp.OutcomePredictor(calculatorStub);
 
         // Act
-        var action = () => predictor.GetOutcome([new Odd()]);
+        var action = () => predictor.GetOutcome([ValidModels.CreateOdd()]);
 
         // Assert
         action.Should().Throw<ArgumentException>().WithParameterName("odds")
@@ -69,7 +70,7 @@ internal sealed class OutcomePredictor
         var predictor = new FunctionApp.OutcomePredictor(new FunctionApp.ScoreCalculator());
 
         // Act
-        var action = () => predictor.GetOutcome([new Odd { Home = 0, Draw = 0, Away = 0 }]);
+        var action = () => predictor.GetOutcome([ValidModels.CreateOdd(home: 0, draw: 0, away: 0)]);
 
         // Assert
         action.Should().Throw<ArgumentException>().WithParameterName("odds")

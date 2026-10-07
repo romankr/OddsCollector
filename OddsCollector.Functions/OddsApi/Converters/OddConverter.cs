@@ -10,15 +10,18 @@ internal sealed class OddConverter : IOddConverter
         ArgumentNullException.ThrowIfNull(outcomes);
         ArgumentException.ThrowIfNullOrWhiteSpace(bookmaker);
 
-        return new OddBuilder()
-            .SetBookmaker(bookmaker)
-            .SetHome(GetScore(outcomes, homeTeam))
-            .SetAway(GetScore(outcomes, awayTeam))
-            .SetDraw(GetScore(outcomes, OutcomeTypes.Draw)).Instance;
+        return new Odd
+        {
+            Bookmaker = bookmaker,
+            Home = GetPrice(outcomes, homeTeam),
+            Away = GetPrice(outcomes, awayTeam),
+            Draw = GetPrice(outcomes, OutcomeTypes.Draw)
+        };
     }
 
-    private static double? GetScore(IEnumerable<Outcome> outcomes, string oddType)
+    private static double GetPrice(IEnumerable<Outcome> outcomes, string name)
     {
-        return outcomes.First(o => o.Name == oddType).Price;
+        return outcomes.First(o => o.Name == name).Price
+               ?? throw new ArgumentException($"Outcome {name} has no price", nameof(outcomes));
     }
 }

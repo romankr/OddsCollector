@@ -124,7 +124,8 @@ internal sealed class BookmakerConverter
 
         odds.Should().ContainSingle().Which.Bookmaker.Should().Be("working");
         loggerMock.Collector.GetSnapshot().Should().ContainSingle()
-            .Which.Exception.Should().BeOfType<ArgumentNullException>();
+            .Which.Exception.Should().BeOfType<ArgumentException>()
+            .Which.Message.Should().StartWith($"Outcome {HomeTeam} has no price");
     }
 
     [Test]

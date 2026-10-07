@@ -1,6 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-
-namespace OddsCollector.Functions.Models;
+﻿namespace OddsCollector.Functions.Models;
 
 /// <summary>
 ///     Every point in time the app stores or compares is UTC.
@@ -12,19 +10,13 @@ namespace OddsCollector.Functions.Models;
 /// </remarks>
 internal static class UtcDateTime
 {
-    public static DateTime Require(DateTime? value,
-        [CallerArgumentExpression(nameof(value))] string? paramName = null)
+    public static DateTime Require(DateTime value, string name)
     {
-        if (!value.HasValue)
+        if (value.Kind != DateTimeKind.Utc)
         {
-            throw new ArgumentNullException(paramName);
+            throw new ArgumentException($"{name} must be UTC. Actual kind: {value.Kind}", name);
         }
 
-        if (value.Value.Kind != DateTimeKind.Utc)
-        {
-            throw new ArgumentException($"{paramName} must be UTC. Actual kind: {value.Value.Kind}", paramName);
-        }
-
-        return value.Value;
+        return value;
     }
 }

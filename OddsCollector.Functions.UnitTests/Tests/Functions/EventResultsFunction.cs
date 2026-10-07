@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging.Testing;
 using NSubstitute.ExceptionExtensions;
 using OddsCollector.Functions.Models;
 using OddsCollector.Functions.OddsApi;
+using OddsCollector.Functions.Tests.Infrastructure.Models;
 using FunctionApp = OddsCollector.Functions.Functions;
 
 namespace OddsCollector.Functions.Tests.Tests.Functions;
@@ -15,7 +16,7 @@ internal sealed class EventResultsFunction
     public async Task Run_WithEventResults_ReturnsThemWithoutLogging()
     {
         // Arrange
-        EventResult[] eventResults = [new()];
+        EventResult[] eventResults = [ValidModels.CreateEventResult()];
 
         var clientStub = Substitute.For<IEventResultsClient>();
         clientStub.GetEventResultsAsync(Arg.Any<CancellationToken>()).Returns(eventResults);

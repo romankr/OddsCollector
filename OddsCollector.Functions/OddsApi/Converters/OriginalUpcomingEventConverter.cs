@@ -68,14 +68,18 @@ internal sealed class OriginalUpcomingEventConverter(
 
     private UpcomingEvent ToUpcomingEvent(Anonymous2 originalEvent)
     {
-        return new UpcomingEventBuilder()
-            .SetAwayTeam(originalEvent.Away_team)
-            .SetHomeTeam(originalEvent.Home_team)
-            .SetId(originalEvent.Id)
-            .SetCommenceTime(originalEvent.Commence_time)
-            .SetOdds(
-                [.. bookmakerConverter.ToOdds(originalEvent.Bookmakers, originalEvent.Away_team, originalEvent.Home_team)]
-            )
-            .Instance;
+        // Missing values are rejected by UpcomingEvent, before the odds are converted.
+        return new UpcomingEvent
+        {
+            AwayTeam = originalEvent.Away_team ?? string.Empty,
+            HomeTeam = originalEvent.Home_team ?? string.Empty,
+            Id = originalEvent.Id ?? string.Empty,
+            CommenceTime = originalEvent.Commence_time,
+            Odds =
+            [
+                .. bookmakerConverter.ToOdds(originalEvent.Bookmakers, originalEvent.Away_team,
+                    originalEvent.Home_team)
+            ]
+        };
     }
 }
