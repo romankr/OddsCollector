@@ -21,6 +21,7 @@ internal sealed class UpcomingEventsClient(
     public async Task<UpcomingEvent[]> GetUpcomingEventsAsync(CancellationToken cancellationToken)
     {
         List<UpcomingEvent> result = [];
+        List<Exception> failures = [];
 
         foreach (var league in options.Value.Leagues)
         {
@@ -36,7 +37,15 @@ internal sealed class UpcomingEventsClient(
             catch (Exception exception) when (!cancellationToken.IsCancellationRequested)
             {
                 logger.LogError(exception, "Failed to get upcoming events for {League}", league);
+                failures.Add(exception);
             }
+        }
+
+        // A run where no league answered must fail, so that an invalid API key or an exhausted
+        // quota shows up as a failed invocation rather than a successful run with no data.
+        if (failures.Count > 0 && failures.Count == options.Value.Leagues.Count)
+        {
+            throw new AggregateException("Failed to get upcoming events for every league", failures);
         }
 
         return [.. result];

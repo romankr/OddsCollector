@@ -92,6 +92,34 @@ internal sealed class UpcomingEventsClient
         record.Exception.Should().BeSameAs(expectedException);
     }
 
+    [Test]
+    public async Task GetUpcomingEventsAsync_WithEveryLeagueFailing_ThrowsWithEveryFailure()
+    {
+        // Arrange
+        const string firstLeague = nameof(firstLeague);
+        const string secondLeague = nameof(secondLeague);
+
+        var firstException = new HttpRequestException();
+        var secondException = new HttpRequestException();
+
+        var webApiClientStub = Substitute.For<IClient>();
+        webApiClientStub.OddsAsync(firstLeague, ApiKey, Regions.Eu, Markets.H2h, DateFormat.Iso,
+            OddsFormat.Decimal, null, null, Arg.Any<CancellationToken>()).Throws(firstException);
+        webApiClientStub.OddsAsync(secondLeague, ApiKey, Regions.Eu, Markets.H2h, DateFormat.Iso,
+            OddsFormat.Decimal, null, null, Arg.Any<CancellationToken>()).Throws(secondException);
+
+        var client = CreateClient([firstLeague, secondLeague], webApiClientStub,
+            Substitute.For<IOriginalUpcomingEventConverter>());
+
+        // Act
+        var action = () => client.GetUpcomingEventsAsync(CancellationToken.None);
+
+        // Assert
+        var exception = (await action.Should().ThrowExactlyAsync<AggregateException>()).Which;
+        exception.InnerExceptions.Should().Equal(firstException, secondException);
+        exception.Message.Should().StartWith("Failed to get upcoming events for every league");
+    }
+
     private static FunctionApp.UpcomingEventsClient CreateClient(HashSet<string> leagues, IClient webApiClient,
         IOriginalUpcomingEventConverter converter, ILogger<FunctionApp.UpcomingEventsClient>? logger = null)
     {
