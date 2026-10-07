@@ -93,6 +93,34 @@ internal sealed class EventResultsClient
         record.Exception.Should().BeSameAs(expectedException);
     }
 
+    [Test]
+    public async Task GetEventResultsAsync_WithEveryLeagueFailing_ThrowsWithEveryFailure()
+    {
+        // Arrange
+        const string firstLeague = nameof(firstLeague);
+        const string secondLeague = nameof(secondLeague);
+
+        var firstException = new HttpRequestException();
+        var secondException = new HttpRequestException();
+
+        var webApiClientStub = Substitute.For<IClient>();
+        webApiClientStub.ScoresAsync(firstLeague, ApiKey, DaysFrom, Arg.Any<CancellationToken>())
+            .Throws(firstException);
+        webApiClientStub.ScoresAsync(secondLeague, ApiKey, DaysFrom, Arg.Any<CancellationToken>())
+            .Throws(secondException);
+
+        var client = CreateClient([firstLeague, secondLeague], webApiClientStub,
+            Substitute.For<IOriginalCompletedEventConverter>());
+
+        // Act
+        var action = () => client.GetEventResultsAsync(CancellationToken.None);
+
+        // Assert
+        var exception = (await action.Should().ThrowExactlyAsync<AggregateException>()).Which;
+        exception.InnerExceptions.Should().Equal(firstException, secondException);
+        exception.Message.Should().StartWith("Failed to get event results for every league");
+    }
+
     private static FunctionApp.EventResultsClient CreateClient(HashSet<string> leagues, IClient webApiClient,
         IOriginalCompletedEventConverter converter, ILogger<FunctionApp.EventResultsClient>? logger = null)
     {
