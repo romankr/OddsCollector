@@ -134,6 +134,59 @@ internal sealed class EndToEnd
         publishedPrediction.Should().BeEquivalentTo(prediction);
     }
 
+    /// <remarks>
+    ///     The kick-offs are a few hours away, nearer than those of the other tests (two days away), so the
+    ///     hundred nearest upcoming predictions in the shared container are all from this test. For the same
+    ///     reason they would push the predictions of the other tests out of the response, so the test deletes
+    ///     them before it ends, whether it passes or not.
+    /// </remarks>
+    [Test]
+    [CancelAfter(TestTimeoutMilliseconds)]
+    public async Task PredictionsHttpFunction_MoreThanHundredUpcomingPredictions_ReturnsHundredNearest(
+        CancellationToken cancellationToken)
+    {
+        // Arrange
+        const int returnedCount = 100;
+
+        var firstKickOff = TestData.KickOffInHours(2);
+
+        var predictions = Enumerable.Range(0, returnedCount + 1)
+            .Select(minutes => new EventPrediction
+            {
+                Id = TestData.NewId("nearest"),
+                HomeTeam = "Arsenal",
+                AwayTeam = "Chelsea",
+                CommenceTime = firstKickOff.AddMinutes(minutes),
+                Outcome = OutcomeTypes.HomeTeam
+            })
+            .ToList();
+
+        try
+        {
+            // Stored in reverse, so the order of the response comes from the query rather than from insertion.
+            foreach (var prediction in Enumerable.Reverse(predictions))
+            {
+                await Environment.StorePredictionAsync(prediction, cancellationToken);
+            }
+
+            // Act
+            var publishedPredictions =
+                await Environment.WaitForPublishedPredictionsAsync(predictions[0].Id, cancellationToken);
+
+            // Assert: the nearest hundred, in kick-off order, without the latest one.
+            publishedPredictions.Select(p => p.Id).Should()
+                .Equal(predictions.Take(returnedCount).Select(p => p.Id));
+        }
+        finally
+        {
+            // Not the test's token: the cleanup has to run even when the test timed out.
+            foreach (var prediction in predictions)
+            {
+                await Environment.DeletePredictionAsync(prediction.Id, CancellationToken.None);
+            }
+        }
+    }
+
     /// <summary>
     ///     The whole app as it runs in Azure: both timer functions collect from The Odds API and every
     ///     step after them is triggered by what the previous one produced.

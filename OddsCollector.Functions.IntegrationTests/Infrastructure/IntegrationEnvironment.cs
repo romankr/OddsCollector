@@ -98,6 +98,11 @@ internal sealed class IntegrationEnvironment : IAsyncDisposable
             cancellationToken);
     }
 
+    public Task DeletePredictionAsync(string id, CancellationToken cancellationToken)
+    {
+        return CosmosDb.DeleteItemAsync(Database, EventPredictionsContainer, id, cancellationToken);
+    }
+
     public Task<EventPrediction> WaitForStoredPredictionAsync(string id, CancellationToken cancellationToken)
     {
         return WaitForAsync(
@@ -117,6 +122,22 @@ internal sealed class IntegrationEnvironment : IAsyncDisposable
         return WaitForAsync(
             async token => (await FunctionsHost.TryGetPredictionsAsync(token))?.SingleOrDefault(p => p.Id == id),
             $"PredictionsHttpFunction to return prediction {id}", cancellationToken);
+    }
+
+    /// <summary>
+    ///     Waits until PredictionsHttpFunction returns the prediction with the given id and returns the whole response.
+    /// </summary>
+    public Task<EventPrediction[]> WaitForPublishedPredictionsAsync(string containingId,
+        CancellationToken cancellationToken)
+    {
+        return WaitForAsync(
+            async token =>
+            {
+                var predictions = await FunctionsHost.TryGetPredictionsAsync(token);
+
+                return predictions?.Any(p => p.Id == containingId) == true ? predictions : null;
+            },
+            $"PredictionsHttpFunction to return prediction {containingId}", cancellationToken);
     }
 
     /// <summary>

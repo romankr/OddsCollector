@@ -19,8 +19,14 @@ internal static class TestData
     /// </summary>
     public static DateTime KickOffInDays(int days)
     {
+        return KickOffInHours(days * 24);
+    }
+
+    /// <inheritdoc cref="KickOffInDays" />
+    public static DateTime KickOffInHours(int hours)
+    {
         var now = DateTime.UtcNow;
 
-        return new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0, DateTimeKind.Utc).AddDays(days);
+        return new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0, DateTimeKind.Utc).AddHours(hours);
     }
 }
