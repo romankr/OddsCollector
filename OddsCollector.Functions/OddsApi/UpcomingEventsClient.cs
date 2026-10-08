@@ -11,51 +11,26 @@ internal sealed class UpcomingEventsClient(
     ILogger<UpcomingEventsClient> logger,
     IOptions<OddsApiClientOptions> options,
     IClient client,
-    IOriginalUpcomingEventConverter converter) : IUpcomingEventsClient
+    IOriginalUpcomingEventConverter converter) : LeagueClient<UpcomingEvent>(logger, options), IUpcomingEventsClient
 {
     private const DateFormat IsoDateFormat = DateFormat.Iso;
     private const Markets HeadToHeadMarket = Markets.H2h;
     private const OddsFormat DecimalOddsFormat = OddsFormat.Decimal;
     private const Regions EuropeanRegion = Regions.Eu;
 
-    public async Task<UpcomingEvent[]> GetUpcomingEventsAsync(CancellationToken cancellationToken)
+    protected override string ItemsName => "upcoming events";
+
+    public Task<UpcomingEvent[]> GetUpcomingEventsAsync(CancellationToken cancellationToken)
     {
-        List<UpcomingEvent> result = [];
-        List<Exception> failures = [];
+        return CollectAsync(cancellationToken);
+    }
 
-        foreach (var league in options.Value.Leagues)
-        {
-            try
-            {
-                cancellationToken.ThrowIfCancellationRequested();
+    protected override async Task<IEnumerable<UpcomingEvent>> GetLeagueAsync(string league, string apiKey,
+        CancellationToken cancellationToken)
+    {
+        var events = await client.OddsAsync(league, apiKey, EuropeanRegion, HeadToHeadMarket, IsoDateFormat,
+            DecimalOddsFormat, null, null, cancellationToken).ConfigureAwait(false);
 
-                var events = await client.OddsAsync(league, options.Value.ApiKey, EuropeanRegion, HeadToHeadMarket,
-                    IsoDateFormat, DecimalOddsFormat, null, null, cancellationToken).ConfigureAwait(false);
-
-                result.AddRange(converter.ToUpcomingEvents(events));
-            }
-            // The host winds the run down: what the leagues already answered is kept rather than thrown away.
-            catch (Exception exception) when (cancellationToken.IsCancellationRequested)
-            {
-                logger.LogInformation(exception,
-                    "Collection was cancelled, keeping {Count} upcoming events collected so far", result.Count);
-
-                break;
-            }
-            catch (Exception exception)
-            {
-                logger.LogError(exception, "Failed to get upcoming events for {League}", league);
-                failures.Add(exception);
-            }
-        }
-
-        // A run where no league answered must fail, so that an invalid API key or an exhausted
-        // quota shows up as a failed invocation rather than a successful run with no data.
-        if (failures.Count > 0 && failures.Count == options.Value.Leagues.Count)
-        {
-            throw new AggregateException("Failed to get upcoming events for every league", failures);
-        }
-
-        return [.. result];
+        return converter.ToUpcomingEvents(events);
     }
 }
