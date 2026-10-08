@@ -143,8 +143,9 @@ settings as described in [Configuration](#configuration).
   by the event id, so a retried run or a duplicate message overwrites a document rather than adding another.
 - **Deployment.** Deploy the package from CI/CD (run from package), and use rolling updates on Flex Consumption
   or a staging slot on other plans for zero-downtime releases.
-- **Monitoring.** Add alerts for failed invocations, dead-lettered messages and a low `x-requests-remaining` quota in
-  the `Odds API credits` log.
+- **Monitoring.** Add alerts for failed invocations, dead-lettered messages and a low quota: the
+  `Odds API credits` log carries the counts as `RemainingCredits`, `UsedCredits` and `LastCallCredits`
+  (`customDimensions` in Application Insights).
 
 # Special thanks
 
