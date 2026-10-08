@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using FluentAssertions.Execution;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using OddsCollector.Functions.Tests.Infrastructure.Http;
@@ -46,15 +47,27 @@ internal sealed class QuotaLoggingHandler
         return (actual, logger);
     }
 
+    private static object? GetCredits(FakeLogRecord record, string field)
+    {
+        return record.StructuredState!.Single(p => p.Key == field).Value;
+    }
+
     [Test]
-    public async Task SendAsync_WithEveryQuotaHeader_LogsAllOfThem()
+    public async Task SendAsync_WithEveryQuotaHeader_LogsThemAsSeparateFields()
     {
         using var response = CreateResponse("250");
 
         var (_, logger) = await SendAsync(response);
 
-        logger.Collector.GetSnapshot().Should().ContainSingle().Which.Should().BeEquivalentTo(
-            new { Level = LogLevel.Information, Message = "Odds API credits: 250 remaining, 30 used, 1 spent on the last call" });
+        var record = logger.Collector.GetSnapshot().Should().ContainSingle().Subject;
+
+        using var scope = new AssertionScope();
+
+        record.Level.Should().Be(LogLevel.Information);
+        record.Message.Should().Be("Odds API credits: 250 remaining, 30 used, 1 spent on the last call");
+        GetCredits(record, "RemainingCredits").Should().Be("250");
+        GetCredits(record, "UsedCredits").Should().Be("30");
+        GetCredits(record, "LastCallCredits").Should().Be("1");
     }
 
     [Test]
@@ -68,36 +81,35 @@ internal sealed class QuotaLoggingHandler
     }
 
     [Test]
-    public async Task SendAsync_WithOnlyRemainingCredits_LogsThatAlone()
+    public async Task SendAsync_WithOnlyRemainingCredits_LeavesTheOtherFieldsNull()
     {
         using var response = CreateResponse("250", null, null);
 
         var (_, logger) = await SendAsync(response);
 
-        logger.Collector.GetSnapshot().Should().ContainSingle().Which.Should().BeEquivalentTo(
-            new { Level = LogLevel.Information, Message = "Odds API credits: 250 remaining" });
+        var record = logger.Collector.GetSnapshot().Should().ContainSingle().Subject;
+
+        using var scope = new AssertionScope();
+
+        GetCredits(record, "RemainingCredits").Should().Be("250");
+        GetCredits(record, "UsedCredits").Should().BeNull();
+        GetCredits(record, "LastCallCredits").Should().BeNull();
     }
 
     [Test]
-    public async Task SendAsync_WithOnlyTheLastCallHeader_DoesNotLeadWithASeparator()
-    {
-        using var response = CreateResponse(null, null, "2");
-
-        var (_, logger) = await SendAsync(response);
-
-        logger.Collector.GetSnapshot().Should().ContainSingle().Which.Should().BeEquivalentTo(
-            new { Level = LogLevel.Information, Message = "Odds API credits: 2 spent on the last call" });
-    }
-
-    [Test]
-    public async Task SendAsync_WithUnparsableRemainingCredits_LeavesItOut()
+    public async Task SendAsync_WithUnparsableRemainingCredits_LeavesItNull()
     {
         using var response = CreateResponse("unknown");
 
         var (_, logger) = await SendAsync(response);
 
-        logger.Collector.GetSnapshot().Should().ContainSingle().Which.Should().BeEquivalentTo(
-            new { Level = LogLevel.Information, Message = "Odds API credits: 30 used, 1 spent on the last call" });
+        var record = logger.Collector.GetSnapshot().Should().ContainSingle().Subject;
+
+        using var scope = new AssertionScope();
+
+        GetCredits(record, "RemainingCredits").Should().BeNull();
+        GetCredits(record, "UsedCredits").Should().Be("30");
+        GetCredits(record, "LastCallCredits").Should().Be("1");
     }
 
     [Test]

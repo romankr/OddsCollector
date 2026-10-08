@@ -3,7 +3,15 @@ using Microsoft.Extensions.Logging;
 
 namespace OddsCollector.Functions.OddsApi;
 
-internal sealed class QuotaLoggingHandler(ILogger<QuotaLoggingHandler> logger) : DelegatingHandler
+/// <summary>
+///     Logs the credits The Odds API reports on every response.
+/// </summary>
+/// <remarks>
+///     Each count is a separate numeric field of the log record, so an alert can query it directly, for example
+///     <c>customDimensions.RemainingCredits</c> in Application Insights. A count whose header is missing or not
+///     an integer is null.
+/// </remarks>
+internal sealed partial class QuotaLoggingHandler(ILogger<QuotaLoggingHandler> logger) : DelegatingHandler
 {
     internal const string RemainingHeader = "x-requests-remaining";
     internal const string UsedHeader = "x-requests-used";
@@ -26,36 +34,30 @@ internal sealed class QuotaLoggingHandler(ILogger<QuotaLoggingHandler> logger) :
             return;
         }
 
-        List<string> credits = [];
+        var remaining = GetCredits(response, RemainingHeader);
+        var used = GetCredits(response, UsedHeader);
+        var lastCall = GetCredits(response, LastCallHeader);
 
-        if (TryGetCredits(response, RemainingHeader, out var remaining))
-        {
-            credits.Add($"{remaining} remaining");
-        }
-
-        if (TryGetCredits(response, UsedHeader, out var used))
-        {
-            credits.Add($"{used} used");
-        }
-
-        if (TryGetCredits(response, LastCallHeader, out var lastCall))
-        {
-            credits.Add($"{lastCall} spent on the last call");
-        }
-
-        if (credits.Count == 0)
+        if (remaining is null && used is null && lastCall is null)
         {
             return;
         }
 
-        logger.LogInformation("Odds API credits: {Credits}", string.Join(", ", credits));
+        LogCredits(logger, remaining, used, lastCall);
     }
 
-    private static bool TryGetCredits(HttpResponseMessage response, string name, out int credits)
+    private static int? GetCredits(HttpResponseMessage response, string name)
     {
-        credits = 0;
-
         return response.Headers.TryGetValues(name, out var values) &&
-               int.TryParse(values.FirstOrDefault(), NumberStyles.Integer, CultureInfo.InvariantCulture, out credits);
+               int.TryParse(values.FirstOrDefault(), NumberStyles.Integer, CultureInfo.InvariantCulture,
+                   out var credits)
+            ? credits
+            : null;
     }
+
+    [LoggerMessage(Level = LogLevel.Information,
+        Message = "Odds API credits: {RemainingCredits} remaining, {UsedCredits} used, " +
+                  "{LastCallCredits} spent on the last call")]
+    private static partial void LogCredits(ILogger logger, int? remainingCredits, int? usedCredits,
+        int? lastCallCredits);
 }
