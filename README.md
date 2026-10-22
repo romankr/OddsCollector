@@ -6,6 +6,25 @@
 
 The project is designed to implement the algorithm described in "[Beating the bookies with their own numbers - and how the online sports betting market is rigged](https://www.researchgate.net/publication/320296375_Beating_the_bookies_with_their_own_numbers_-_and_how_the_online_sports_betting_market_is_rigged)" using The Odds API as the main source of odds data.
 
+## How the predictions differ from the paper
+
+The difference described here is expected: it is by design, not a bug.
+
+The paper's strategy is about betting value. It works out each outcome's probability from the bookmakers' consensus,
+corrects it with the regression intercepts it found (0.034 for the home team, 0.057 for a draw, 0.037 for the away team),
+and places a bet only where the best odds on offer pay more than that probability is worth. A match can get a bet on
+one outcome, on several or on none.
+
+Odds Collector takes the first two steps and stops there. It averages the probabilities implied by every bookmaker's
+odds, subtracts the same intercepts and predicts the outcome with the highest result, as `HomeTeam`, `Draw` or
+`AwayTeam`. As a result:
+
+- every match with usable odds gets exactly one prediction, even where the paper would not bet;
+- the prediction is usually the favourite, the outcome the bookmakers already rate most likely;
+- the best odds on offer are not used, so a prediction says nothing about whether a bet on it is worth placing.
+
+See `ScoreCalculator` and `OutcomePredictor` for the calculation.
+
 # Supported sports
 
 Only football (soccer) leagues are supported, and this is by design. See `OddsApiClient:Leagues` in
