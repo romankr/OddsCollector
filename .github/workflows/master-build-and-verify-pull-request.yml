@@ -32,6 +32,12 @@ jobs:
         /p:CoverletOutput=lcov.info
         /p:Threshold=70
         /p:ThresholdType=line
+    - name: Upload coverage to Codecov
+      if: always()
+      uses: codecov/codecov-action@v5
+      with:
+        files: OddsCollector.Functions.UnitTests/lcov.info
+        token: ${{ secrets.CODECOV_TOKEN }}
 
   integration-tests:
 

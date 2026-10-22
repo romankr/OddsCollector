@@ -1,4 +1,6 @@
-﻿**Odds Collector** is a software project aimed at gathering and analyzing odds data for football (soccer) leagues from [The Odds API](https://the-odds-api.com/) while leveraging the infrastructure of Microsoft Azure. This application provides a tool for accessing historical odds information and predictions for football matches.
+﻿[![codecov](https://codecov.io/gh/romankr/OddsCollector/graph/badge.svg?branch=master)](https://codecov.io/gh/romankr/OddsCollector)
+
+**Odds Collector** is a software project aimed at gathering and analyzing odds data for football (soccer) leagues from [The Odds API](https://the-odds-api.com/) while leveraging the infrastructure of Microsoft Azure. This application provides a tool for accessing historical odds information and predictions for football matches.
 
 # Purpose
 
