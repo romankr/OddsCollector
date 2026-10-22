@@ -40,7 +40,7 @@ internal sealed class EventResultsFunction
     {
         // Arrange
         var clientStub = Substitute.For<IEventResultsClient>();
-        clientStub.GetEventResultsAsync(Arg.Any<CancellationToken>()).Returns(Array.Empty<EventResult>());
+        clientStub.GetEventResultsAsync(Arg.Any<CancellationToken>()).Returns([]);
 
         var loggerMock = new FakeLogger<FunctionApp.EventResultsFunction>();
 
@@ -62,7 +62,7 @@ internal sealed class EventResultsFunction
     {
         // Arrange
         var clientStub = Substitute.For<IEventResultsClient>();
-        clientStub.GetEventResultsAsync(Arg.Any<CancellationToken>()).Returns(Array.Empty<EventResult>());
+        clientStub.GetEventResultsAsync(Arg.Any<CancellationToken>()).Returns([]);
 
         var loggerMock = new FakeLogger<FunctionApp.EventResultsFunction>();
 

@@ -50,7 +50,8 @@ internal sealed class EventResultsClient
 
         var loggerMock = new FakeLogger<FunctionApp.EventResultsClient>();
 
-        var client = CreateClient([League], webApiClientMock, Substitute.For<IOriginalCompletedEventConverter>(), loggerMock);
+        var client = CreateClient([League], webApiClientMock, Substitute.For<IOriginalCompletedEventConverter>(),
+            loggerMock);
 
         // Act
         var results = await client.GetEventResultsAsync(new CancellationToken(canceled: true));
@@ -105,7 +106,8 @@ internal sealed class EventResultsClient
         using var scope = new AssertionScope();
 
         results.Should().Equal(converted);
-        await webApiClientMock.DidNotReceive().ScoresAsync(skippedLeague, ApiKey, DaysFrom, Arg.Any<CancellationToken>());
+        await webApiClientMock.DidNotReceive()
+            .ScoresAsync(skippedLeague, ApiKey, DaysFrom, Arg.Any<CancellationToken>());
         loggerMock.Collector.GetSnapshot().Should().ContainSingle().Which.Should().BeEquivalentTo(new
         {
             Level = LogLevel.Information,
