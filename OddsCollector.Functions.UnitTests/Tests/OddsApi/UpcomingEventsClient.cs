@@ -49,7 +49,8 @@ internal sealed class UpcomingEventsClient
 
         var loggerMock = new FakeLogger<FunctionApp.UpcomingEventsClient>();
 
-        var client = CreateClient([League], webApiClientMock, Substitute.For<IOriginalUpcomingEventConverter>(), loggerMock);
+        var client = CreateClient([League], webApiClientMock, Substitute.For<IOriginalUpcomingEventConverter>(),
+            loggerMock);
 
         // Act
         var results = await client.GetUpcomingEventsAsync(new CancellationToken(canceled: true));
@@ -106,8 +107,8 @@ internal sealed class UpcomingEventsClient
         using var scope = new AssertionScope();
 
         results.Should().Equal(converted);
-        await webApiClientMock.DidNotReceive().OddsAsync(skippedLeague, ApiKey, Regions.Eu, Markets.H2h, DateFormat.Iso, OddsFormat.Decimal,
-            null, null, Arg.Any<CancellationToken>());
+        await webApiClientMock.DidNotReceive().OddsAsync(skippedLeague, ApiKey, Regions.Eu, Markets.H2h, DateFormat.Iso,
+            OddsFormat.Decimal, null, null, Arg.Any<CancellationToken>());
         loggerMock.Collector.GetSnapshot().Should().ContainSingle().Which.Should().BeEquivalentTo(new
         {
             Level = LogLevel.Information,

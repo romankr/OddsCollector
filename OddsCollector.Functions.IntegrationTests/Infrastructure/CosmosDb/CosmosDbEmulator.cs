@@ -65,7 +65,10 @@ internal sealed class CosmosDbEmulator : IAsyncDisposable
                 LimitToEndpoint = true,
                 // The models name their properties for System.Text.Json (for example "id"), as the
                 // function app stores them.
-                UseSystemTextJsonSerializerWithOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+                UseSystemTextJsonSerializerWithOptions = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                }
             });
     }
 

@@ -40,7 +40,7 @@ internal sealed class UpcomingEventsFunction
     {
         // Arrange
         var clientStub = Substitute.For<IUpcomingEventsClient>();
-        clientStub.GetUpcomingEventsAsync(Arg.Any<CancellationToken>()).Returns(Array.Empty<UpcomingEvent>());
+        clientStub.GetUpcomingEventsAsync(Arg.Any<CancellationToken>()).Returns([]);
 
         var loggerMock = new FakeLogger<FunctionApp.UpcomingEventsFunction>();
 
@@ -62,7 +62,7 @@ internal sealed class UpcomingEventsFunction
     {
         // Arrange
         var clientStub = Substitute.For<IUpcomingEventsClient>();
-        clientStub.GetUpcomingEventsAsync(Arg.Any<CancellationToken>()).Returns(Array.Empty<UpcomingEvent>());
+        clientStub.GetUpcomingEventsAsync(Arg.Any<CancellationToken>()).Returns([]);
 
         var loggerMock = new FakeLogger<FunctionApp.UpcomingEventsFunction>();
 
@@ -125,7 +125,8 @@ internal sealed class UpcomingEventsFunction
     public void Run_FailedRun_IsRetriedByTheHost()
     {
         // Arrange
-        var method = typeof(FunctionApp.UpcomingEventsFunction).GetMethod(nameof(FunctionApp.UpcomingEventsFunction.Run))!;
+        var method = typeof(FunctionApp.UpcomingEventsFunction)
+            .GetMethod(nameof(FunctionApp.UpcomingEventsFunction.Run))!;
 
         // Act
         var retry = method.GetCustomAttributes(typeof(ExponentialBackoffRetryAttribute), inherit: false)
