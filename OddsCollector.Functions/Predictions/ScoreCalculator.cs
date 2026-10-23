@@ -4,11 +4,8 @@ namespace OddsCollector.Functions.Predictions;
 
 internal sealed class ScoreCalculator : IScoreCalculator
 {
-    // Decimal odds of 1 or less pay nothing back on a win, so they carry no usable probability.
     private const double BreakEvenDecimalOdds = 1;
 
-    // The regression intercepts from the paper cited on PredictionStrategy: the actual
-    // probability of an outcome is roughly the bookmakers' consensus minus these.
     private const double DrawAdjustment = 0.057;
     private const double HomeTeamAdjustment = 0.034;
     private const double AwayTeamAdjustment = 0.037;

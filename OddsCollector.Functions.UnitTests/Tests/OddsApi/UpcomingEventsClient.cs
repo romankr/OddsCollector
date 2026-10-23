@@ -86,7 +86,6 @@ internal sealed class UpcomingEventsClient
             null, null, Arg.Any<CancellationToken>())
             .Returns(_ =>
             {
-                // The host cancels the run while the request is in flight.
                 cancellation.Cancel();
                 return Task.FromCanceled<ICollection<Anonymous2>>(cancellation.Token);
             });

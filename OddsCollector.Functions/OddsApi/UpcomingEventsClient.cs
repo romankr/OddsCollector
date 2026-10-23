@@ -34,7 +34,6 @@ internal sealed class UpcomingEventsClient(
 
                 result.AddRange(converter.ToUpcomingEvents(events));
             }
-            // The host winds the run down: what the leagues already answered is kept rather than thrown away.
             catch (Exception exception) when (cancellationToken.IsCancellationRequested)
             {
                 logger.LogInformation(exception,
@@ -49,8 +48,6 @@ internal sealed class UpcomingEventsClient(
             }
         }
 
-        // A run where no league answered must fail, so that an invalid API key or an exhausted
-        // quota shows up as a failed invocation rather than a successful run with no data.
         if (failures.Count > 0 && failures.Count == options.Value.Leagues.Count)
         {
             throw new AggregateException("Failed to get upcoming events for every league", failures);

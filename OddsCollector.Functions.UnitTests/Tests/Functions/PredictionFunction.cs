@@ -38,7 +38,7 @@ internal sealed class PredictionFunction
         // Act
         var prediction = await function.Run(message, messageActionsMock, CancellationToken.None);
 
-        // Assert: the host completes the message once the prediction has been stored.
+        // Assert
         using var scope = new AssertionScope();
 
         prediction.Should().BeSameAs(expectedPrediction);
@@ -65,7 +65,7 @@ internal sealed class PredictionFunction
         // Act
         var prediction = await function.Run(message, messageActionsMock, CancellationToken.None);
 
-        // Assert: it would fail the same way on every delivery.
+        // Assert
         using var scope = new AssertionScope();
 
         prediction.Should().BeNull();
@@ -152,7 +152,7 @@ internal sealed class PredictionFunction
         // Act
         var action = () => function.Run(message, messageActionsMock, CancellationToken.None);
 
-        // Assert: the host abandons the message so it can be redelivered.
+        // Assert
         (await action.Should().ThrowAsync<InvalidOperationException>()).Which.Should().BeSameAs(expectedException);
         messageActionsMock.ReceivedCalls().Should().BeEmpty();
     }
@@ -175,7 +175,7 @@ internal sealed class PredictionFunction
         // Act
         var prediction = await function.Run(message, messageActionsMock, CancellationToken.None);
 
-        // Assert: nothing is written, so the pre-match prediction stays, and the host completes the message.
+        // Assert
         using var scope = new AssertionScope();
 
         prediction.Should().BeNull();

@@ -1,8 +1,5 @@
 ﻿namespace OddsCollector.Functions.IntegrationTests.Infrastructure.Polling;
 
-/// <summary>
-///     Waits for an asynchronous side effect, such as a message processed by a trigger, to become visible.
-/// </summary>
 internal static class Eventually
 {
     private static readonly TimeSpan Interval = TimeSpan.FromSeconds(1);
@@ -32,7 +29,6 @@ internal static class Eventually
             }
             catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
             {
-                // The timeout fired while the probe was running; reported below.
             }
 
             try

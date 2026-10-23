@@ -11,10 +11,6 @@ internal sealed class PredictionsHttpFunction
     public async Task<HttpResponseData> Run(
         [HttpTrigger(AuthorizationLevel.Function, "get")]
         HttpRequestData request,
-        // CommenceTime is compared as a string. EventPredictionBuilder only accepts UTC, so the
-        // stored value is ISO 8601 ending in "Z", the same format GetCurrentDateTime() returns.
-        // Only the 100 nearest matches are returned, so the response and the query cost stay bounded
-        // however many upcoming predictions are stored.
         [CosmosDBInput(
             "%CosmosDb:Database%",
             "%CosmosDb:EventPredictionsContainer%",

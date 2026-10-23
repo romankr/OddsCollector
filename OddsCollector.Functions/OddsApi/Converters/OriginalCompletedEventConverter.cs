@@ -44,7 +44,6 @@ internal sealed class OriginalCompletedEventConverter(
 
     private EventResult ToEventResult(Anonymous3 originalEvent)
     {
-        // A missing id is rejected by EventResult.
         return new EventResult
         {
             Id = originalEvent.Id ?? string.Empty,

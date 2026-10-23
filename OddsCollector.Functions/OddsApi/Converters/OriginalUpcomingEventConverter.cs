@@ -23,10 +23,6 @@ internal sealed class OriginalUpcomingEventConverter(
 
         foreach (var originalEvent in events)
         {
-            // The odds endpoint also returns games in play. Their odds already reflect the
-            // score, and a prediction made from them would overwrite the pre-match one.
-            // A time that is not UTC cannot be compared with now. The builder rejects it with a warning,
-            // where skipping it here as started would only log at debug level.
             if (originalEvent.Commence_time.Kind == DateTimeKind.Utc && originalEvent.Commence_time <= now)
             {
                 logger.LogDebug("Skipped event {Id}: already started", originalEvent.Id);
@@ -68,7 +64,6 @@ internal sealed class OriginalUpcomingEventConverter(
 
     private UpcomingEvent ToUpcomingEvent(Anonymous2 originalEvent)
     {
-        // Missing values are rejected by UpcomingEvent, before the odds are converted.
         return new UpcomingEvent
         {
             AwayTeam = originalEvent.Away_team ?? string.Empty,

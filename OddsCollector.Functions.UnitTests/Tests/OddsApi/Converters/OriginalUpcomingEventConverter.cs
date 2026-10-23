@@ -112,7 +112,7 @@ internal sealed class OriginalUpcomingEventConverter
         // Act
         var upcomingEvents = converter.ToUpcomingEvents([withoutBookmakers, withBrokenBookmaker]).ToList();
 
-        // Assert: an event with nothing to predict from would only fail further on.
+        // Assert
         using var scope = new AssertionScope();
 
         upcomingEvents.Should().BeEmpty();
@@ -155,7 +155,7 @@ internal sealed class OriginalUpcomingEventConverter
         // Act
         var upcomingEvents = converter.ToUpcomingEvents([started, upcoming]).ToList();
 
-        // Assert: odds of a game in play already reflect the score.
+        // Assert
         using var scope = new AssertionScope();
 
         upcomingEvents.Should().ContainSingle().Which.Id.Should().Be("upcoming");

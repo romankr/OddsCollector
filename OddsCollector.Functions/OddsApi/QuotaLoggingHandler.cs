@@ -3,14 +3,6 @@ using Microsoft.Extensions.Logging;
 
 namespace OddsCollector.Functions.OddsApi;
 
-/// <summary>
-///     Logs the credits The Odds API reports on every response.
-/// </summary>
-/// <remarks>
-///     Each count is a separate numeric field of the log record, so an alert can query it directly, for example
-///     <c>customDimensions.RemainingCredits</c> in Application Insights. A count whose header is missing or not
-///     an integer is null.
-/// </remarks>
 internal sealed partial class QuotaLoggingHandler(ILogger<QuotaLoggingHandler> logger) : DelegatingHandler
 {
     internal const string RemainingHeader = "x-requests-remaining";

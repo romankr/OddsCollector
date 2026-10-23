@@ -92,7 +92,7 @@ internal sealed class EventResultsFunction
         // Act
         var results = await function.Run(new TimerInfo(), CancellationToken.None);
 
-        // Assert: the host winding a run down is not a failure to report.
+        // Assert
         using var scope = new AssertionScope();
 
         results.Should().BeEmpty();
@@ -116,7 +116,7 @@ internal sealed class EventResultsFunction
         // Act
         var action = () => function.Run(new TimerInfo(), CancellationToken.None);
 
-        // Assert: the host logs the failure and marks the run failed.
+        // Assert
         (await action.Should().ThrowAsync<InvalidOperationException>()).Which.Should().BeSameAs(expectedException);
         loggerMock.Collector.GetSnapshot().Should().BeEmpty();
     }
@@ -132,7 +132,7 @@ internal sealed class EventResultsFunction
             .Cast<ExponentialBackoffRetryAttribute>()
             .SingleOrDefault();
 
-        // Assert: a timer run that failed is not left until the next schedule.
+        // Assert
         retry.Should().NotBeNull();
         retry!.MaxRetryCount.Should().BePositive();
     }

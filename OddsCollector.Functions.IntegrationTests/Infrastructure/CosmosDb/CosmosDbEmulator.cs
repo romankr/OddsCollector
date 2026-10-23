@@ -6,19 +6,11 @@ using OddsCollector.Functions.IntegrationTests.Infrastructure.Network;
 
 namespace OddsCollector.Functions.IntegrationTests.Infrastructure.CosmosDb;
 
-/// <summary>
-///     The Linux (vNext) Azure Cosmos DB emulator in a container.
-/// </summary>
-/// <remarks>
-///     The emulator tells SDKs to reach it at its own port, so the container listens on the same port
-///     as the host instead of a random mapping. It serves HTTPS with a self-signed certificate.
-/// </remarks>
 internal sealed class CosmosDbEmulator : IAsyncDisposable
 {
     private const string DefaultImage = "mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:vnext-latest";
     private const int HealthPort = 8080;
 
-    // The well-known key every Cosmos DB emulator accepts.
     private const string AccountKey =
         "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyZLKCSGCrkBf0QnnA==";
 
@@ -63,8 +55,6 @@ internal sealed class CosmosDbEmulator : IAsyncDisposable
             {
                 ConnectionMode = ConnectionMode.Gateway,
                 LimitToEndpoint = true,
-                // The models name their properties for System.Text.Json (for example "id"), as the
-                // function app stores them.
                 UseSystemTextJsonSerializerWithOptions = new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
@@ -92,9 +82,6 @@ internal sealed class CosmosDbEmulator : IAsyncDisposable
             .UpsertItemAsync(item, new PartitionKey(id), cancellationToken: cancellationToken);
     }
 
-    /// <summary>
-    ///     Deletes an item. An item that does not exist counts as deleted.
-    /// </summary>
     public async Task DeleteItemAsync(string databaseName, string containerName, string id,
         CancellationToken cancellationToken)
     {
@@ -105,7 +92,6 @@ internal sealed class CosmosDbEmulator : IAsyncDisposable
         }
         catch (CosmosException exception) when (exception.StatusCode == System.Net.HttpStatusCode.NotFound)
         {
-            // Already gone.
         }
     }
 

@@ -1,9 +1,5 @@
 ﻿namespace OddsCollector.Functions.Models;
 
-/// <summary>
-///     Checks the models run from their init accessors, so a model is checked the same way however it is
-///     created: in code, from a Service Bus message or from a Cosmos DB document.
-/// </summary>
 internal static class Guard
 {
     public static string NotBlank(string? value, string name)

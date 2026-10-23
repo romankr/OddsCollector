@@ -74,13 +74,10 @@ internal sealed class PredictionsHttpFunction
         // Act
         var action = () => function.Run(requestStub, [ValidModels.CreateEventPrediction()]);
 
-        // Assert: the failure reaches the host, which logs it and answers with a 500.
+        // Assert
         (await action.Should().ThrowAsync<InvalidOperationException>()).Which.Should().BeSameAs(expectedException);
     }
 
-    /// <summary>
-    /// Fails for the predictions payload only.
-    /// </summary>
     private sealed class PredictionsThrowingSerializer(Exception exception) : ObjectSerializer
     {
         private readonly JsonObjectSerializer _inner = new();
