@@ -4,7 +4,8 @@ namespace OddsCollector.Functions.Predictions;
 
 internal sealed class ScoreCalculator : IScoreCalculator
 {
-    private const double MinimumDecimalOdds = 1;
+    // Decimal odds of 1 or less pay nothing back on a win, so they carry no usable probability.
+    private const double BreakEvenDecimalOdds = 1;
 
     // The regression intercepts from the paper cited on PredictionStrategy: the actual
     // probability of an outcome is roughly the bookmakers' consensus minus these.
@@ -35,7 +36,7 @@ internal sealed class ScoreCalculator : IScoreCalculator
     private static List<double> GetImpliedProbabilities(ICollection<Odd> odds, Func<Odd, double> valueExtractor)
     {
         return odds.Select(valueExtractor)
-            .Where(o => o >= MinimumDecimalOdds)
+            .Where(o => o > BreakEvenDecimalOdds)
             .Select(o => 1 / o)
             .ToList();
     }

@@ -12,19 +12,19 @@ internal sealed class ScoreCalculator
 {
     private const double Precision = 0.0001;
 
-    // Draw: (1/2 + 1/2) / 2 - 0.057; away: (1/1 + 1/3) / 2 - 0.037; home: (1/3 + 1/1) / 2 - 0.034.
+    // Draw: (1/2 + 1/2) / 2 - 0.057; away: (1/1.25 + 1/3) / 2 - 0.037; home: (1/3 + 1/1.25) / 2 - 0.034.
     [TestCase(OutcomeTypes.Draw, 0.443, TestName = "GetScores_WithOdds_ReturnsAdjustedConsensusScoreForDraw")]
-    [TestCase(OutcomeTypes.AwayTeam, 0.6297,
+    [TestCase(OutcomeTypes.AwayTeam, 0.5297,
         TestName = "GetScores_WithOdds_ReturnsAdjustedConsensusScoreForAwayTeam")]
-    [TestCase(OutcomeTypes.HomeTeam, 0.6327,
+    [TestCase(OutcomeTypes.HomeTeam, 0.5327,
         TestName = "GetScores_WithOdds_ReturnsAdjustedConsensusScoreForHomeTeam")]
     public void GetScores_WithOdds_ReturnsAdjustedConsensusScore(string outcome, double expectedScore)
     {
         // Arrange
         List<Odd> odds =
         [
-            new() { Bookmaker = "bookmaker", Away = 1, Draw = 2, Home = 3 },
-            new() { Bookmaker = "bookmaker", Away = 3, Draw = 2, Home = 1 }
+            new() { Bookmaker = "bookmaker", Away = 1.25, Draw = 2, Home = 3 },
+            new() { Bookmaker = "bookmaker", Away = 3, Draw = 2, Home = 1.25 }
         ];
 
         var calculator = new FunctionApp.ScoreCalculator();
@@ -88,6 +88,7 @@ internal sealed class ScoreCalculator
     [TestCase(0, TestName = "GetScores_WithZeroOdds_ScoresNothing")]
     [TestCase(1e-300, TestName = "GetScores_WithNearZeroOdds_ScoresNothing")]
     [TestCase(0.5, TestName = "GetScores_WithOddsBelowOne_ScoresNothing")]
+    [TestCase(1, TestName = "GetScores_WithOddsOfOne_ScoresNothing")]
     public void GetScores_WithUnusableOdds_ScoresNothing(double value)
     {
         // Arrange
