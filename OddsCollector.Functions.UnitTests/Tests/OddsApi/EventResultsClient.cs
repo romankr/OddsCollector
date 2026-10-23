@@ -18,7 +18,6 @@ internal sealed class EventResultsClient
     private const string ApiKey = "apiKey";
     private const string League = "league";
 
-    // The client asks The Odds API for the scores of the last three days.
     private const int DaysFrom = 3;
 
     [Test]
@@ -85,7 +84,6 @@ internal sealed class EventResultsClient
         webApiClientMock.ScoresAsync(cancelledLeague, ApiKey, DaysFrom, Arg.Any<CancellationToken>())
             .Returns(_ =>
             {
-                // The host cancels the run while the request is in flight.
                 cancellation.Cancel();
                 return Task.FromCanceled<ICollection<Anonymous3>>(cancellation.Token);
             });

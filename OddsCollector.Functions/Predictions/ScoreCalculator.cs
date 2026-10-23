@@ -4,10 +4,8 @@ namespace OddsCollector.Functions.Predictions;
 
 internal sealed class ScoreCalculator : IScoreCalculator
 {
-    private const double MinimumDecimalOdds = 1;
+    private const double BreakEvenDecimalOdds = 1;
 
-    // The regression intercepts from the paper cited on PredictionStrategy: the actual
-    // probability of an outcome is roughly the bookmakers' consensus minus these.
     private const double DrawAdjustment = 0.057;
     private const double HomeTeamAdjustment = 0.034;
     private const double AwayTeamAdjustment = 0.037;
@@ -35,7 +33,7 @@ internal sealed class ScoreCalculator : IScoreCalculator
     private static List<double> GetImpliedProbabilities(ICollection<Odd> odds, Func<Odd, double> valueExtractor)
     {
         return odds.Select(valueExtractor)
-            .Where(o => o >= MinimumDecimalOdds)
+            .Where(o => o > BreakEvenDecimalOdds)
             .Select(o => 1 / o)
             .ToList();
     }

@@ -8,11 +8,6 @@ using Testcontainers.ServiceBus;
 
 namespace OddsCollector.Functions.IntegrationTests.Infrastructure;
 
-/// <summary>
-///     A local Azure environment for the function app: Azurite for the host storage, the Service Bus
-///     emulator, the Cosmos DB emulator, a stub of The Odds API and the Azure Functions host itself.
-/// </summary>
-/// <remarks>Needs Docker and Azure Functions Core Tools (func).</remarks>
 internal sealed class IntegrationEnvironment : IAsyncDisposable
 {
     public const string ApiKey = "integration-test-key";
@@ -21,20 +16,16 @@ internal sealed class IntegrationEnvironment : IAsyncDisposable
     public const string EventPredictionsContainer = "EventPredictions";
     public const string EventResultsContainer = "EventResults";
 
-    // Must match the queue in Infrastructure/ServiceBus/Config.json.
     public const string Queue = "upcoming-events";
 
-    // Once a year: timers never fire on their own during a test run, the tests invoke them instead.
     private const string NeverDuringTests = "0 0 0 1 1 *";
 
     private const string AzuriteImage = "mcr.microsoft.com/azure-storage/azurite:latest";
     private const string ServiceBusImage = "mcr.microsoft.com/azure-messaging/servicebus-emulator:latest";
 
-    // The exporter needs a connection string to start; nothing listens on this endpoint.
     private const string ApplicationInsightsConnectionString =
         "InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint=http://127.0.0.1:9/";
 
-    // How long the function app gets to produce a result after a test triggers it.
     private static readonly TimeSpan WaitTimeout = TimeSpan.FromMinutes(2);
 
     private readonly AzuriteContainer _azurite = new AzuriteBuilder(AzuriteImage).Build();
@@ -72,9 +63,6 @@ internal sealed class IntegrationEnvironment : IAsyncDisposable
             CosmosDb.DisposeAsync().AsTask());
     }
 
-    /// <summary>
-    ///     Starts the environment. The caller owns it and disposes it, which stops every part of it.
-    /// </summary>
     public static async Task<IntegrationEnvironment> StartAsync(CancellationToken cancellationToken)
     {
         var environment = new IntegrationEnvironment();
@@ -124,9 +112,6 @@ internal sealed class IntegrationEnvironment : IAsyncDisposable
             $"PredictionsHttpFunction to return prediction {id}", cancellationToken);
     }
 
-    /// <summary>
-    ///     Waits until PredictionsHttpFunction returns the prediction with the given id and returns the whole response.
-    /// </summary>
     public Task<EventPrediction[]> WaitForPublishedPredictionsAsync(string containingId,
         CancellationToken cancellationToken)
     {
@@ -140,9 +125,6 @@ internal sealed class IntegrationEnvironment : IAsyncDisposable
             $"PredictionsHttpFunction to return prediction {containingId}", cancellationToken);
     }
 
-    /// <summary>
-    ///     Waits for a side effect of the function app and adds the host log to the error if it never comes.
-    /// </summary>
     private async Task<T> WaitForAsync<T>(Func<CancellationToken, Task<T?>> probe, string description,
         CancellationToken cancellationToken) where T : class
     {
@@ -165,7 +147,6 @@ internal sealed class IntegrationEnvironment : IAsyncDisposable
             _serviceBus.StartAsync(cancellationToken),
             CosmosDb.StartAsync(cancellationToken));
 
-        // The output bindings write to existing containers only, as in Azure.
         await CosmosDb.CreateContainersAsync(Database, [EventPredictionsContainer, EventResultsContainer],
             cancellationToken);
 
@@ -190,7 +171,6 @@ internal sealed class IntegrationEnvironment : IAsyncDisposable
             ["ServiceBus__Queue"] = Queue,
             ["EventResultsFunction__TimerInterval"] = NeverDuringTests,
             ["UpcomingEventsFunction__TimerInterval"] = NeverDuringTests,
-            // The Cosmos DB emulator supports gateway mode only.
             ["AzureFunctionsJobHost__extensions__cosmosDB__connectionMode"] = "Gateway"
         };
     }

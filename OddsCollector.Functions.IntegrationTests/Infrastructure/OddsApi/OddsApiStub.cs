@@ -6,14 +6,8 @@ using WireMock.Server;
 
 namespace OddsCollector.Functions.IntegrationTests.Infrastructure.OddsApi;
 
-/// <summary>
-///     Stands in for The Odds API, the only dependency of the function app outside Azure.
-/// </summary>
-/// <param name="league">The league the function app is configured to collect.</param>
-/// <param name="apiKey">The key the function app is configured to send; requests without it get no response.</param>
 internal sealed class OddsApiStub(string league, string apiKey) : IDisposable
 {
-    // One mapping per endpoint, so a test that sets the events of an endpoint replaces those of an earlier test.
     private readonly Dictionary<string, Guid> _mappings = [];
     private readonly WireMockServer _server = WireMockServer.Start();
 

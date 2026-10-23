@@ -11,10 +11,6 @@ using OddsCollector.Functions.Models;
 
 namespace OddsCollector.Functions.IntegrationTests.Infrastructure.Functions;
 
-/// <summary>
-///     Runs the built function app in the Azure Functions Core Tools host (<c>func</c>), the same
-///     host <c>func start</c> uses for local development.
-/// </summary>
 internal sealed class FunctionsHost : IAsyncDisposable
 {
     private const string FuncPathVariable = "ODDSCOLLECTOR_FUNC_PATH";
@@ -55,7 +51,6 @@ internal sealed class FunctionsHost : IAsyncDisposable
         }
         catch (InvalidOperationException)
         {
-            // The process was never started or has already exited.
         }
 
         _process.Dispose();
@@ -103,9 +98,6 @@ internal sealed class FunctionsHost : IAsyncDisposable
         return host;
     }
 
-    /// <summary>
-    ///     Runs a function that is not HTTP triggered, such as a timer function, right away.
-    /// </summary>
     public async Task InvokeAsync(string functionName, CancellationToken cancellationToken)
     {
         using var response = await Client.PostAsJsonAsync($"admin/functions/{functionName}", new { input = "" },
@@ -120,10 +112,6 @@ internal sealed class FunctionsHost : IAsyncDisposable
         }
     }
 
-    /// <summary>
-    ///     Calls <see cref="PredictionsHttpFunction" />.
-    /// </summary>
-    /// <returns>The predictions, or <c>null</c> when the function does not answer with 200 OK.</returns>
     public async Task<EventPrediction[]?> TryGetPredictionsAsync(CancellationToken cancellationToken)
     {
         using var response = await Client.GetAsync($"api/{nameof(PredictionsHttpFunction)}", cancellationToken);
@@ -187,7 +175,6 @@ internal sealed class FunctionsHost : IAsyncDisposable
         var func = FindFunc();
         var arguments = $"host start --port {port}";
 
-        // A .cmd shim (npm installs func that way on Windows) only runs through the command interpreter.
         var startInfo = func.EndsWith(".cmd", StringComparison.OrdinalIgnoreCase)
             ? new ProcessStartInfo("cmd.exe", $"/d /c \"\"{func}\" {arguments}\"")
             : new ProcessStartInfo(func, arguments);
@@ -222,11 +209,6 @@ internal sealed class FunctionsHost : IAsyncDisposable
                    $"or set {FuncPathVariable} to the func executable.");
     }
 
-    /// <summary>
-    ///     Copies the build output of the function app to a temporary directory without
-    ///     local.settings.json, so a developer's own settings never reach the tests and the tests never
-    ///     write to the developer's resources.
-    /// </summary>
     private static string CopyFunctionApp()
     {
         var source = Environment.GetEnvironmentVariable(AppDirectoryVariable);
@@ -272,11 +254,9 @@ internal sealed class FunctionsHost : IAsyncDisposable
         }
         catch (IOException)
         {
-            // Files can stay locked for a moment after the host exits; the temp directory is cleaned up later.
         }
         catch (UnauthorizedAccessException)
         {
-            // Same as above.
         }
     }
 }

@@ -1,9 +1,5 @@
 ﻿namespace OddsCollector.Functions.OddsApi.Configuration;
 
-/// <remarks>
-///     Reading the settings never throws. <see cref="OddsApiClientOptionsValidator" /> checks them at startup
-///     and reports every problem at once.
-/// </remarks>
 internal sealed class OddsApiClientOptions
 {
     public const string Section = "OddsApiClient";
@@ -19,10 +15,6 @@ internal sealed class OddsApiClientOptions
 
     private readonly HashSet<string> _leagues = [];
 
-    /// <summary>
-    ///     The leagues to collect, in the order they were added.
-    ///     <see cref="AddLeagues" /> is the only way to change them.
-    /// </summary>
     public IReadOnlySet<string> Leagues => _leagues;
 
     public string ApiKey { get; set; } = string.Empty;
@@ -44,7 +36,6 @@ internal sealed class OddsApiClientOptions
 
     public void SetBaseUrl(string? baseUrl)
     {
-        // The setting is optional: production talks to The Odds API, tests point it at a stub.
         if (string.IsNullOrWhiteSpace(baseUrl))
         {
             return;

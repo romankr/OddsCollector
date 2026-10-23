@@ -2,10 +2,6 @@
 
 namespace OddsCollector.Functions.Tests.Infrastructure.Models;
 
-/// <summary>
-///     Models with every required member set to a valid value, for tests that only need one to exist.
-///     A test changes what it is about with a <c>with</c> expression.
-/// </summary>
 internal static class ValidModels
 {
     public static readonly DateTime CommenceTime = new(2026, 9, 22, 18, 0, 0, DateTimeKind.Utc);

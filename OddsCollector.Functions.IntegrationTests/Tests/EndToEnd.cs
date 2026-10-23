@@ -6,16 +6,6 @@ using OddsCollector.Functions.Models;
 
 namespace OddsCollector.Functions.IntegrationTests.Tests;
 
-/// <summary>
-///     Runs the functions of the app in a local Azure environment. Most tests go through one entry point:
-///     UpcomingEventsFunction → Service Bus → PredictionFunction → Cosmos DB,
-///     EventResultsFunction → Cosmos DB and Cosmos DB → PredictionsHttpFunction.
-///     <see cref="AllFunctions_UpcomingAndCompletedEvents_PublishPredictionAndStoreResult" /> runs the whole app.
-/// </summary>
-/// <remarks>
-///     Starting the environment takes minutes, so the tests share it. They stay independent of each other
-///     and of their order: every test uses its own event ids and looks only at the documents with those ids.
-/// </remarks>
 [Category("Integration")]
 [NonParallelizable]
 internal sealed class EndToEnd
@@ -134,12 +124,6 @@ internal sealed class EndToEnd
         publishedPrediction.Should().BeEquivalentTo(prediction);
     }
 
-    /// <remarks>
-    ///     The kick-offs are a few hours away, nearer than those of the other tests (two days away), so the
-    ///     hundred nearest upcoming predictions in the shared container are all from this test. For the same
-    ///     reason they would push the predictions of the other tests out of the response, so the test deletes
-    ///     them before it ends, whether it passes or not.
-    /// </remarks>
     [Test]
     [CancelAfter(TestTimeoutMilliseconds)]
     public async Task PredictionsHttpFunction_MoreThanHundredUpcomingPredictions_ReturnsHundredNearest(
@@ -163,7 +147,6 @@ internal sealed class EndToEnd
 
         try
         {
-            // Stored in reverse, so the order of the response comes from the query rather than from insertion.
             foreach (var prediction in Enumerable.Reverse(predictions))
             {
                 await Environment.StorePredictionAsync(prediction, cancellationToken);
@@ -173,7 +156,7 @@ internal sealed class EndToEnd
             var publishedPredictions =
                 await Environment.WaitForPublishedPredictionsAsync(predictions[0].Id, cancellationToken);
 
-            // Assert: the nearest hundred, in kick-off order, without the latest one.
+            // Assert.
             publishedPredictions.Select(p => p.Id).Should()
                 .Equal(predictions.Take(returnedCount).Select(p => p.Id));
         }
@@ -187,14 +170,6 @@ internal sealed class EndToEnd
         }
     }
 
-    /// <summary>
-    ///     The whole app as it runs in Azure: both timer functions collect from The Odds API and every
-    ///     step after them is triggered by what the previous one produced.
-    /// </summary>
-    /// <remarks>
-    ///     A full scenario on purpose, so it has more than one act and checks every stored and published
-    ///     document. The tests above pin down each function on its own.
-    /// </remarks>
     [Test]
     [CancelAfter(TestTimeoutMilliseconds)]
     public async Task AllFunctions_UpcomingAndCompletedEvents_PublishPredictionAndStoreResult(
