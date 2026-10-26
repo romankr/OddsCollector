@@ -10,5 +10,5 @@ internal sealed record UpcomingEvent
 
     public required string Id { get; init => field = Guard.NotBlank(value, nameof(Id)); }
 
-    public required IEnumerable<Odd> Odds { get; init => field = Guard.NotNull(value, nameof(Odds)); }
+    public required IReadOnlyList<Odd> Odds { get; init => field = Guard.NotNull(value, nameof(Odds)); }
 }

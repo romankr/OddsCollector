@@ -39,6 +39,24 @@ internal sealed class PredictionStrategyTests
     }
 
     [Test]
+    public void GetPrediction_WithUpcomingEvent_PassesItsOddsToThePredictor()
+    {
+        // Arrange
+        var upcomingEvent = ValidModels.CreateUpcomingEvent();
+
+        var predictorMock = Substitute.For<IOutcomePredictor>();
+        predictorMock.GetOutcome(Arg.Any<IReadOnlyCollection<Odd>>()).Returns(OutcomeType.HomeTeam);
+
+        var strategy = new PredictionStrategy(predictorMock);
+
+        // Act
+        strategy.GetPrediction(upcomingEvent);
+
+        // Assert: the event's own list is handed over as is, without being copied first.
+        predictorMock.Received(1).GetOutcome(upcomingEvent.Odds);
+    }
+
+    [Test]
     public void GetPrediction_WithNullUpcomingEvent_ThrowsArgumentNullException()
     {
         // Arrange
