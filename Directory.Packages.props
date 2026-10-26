@@ -1,0 +1,53 @@
+<Project>
+  <!--
+    Central Package Management: every NuGet package version used in the solution is set here, once.
+    Project files reference packages without a Version; to upgrade a package, change it only in this file.
+    https://learn.microsoft.com/en-us/nuget/consume-packages/central-package-management
+  -->
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+
+  <!-- Shared by both test projects -->
+  <ItemGroup>
+    <PackageVersion Include="FluentAssertions" Version="7.2.2"/>
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.11.0"/>
+    <PackageVersion Include="NUnit" Version="4.4.0"/>
+    <PackageVersion Include="NUnit.Analyzers" Version="4.10.0"/>
+    <PackageVersion Include="NUnit3TestAdapter" Version="5.2.0"/>
+  </ItemGroup>
+
+  <!-- OddsCollector.Functions -->
+  <ItemGroup>
+    <PackageVersion Include="Azure.Monitor.OpenTelemetry.Exporter" Version="1.10.0"/>
+    <PackageVersion Include="Microsoft.Azure.Functions.Worker" Version="2.52.0"/>
+    <PackageVersion Include="Microsoft.Azure.Functions.Worker.Extensions.CosmosDB" Version="4.16.1"/>
+    <PackageVersion Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.3.0"/>
+    <PackageVersion Include="Microsoft.Azure.Functions.Worker.Extensions.ServiceBus" Version="5.24.0"/>
+    <PackageVersion Include="Microsoft.Azure.Functions.Worker.Extensions.Timer" Version="4.3.1"/>
+    <PackageVersion Include="Microsoft.Azure.Functions.Worker.OpenTelemetry" Version="1.2.0"/>
+    <PackageVersion Include="Microsoft.Azure.Functions.Worker.Sdk" Version="2.1.0"/>
+    <PackageVersion Include="Microsoft.Extensions.Http" Version="10.0.13"/>
+    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="10.11.0"/>
+    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.18.0"/>
+    <PackageVersion Include="SonarAnalyzer.CSharp" Version="10.32.0.713"/>
+  </ItemGroup>
+
+  <!-- OddsCollector.Functions.UnitTests -->
+  <ItemGroup>
+    <PackageVersion Include="coverlet.collector" Version="10.1.0"/>
+    <PackageVersion Include="coverlet.msbuild" Version="10.1.0"/>
+    <PackageVersion Include="Microsoft.Extensions.Diagnostics.Testing" Version="10.11.0"/>
+    <PackageVersion Include="NSubstitute" Version="6.2.0"/>
+  </ItemGroup>
+
+  <!-- OddsCollector.Functions.IntegrationTests -->
+  <ItemGroup>
+    <PackageVersion Include="Microsoft.Azure.Cosmos" Version="3.63.2"/>
+    <PackageVersion Include="Newtonsoft.Json" Version="13.0.4"/>
+    <PackageVersion Include="Testcontainers" Version="4.15.0"/>
+    <PackageVersion Include="Testcontainers.Azurite" Version="4.15.0"/>
+    <PackageVersion Include="Testcontainers.ServiceBus" Version="4.15.0"/>
+    <PackageVersion Include="WireMock.Net" Version="2.18.0"/>
+  </ItemGroup>
+</Project>
