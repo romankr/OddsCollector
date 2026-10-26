@@ -1,10 +1,10 @@
 ﻿using OddsCollector.Functions.Models;
+using OddsCollector.Functions.OddsApi.Converters;
 using OddsCollector.Functions.OddsApi.WebApi;
-using FunctionApp = OddsCollector.Functions.OddsApi.Converters;
 
-namespace OddsCollector.Functions.Tests.Tests.OddsApi.Converters;
+namespace OddsCollector.Functions.UnitTests.Tests.OddsApi.Converters;
 
-internal sealed class OddConverter
+internal sealed class OddConverterTests
 {
     private const string Bookmaker = "bookmaker";
     private const string AwayTeam = "awayTeam";
@@ -15,7 +15,7 @@ internal sealed class OddConverter
     public void ToOdd_WithNullOutcomes_ThrowsArgumentNullException()
     {
         // Arrange
-        var converter = new FunctionApp.OddConverter();
+        var converter = new OddConverter();
 
         // Act
         var action = () => converter.ToOdd(null, Bookmaker, AwayTeam, HomeTeam);
@@ -30,7 +30,7 @@ internal sealed class OddConverter
     public void ToOdd_WithNullOrEmptyBookmaker_ThrowsArgumentException(string? bookmaker)
     {
         // Arrange
-        var converter = new FunctionApp.OddConverter();
+        var converter = new OddConverter();
 
         // Act
         var action = () => converter.ToOdd([], bookmaker, AwayTeam, HomeTeam);
@@ -43,7 +43,7 @@ internal sealed class OddConverter
     public void ToOdd_WithoutAwayTeamOutcome_ThrowsArgumentExceptionNamingIt()
     {
         // Arrange
-        var converter = new FunctionApp.OddConverter();
+        var converter = new OddConverter();
 
         Outcome[] outcomes =
         [
@@ -63,7 +63,7 @@ internal sealed class OddConverter
     public void ToOdd_WithoutHomeTeamOutcome_ThrowsArgumentExceptionNamingIt()
     {
         // Arrange
-        var converter = new FunctionApp.OddConverter();
+        var converter = new OddConverter();
 
         Outcome[] outcomes =
         [
@@ -83,7 +83,7 @@ internal sealed class OddConverter
     public void ToOdd_WithoutDrawOutcome_ThrowsArgumentExceptionNamingIt()
     {
         // Arrange
-        var converter = new FunctionApp.OddConverter();
+        var converter = new OddConverter();
 
         Outcome[] outcomes =
         [
@@ -103,7 +103,7 @@ internal sealed class OddConverter
     public void ToOdd_WithOutcomeWithoutPrice_ThrowsArgumentExceptionNamingIt()
     {
         // Arrange
-        var converter = new FunctionApp.OddConverter();
+        var converter = new OddConverter();
 
         Outcome[] outcomes =
         [
@@ -128,7 +128,7 @@ internal sealed class OddConverter
         const double drawPrice = 3.5;
         const double awayPrice = 6.0;
 
-        var converter = new FunctionApp.OddConverter();
+        var converter = new OddConverter();
 
         Outcome[] outcomes =
         [

@@ -1,10 +1,10 @@
 ﻿using OddsCollector.Functions.Models;
+using OddsCollector.Functions.OddsApi.Converters;
 using OddsCollector.Functions.OddsApi.WebApi;
-using FunctionApp = OddsCollector.Functions.OddsApi.Converters;
 
-namespace OddsCollector.Functions.Tests.Tests.OddsApi.Converters;
+namespace OddsCollector.Functions.UnitTests.Tests.OddsApi.Converters;
 
-internal sealed class OutcomeConverter
+internal sealed class OutcomeConverterTests
 {
     private const string FirstTeam = "firstTeam";
     private const string SecondTeam = "secondTeam";
@@ -15,14 +15,14 @@ internal sealed class OutcomeConverter
     public void GetOutcome_WithScores_ReturnsWinnerOrDraw(int firstScore, int secondScore, string expectedOutcome)
     {
         // Arrange
-        var scoreModelsConverterStub = Substitute.For<FunctionApp.IScoreModelsConverter>();
+        var scoreModelsConverterStub = Substitute.For<IScoreModelsConverter>();
         scoreModelsConverterStub.Convert(Arg.Any<ICollection<ScoreModel>?>()).Returns(
         [
-            new FunctionApp.EventScore { Name = FirstTeam, Score = firstScore },
-            new FunctionApp.EventScore { Name = SecondTeam, Score = secondScore }
+            new EventScore { Name = FirstTeam, Score = firstScore },
+            new EventScore { Name = SecondTeam, Score = secondScore }
         ]);
 
-        var outcomeConverter = new FunctionApp.OutcomeConverter(scoreModelsConverterStub);
+        var outcomeConverter = new OutcomeConverter(scoreModelsConverterStub);
 
         // Act
         var outcome = outcomeConverter.GetOutcome([]);

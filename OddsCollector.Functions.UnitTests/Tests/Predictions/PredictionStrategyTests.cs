@@ -1,10 +1,10 @@
 ﻿using OddsCollector.Functions.Models;
-using OddsCollector.Functions.Tests.Infrastructure.Models;
-using FunctionApp = OddsCollector.Functions.Predictions;
+using OddsCollector.Functions.Predictions;
+using OddsCollector.Functions.UnitTests.Infrastructure.Models;
 
-namespace OddsCollector.Functions.Tests.Tests.Predictions;
+namespace OddsCollector.Functions.UnitTests.Tests.Predictions;
 
-internal sealed class PredictionStrategy
+internal sealed class PredictionStrategyTests
 {
     [Test]
     public void GetPrediction_WithUpcomingEvent_ReturnsPredictionForIt()
@@ -19,10 +19,10 @@ internal sealed class PredictionStrategy
             Odds = [ValidModels.CreateOdd()]
         };
 
-        var predictorStub = Substitute.For<FunctionApp.IOutcomePredictor>();
+        var predictorStub = Substitute.For<IOutcomePredictor>();
         predictorStub.GetOutcome(Arg.Any<ICollection<Odd>>()).Returns(OutcomeTypes.HomeTeam);
 
-        var strategy = new FunctionApp.PredictionStrategy(predictorStub);
+        var strategy = new PredictionStrategy(predictorStub);
 
         // Act
         var prediction = strategy.GetPrediction(upcomingEvent);
@@ -42,7 +42,7 @@ internal sealed class PredictionStrategy
     public void GetPrediction_WithNullUpcomingEvent_ThrowsArgumentNullException()
     {
         // Arrange
-        var strategy = new FunctionApp.PredictionStrategy(Substitute.For<FunctionApp.IOutcomePredictor>());
+        var strategy = new PredictionStrategy(Substitute.For<IOutcomePredictor>());
 
         // Act
         var action = () => strategy.GetPrediction(null);

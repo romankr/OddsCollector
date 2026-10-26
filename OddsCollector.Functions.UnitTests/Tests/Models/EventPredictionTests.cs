@@ -1,10 +1,10 @@
 ﻿using System.Text.Json;
-using OddsCollector.Functions.Tests.Infrastructure.Models;
-using FunctionApp = OddsCollector.Functions.Models;
+using OddsCollector.Functions.Models;
+using OddsCollector.Functions.UnitTests.Infrastructure.Models;
 
-namespace OddsCollector.Functions.Tests.Tests.Models;
+namespace OddsCollector.Functions.UnitTests.Tests.Models;
 
-internal sealed class EventPrediction
+internal sealed class EventPredictionTests
 {
     private static IEnumerable<TestCaseData> BlankTextCases()
     {
@@ -14,17 +14,19 @@ internal sealed class EventPrediction
         yield return Case("Outcome", " ", () => ValidModels.CreateEventPrediction() with { Outcome = " " });
     }
 
-    private static TestCaseData Case(string property, string value, Func<FunctionApp.EventPrediction> create)
+    private static TestCaseData Case(string property, string value, Func<EventPrediction> create)
     {
         return new TestCaseData(property, create)
             .SetName($"Init_WithBlank{property}_ThrowsArgumentException(\"{value}\")");
     }
 
     [TestCaseSource(nameof(BlankTextCases))]
-    public void Init_WithBlankText_ThrowsArgumentException(string property, Func<FunctionApp.EventPrediction> create)
+    public void Init_WithBlankText_ThrowsArgumentException(string property, Func<EventPrediction> create)
     {
+        // Act
         var action = () => create();
 
+        // Assert
         action.Should().ThrowExactly<ArgumentException>().WithParameterName(property);
     }
 
@@ -32,41 +34,55 @@ internal sealed class EventPrediction
     [TestCase(DateTimeKind.Local, TestName = "Init_WithLocalCommenceTime_ThrowsArgumentException")]
     public void Init_WithNonUtcCommenceTime_ThrowsArgumentException(DateTimeKind kind)
     {
-        var action = () => ValidModels.CreateEventPrediction() with
-        {
-            CommenceTime = DateTime.SpecifyKind(ValidModels.CommenceTime, kind)
-        };
+        // Arrange
+        var prediction = ValidModels.CreateEventPrediction();
+        var commenceTime = DateTime.SpecifyKind(ValidModels.CommenceTime, kind);
 
+        // Act
+        var action = () => prediction with { CommenceTime = commenceTime };
+
+        // Assert
         action.Should().ThrowExactly<ArgumentException>().WithParameterName("CommenceTime");
     }
 
     [Test]
     public void Serialize_WithPrediction_WritesIdInLowercaseForCosmosDb()
     {
-        var json = JsonSerializer.Serialize(ValidModels.CreateEventPrediction());
+        // Arrange
+        var prediction = ValidModels.CreateEventPrediction();
 
+        // Act
+        var json = JsonSerializer.Serialize(prediction);
+
+        // Assert
         using var document = JsonDocument.Parse(json);
-
-        document.RootElement.GetProperty("id").GetString().Should().Be("id");
+        document.RootElement.GetProperty("id").GetString().Should().Be(prediction.Id);
     }
 
     [Test]
     public void Deserialize_WithSerializedPrediction_ReturnsEqualPrediction()
     {
+        // Arrange
         var prediction = ValidModels.CreateEventPrediction();
-
         var json = JsonSerializer.Serialize(prediction);
 
-        var deserialized = JsonSerializer.Deserialize<FunctionApp.EventPrediction>(json);
+        // Act
+        var deserialized = JsonSerializer.Deserialize<EventPrediction>(json);
 
+        // Assert
         deserialized.Should().Be(prediction);
     }
 
     [Test]
     public void Deserialize_WithMissingProperty_ThrowsJsonException()
     {
-        var action = () => JsonSerializer.Deserialize<FunctionApp.EventPrediction>("""{"id":"id"}""");
+        // Arrange
+        const string json = """{"id":"id"}""";
 
+        // Act
+        var action = () => JsonSerializer.Deserialize<EventPrediction>(json);
+
+        // Assert
         action.Should().Throw<JsonException>();
     }
 }

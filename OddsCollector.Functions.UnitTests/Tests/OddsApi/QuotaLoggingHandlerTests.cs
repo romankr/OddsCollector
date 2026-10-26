@@ -2,21 +2,21 @@
 using FluentAssertions.Execution;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
-using OddsCollector.Functions.Tests.Infrastructure.Http;
-using FunctionApp = OddsCollector.Functions.OddsApi;
+using OddsCollector.Functions.OddsApi;
+using OddsCollector.Functions.UnitTests.Infrastructure.Http;
 
-namespace OddsCollector.Functions.Tests.Tests.OddsApi;
+namespace OddsCollector.Functions.UnitTests.Tests.OddsApi;
 
-internal sealed class QuotaLoggingHandler
+internal sealed class QuotaLoggingHandlerTests
 {
     private static HttpResponseMessage CreateResponse(string? remaining, string? used = "30",
         string? lastCall = "1")
     {
         var response = new HttpResponseMessage(HttpStatusCode.OK);
 
-        AddHeader(response, FunctionApp.QuotaLoggingHandler.RemainingHeader, remaining);
-        AddHeader(response, FunctionApp.QuotaLoggingHandler.UsedHeader, used);
-        AddHeader(response, FunctionApp.QuotaLoggingHandler.LastCallHeader, lastCall);
+        AddHeader(response, QuotaLoggingHandler.RemainingHeader, remaining);
+        AddHeader(response, QuotaLoggingHandler.UsedHeader, used);
+        AddHeader(response, QuotaLoggingHandler.LastCallHeader, lastCall);
 
         return response;
     }
@@ -29,12 +29,12 @@ internal sealed class QuotaLoggingHandler
         }
     }
 
-    private static async Task<(HttpResponseMessage Response, FakeLogger<FunctionApp.QuotaLoggingHandler> Logger)>
-        SendAsync(HttpResponseMessage response, FakeLogger<FunctionApp.QuotaLoggingHandler>? logger = null)
+    private static async Task<(HttpResponseMessage Response, FakeLogger<QuotaLoggingHandler> Logger)>
+        SendAsync(HttpResponseMessage response, FakeLogger<QuotaLoggingHandler>? logger = null)
     {
-        logger ??= new FakeLogger<FunctionApp.QuotaLoggingHandler>();
+        logger ??= new FakeLogger<QuotaLoggingHandler>();
 
-        var handler = new FunctionApp.QuotaLoggingHandler(logger)
+        var handler = new QuotaLoggingHandler(logger)
         {
             InnerHandler = new StubHttpMessageHandler(response)
         };
@@ -55,11 +55,14 @@ internal sealed class QuotaLoggingHandler
     [Test]
     public async Task SendAsync_WithEveryQuotaHeader_LogsThemAsSeparateFields()
     {
+        // Arrange
         using var response = CreateResponse("250");
 
-        var (_, logger) = await SendAsync(response);
+        // Act
+        var (_, loggerMock) = await SendAsync(response);
 
-        var record = logger.Collector.GetSnapshot().Should().ContainSingle().Subject;
+        // Assert
+        var record = loggerMock.Collector.GetSnapshot().Should().ContainSingle().Subject;
 
         using var scope = new AssertionScope();
 
@@ -73,21 +76,27 @@ internal sealed class QuotaLoggingHandler
     [Test]
     public async Task SendAsync_WithoutQuotaHeaders_LogsNothing()
     {
+        // Arrange
         using var response = CreateResponse(null, null, null);
 
-        var (_, logger) = await SendAsync(response);
+        // Act
+        var (_, loggerMock) = await SendAsync(response);
 
-        logger.Collector.GetSnapshot().Should().BeEmpty();
+        // Assert
+        loggerMock.Collector.GetSnapshot().Should().BeEmpty();
     }
 
     [Test]
     public async Task SendAsync_WithOnlyRemainingCredits_LeavesTheOtherFieldsNull()
     {
+        // Arrange
         using var response = CreateResponse("250", null, null);
 
-        var (_, logger) = await SendAsync(response);
+        // Act
+        var (_, loggerMock) = await SendAsync(response);
 
-        var record = logger.Collector.GetSnapshot().Should().ContainSingle().Subject;
+        // Assert
+        var record = loggerMock.Collector.GetSnapshot().Should().ContainSingle().Subject;
 
         using var scope = new AssertionScope();
 
@@ -99,11 +108,14 @@ internal sealed class QuotaLoggingHandler
     [Test]
     public async Task SendAsync_WithUnparsableRemainingCredits_LeavesItNull()
     {
+        // Arrange
         using var response = CreateResponse("unknown");
 
-        var (_, logger) = await SendAsync(response);
+        // Act
+        var (_, loggerMock) = await SendAsync(response);
 
-        var record = logger.Collector.GetSnapshot().Should().ContainSingle().Subject;
+        // Assert
+        var record = loggerMock.Collector.GetSnapshot().Should().ContainSingle().Subject;
 
         using var scope = new AssertionScope();
 
@@ -115,23 +127,29 @@ internal sealed class QuotaLoggingHandler
     [Test]
     public async Task SendAsync_WithInformationLoggingOff_LogsNothing()
     {
+        // Arrange
         using var response = CreateResponse("250");
 
-        var logger = new FakeLogger<FunctionApp.QuotaLoggingHandler>();
-        logger.ControlLevel(LogLevel.Information, false);
+        var loggerMock = new FakeLogger<QuotaLoggingHandler>();
+        loggerMock.ControlLevel(LogLevel.Information, false);
 
-        var (_, actualLogger) = await SendAsync(response, logger);
+        // Act
+        await SendAsync(response, loggerMock);
 
-        actualLogger.Collector.GetSnapshot().Should().BeEmpty();
+        // Assert
+        loggerMock.Collector.GetSnapshot().Should().BeEmpty();
     }
 
     [Test]
     public async Task SendAsync_WithInnerHandler_ReturnsItsResponse()
     {
+        // Arrange
         using var response = CreateResponse("250");
 
+        // Act
         var (actual, _) = await SendAsync(response);
 
+        // Assert
         actual.Should().BeSameAs(response);
     }
 }

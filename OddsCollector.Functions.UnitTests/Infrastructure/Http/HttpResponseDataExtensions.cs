@@ -1,6 +1,6 @@
 ﻿using Microsoft.Azure.Functions.Worker.Http;
 
-namespace OddsCollector.Functions.Tests.Infrastructure.Http;
+namespace OddsCollector.Functions.UnitTests.Infrastructure.Http;
 
 internal static class HttpResponseDataExtensions
 {

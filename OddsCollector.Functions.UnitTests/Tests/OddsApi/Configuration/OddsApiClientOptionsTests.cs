@@ -1,68 +1,86 @@
-﻿using FunctionApp = OddsCollector.Functions.OddsApi.Configuration;
+﻿using OddsCollector.Functions.OddsApi.Configuration;
 
-namespace OddsCollector.Functions.Tests.Tests.OddsApi.Configuration;
+namespace OddsCollector.Functions.UnitTests.Tests.OddsApi.Configuration;
 
-internal sealed class OddsApiClientOptions
+internal sealed class OddsApiClientOptionsTests
 {
     [Test]
     public void AddLeagues_WithOneLeague_ReturnsOneLeague()
     {
-        var options = new FunctionApp.OddsApiClientOptions();
+        // Arrange
+        var options = new OddsApiClientOptions();
 
+        // Act
         options.AddLeagues("league");
 
+        // Assert
         options.Leagues.Should().NotBeNull().And.BeEquivalentTo("league");
     }
 
     [Test]
     public void AddLeagues_WithMultipleLeagues_ReturnsMultipleLeagues()
     {
-        var options = new FunctionApp.OddsApiClientOptions();
+        // Arrange
+        var options = new OddsApiClientOptions();
 
+        // Act
         options.AddLeagues("league1;league2");
 
+        // Assert
         options.Leagues.Should().NotBeNull().And.BeEquivalentTo("league1", "league2");
     }
 
     [Test]
     public void AddLeagues_WithDuplicateLeagues_ReturnsOnlyOneLeague()
     {
-        var options = new FunctionApp.OddsApiClientOptions();
+        // Arrange
+        var options = new OddsApiClientOptions();
 
+        // Act
         options.AddLeagues("league1;league1");
 
+        // Assert
         options.Leagues.Should().NotBeNull().And.BeEquivalentTo("league1");
     }
 
     [Test]
     public void AddLeagues_WithEmptyLeague_ReturnsNoLeagues()
     {
-        var options = new FunctionApp.OddsApiClientOptions();
+        // Arrange
+        var options = new OddsApiClientOptions();
 
+        // Act
         options.AddLeagues(";;");
 
+        // Assert
         options.Leagues.Should().NotBeNull().And.BeEmpty();
     }
 
     [Test]
     public void AddLeagues_WithLeadingAndTrailingCharacters_ReturnsCorrectLeagues()
     {
-        var options = new FunctionApp.OddsApiClientOptions();
+        // Arrange
+        var options = new OddsApiClientOptions();
 
+        // Act
         options.AddLeagues("league1\n; league2\r");
 
+        // Assert
         options.Leagues.Should().NotBeNull().And.BeEquivalentTo("league1", "league2");
     }
 
-    [TestCase(null)]
-    [TestCase("")]
-    [TestCase(" ")]
+    [TestCase(null, TestName = "AddLeagues_WithNull_AddsNoLeagues")]
+    [TestCase("", TestName = "AddLeagues_WithEmptyText_AddsNoLeagues")]
+    [TestCase(" ", TestName = "AddLeagues_WithWhitespace_AddsNoLeagues")]
     public void AddLeagues_WithoutLeagues_AddsNoLeagues(string? leagues)
     {
-        var options = new FunctionApp.OddsApiClientOptions();
+        // Arrange
+        var options = new OddsApiClientOptions();
 
+        // Act
         options.AddLeagues(leagues);
 
+        // Assert
         options.Leagues.Should().BeEmpty();
     }
 
@@ -70,7 +88,7 @@ internal sealed class OddsApiClientOptions
     public void ApiKey_ByDefault_IsEmpty()
     {
         // Arrange
-        var options = new FunctionApp.OddsApiClientOptions();
+        var options = new OddsApiClientOptions();
 
         // Act
         var apiKey = options.ApiKey;
@@ -84,7 +102,7 @@ internal sealed class OddsApiClientOptions
     {
         // Arrange
         const string key = nameof(key);
-        var options = new FunctionApp.OddsApiClientOptions();
+        var options = new OddsApiClientOptions();
 
         // Act
         options.ApiKey = key;
@@ -97,7 +115,7 @@ internal sealed class OddsApiClientOptions
     public void ApiKey_SetToNull_ReturnsEmpty()
     {
         // Arrange
-        var options = new FunctionApp.OddsApiClientOptions { ApiKey = "key" };
+        var options = new OddsApiClientOptions { ApiKey = "key" };
 
         // Act
         options.ApiKey = null;
@@ -110,7 +128,7 @@ internal sealed class OddsApiClientOptions
     public void BaseUrl_ByDefault_IsOddsApi()
     {
         // Arrange
-        var options = new FunctionApp.OddsApiClientOptions();
+        var options = new OddsApiClientOptions();
 
         // Act
         var baseUrl = options.BaseUrl;
@@ -125,7 +143,7 @@ internal sealed class OddsApiClientOptions
     public void BaseUrl_SetToUrl_ReturnsTrimmedUrl(string baseUrl, string expectedBaseUrl)
     {
         // Arrange
-        var options = new FunctionApp.OddsApiClientOptions();
+        var options = new OddsApiClientOptions();
 
         // Act
         options.BaseUrl = baseUrl;
@@ -140,13 +158,13 @@ internal sealed class OddsApiClientOptions
     public void BaseUrl_SetToBlank_FallsBackToOddsApi(string? baseUrl)
     {
         // Arrange
-        var options = new FunctionApp.OddsApiClientOptions { BaseUrl = "http://localhost:8080" };
+        var options = new OddsApiClientOptions { BaseUrl = "http://localhost:8080" };
 
         // Act
         options.BaseUrl = baseUrl;
 
         // Assert
-        options.BaseUrl.Should().Be(FunctionApp.OddsApiClientOptions.DefaultBaseUrl);
+        options.BaseUrl.Should().Be(OddsApiClientOptions.DefaultBaseUrl);
     }
 
     [TestCase("not a url", TestName = "BaseUrl_SetToText_KeepsItForValidation")]
@@ -155,7 +173,7 @@ internal sealed class OddsApiClientOptions
     public void BaseUrl_SetToInvalidUrl_KeepsItForValidation(string baseUrl)
     {
         // Arrange
-        var options = new FunctionApp.OddsApiClientOptions();
+        var options = new OddsApiClientOptions();
 
         // Act
         options.BaseUrl = baseUrl;

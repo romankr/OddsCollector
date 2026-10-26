@@ -6,16 +6,16 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Logging.Testing;
 using NSubstitute.ExceptionExtensions;
+using OddsCollector.Functions.Functions;
 using OddsCollector.Functions.Models;
 using OddsCollector.Functions.Predictions;
-using OddsCollector.Functions.Tests.Infrastructure.Models;
-using OddsCollector.Functions.Tests.Infrastructure.ServiceBus;
-using OddsCollector.Functions.Tests.Infrastructure.Time;
-using FunctionApp = OddsCollector.Functions.Functions;
+using OddsCollector.Functions.UnitTests.Infrastructure.Models;
+using OddsCollector.Functions.UnitTests.Infrastructure.ServiceBus;
+using OddsCollector.Functions.UnitTests.Infrastructure.Time;
 
-namespace OddsCollector.Functions.Tests.Tests.Functions;
+namespace OddsCollector.Functions.UnitTests.Tests.Functions;
 
-internal sealed class PredictionFunction
+internal sealed class PredictionFunctionTests
 {
     private const string EventId = "eventId";
     private const string MessageId = "messageId";
@@ -55,7 +55,7 @@ internal sealed class PredictionFunction
 
         var messageActionsMock = Substitute.For<ServiceBusMessageActions>();
 
-        var loggerMock = new FakeLogger<FunctionApp.PredictionFunction>();
+        var loggerMock = new FakeLogger<PredictionFunction>();
 
         var function = CreateFunction(strategyStub, loggerMock);
 
@@ -166,7 +166,7 @@ internal sealed class PredictionFunction
 
         var messageActionsMock = Substitute.For<ServiceBusMessageActions>();
 
-        var loggerMock = new FakeLogger<FunctionApp.PredictionFunction>();
+        var loggerMock = new FakeLogger<PredictionFunction>();
 
         var function = CreateFunction(strategyMock, loggerMock);
 
@@ -185,10 +185,10 @@ internal sealed class PredictionFunction
             new { Level = LogLevel.Information, Message = $"Skipped event {EventId}: already started" });
     }
 
-    private static FunctionApp.PredictionFunction CreateFunction(IPredictionStrategy strategy,
-        ILogger<FunctionApp.PredictionFunction>? logger = null)
+    private static PredictionFunction CreateFunction(IPredictionStrategy strategy,
+        ILogger<PredictionFunction>? logger = null)
     {
-        return new FunctionApp.PredictionFunction(logger ?? NullLogger<FunctionApp.PredictionFunction>.Instance,
+        return new PredictionFunction(logger ?? NullLogger<PredictionFunction>.Instance,
             strategy, FixedTimeProvider.AtNow);
     }
 

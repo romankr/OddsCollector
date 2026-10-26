@@ -1,10 +1,10 @@
 ﻿using FluentAssertions.Execution;
 using OddsCollector.Functions.Models;
-using FunctionApp = OddsCollector.Functions.Predictions;
+using OddsCollector.Functions.Predictions;
 
-namespace OddsCollector.Functions.Tests.Tests.Predictions;
+namespace OddsCollector.Functions.UnitTests.Tests.Predictions;
 
-internal sealed class ScoreCalculator
+internal sealed class ScoreCalculatorTests
 {
     private const double Precision = 0.0001;
 
@@ -22,7 +22,7 @@ internal sealed class ScoreCalculator
             new() { Bookmaker = "bookmaker", Away = 3, Draw = 2, Home = 1.25 }
         ];
 
-        var calculator = new FunctionApp.ScoreCalculator();
+        var calculator = new ScoreCalculator();
 
         // Act
         var scores = calculator.GetScores(odds);
@@ -43,7 +43,7 @@ internal sealed class ScoreCalculator
             new() { Bookmaker = "bookmaker", Home = 4.5, Draw = 6.0, Away = 4.5 }
         ];
 
-        var calculator = new FunctionApp.ScoreCalculator();
+        var calculator = new ScoreCalculator();
 
         // Act
         var scores = calculator.GetScores(odds);
@@ -69,7 +69,7 @@ internal sealed class ScoreCalculator
             new() { Bookmaker = "bookmaker", Home = 2, Draw = 2, Away = 2 }
         ];
 
-        var calculator = new FunctionApp.ScoreCalculator();
+        var calculator = new ScoreCalculator();
 
         // Act
         var scores = calculator.GetScores(odds);
@@ -88,7 +88,7 @@ internal sealed class ScoreCalculator
         // Arrange
         List<Odd> odds = [new() { Bookmaker = "bookmaker", Away = value, Draw = value, Home = value }];
 
-        var calculator = new FunctionApp.ScoreCalculator();
+        var calculator = new ScoreCalculator();
 
         // Act
         var scores = calculator.GetScores(odds);

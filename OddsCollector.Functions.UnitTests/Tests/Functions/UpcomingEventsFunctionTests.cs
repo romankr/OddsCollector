@@ -3,27 +3,27 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using NSubstitute.ExceptionExtensions;
+using OddsCollector.Functions.Functions;
 using OddsCollector.Functions.Models;
 using OddsCollector.Functions.OddsApi;
-using OddsCollector.Functions.Tests.Infrastructure.Models;
-using FunctionApp = OddsCollector.Functions.Functions;
+using OddsCollector.Functions.UnitTests.Infrastructure.Models;
 
-namespace OddsCollector.Functions.Tests.Tests.Functions;
+namespace OddsCollector.Functions.UnitTests.Tests.Functions;
 
-internal sealed class EventResultsFunction
+internal sealed class UpcomingEventsFunctionTests
 {
     [Test]
-    public async Task Run_WithEventResults_ReturnsThemWithoutLogging()
+    public async Task Run_WithUpcomingEvents_ReturnsThemWithoutLogging()
     {
         // Arrange
-        EventResult[] eventResults = [ValidModels.CreateEventResult()];
+        UpcomingEvent[] upcomingEvents = [ValidModels.CreateUpcomingEvent()];
 
-        var clientStub = Substitute.For<IEventResultsClient>();
-        clientStub.GetEventResultsAsync(Arg.Any<CancellationToken>()).Returns(eventResults);
+        var clientStub = Substitute.For<IUpcomingEventsClient>();
+        clientStub.GetUpcomingEventsAsync(Arg.Any<CancellationToken>()).Returns(upcomingEvents);
 
-        var loggerMock = new FakeLogger<FunctionApp.EventResultsFunction>();
+        var loggerMock = new FakeLogger<UpcomingEventsFunction>();
 
-        var function = new FunctionApp.EventResultsFunction(loggerMock, clientStub);
+        var function = new UpcomingEventsFunction(loggerMock, clientStub);
 
         // Act
         var results = await function.Run(new TimerInfo(), CancellationToken.None);
@@ -31,20 +31,20 @@ internal sealed class EventResultsFunction
         // Assert
         using var scope = new AssertionScope();
 
-        results.Should().Equal(eventResults);
+        results.Should().Equal(upcomingEvents);
         loggerMock.Collector.GetSnapshot().Should().BeEmpty();
     }
 
     [Test]
-    public async Task Run_WithNoEventResults_ReturnsNothingAndLogsWarning()
+    public async Task Run_WithNoUpcomingEvents_ReturnsNothingAndLogsWarning()
     {
         // Arrange
-        var clientStub = Substitute.For<IEventResultsClient>();
-        clientStub.GetEventResultsAsync(Arg.Any<CancellationToken>()).Returns([]);
+        var clientStub = Substitute.For<IUpcomingEventsClient>();
+        clientStub.GetUpcomingEventsAsync(Arg.Any<CancellationToken>()).Returns([]);
 
-        var loggerMock = new FakeLogger<FunctionApp.EventResultsFunction>();
+        var loggerMock = new FakeLogger<UpcomingEventsFunction>();
 
-        var function = new FunctionApp.EventResultsFunction(loggerMock, clientStub);
+        var function = new UpcomingEventsFunction(loggerMock, clientStub);
 
         // Act
         var results = await function.Run(new TimerInfo(), CancellationToken.None);
@@ -61,17 +61,17 @@ internal sealed class EventResultsFunction
     public async Task Run_WithNothingCollectedBeforeCancellation_ReturnsNothingWithoutWarning()
     {
         // Arrange
-        var clientStub = Substitute.For<IEventResultsClient>();
-        clientStub.GetEventResultsAsync(Arg.Any<CancellationToken>()).Returns([]);
+        var clientStub = Substitute.For<IUpcomingEventsClient>();
+        clientStub.GetUpcomingEventsAsync(Arg.Any<CancellationToken>()).Returns([]);
 
-        var loggerMock = new FakeLogger<FunctionApp.EventResultsFunction>();
+        var loggerMock = new FakeLogger<UpcomingEventsFunction>();
 
-        var function = new FunctionApp.EventResultsFunction(loggerMock, clientStub);
+        var function = new UpcomingEventsFunction(loggerMock, clientStub);
 
         // Act
         var results = await function.Run(new TimerInfo(), new CancellationToken(canceled: true));
 
-        // Assert: the client logs the cancellation, an empty run is not worth a warning then.
+        // Assert
         using var scope = new AssertionScope();
 
         results.Should().BeEmpty();
@@ -82,12 +82,12 @@ internal sealed class EventResultsFunction
     public async Task Run_WithHostCancellation_ReturnsNothingAndLogsInformation()
     {
         // Arrange
-        var clientStub = Substitute.For<IEventResultsClient>();
-        clientStub.GetEventResultsAsync(Arg.Any<CancellationToken>()).Throws(new OperationCanceledException());
+        var clientStub = Substitute.For<IUpcomingEventsClient>();
+        clientStub.GetUpcomingEventsAsync(Arg.Any<CancellationToken>()).Throws(new OperationCanceledException());
 
-        var loggerMock = new FakeLogger<FunctionApp.EventResultsFunction>();
+        var loggerMock = new FakeLogger<UpcomingEventsFunction>();
 
-        var function = new FunctionApp.EventResultsFunction(loggerMock, clientStub);
+        var function = new UpcomingEventsFunction(loggerMock, clientStub);
 
         // Act
         var results = await function.Run(new TimerInfo(), new CancellationToken(canceled: true));
@@ -106,12 +106,12 @@ internal sealed class EventResultsFunction
         // Arrange: e.g. an HTTP timeout surfaces as OperationCanceledException without the host cancelling.
         var expectedException = new OperationCanceledException();
 
-        var clientStub = Substitute.For<IEventResultsClient>();
-        clientStub.GetEventResultsAsync(Arg.Any<CancellationToken>()).Throws(expectedException);
+        var clientStub = Substitute.For<IUpcomingEventsClient>();
+        clientStub.GetUpcomingEventsAsync(Arg.Any<CancellationToken>()).Throws(expectedException);
 
-        var loggerMock = new FakeLogger<FunctionApp.EventResultsFunction>();
+        var loggerMock = new FakeLogger<UpcomingEventsFunction>();
 
-        var function = new FunctionApp.EventResultsFunction(loggerMock, clientStub);
+        var function = new UpcomingEventsFunction(loggerMock, clientStub);
 
         // Act
         var action = () => function.Run(new TimerInfo(), CancellationToken.None);
@@ -127,12 +127,12 @@ internal sealed class EventResultsFunction
         // Arrange
         var expectedException = new InvalidOperationException();
 
-        var clientStub = Substitute.For<IEventResultsClient>();
-        clientStub.GetEventResultsAsync(Arg.Any<CancellationToken>()).Throws(expectedException);
+        var clientStub = Substitute.For<IUpcomingEventsClient>();
+        clientStub.GetUpcomingEventsAsync(Arg.Any<CancellationToken>()).Throws(expectedException);
 
-        var loggerMock = new FakeLogger<FunctionApp.EventResultsFunction>();
+        var loggerMock = new FakeLogger<UpcomingEventsFunction>();
 
-        var function = new FunctionApp.EventResultsFunction(loggerMock, clientStub);
+        var function = new UpcomingEventsFunction(loggerMock, clientStub);
 
         // Act
         var action = () => function.Run(new TimerInfo(), CancellationToken.None);
@@ -146,7 +146,8 @@ internal sealed class EventResultsFunction
     public void Run_FailedRun_IsRetriedByTheHost()
     {
         // Arrange
-        var method = typeof(FunctionApp.EventResultsFunction).GetMethod(nameof(FunctionApp.EventResultsFunction.Run))!;
+        var method = typeof(UpcomingEventsFunction)
+            .GetMethod(nameof(UpcomingEventsFunction.Run))!;
 
         // Act
         var retry = method.GetCustomAttributes(typeof(ExponentialBackoffRetryAttribute), inherit: false)

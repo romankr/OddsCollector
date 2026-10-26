@@ -1,9 +1,9 @@
-﻿using OddsCollector.Functions.OddsApi.WebApi;
-using FunctionApp = OddsCollector.Functions.OddsApi.Converters;
+﻿using OddsCollector.Functions.OddsApi.Converters;
+using OddsCollector.Functions.OddsApi.WebApi;
 
-namespace OddsCollector.Functions.Tests.Tests.OddsApi.Converters;
+namespace OddsCollector.Functions.UnitTests.Tests.OddsApi.Converters;
 
-internal sealed class ScoreModelConverter
+internal sealed class ScoreModelConverterTests
 {
     [TestCase("", TestName = "ToEventScore_WithEmptyName_ThrowsArgumentException")]
     [TestCase(null, TestName = "ToEventScore_WithNullName_ThrowsArgumentException")]
@@ -11,7 +11,7 @@ internal sealed class ScoreModelConverter
     public void ToEventScore_WithNullOrEmptyName_ThrowsArgumentException(string? name)
     {
         // Arrange
-        var converter = new FunctionApp.ScoreModelConverter();
+        var converter = new ScoreModelConverter();
 
         var model = new ScoreModel { Name = name, Score = "1" };
 
@@ -26,7 +26,7 @@ internal sealed class ScoreModelConverter
     public void ToEventScore_WithNonNumericScore_ThrowsArgumentException()
     {
         // Arrange
-        var converter = new FunctionApp.ScoreModelConverter();
+        var converter = new ScoreModelConverter();
 
         var model = new ScoreModel { Name = "name", Score = "not a number" };
 

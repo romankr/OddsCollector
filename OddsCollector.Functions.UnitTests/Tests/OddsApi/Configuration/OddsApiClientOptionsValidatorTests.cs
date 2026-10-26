@@ -1,13 +1,13 @@
 ﻿using FluentAssertions.Execution;
-using FunctionApp = OddsCollector.Functions.OddsApi.Configuration;
+using OddsCollector.Functions.OddsApi.Configuration;
 
-namespace OddsCollector.Functions.Tests.Tests.OddsApi.Configuration;
+namespace OddsCollector.Functions.UnitTests.Tests.OddsApi.Configuration;
 
-internal sealed class OddsApiClientOptionsValidator
+internal sealed class OddsApiClientOptionsValidatorTests
 {
-    private static FunctionApp.OddsApiClientOptions CreateValidOptions()
+    private static OddsApiClientOptions CreateValidOptions()
     {
-        var options = new FunctionApp.OddsApiClientOptions { ApiKey = "key" };
+        var options = new OddsApiClientOptions { ApiKey = "key" };
         options.AddLeagues("soccer_epl");
 
         return options;
@@ -16,55 +16,80 @@ internal sealed class OddsApiClientOptionsValidator
     [Test]
     public void Validate_WithValidOptions_Succeeds()
     {
-        var result = new FunctionApp.OddsApiClientOptionsValidator().Validate(null, CreateValidOptions());
+        // Arrange
+        var validator = new OddsApiClientOptionsValidator();
 
+        // Act
+        var result = validator.Validate(null, CreateValidOptions());
+
+        // Assert
         result.Succeeded.Should().BeTrue();
     }
 
-    [TestCase("http://localhost:8080")]
-    [TestCase("https://api.the-odds-api.com/")]
-    public void Validate_WithHttpBaseUrl_Succeeds(string baseUrl)
+    [TestCase("http://localhost:8080", TestName = "Validate_WithHttpBaseUrl_Succeeds")]
+    [TestCase("https://api.the-odds-api.com/", TestName = "Validate_WithHttpsBaseUrl_Succeeds")]
+    public void Validate_WithHttpOrHttpsBaseUrl_Succeeds(string baseUrl)
     {
+        // Arrange
         var options = CreateValidOptions();
         options.BaseUrl = baseUrl;
 
-        var result = new FunctionApp.OddsApiClientOptionsValidator().Validate(null, options);
+        var validator = new OddsApiClientOptionsValidator();
 
+        // Act
+        var result = validator.Validate(null, options);
+
+        // Assert
         result.Succeeded.Should().BeTrue();
     }
 
     [Test]
     public void Validate_WithoutLeagues_FailsNamingTheSetting()
     {
-        var options = new FunctionApp.OddsApiClientOptions { ApiKey = "key" };
+        // Arrange
+        var options = new OddsApiClientOptions { ApiKey = "key" };
 
-        var result = new FunctionApp.OddsApiClientOptionsValidator().Validate(null, options);
+        var validator = new OddsApiClientOptionsValidator();
 
+        // Act
+        var result = validator.Validate(null, options);
+
+        // Assert
         result.Failures.Should().ContainSingle().Which.Should().StartWith("OddsApiClient:Leagues must name");
     }
 
-    [TestCase("")]
-    [TestCase(" ")]
+    [TestCase("", TestName = "Validate_WithEmptyApiKey_FailsNamingTheSetting")]
+    [TestCase(" ", TestName = "Validate_WithWhitespaceApiKey_FailsNamingTheSetting")]
     public void Validate_WithoutApiKey_FailsNamingTheSetting(string apiKey)
     {
+        // Arrange
         var options = CreateValidOptions();
         options.ApiKey = apiKey;
 
-        var result = new FunctionApp.OddsApiClientOptionsValidator().Validate(null, options);
+        var validator = new OddsApiClientOptionsValidator();
 
+        // Act
+        var result = validator.Validate(null, options);
+
+        // Assert
         result.Failures.Should().ContainSingle().Which.Should().Be("OddsApiClient:ApiKey is required");
     }
 
-    [TestCase("not a url")]
-    [TestCase("/v4/sports")]
-    [TestCase("ftp://localhost")]
+    [TestCase("not a url", TestName = "Validate_WithTextBaseUrl_FailsWithTheValue")]
+    [TestCase("/v4/sports", TestName = "Validate_WithRelativeBaseUrl_FailsWithTheValue")]
+    [TestCase("ftp://localhost", TestName = "Validate_WithNonHttpBaseUrl_FailsWithTheValue")]
     public void Validate_WithInvalidBaseUrl_FailsWithTheValue(string baseUrl)
     {
+        // Arrange
         var options = CreateValidOptions();
         options.BaseUrl = baseUrl;
 
-        var result = new FunctionApp.OddsApiClientOptionsValidator().Validate(null, options);
+        var validator = new OddsApiClientOptionsValidator();
 
+        // Act
+        var result = validator.Validate(null, options);
+
+        // Assert
         result.Failures.Should().ContainSingle().Which.Should()
             .Be($"OddsApiClient:BaseUrl must be an absolute HTTP(S) URL. Actual value: {baseUrl}");
     }
@@ -72,10 +97,15 @@ internal sealed class OddsApiClientOptionsValidator
     [Test]
     public void Validate_WithEverySettingInvalid_ReportsEveryFailure()
     {
-        var options = new FunctionApp.OddsApiClientOptions { BaseUrl = "not a url" };
+        // Arrange
+        var options = new OddsApiClientOptions { BaseUrl = "not a url" };
 
-        var result = new FunctionApp.OddsApiClientOptionsValidator().Validate(null, options);
+        var validator = new OddsApiClientOptionsValidator();
 
+        // Act
+        var result = validator.Validate(null, options);
+
+        // Assert
         using var scope = new AssertionScope();
 
         result.Failed.Should().BeTrue();
@@ -87,10 +117,10 @@ internal sealed class OddsApiClientOptionsValidator
     public void Validate_WithFootballLeagues_Succeeds(string leagues)
     {
         // Arrange
-        var options = new FunctionApp.OddsApiClientOptions { ApiKey = "key" };
+        var options = new OddsApiClientOptions { ApiKey = "key" };
         options.AddLeagues(leagues);
 
-        var validator = new FunctionApp.OddsApiClientOptionsValidator();
+        var validator = new OddsApiClientOptionsValidator();
 
         // Act
         var result = validator.Validate(null, options);
@@ -110,10 +140,10 @@ internal sealed class OddsApiClientOptionsValidator
     public void Validate_WithNonFootballLeagues_FailsNamingThem(string leagues, string expectedUnsupported)
     {
         // Arrange
-        var options = new FunctionApp.OddsApiClientOptions { ApiKey = "key" };
+        var options = new OddsApiClientOptions { ApiKey = "key" };
         options.AddLeagues(leagues);
 
-        var validator = new FunctionApp.OddsApiClientOptionsValidator();
+        var validator = new OddsApiClientOptionsValidator();
 
         // Act
         var result = validator.Validate(null, options);

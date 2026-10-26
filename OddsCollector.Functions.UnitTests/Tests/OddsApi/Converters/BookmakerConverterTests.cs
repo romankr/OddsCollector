@@ -4,20 +4,23 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Logging.Testing;
 using NSubstitute.ExceptionExtensions;
 using OddsCollector.Functions.Models;
+using OddsCollector.Functions.OddsApi.Converters;
 using OddsCollector.Functions.OddsApi.WebApi;
-using FunctionApp = OddsCollector.Functions.OddsApi.Converters;
 
-namespace OddsCollector.Functions.Tests.Tests.OddsApi.Converters;
+namespace OddsCollector.Functions.UnitTests.Tests.OddsApi.Converters;
 
-internal sealed class BookmakerConverter
+internal sealed class BookmakerConverterTests
 {
     [Test]
     public void ToOdds_WithNullBookmakers_ThrowsArgumentNullException()
     {
-        var bookmakerConverter = CreateConverter(Substitute.For<FunctionApp.IMarketConverter>());
+        // Arrange
+        var bookmakerConverter = CreateConverter(Substitute.For<IMarketConverter>());
 
+        // Act
         var action = () => bookmakerConverter.ToOdds(null, AwayTeam, HomeTeam);
 
+        // Assert
         action.Should().Throw<ArgumentNullException>().WithParameterName("bookmakers");
     }
 
@@ -26,10 +29,13 @@ internal sealed class BookmakerConverter
     [TestCase(" ", TestName = "ToOdds_WithWhitespaceAwayTeam_ThrowsArgumentException")]
     public void ToOdds_WithNullOrEmptyAwayTeam_ThrowsArgumentException(string? awayTeam)
     {
-        var bookmakerConverter = CreateConverter(Substitute.For<FunctionApp.IMarketConverter>());
+        // Arrange
+        var bookmakerConverter = CreateConverter(Substitute.For<IMarketConverter>());
 
+        // Act
         var action = () => bookmakerConverter.ToOdds([], awayTeam, HomeTeam);
 
+        // Assert
         action.Should().Throw<ArgumentException>().WithParameterName(nameof(awayTeam));
     }
 
@@ -38,10 +44,13 @@ internal sealed class BookmakerConverter
     [TestCase(" ", TestName = "ToOdds_WithWhitespaceHomeTeam_ThrowsArgumentException")]
     public void ToOdds_WithNullOrEmptyHomeTeam_ThrowsArgumentException(string? homeTeam)
     {
-        var bookmakerConverter = CreateConverter(Substitute.For<FunctionApp.IMarketConverter>());
+        // Arrange
+        var bookmakerConverter = CreateConverter(Substitute.For<IMarketConverter>());
 
+        // Act
         var action = () => bookmakerConverter.ToOdds([], AwayTeam, homeTeam);
 
+        // Assert
         action.Should().Throw<ArgumentException>().WithParameterName(nameof(homeTeam));
     }
 
@@ -49,10 +58,10 @@ internal sealed class BookmakerConverter
     public void ToOdds_WithBookmakerMissingHeadToHeadMarket_SkipsItAndLogsWarning()
     {
         // Arrange
-        var loggerMock = new FakeLogger<FunctionApp.BookmakerConverter>();
+        var loggerMock = new FakeLogger<BookmakerConverter>();
 
-        var bookmakerConverter = new FunctionApp.BookmakerConverter(loggerMock,
-            new FunctionApp.MarketConverter(new FunctionApp.OddConverter()));
+        var bookmakerConverter = new BookmakerConverter(loggerMock,
+            new MarketConverter(new OddConverter()));
 
         Bookmakers[] bookmakers =
         [
@@ -78,10 +87,10 @@ internal sealed class BookmakerConverter
     public void ToOdds_WithBookmakerMissingDrawPrice_SkipsItAndLogsWarning()
     {
         // Arrange
-        var loggerMock = new FakeLogger<FunctionApp.BookmakerConverter>();
+        var loggerMock = new FakeLogger<BookmakerConverter>();
 
-        var bookmakerConverter = new FunctionApp.BookmakerConverter(loggerMock,
-            new FunctionApp.MarketConverter(new FunctionApp.OddConverter()));
+        var bookmakerConverter = new BookmakerConverter(loggerMock,
+            new MarketConverter(new OddConverter()));
 
         Bookmakers[] bookmakers =
         [
@@ -105,10 +114,10 @@ internal sealed class BookmakerConverter
     public void ToOdds_WithBookmakerMissingPrice_SkipsItAndLogsWarning()
     {
         // Arrange
-        var loggerMock = new FakeLogger<FunctionApp.BookmakerConverter>();
+        var loggerMock = new FakeLogger<BookmakerConverter>();
 
-        var bookmakerConverter = new FunctionApp.BookmakerConverter(loggerMock,
-            new FunctionApp.MarketConverter(new FunctionApp.OddConverter()));
+        var bookmakerConverter = new BookmakerConverter(loggerMock,
+            new MarketConverter(new OddConverter()));
 
         Bookmakers[] bookmakers =
         [
@@ -135,7 +144,7 @@ internal sealed class BookmakerConverter
         // Arrange
         var expectedException = new NotSupportedException();
 
-        var marketConverterStub = Substitute.For<FunctionApp.IMarketConverter>();
+        var marketConverterStub = Substitute.For<IMarketConverter>();
         marketConverterStub
             .ToOdd(Arg.Any<ICollection<Markets2>?>(), Arg.Any<string?>(), Arg.Any<string>(), Arg.Any<string>())
             .Throws(expectedException);
@@ -157,9 +166,9 @@ internal sealed class BookmakerConverter
     private static readonly Outcome AwayOutcome = new() { Name = AwayTeam, Price = 4.0 };
     private static readonly Outcome DrawOutcome = new() { Name = OutcomeTypes.Draw, Price = 3.5 };
 
-    private static FunctionApp.BookmakerConverter CreateConverter(FunctionApp.IMarketConverter marketConverter)
+    private static BookmakerConverter CreateConverter(IMarketConverter marketConverter)
     {
-        return new FunctionApp.BookmakerConverter(NullLogger<FunctionApp.BookmakerConverter>.Instance,
+        return new BookmakerConverter(NullLogger<BookmakerConverter>.Instance,
             marketConverter);
     }
 

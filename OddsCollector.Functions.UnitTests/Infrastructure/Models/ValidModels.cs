@@ -1,6 +1,6 @@
 ﻿using OddsCollector.Functions.Models;
 
-namespace OddsCollector.Functions.Tests.Infrastructure.Models;
+namespace OddsCollector.Functions.UnitTests.Infrastructure.Models;
 
 internal static class ValidModels
 {
