@@ -28,6 +28,11 @@
     <PackageReference Include="WireMock.Net"/>
   </ItemGroup>
 
+  <ItemGroup>
+    <Using Include="FluentAssertions"/>
+    <Using Include="NUnit.Framework"/>
+  </ItemGroup>
+
   <!--
     The tests run the build output of the function app in the Azure Functions host (func) and use
     its models (internal, see InternalsVisibleTo in OddsCollector.Functions.csproj) to check what it stores and returns.
