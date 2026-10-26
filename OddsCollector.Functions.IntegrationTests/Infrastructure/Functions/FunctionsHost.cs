@@ -20,8 +20,9 @@ internal sealed class FunctionsHost : IAsyncDisposable
     private static readonly TimeSpan StartupTimeout = TimeSpan.FromMinutes(3);
 
     private readonly string _appDirectory;
-    private readonly ConcurrentQueue<string> _logs = new();
+    private readonly ConcurrentQueue<(long Number, string Line)> _logs = new();
     private readonly Process _process;
+    private long _loggedLines;
 
     private FunctionsHost(Process process, string appDirectory, Uri baseAddress)
     {
@@ -35,7 +36,11 @@ internal sealed class FunctionsHost : IAsyncDisposable
 
     public HttpClient Client { get; }
 
-    public string Logs => string.Join(Environment.NewLine, _logs);
+    public string Logs => string.Join(Environment.NewLine, _logs.Select(l => l.Line));
+
+    // Lines are numbered from the host start, so a test can read what was logged after a given point even though
+    // only the last MaxLogLines lines are kept.
+    public long LoggedLines => Interlocked.Read(ref _loggedLines);
 
     public async ValueTask DisposeAsync()
     {
@@ -112,6 +117,11 @@ internal sealed class FunctionsHost : IAsyncDisposable
         }
     }
 
+    public IReadOnlyList<string> GetLogLinesAfter(long loggedLines)
+    {
+        return [.. _logs.Where(l => l.Number > loggedLines).Select(l => l.Line)];
+    }
+
     public async Task<EventPrediction[]?> TryGetPredictionsAsync(CancellationToken cancellationToken)
     {
         using var response = await Client.GetAsync($"api/{nameof(PredictionsHttpFunction)}", cancellationToken);
@@ -160,7 +170,7 @@ internal sealed class FunctionsHost : IAsyncDisposable
             return;
         }
 
-        _logs.Enqueue(line);
+        _logs.Enqueue((Interlocked.Increment(ref _loggedLines), line));
 
         while (_logs.Count > MaxLogLines)
         {

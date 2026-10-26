@@ -12,6 +12,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Azure.Messaging.ServiceBus"/>
     <PackageReference Include="FluentAssertions"/>
     <PackageReference Include="Microsoft.Azure.Cosmos"/>
     <PackageReference Include="Microsoft.NET.Test.Sdk"/>

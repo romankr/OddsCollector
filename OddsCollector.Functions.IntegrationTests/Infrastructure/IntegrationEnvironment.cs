@@ -1,7 +1,9 @@
-﻿using OddsCollector.Functions.IntegrationTests.Infrastructure.CosmosDb;
+﻿using Azure.Messaging.ServiceBus;
+using OddsCollector.Functions.IntegrationTests.Infrastructure.CosmosDb;
 using OddsCollector.Functions.IntegrationTests.Infrastructure.Functions;
 using OddsCollector.Functions.IntegrationTests.Infrastructure.OddsApi;
 using OddsCollector.Functions.IntegrationTests.Infrastructure.Polling;
+using OddsCollector.Functions.IntegrationTests.Infrastructure.ServiceBus;
 using OddsCollector.Functions.Models;
 using Testcontainers.Azurite;
 using Testcontainers.ServiceBus;
@@ -36,6 +38,7 @@ internal sealed class IntegrationEnvironment : IAsyncDisposable
         .Build();
 
     private FunctionsHost? _functionsHost;
+    private ServiceBusQueue? _serviceBusQueue;
 
     private IntegrationEnvironment()
     {
@@ -48,11 +51,19 @@ internal sealed class IntegrationEnvironment : IAsyncDisposable
     public FunctionsHost FunctionsHost =>
         _functionsHost ?? throw new InvalidOperationException("The environment is not started");
 
+    public ServiceBusQueue ServiceBusQueue =>
+        _serviceBusQueue ?? throw new InvalidOperationException("The environment is not started");
+
     public async ValueTask DisposeAsync()
     {
         if (_functionsHost is not null)
         {
             await _functionsHost.DisposeAsync();
+        }
+
+        if (_serviceBusQueue is not null)
+        {
+            await _serviceBusQueue.DisposeAsync();
         }
 
         OddsApi.Dispose();
@@ -125,6 +136,21 @@ internal sealed class IntegrationEnvironment : IAsyncDisposable
             $"PredictionsHttpFunction to return prediction {containingId}", cancellationToken);
     }
 
+    public Task<ServiceBusReceivedMessage> WaitForDeadLetteredMessageAsync(string messageId,
+        CancellationToken cancellationToken)
+    {
+        return WaitForAsync(token => ServiceBusQueue.TryPeekDeadLetteredAsync(messageId, token),
+            $"message {messageId} in the dead-letter queue", cancellationToken);
+    }
+
+    public Task<string> WaitForLogLineAsync(long afterLoggedLines, string text, CancellationToken cancellationToken)
+    {
+        return WaitForAsync(
+            token => Task.FromResult(FunctionsHost.GetLogLinesAfter(afterLoggedLines)
+                .FirstOrDefault(l => l.Contains(text, StringComparison.Ordinal))),
+            $"the Functions host to log \"{text}\"", cancellationToken);
+    }
+
     private async Task<T> WaitForAsync<T>(Func<CancellationToken, Task<T?>> probe, string description,
         CancellationToken cancellationToken) where T : class
     {
@@ -149,6 +175,8 @@ internal sealed class IntegrationEnvironment : IAsyncDisposable
 
         await CosmosDb.CreateContainersAsync(Database, [EventPredictionsContainer, EventResultsContainer],
             cancellationToken);
+
+        _serviceBusQueue = new ServiceBusQueue(_serviceBus.GetConnectionString(), Queue);
 
         _functionsHost = await FunctionsHost.StartAsync(GetAppSettings(), cancellationToken);
     }
