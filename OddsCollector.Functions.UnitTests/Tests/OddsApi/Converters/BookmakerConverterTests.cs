@@ -21,7 +21,7 @@ internal sealed class BookmakerConverterTests
         var bookmakerConverter = CreateConverter(Substitute.For<IMarketConverter>());
 
         // Act
-        var action = () => bookmakerConverter.ToOdds(null, AwayTeam, HomeTeam);
+        var action = () => bookmakerConverter.ToOdds(null, HomeTeam, AwayTeam);
 
         // Assert
         action.Should().Throw<ArgumentNullException>().WithParameterName("bookmakers");
@@ -36,7 +36,7 @@ internal sealed class BookmakerConverterTests
         var bookmakerConverter = CreateConverter(Substitute.For<IMarketConverter>());
 
         // Act
-        var action = () => bookmakerConverter.ToOdds([], awayTeam, HomeTeam);
+        var action = () => bookmakerConverter.ToOdds([], HomeTeam, awayTeam);
 
         // Assert
         action.Should().Throw<ArgumentException>().WithParameterName(nameof(awayTeam));
@@ -51,7 +51,7 @@ internal sealed class BookmakerConverterTests
         var bookmakerConverter = CreateConverter(Substitute.For<IMarketConverter>());
 
         // Act
-        var action = () => bookmakerConverter.ToOdds([], AwayTeam, homeTeam);
+        var action = () => bookmakerConverter.ToOdds([], homeTeam, AwayTeam);
 
         // Assert
         action.Should().Throw<ArgumentException>().WithParameterName(nameof(homeTeam));
@@ -73,7 +73,7 @@ internal sealed class BookmakerConverterTests
         ];
 
         // Act
-        var odds = bookmakerConverter.ToOdds(bookmakers, AwayTeam, HomeTeam).ToList();
+        var odds = bookmakerConverter.ToOdds(bookmakers, HomeTeam, AwayTeam).ToList();
 
         // Assert
         using var scope = new AssertionScope();
@@ -102,7 +102,7 @@ internal sealed class BookmakerConverterTests
         ];
 
         // Act
-        var odds = bookmakerConverter.ToOdds(bookmakers, AwayTeam, HomeTeam).ToList();
+        var odds = bookmakerConverter.ToOdds(bookmakers, HomeTeam, AwayTeam).ToList();
 
         // Assert
         using var scope = new AssertionScope();
@@ -130,7 +130,7 @@ internal sealed class BookmakerConverterTests
         ];
 
         // Act
-        var odds = bookmakerConverter.ToOdds(bookmakers, AwayTeam, HomeTeam).ToList();
+        var odds = bookmakerConverter.ToOdds(bookmakers, HomeTeam, AwayTeam).ToList();
 
         // Assert
         using var scope = new AssertionScope();
@@ -155,7 +155,7 @@ internal sealed class BookmakerConverterTests
         var bookmakerConverter = CreateConverter(marketConverterStub);
 
         // Act
-        var action = () => bookmakerConverter.ToOdds([new Bookmakers { Key = "bookmaker" }], AwayTeam, HomeTeam)
+        var action = () => bookmakerConverter.ToOdds([new Bookmakers { Key = "bookmaker" }], HomeTeam, AwayTeam)
             .ToList();
 
         // Assert

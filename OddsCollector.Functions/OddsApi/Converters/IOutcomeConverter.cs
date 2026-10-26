@@ -5,5 +5,5 @@ namespace OddsCollector.Functions.OddsApi.Converters;
 
 internal interface IOutcomeConverter
 {
-    OutcomeType GetOutcome(ICollection<ScoreModel>? scores, string? awayTeam, string? homeTeam);
+    OutcomeType GetOutcome(ICollection<ScoreModel>? scores, string? homeTeam, string? awayTeam);
 }

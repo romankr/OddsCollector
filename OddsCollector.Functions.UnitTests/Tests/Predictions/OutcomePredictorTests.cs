@@ -27,6 +27,51 @@ internal sealed class OutcomePredictorTests
         outcome.Should().Be(OutcomeType.HomeTeam);
     }
 
+    [TestCase(OutcomeType.AwayTeam, OutcomeType.Draw, OutcomeType.HomeTeam,
+        TestName = "GetOutcome_WithAllScoresEqual_ReturnsHomeTeam")]
+    [TestCase(OutcomeType.HomeTeam, OutcomeType.AwayTeam, OutcomeType.Draw,
+        TestName = "GetOutcome_WithAllScoresEqualInAnotherOrder_ReturnsHomeTeam")]
+    public void GetOutcome_WithTiedScores_PrefersHomeTeam(OutcomeType first, OutcomeType second, OutcomeType third)
+    {
+        // Arrange
+        var calculatorStub = Substitute.For<IScoreCalculator>();
+        calculatorStub.GetScores(Arg.Any<IReadOnlyCollection<Odd>>()).Returns(
+        [
+            new OutcomeScore { Outcome = first, Score = 0.4 },
+            new OutcomeScore { Outcome = second, Score = 0.4 },
+            new OutcomeScore { Outcome = third, Score = 0.4 }
+        ]);
+
+        var predictor = new OutcomePredictor(calculatorStub);
+
+        // Act
+        var outcome = predictor.GetOutcome([ValidModels.CreateOdd()]);
+
+        // Assert
+        outcome.Should().Be(OutcomeType.HomeTeam);
+    }
+
+    [Test]
+    public void GetOutcome_WithDrawAndAwayTeamTiedOnTop_ReturnsDraw()
+    {
+        // Arrange
+        var calculatorStub = Substitute.For<IScoreCalculator>();
+        calculatorStub.GetScores(Arg.Any<IReadOnlyCollection<Odd>>()).Returns(
+        [
+            new OutcomeScore { Outcome = OutcomeType.AwayTeam, Score = 0.4 },
+            new OutcomeScore { Outcome = OutcomeType.Draw, Score = 0.4 },
+            new OutcomeScore { Outcome = OutcomeType.HomeTeam, Score = 0.3 }
+        ]);
+
+        var predictor = new OutcomePredictor(calculatorStub);
+
+        // Act
+        var outcome = predictor.GetOutcome([ValidModels.CreateOdd()]);
+
+        // Assert
+        outcome.Should().Be(OutcomeType.Draw);
+    }
+
     [Test]
     public void GetOutcome_WithNoOdds_ThrowsArgumentException()
     {
