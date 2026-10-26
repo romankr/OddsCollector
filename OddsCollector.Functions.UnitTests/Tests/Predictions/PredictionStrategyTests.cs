@@ -20,7 +20,7 @@ internal sealed class PredictionStrategyTests
         };
 
         var predictorStub = Substitute.For<IOutcomePredictor>();
-        predictorStub.GetOutcome(Arg.Any<ICollection<Odd>>()).Returns(OutcomeTypes.HomeTeam);
+        predictorStub.GetOutcome(Arg.Any<IReadOnlyCollection<Odd>>()).Returns(OutcomeType.HomeTeam);
 
         var strategy = new PredictionStrategy(predictorStub);
 
@@ -34,7 +34,7 @@ internal sealed class PredictionStrategyTests
             AwayTeam = upcomingEvent.AwayTeam,
             HomeTeam = upcomingEvent.HomeTeam,
             CommenceTime = upcomingEvent.CommenceTime,
-            Outcome = OutcomeTypes.HomeTeam
+            Outcome = OutcomeType.HomeTeam
         });
     }
 
@@ -45,7 +45,7 @@ internal sealed class PredictionStrategyTests
         var strategy = new PredictionStrategy(Substitute.For<IOutcomePredictor>());
 
         // Act
-        var action = () => strategy.GetPrediction(null);
+        var action = () => strategy.GetPrediction(null!);
 
         // Assert
         action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("upcomingEvent");

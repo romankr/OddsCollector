@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using OddsCollector.Functions.Models;
 using OddsCollector.Functions.UnitTests.Infrastructure.Models;
 
 namespace OddsCollector.Functions.UnitTests.Tests.Models;
@@ -19,18 +20,32 @@ internal sealed class EventResultTests
         action.Should().ThrowExactly<ArgumentException>().WithParameterName("Id");
     }
 
-    [TestCase("", TestName = "Init_WithEmptyOutcome_ThrowsArgumentException")]
-    [TestCase(" ", TestName = "Init_WithWhitespaceOutcome_ThrowsArgumentException")]
-    public void Init_WithBlankOutcome_ThrowsArgumentException(string outcome)
+    [Test]
+    public void Init_WithUndefinedOutcome_ThrowsArgumentOutOfRangeException()
     {
         // Arrange
         var eventResult = ValidModels.CreateEventResult();
+        const OutcomeType undefinedOutcome = (OutcomeType)42;
 
         // Act
-        var action = () => eventResult with { Outcome = outcome };
+        var action = () => eventResult with { Outcome = undefinedOutcome };
 
         // Assert
-        action.Should().ThrowExactly<ArgumentException>().WithParameterName("Outcome");
+        action.Should().ThrowExactly<ArgumentOutOfRangeException>().WithParameterName("Outcome");
+    }
+
+    [Test]
+    public void Serialize_WithResult_WritesOutcomeName()
+    {
+        // Arrange
+        var eventResult = ValidModels.CreateEventResult() with { Outcome = OutcomeType.AwayTeam };
+
+        // Act
+        var json = JsonSerializer.Serialize(eventResult);
+
+        // Assert
+        using var document = JsonDocument.Parse(json);
+        document.RootElement.GetProperty("Outcome").GetString().Should().Be("AwayTeam");
     }
 
     [TestCase(DateTimeKind.Unspecified, TestName = "Init_WithUnspecifiedCommenceTime_ThrowsArgumentException")]

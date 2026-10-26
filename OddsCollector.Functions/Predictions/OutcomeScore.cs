@@ -6,5 +6,5 @@ internal sealed record OutcomeScore
 {
     public required double Score { get; init; }
 
-    public required string Outcome { get; init => field = Guard.NotBlank(value, nameof(Outcome)); }
+    public required OutcomeType Outcome { get; init => field = Guard.Defined(value, nameof(Outcome)); }
 }

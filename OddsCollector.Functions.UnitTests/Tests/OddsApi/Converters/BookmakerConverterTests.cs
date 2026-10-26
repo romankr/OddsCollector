@@ -11,6 +11,9 @@ namespace OddsCollector.Functions.UnitTests.Tests.OddsApi.Converters;
 
 internal sealed class BookmakerConverterTests
 {
+    // The name The Odds API gives the draw outcome of a head-to-head market.
+    private const string DrawOutcomeName = "Draw";
+
     [Test]
     public void ToOdds_WithNullBookmakers_ThrowsArgumentNullException()
     {
@@ -107,7 +110,7 @@ internal sealed class BookmakerConverterTests
         odds.Should().ContainSingle().Which.Bookmaker.Should().Be("working");
         loggerMock.Collector.GetSnapshot().Should().ContainSingle()
             .Which.Exception.Should().BeOfType<ArgumentException>()
-            .Which.Message.Should().StartWith($"Outcome {OutcomeTypes.Draw} is missing");
+            .Which.Message.Should().StartWith($"Outcome {DrawOutcomeName} is missing");
     }
 
     [Test]
@@ -164,7 +167,7 @@ internal sealed class BookmakerConverterTests
 
     private static readonly Outcome HomeOutcome = new() { Name = HomeTeam, Price = 1.5 };
     private static readonly Outcome AwayOutcome = new() { Name = AwayTeam, Price = 4.0 };
-    private static readonly Outcome DrawOutcome = new() { Name = OutcomeTypes.Draw, Price = 3.5 };
+    private static readonly Outcome DrawOutcome = new() { Name = DrawOutcomeName, Price = 3.5 };
 
     private static BookmakerConverter CreateConverter(IMarketConverter marketConverter)
     {

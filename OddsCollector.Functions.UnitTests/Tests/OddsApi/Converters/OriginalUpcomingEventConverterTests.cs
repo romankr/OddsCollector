@@ -11,6 +11,9 @@ namespace OddsCollector.Functions.UnitTests.Tests.OddsApi.Converters;
 
 internal sealed class OriginalUpcomingEventConverterTests
 {
+    // The name The Odds API gives the draw outcome of a head-to-head market.
+    private const string DrawOutcomeName = "Draw";
+
     private const string AwayTeam = "awayTeam";
     private const string HomeTeam = "homeTeam";
     private const string Bookmaker = "bookmaker";
@@ -222,7 +225,7 @@ internal sealed class OriginalUpcomingEventConverterTests
                             [
                                 new Outcome { Name = HomeTeam, Price = HomePrice },
                                 new Outcome { Name = AwayTeam, Price = AwayPrice },
-                                new Outcome { Name = OutcomeTypes.Draw, Price = DrawPrice }
+                                new Outcome { Name = DrawOutcomeName, Price = DrawPrice }
                             ]
                         }
                     ]

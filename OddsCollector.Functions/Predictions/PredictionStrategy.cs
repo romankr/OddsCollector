@@ -8,7 +8,7 @@ namespace OddsCollector.Functions.Predictions;
 /// </remarks>
 internal sealed class PredictionStrategy(IOutcomePredictor predictor) : IPredictionStrategy
 {
-    public EventPrediction GetPrediction(UpcomingEvent? upcomingEvent)
+    public EventPrediction GetPrediction(UpcomingEvent upcomingEvent)
     {
         ArgumentNullException.ThrowIfNull(upcomingEvent);
 
@@ -17,7 +17,7 @@ internal sealed class PredictionStrategy(IOutcomePredictor predictor) : IPredict
         return ToEventPrediction(outcome, upcomingEvent);
     }
 
-    private static EventPrediction ToEventPrediction(string outcome, UpcomingEvent upcomingEvent)
+    private static EventPrediction ToEventPrediction(OutcomeType outcome, UpcomingEvent upcomingEvent)
     {
         return new EventPrediction
         {

@@ -66,7 +66,7 @@ internal sealed class EndToEnd
             HomeTeam = upcomingEvent.HomeTeam,
             AwayTeam = upcomingEvent.AwayTeam,
             CommenceTime = upcomingEvent.CommenceTime,
-            Outcome = OutcomeTypes.HomeTeam
+            Outcome = OutcomeType.HomeTeam
         });
     }
 
@@ -96,7 +96,7 @@ internal sealed class EndToEnd
         {
             Id = completedEvent.Id,
             CommenceTime = completedEvent.CommenceTime,
-            Outcome = completedEvent.HomeTeam
+            Outcome = OutcomeType.HomeTeam
         });
     }
 
@@ -112,7 +112,7 @@ internal sealed class EndToEnd
             HomeTeam = "Arsenal",
             AwayTeam = "Chelsea",
             CommenceTime = TestData.KickOffInDays(2),
-            Outcome = OutcomeTypes.HomeTeam
+            Outcome = OutcomeType.HomeTeam
         };
 
         await Environment.StorePredictionAsync(prediction, cancellationToken);
@@ -141,7 +141,7 @@ internal sealed class EndToEnd
                 HomeTeam = "Arsenal",
                 AwayTeam = "Chelsea",
                 CommenceTime = firstKickOff.AddMinutes(minutes),
-                Outcome = OutcomeTypes.HomeTeam
+                Outcome = OutcomeType.HomeTeam
             })
             .ToList();
 
@@ -213,7 +213,7 @@ internal sealed class EndToEnd
             HomeTeam = upcomingEvent.HomeTeam,
             AwayTeam = upcomingEvent.AwayTeam,
             CommenceTime = upcomingEvent.CommenceTime,
-            Outcome = OutcomeTypes.HomeTeam
+            Outcome = OutcomeType.HomeTeam
         };
 
         using (new AssertionScope())
@@ -224,7 +224,7 @@ internal sealed class EndToEnd
             {
                 Id = completedEvent.Id,
                 CommenceTime = completedEvent.CommenceTime,
-                Outcome = completedEvent.HomeTeam
+                Outcome = OutcomeType.HomeTeam
             });
         }
     }

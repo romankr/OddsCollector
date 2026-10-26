@@ -11,11 +11,11 @@ internal sealed class OutcomePredictorTests
     {
         // Arrange
         var calculatorStub = Substitute.For<IScoreCalculator>();
-        calculatorStub.GetScores(Arg.Any<ICollection<Odd>>()).Returns(
+        calculatorStub.GetScores(Arg.Any<IReadOnlyCollection<Odd>>()).Returns(
         [
-            new OutcomeScore { Outcome = OutcomeTypes.Draw, Score = 0.5 },
-            new OutcomeScore { Outcome = OutcomeTypes.AwayTeam, Score = 1.0 },
-            new OutcomeScore { Outcome = OutcomeTypes.HomeTeam, Score = 2.0 }
+            new OutcomeScore { Outcome = OutcomeType.Draw, Score = 0.5 },
+            new OutcomeScore { Outcome = OutcomeType.AwayTeam, Score = 1.0 },
+            new OutcomeScore { Outcome = OutcomeType.HomeTeam, Score = 2.0 }
         ]);
 
         var predictor = new OutcomePredictor(calculatorStub);
@@ -24,7 +24,7 @@ internal sealed class OutcomePredictorTests
         var outcome = predictor.GetOutcome([ValidModels.CreateOdd()]);
 
         // Assert
-        outcome.Should().Be(OutcomeTypes.HomeTeam);
+        outcome.Should().Be(OutcomeType.HomeTeam);
     }
 
     [Test]
@@ -42,15 +42,28 @@ internal sealed class OutcomePredictorTests
     }
 
     [Test]
+    public void GetOutcome_WithNullOdds_ThrowsArgumentNullException()
+    {
+        // Arrange
+        var predictor = new OutcomePredictor(Substitute.For<IScoreCalculator>());
+
+        // Act
+        var action = () => predictor.GetOutcome(null!);
+
+        // Assert
+        action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("odds");
+    }
+
+    [Test]
     public void GetOutcome_WithNothingScoring_ThrowsArgumentException()
     {
         // Arrange
         var calculatorStub = Substitute.For<IScoreCalculator>();
-        calculatorStub.GetScores(Arg.Any<ICollection<Odd>>()).Returns(
+        calculatorStub.GetScores(Arg.Any<IReadOnlyCollection<Odd>>()).Returns(
         [
-            new OutcomeScore { Outcome = OutcomeTypes.Draw, Score = 0 },
-            new OutcomeScore { Outcome = OutcomeTypes.AwayTeam, Score = 0 },
-            new OutcomeScore { Outcome = OutcomeTypes.HomeTeam, Score = 0 }
+            new OutcomeScore { Outcome = OutcomeType.Draw, Score = 0 },
+            new OutcomeScore { Outcome = OutcomeType.AwayTeam, Score = 0 },
+            new OutcomeScore { Outcome = OutcomeType.HomeTeam, Score = 0 }
         ]);
 
         var predictor = new OutcomePredictor(calculatorStub);
