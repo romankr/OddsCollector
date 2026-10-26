@@ -16,7 +16,7 @@ internal sealed class MarketConverterTests
         var marketConverter = new MarketConverter(Substitute.For<IOddConverter>());
 
         // Act
-        var action = () => marketConverter.ToOdd(null, Bookmaker, AwayTeam, HomeTeam);
+        var action = () => marketConverter.ToOdd(null, Bookmaker, HomeTeam, AwayTeam);
 
         // Assert
         action.Should().Throw<ArgumentNullException>().WithParameterName("markets");
@@ -29,7 +29,7 @@ internal sealed class MarketConverterTests
         var marketConverter = new MarketConverter(Substitute.For<IOddConverter>());
 
         // Act
-        var action = () => marketConverter.ToOdd([], Bookmaker, AwayTeam, HomeTeam);
+        var action = () => marketConverter.ToOdd([], Bookmaker, HomeTeam, AwayTeam);
 
         // Assert
         action.Should().Throw<InvalidOperationException>();
@@ -44,7 +44,7 @@ internal sealed class MarketConverterTests
         Markets2[] markets = [new() { Key = Markets2Key.Totals }];
 
         // Act
-        var action = () => marketConverter.ToOdd(markets, Bookmaker, AwayTeam, HomeTeam);
+        var action = () => marketConverter.ToOdd(markets, Bookmaker, HomeTeam, AwayTeam);
 
         // Assert
         action.Should().Throw<InvalidOperationException>();

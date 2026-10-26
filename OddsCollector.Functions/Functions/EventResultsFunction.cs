@@ -7,7 +7,7 @@ namespace OddsCollector.Functions.Functions;
 
 internal sealed class EventResultsFunction(ILogger<EventResultsFunction> logger, IEventResultsClient client)
 {
-    [ExponentialBackoffRetry(2, "00:00:30", "00:02:00")]
+    [ExponentialBackoffRetry(TimerRetry.MaxRetryCount, TimerRetry.MinimumInterval, TimerRetry.MaximumInterval)]
     [Function(nameof(EventResultsFunction))]
     [CosmosDBOutput("%CosmosDb:Database%", "%CosmosDb:EventResultsContainer%",
         Connection = "CosmosDb:Connection")]

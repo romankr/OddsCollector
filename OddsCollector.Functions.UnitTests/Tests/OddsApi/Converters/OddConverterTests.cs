@@ -21,7 +21,7 @@ internal sealed class OddConverterTests
         var converter = new OddConverter();
 
         // Act
-        var action = () => converter.ToOdd(null, Bookmaker, AwayTeam, HomeTeam);
+        var action = () => converter.ToOdd(null, Bookmaker, HomeTeam, AwayTeam);
 
         // Assert
         action.Should().Throw<ArgumentNullException>().WithParameterName("outcomes");
@@ -36,7 +36,7 @@ internal sealed class OddConverterTests
         var converter = new OddConverter();
 
         // Act
-        var action = () => converter.ToOdd([], bookmaker, AwayTeam, HomeTeam);
+        var action = () => converter.ToOdd([], bookmaker, HomeTeam, AwayTeam);
 
         // Assert
         action.Should().Throw<ArgumentException>().WithParameterName(nameof(bookmaker));
@@ -55,7 +55,7 @@ internal sealed class OddConverterTests
         ];
 
         // Act
-        var action = () => converter.ToOdd(outcomes, Bookmaker, AwayTeam, HomeTeam);
+        var action = () => converter.ToOdd(outcomes, Bookmaker, HomeTeam, AwayTeam);
 
         // Assert
         action.Should().Throw<ArgumentException>()
@@ -75,7 +75,7 @@ internal sealed class OddConverterTests
         ];
 
         // Act
-        var action = () => converter.ToOdd(outcomes, Bookmaker, AwayTeam, HomeTeam);
+        var action = () => converter.ToOdd(outcomes, Bookmaker, HomeTeam, AwayTeam);
 
         // Assert
         action.Should().Throw<ArgumentException>()
@@ -95,7 +95,7 @@ internal sealed class OddConverterTests
         ];
 
         // Act
-        var action = () => converter.ToOdd(outcomes, Bookmaker, AwayTeam, HomeTeam);
+        var action = () => converter.ToOdd(outcomes, Bookmaker, HomeTeam, AwayTeam);
 
         // Assert
         action.Should().Throw<ArgumentException>()
@@ -116,7 +116,7 @@ internal sealed class OddConverterTests
         ];
 
         // Act
-        var action = () => converter.ToOdd(outcomes, Bookmaker, AwayTeam, HomeTeam);
+        var action = () => converter.ToOdd(outcomes, Bookmaker, HomeTeam, AwayTeam);
 
         // Assert
         action.Should().Throw<ArgumentException>()
@@ -141,7 +141,7 @@ internal sealed class OddConverterTests
         ];
 
         // Act
-        var odd = converter.ToOdd(outcomes, Bookmaker, AwayTeam, HomeTeam);
+        var odd = converter.ToOdd(outcomes, Bookmaker, HomeTeam, AwayTeam);
 
         // Assert
         odd.Should().Be(new Odd { Bookmaker = Bookmaker, Home = homePrice, Draw = drawPrice, Away = awayPrice });

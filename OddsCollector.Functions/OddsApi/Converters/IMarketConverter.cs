@@ -5,5 +5,5 @@ namespace OddsCollector.Functions.OddsApi.Converters;
 
 internal interface IMarketConverter
 {
-    Odd ToOdd(ICollection<Markets2>? markets, string? bookmaker, string awayTeam, string homeTeam);
+    Odd ToOdd(ICollection<Markets2>? markets, string? bookmaker, string homeTeam, string awayTeam);
 }

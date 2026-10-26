@@ -5,16 +5,16 @@ namespace OddsCollector.Functions.OddsApi.Converters;
 
 internal sealed class OutcomeConverter(IScoreModelsConverter converter) : IOutcomeConverter
 {
-    public OutcomeType GetOutcome(ICollection<ScoreModel>? scores, string? awayTeam, string? homeTeam)
+    public OutcomeType GetOutcome(ICollection<ScoreModel>? scores, string? homeTeam, string? awayTeam)
     {
         ArgumentNullException.ThrowIfNull(scores);
-        ArgumentException.ThrowIfNullOrWhiteSpace(awayTeam);
         ArgumentException.ThrowIfNullOrWhiteSpace(homeTeam);
+        ArgumentException.ThrowIfNullOrWhiteSpace(awayTeam);
 
         var eventScores = converter.Convert(scores).ToList();
 
-        var awayScore = GetScore(eventScores, awayTeam, nameof(scores));
         var homeScore = GetScore(eventScores, homeTeam, nameof(scores));
+        var awayScore = GetScore(eventScores, awayTeam, nameof(scores));
 
         if (homeScore == awayScore)
         {

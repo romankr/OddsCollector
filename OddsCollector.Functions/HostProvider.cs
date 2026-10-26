@@ -9,7 +9,7 @@ namespace OddsCollector.Functions;
 
 internal static class HostProvider
 {
-    public static IHost Get()
+    public static IHost CreateHost()
     {
         return new HostBuilder()
             .ConfigureFunctionsWorkerDefaults()

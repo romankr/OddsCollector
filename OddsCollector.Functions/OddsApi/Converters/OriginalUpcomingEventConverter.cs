@@ -72,8 +72,9 @@ internal sealed class OriginalUpcomingEventConverter(
             CommenceTime = originalEvent.Commence_time,
             Odds =
             [
-                .. bookmakerConverter.ToOdds(originalEvent.Bookmakers, originalEvent.Away_team,
-                    originalEvent.Home_team)
+                .. bookmakerConverter.ToOdds(originalEvent.Bookmakers,
+                    homeTeam: originalEvent.Home_team,
+                    awayTeam: originalEvent.Away_team)
             ]
         };
     }

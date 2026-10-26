@@ -5,12 +5,12 @@ namespace OddsCollector.Functions.OddsApi.Converters;
 
 internal sealed class MarketConverter(IOddConverter converter) : IMarketConverter
 {
-    public Odd ToOdd(ICollection<Markets2>? markets, string? bookmaker, string awayTeam, string homeTeam)
+    public Odd ToOdd(ICollection<Markets2>? markets, string? bookmaker, string homeTeam, string awayTeam)
     {
         ArgumentNullException.ThrowIfNull(markets);
 
         var market = markets.First(m => m.Key == Markets2Key.H2h);
 
-        return converter.ToOdd(market.Outcomes, bookmaker, awayTeam, homeTeam);
+        return converter.ToOdd(market.Outcomes, bookmaker, homeTeam: homeTeam, awayTeam: awayTeam);
     }
 }

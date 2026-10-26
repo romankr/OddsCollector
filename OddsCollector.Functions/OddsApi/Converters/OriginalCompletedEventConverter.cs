@@ -48,7 +48,9 @@ internal sealed class OriginalCompletedEventConverter(
         {
             Id = originalEvent.Id ?? string.Empty,
             CommenceTime = originalEvent.Commence_time,
-            Outcome = converter.GetOutcome(originalEvent.Scores, originalEvent.Away_team, originalEvent.Home_team)
+            Outcome = converter.GetOutcome(originalEvent.Scores,
+                homeTeam: originalEvent.Home_team,
+                awayTeam: originalEvent.Away_team)
         };
     }
 }

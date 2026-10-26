@@ -21,7 +21,7 @@ internal sealed class OutcomeConverterTests
             new EventScore { Name = AwayTeam, Score = awayScore });
 
         // Act
-        var outcome = converter.GetOutcome([], AwayTeam, HomeTeam);
+        var outcome = converter.GetOutcome([], HomeTeam, AwayTeam);
 
         // Assert
         outcome.Should().Be(expectedOutcome);
@@ -36,7 +36,7 @@ internal sealed class OutcomeConverterTests
             new EventScore { Name = HomeTeam, Score = 3 });
 
         // Act
-        var outcome = converter.GetOutcome([], AwayTeam, HomeTeam);
+        var outcome = converter.GetOutcome([], HomeTeam, AwayTeam);
 
         // Assert
         outcome.Should().Be(OutcomeType.HomeTeam);
@@ -55,7 +55,7 @@ internal sealed class OutcomeConverterTests
             new EventScore { Name = secondScoredTeam, Score = 0 });
 
         // Act
-        var action = () => converter.GetOutcome([], AwayTeam, HomeTeam);
+        var action = () => converter.GetOutcome([], HomeTeam, AwayTeam);
 
         // Assert
         action.Should().ThrowExactly<ArgumentException>()
@@ -69,7 +69,7 @@ internal sealed class OutcomeConverterTests
         var converter = CreateConverter();
 
         // Act
-        var action = () => converter.GetOutcome(null, AwayTeam, HomeTeam);
+        var action = () => converter.GetOutcome(null, HomeTeam, AwayTeam);
 
         // Assert
         action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("scores");
@@ -83,7 +83,7 @@ internal sealed class OutcomeConverterTests
         var converter = CreateConverter();
 
         // Act
-        var action = () => converter.GetOutcome([], awayTeam, HomeTeam);
+        var action = () => converter.GetOutcome([], HomeTeam, awayTeam);
 
         // Assert
         action.Should().Throw<ArgumentException>().WithParameterName(nameof(awayTeam));
@@ -97,7 +97,7 @@ internal sealed class OutcomeConverterTests
         var converter = CreateConverter();
 
         // Act
-        var action = () => converter.GetOutcome([], AwayTeam, homeTeam);
+        var action = () => converter.GetOutcome([], homeTeam, AwayTeam);
 
         // Assert
         action.Should().Throw<ArgumentException>().WithParameterName(nameof(homeTeam));

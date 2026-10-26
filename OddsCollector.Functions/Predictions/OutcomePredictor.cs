@@ -13,7 +13,12 @@ internal sealed class OutcomePredictor(IScoreCalculator calculator) : IOutcomePr
             throw new ArgumentException($"{nameof(odds)} cannot be empty", nameof(odds));
         }
 
-        var best = calculator.GetScores(odds).MaxBy(p => p.Score)!;
+        // On equal scores the outcome declared first in OutcomeType wins (HomeTeam, then Draw, then AwayTeam),
+        // so ties do not depend on the order in which the calculator returns its scores.
+        var best = calculator.GetScores(odds)
+            .OrderByDescending(s => s.Score)
+            .ThenBy(s => s.Outcome)
+            .First();
 
         if (best.Score <= 0)
         {

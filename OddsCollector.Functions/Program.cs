@@ -8,6 +8,6 @@ internal static class Program
     [ExcludeFromCodeCoverage]
     private static void Main()
     {
-        HostProvider.Get().Run();
+        HostProvider.CreateHost().Run();
     }
 }
