@@ -45,7 +45,7 @@ internal sealed class OriginalUpcomingEventConverter(
         {
             var upcomingEvent = ToUpcomingEvent(originalEvent);
 
-            if (!upcomingEvent.Odds.Any())
+            if (upcomingEvent.Odds.Count == 0)
             {
                 logger.LogWarning("Skipped event {Id}: no usable odds", originalEvent.Id);
 
