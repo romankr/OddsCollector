@@ -21,7 +21,9 @@ internal sealed class OddConverter : IOddConverter
 
     private static double GetPrice(IEnumerable<Outcome> outcomes, string name)
     {
-        return outcomes.First(o => o.Name == name).Price
-               ?? throw new ArgumentException($"Outcome {name} has no price", nameof(outcomes));
+        var outcome = outcomes.FirstOrDefault(o => o.Name == name)
+                      ?? throw new ArgumentException($"Outcome {name} is missing", nameof(outcomes));
+
+        return outcome.Price ?? throw new ArgumentException($"Outcome {name} has no price", nameof(outcomes));
     }
 }

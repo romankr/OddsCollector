@@ -24,7 +24,7 @@ function app's application settings. On a Linux plan, write `:` in a setting nam
 | Setting | Purpose |
 | --- | --- |
 | `OddsApiClient:ApiKey` | The Odds API key. In Azure keep it in Key Vault and use a [Key Vault reference](https://learn.microsoft.com/en-us/azure/app-service/app-service-key-vault-references). |
-| `OddsApiClient:Leagues` | Semicolon-separated `soccer_*` sport keys, for example `soccer_epl;soccer_spain_la_liga`. |
+| `OddsApiClient:Leagues` | Semicolon-separated `soccer_*` sport keys, for example `soccer_epl;soccer_spain_la_liga`. Any other sport key fails startup validation. |
 | `CosmosDb:Connection` | Cosmos DB connection string. |
 | `CosmosDb:Database` | Cosmos DB database name. |
 | `CosmosDb:EventPredictionsContainer` | Container for predictions. |

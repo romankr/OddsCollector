@@ -4,6 +4,8 @@ namespace OddsCollector.Functions.OddsApi.Configuration;
 
 internal sealed class OddsApiClientOptionsValidator : IValidateOptions<OddsApiClientOptions>
 {
+    private const string FootballSportKeyPrefix = "soccer_";
+
     public ValidateOptionsResult Validate(string? name, OddsApiClientOptions options)
     {
         List<string> failures = [];
@@ -12,6 +14,17 @@ internal sealed class OddsApiClientOptionsValidator : IValidateOptions<OddsApiCl
         {
             failures.Add($"{OddsApiClientOptions.LeaguesKey} must name at least one league, " +
                          "for example soccer_epl;soccer_spain_la_liga");
+        }
+
+        var unsupportedLeagues = options.Leagues
+            .Where(l => !l.StartsWith(FootballSportKeyPrefix, StringComparison.Ordinal))
+            .Order(StringComparer.Ordinal)
+            .ToList();
+
+        if (unsupportedLeagues.Count > 0)
+        {
+            failures.Add($"{OddsApiClientOptions.LeaguesKey} supports only football ({FootballSportKeyPrefix}*) " +
+                         $"sport keys. Unsupported: {string.Join(';', unsupportedLeagues)}");
         }
 
         if (string.IsNullOrWhiteSpace(options.ApiKey))
