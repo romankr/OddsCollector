@@ -1,4 +1,6 @@
-﻿namespace OddsCollector.Functions.OddsApi.Configuration;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace OddsCollector.Functions.OddsApi.Configuration;
 
 internal sealed class OddsApiClientOptions
 {
@@ -11,13 +13,19 @@ internal sealed class OddsApiClientOptions
 
     public static readonly string DefaultBaseUrl = OddsApiUrl.AbsoluteUri;
 
-    public string BaseUrl { get; set; } = DefaultBaseUrl;
-
     private readonly HashSet<string> _leagues = [];
 
-    public IReadOnlySet<string> Leagues => _leagues;
+    [AllowNull]
+    public string ApiKey { get; set => field = value ?? string.Empty; } = string.Empty;
 
-    public string ApiKey { get; set; } = string.Empty;
+    [AllowNull]
+    public string BaseUrl
+    {
+        get;
+        set => field = string.IsNullOrWhiteSpace(value) ? DefaultBaseUrl : value.Trim();
+    } = DefaultBaseUrl;
+
+    public IReadOnlySet<string> Leagues => _leagues;
 
     public void AddLeagues(string? leagues)
     {
@@ -26,21 +34,6 @@ internal sealed class OddsApiClientOptions
             return;
         }
 
-        _leagues.UnionWith(leagues.Split(";", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
-    }
-
-    public void SetApiKey(string? apiKey)
-    {
-        ApiKey = apiKey ?? string.Empty;
-    }
-
-    public void SetBaseUrl(string? baseUrl)
-    {
-        if (string.IsNullOrWhiteSpace(baseUrl))
-        {
-            return;
-        }
-
-        BaseUrl = baseUrl.Trim();
+        _leagues.UnionWith(leagues.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
     }
 }

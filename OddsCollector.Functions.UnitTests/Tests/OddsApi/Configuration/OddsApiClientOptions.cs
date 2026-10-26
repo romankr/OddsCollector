@@ -67,65 +67,100 @@ internal sealed class OddsApiClientOptions
     }
 
     [Test]
-    public void SetApiKey_WithKey_ReturnsKey()
+    public void ApiKey_ByDefault_IsEmpty()
     {
-        const string key = nameof(key);
+        // Arrange
         var options = new FunctionApp.OddsApiClientOptions();
 
-        options.SetApiKey(key);
+        // Act
+        var apiKey = options.ApiKey;
 
-        options.ApiKey.Should().NotBeNull().And.Be(key);
+        // Assert
+        apiKey.Should().BeEmpty();
     }
 
     [Test]
-    public void SetApiKey_WithNullApiKey_SetsEmptyKey()
+    public void ApiKey_SetToKey_ReturnsKey()
     {
+        // Arrange
+        const string key = nameof(key);
         var options = new FunctionApp.OddsApiClientOptions();
 
-        options.SetApiKey(null);
+        // Act
+        options.ApiKey = key;
 
+        // Assert
+        options.ApiKey.Should().Be(key);
+    }
+
+    [Test]
+    public void ApiKey_SetToNull_ReturnsEmpty()
+    {
+        // Arrange
+        var options = new FunctionApp.OddsApiClientOptions { ApiKey = "key" };
+
+        // Act
+        options.ApiKey = null;
+
+        // Assert
         options.ApiKey.Should().BeEmpty();
     }
 
     [Test]
     public void BaseUrl_ByDefault_IsOddsApi()
     {
+        // Arrange
         var options = new FunctionApp.OddsApiClientOptions();
 
-        options.BaseUrl.Should().Be("https://api.the-odds-api.com/");
+        // Act
+        var baseUrl = options.BaseUrl;
+
+        // Assert
+        baseUrl.Should().Be("https://api.the-odds-api.com/");
     }
 
-    [Test]
-    public void SetBaseUrl_WithUrl_ReturnsUrl()
+    [TestCase("http://localhost:8080", "http://localhost:8080", TestName = "BaseUrl_SetToUrl_ReturnsUrl")]
+    [TestCase(" http://localhost:8080\n", "http://localhost:8080",
+        TestName = "BaseUrl_SetToUrlWithSurroundingWhitespace_ReturnsTrimmedUrl")]
+    public void BaseUrl_SetToUrl_ReturnsTrimmedUrl(string baseUrl, string expectedBaseUrl)
     {
+        // Arrange
         var options = new FunctionApp.OddsApiClientOptions();
 
-        options.SetBaseUrl("http://localhost:8080");
+        // Act
+        options.BaseUrl = baseUrl;
 
-        options.BaseUrl.Should().Be("http://localhost:8080");
+        // Assert
+        options.BaseUrl.Should().Be(expectedBaseUrl);
     }
 
-    [TestCase(null)]
-    [TestCase("")]
-    [TestCase(" ")]
-    public void SetBaseUrl_WithoutUrl_KeepsDefault(string? baseUrl)
+    [TestCase(null, TestName = "BaseUrl_SetToNull_FallsBackToOddsApi")]
+    [TestCase("", TestName = "BaseUrl_SetToEmpty_FallsBackToOddsApi")]
+    [TestCase(" ", TestName = "BaseUrl_SetToWhitespace_FallsBackToOddsApi")]
+    public void BaseUrl_SetToBlank_FallsBackToOddsApi(string? baseUrl)
     {
-        var options = new FunctionApp.OddsApiClientOptions();
+        // Arrange
+        var options = new FunctionApp.OddsApiClientOptions { BaseUrl = "http://localhost:8080" };
 
-        options.SetBaseUrl(baseUrl);
+        // Act
+        options.BaseUrl = baseUrl;
 
+        // Assert
         options.BaseUrl.Should().Be(FunctionApp.OddsApiClientOptions.DefaultBaseUrl);
     }
 
-    [TestCase("not a url")]
-    [TestCase("/v4/sports")]
-    [TestCase("ftp://localhost")]
-    public void SetBaseUrl_WithInvalidUrl_KeepsItForValidation(string baseUrl)
+    [TestCase("not a url", TestName = "BaseUrl_SetToText_KeepsItForValidation")]
+    [TestCase("/v4/sports", TestName = "BaseUrl_SetToRelativeUrl_KeepsItForValidation")]
+    [TestCase("ftp://localhost", TestName = "BaseUrl_SetToNonHttpUrl_KeepsItForValidation")]
+    public void BaseUrl_SetToInvalidUrl_KeepsItForValidation(string baseUrl)
     {
+        // Arrange
         var options = new FunctionApp.OddsApiClientOptions();
 
-        options.SetBaseUrl(baseUrl);
+        // Act
+        options.BaseUrl = baseUrl;
 
+        // Assert
         options.BaseUrl.Should().Be(baseUrl);
     }
 }
