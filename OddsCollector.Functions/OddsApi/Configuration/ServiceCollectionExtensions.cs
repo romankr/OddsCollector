@@ -17,8 +17,8 @@ internal static class ServiceCollectionExtensions
                 .Configure(o =>
                 {
                     o.AddLeagues(configuration[OddsApiClientOptions.LeaguesKey]);
-                    o.SetApiKey(configuration[OddsApiClientOptions.ApiKeyKey]);
-                    o.SetBaseUrl(configuration[OddsApiClientOptions.BaseUrlKey]);
+                    o.ApiKey = configuration[OddsApiClientOptions.ApiKeyKey];
+                    o.BaseUrl = configuration[OddsApiClientOptions.BaseUrlKey];
                 })
                 .ValidateOnStart();
 
