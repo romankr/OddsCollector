@@ -3,12 +3,12 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Logging.Testing;
 using OddsCollector.Functions.Models;
+using OddsCollector.Functions.OddsApi.Converters;
 using OddsCollector.Functions.OddsApi.WebApi;
-using FunctionApp = OddsCollector.Functions.OddsApi.Converters;
 
-namespace OddsCollector.Functions.Tests.Tests.OddsApi.Converters;
+namespace OddsCollector.Functions.UnitTests.Tests.OddsApi.Converters;
 
-internal sealed class OriginalCompletedEventConverter
+internal sealed class OriginalCompletedEventConverterTests
 {
     private const string AwayTeam = "awayTeam";
     private const string HomeTeam = "homeTeam";
@@ -69,9 +69,9 @@ internal sealed class OriginalCompletedEventConverter
     public void ToEventResults_WithNullEvents_ThrowsArgumentNullException()
     {
         // Arrange
-        var converter = new FunctionApp.OriginalCompletedEventConverter(
-            NullLogger<FunctionApp.OriginalCompletedEventConverter>.Instance,
-            Substitute.For<FunctionApp.IOutcomeConverter>());
+        var converter = new OriginalCompletedEventConverter(
+            NullLogger<OriginalCompletedEventConverter>.Instance,
+            Substitute.For<IOutcomeConverter>());
 
         // Act
         var action = () => converter.ToEventResults(null);
@@ -85,7 +85,7 @@ internal sealed class OriginalCompletedEventConverter
     public void ToEventResults_WithBrokenScore_SkipsItAndReturnsTheRest(string score)
     {
         // Arrange
-        var loggerMock = new FakeLogger<FunctionApp.OriginalCompletedEventConverter>();
+        var loggerMock = new FakeLogger<OriginalCompletedEventConverter>();
 
         var converter = CreateConverter(loggerMock);
 
@@ -110,7 +110,7 @@ internal sealed class OriginalCompletedEventConverter
     public void ToEventResults_WithCompletedEventWithoutScores_SkipsIt()
     {
         // Arrange
-        var loggerMock = new FakeLogger<FunctionApp.OriginalCompletedEventConverter>();
+        var loggerMock = new FakeLogger<OriginalCompletedEventConverter>();
 
         var converter = CreateConverter(loggerMock);
 
@@ -134,14 +134,14 @@ internal sealed class OriginalCompletedEventConverter
             "Skipped event withOneScore");
     }
 
-    private static FunctionApp.OriginalCompletedEventConverter CreateConverter(
-        ILogger<FunctionApp.OriginalCompletedEventConverter>? logger = null)
+    private static OriginalCompletedEventConverter CreateConverter(
+        ILogger<OriginalCompletedEventConverter>? logger = null)
     {
-        return new FunctionApp.OriginalCompletedEventConverter(
-            logger ?? NullLogger<FunctionApp.OriginalCompletedEventConverter>.Instance,
-            new FunctionApp.OutcomeConverter(
-                new FunctionApp.ScoreModelsConverter(
-                    new FunctionApp.ScoreModelConverter())));
+        return new OriginalCompletedEventConverter(
+            logger ?? NullLogger<OriginalCompletedEventConverter>.Instance,
+            new OutcomeConverter(
+                new ScoreModelsConverter(
+                    new ScoreModelConverter())));
     }
 
     private static Anonymous3 CreateCompletedEvent(string id, string awayScore, string homeScore)

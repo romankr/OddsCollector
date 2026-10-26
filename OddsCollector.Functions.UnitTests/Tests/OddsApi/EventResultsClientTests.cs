@@ -5,15 +5,15 @@ using Microsoft.Extensions.Logging.Testing;
 using Microsoft.Extensions.Options;
 using NSubstitute.ExceptionExtensions;
 using OddsCollector.Functions.Models;
+using OddsCollector.Functions.OddsApi;
 using OddsCollector.Functions.OddsApi.Configuration;
 using OddsCollector.Functions.OddsApi.Converters;
 using OddsCollector.Functions.OddsApi.WebApi;
-using OddsCollector.Functions.Tests.Infrastructure.Models;
-using FunctionApp = OddsCollector.Functions.OddsApi;
+using OddsCollector.Functions.UnitTests.Infrastructure.Models;
 
-namespace OddsCollector.Functions.Tests.Tests.OddsApi;
+namespace OddsCollector.Functions.UnitTests.Tests.OddsApi;
 
-internal sealed class EventResultsClient
+internal sealed class EventResultsClientTests
 {
     private const string ApiKey = "apiKey";
     private const string League = "league";
@@ -47,7 +47,7 @@ internal sealed class EventResultsClient
         // Arrange
         var webApiClientMock = Substitute.For<IClient>();
 
-        var loggerMock = new FakeLogger<FunctionApp.EventResultsClient>();
+        var loggerMock = new FakeLogger<EventResultsClient>();
 
         var client = CreateClient([League], webApiClientMock, Substitute.For<IOriginalCompletedEventConverter>(),
             loggerMock);
@@ -92,7 +92,7 @@ internal sealed class EventResultsClient
         var converterStub = Substitute.For<IOriginalCompletedEventConverter>();
         converterStub.ToEventResults(originalEvents).Returns(converted);
 
-        var loggerMock = new FakeLogger<FunctionApp.EventResultsClient>();
+        var loggerMock = new FakeLogger<EventResultsClient>();
 
         var client = CreateClient([answeredLeague, cancelledLeague, skippedLeague], webApiClientMock,
             converterStub, loggerMock);
@@ -133,7 +133,7 @@ internal sealed class EventResultsClient
         var converterStub = Substitute.For<IOriginalCompletedEventConverter>();
         converterStub.ToEventResults(originalEvents).Returns(eventResults);
 
-        var loggerMock = new FakeLogger<FunctionApp.EventResultsClient>();
+        var loggerMock = new FakeLogger<EventResultsClient>();
 
         var client = CreateClient([failingLeague, workingLeague], webApiClientStub, converterStub, loggerMock);
 
@@ -179,15 +179,15 @@ internal sealed class EventResultsClient
         exception.Message.Should().StartWith("Failed to get event results for every league");
     }
 
-    private static FunctionApp.EventResultsClient CreateClient(HashSet<string> leagues, IClient webApiClient,
-        IOriginalCompletedEventConverter converter, ILogger<FunctionApp.EventResultsClient>? logger = null)
+    private static EventResultsClient CreateClient(HashSet<string> leagues, IClient webApiClient,
+        IOriginalCompletedEventConverter converter, ILogger<EventResultsClient>? logger = null)
     {
         var clientOptions = new OddsApiClientOptions { ApiKey = ApiKey };
         clientOptions.AddLeagues(string.Join(';', leagues));
 
         var options = Options.Create(clientOptions);
 
-        return new FunctionApp.EventResultsClient(logger ?? NullLogger<FunctionApp.EventResultsClient>.Instance,
+        return new EventResultsClient(logger ?? NullLogger<EventResultsClient>.Instance,
             options, webApiClient, converter);
     }
 }

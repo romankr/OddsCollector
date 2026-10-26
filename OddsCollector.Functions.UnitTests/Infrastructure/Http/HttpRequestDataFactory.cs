@@ -3,7 +3,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace OddsCollector.Functions.Tests.Infrastructure.Http;
+namespace OddsCollector.Functions.UnitTests.Infrastructure.Http;
 
 internal static class HttpRequestDataFactory
 {

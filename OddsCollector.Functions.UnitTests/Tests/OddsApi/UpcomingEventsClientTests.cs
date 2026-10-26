@@ -5,15 +5,15 @@ using Microsoft.Extensions.Logging.Testing;
 using Microsoft.Extensions.Options;
 using NSubstitute.ExceptionExtensions;
 using OddsCollector.Functions.Models;
+using OddsCollector.Functions.OddsApi;
 using OddsCollector.Functions.OddsApi.Configuration;
 using OddsCollector.Functions.OddsApi.Converters;
 using OddsCollector.Functions.OddsApi.WebApi;
-using OddsCollector.Functions.Tests.Infrastructure.Models;
-using FunctionApp = OddsCollector.Functions.OddsApi;
+using OddsCollector.Functions.UnitTests.Infrastructure.Models;
 
-namespace OddsCollector.Functions.Tests.Tests.OddsApi;
+namespace OddsCollector.Functions.UnitTests.Tests.OddsApi;
 
-internal sealed class UpcomingEventsClient
+internal sealed class UpcomingEventsClientTests
 {
     private const string ApiKey = "apiKey";
     private const string League = "league";
@@ -47,7 +47,7 @@ internal sealed class UpcomingEventsClient
         // Arrange
         var webApiClientMock = Substitute.For<IClient>();
 
-        var loggerMock = new FakeLogger<FunctionApp.UpcomingEventsClient>();
+        var loggerMock = new FakeLogger<UpcomingEventsClient>();
 
         var client = CreateClient([League], webApiClientMock, Substitute.For<IOriginalUpcomingEventConverter>(),
             loggerMock);
@@ -94,7 +94,7 @@ internal sealed class UpcomingEventsClient
         var converterStub = Substitute.For<IOriginalUpcomingEventConverter>();
         converterStub.ToUpcomingEvents(originalEvents).Returns(converted);
 
-        var loggerMock = new FakeLogger<FunctionApp.UpcomingEventsClient>();
+        var loggerMock = new FakeLogger<UpcomingEventsClient>();
 
         var client = CreateClient([answeredLeague, cancelledLeague, skippedLeague], webApiClientMock,
             converterStub, loggerMock);
@@ -135,7 +135,7 @@ internal sealed class UpcomingEventsClient
         var converterStub = Substitute.For<IOriginalUpcomingEventConverter>();
         converterStub.ToUpcomingEvents(originalEvents).Returns(upcomingEvents);
 
-        var loggerMock = new FakeLogger<FunctionApp.UpcomingEventsClient>();
+        var loggerMock = new FakeLogger<UpcomingEventsClient>();
 
         var client = CreateClient([failingLeague, workingLeague], webApiClientStub, converterStub, loggerMock);
 
@@ -181,15 +181,15 @@ internal sealed class UpcomingEventsClient
         exception.Message.Should().StartWith("Failed to get upcoming events for every league");
     }
 
-    private static FunctionApp.UpcomingEventsClient CreateClient(HashSet<string> leagues, IClient webApiClient,
-        IOriginalUpcomingEventConverter converter, ILogger<FunctionApp.UpcomingEventsClient>? logger = null)
+    private static UpcomingEventsClient CreateClient(HashSet<string> leagues, IClient webApiClient,
+        IOriginalUpcomingEventConverter converter, ILogger<UpcomingEventsClient>? logger = null)
     {
         var clientOptions = new OddsApiClientOptions { ApiKey = ApiKey };
         clientOptions.AddLeagues(string.Join(';', leagues));
 
         var options = Options.Create(clientOptions);
 
-        return new FunctionApp.UpcomingEventsClient(logger ?? NullLogger<FunctionApp.UpcomingEventsClient>.Instance,
+        return new UpcomingEventsClient(logger ?? NullLogger<UpcomingEventsClient>.Instance,
             options, webApiClient, converter);
     }
 }

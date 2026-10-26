@@ -1,4 +1,4 @@
-﻿namespace OddsCollector.Functions.Tests.Infrastructure.Http;
+﻿namespace OddsCollector.Functions.UnitTests.Infrastructure.Http;
 
 internal sealed class StubHttpMessageHandler(HttpResponseMessage response) : HttpMessageHandler
 {

@@ -2,14 +2,14 @@
 using System.Text.Json;
 using Azure.Core.Serialization;
 using FluentAssertions.Execution;
+using OddsCollector.Functions.Functions;
 using OddsCollector.Functions.Models;
-using OddsCollector.Functions.Tests.Infrastructure.Http;
-using OddsCollector.Functions.Tests.Infrastructure.Models;
-using FunctionApp = OddsCollector.Functions.Functions;
+using OddsCollector.Functions.UnitTests.Infrastructure.Http;
+using OddsCollector.Functions.UnitTests.Infrastructure.Models;
 
-namespace OddsCollector.Functions.Tests.Tests.Functions;
+namespace OddsCollector.Functions.UnitTests.Tests.Functions;
 
-internal sealed class PredictionsHttpFunction
+internal sealed class PredictionsHttpFunctionTests
 {
     [Test]
     public async Task Run_WithPredictions_ReturnsThemAsJson()
@@ -29,7 +29,7 @@ internal sealed class PredictionsHttpFunction
 
         var requestStub = HttpRequestDataFactory.Create();
 
-        var function = new FunctionApp.PredictionsHttpFunction();
+        var function = new PredictionsHttpFunction();
 
         // Act
         var response = await function.Run(requestStub, predictions);
@@ -49,7 +49,7 @@ internal sealed class PredictionsHttpFunction
         // Arrange
         var requestStub = HttpRequestDataFactory.Create();
 
-        var function = new FunctionApp.PredictionsHttpFunction();
+        var function = new PredictionsHttpFunction();
 
         // Act
         var response = await function.Run(requestStub, []);
@@ -69,7 +69,7 @@ internal sealed class PredictionsHttpFunction
 
         var requestStub = HttpRequestDataFactory.Create(new PredictionsThrowingSerializer(expectedException));
 
-        var function = new FunctionApp.PredictionsHttpFunction();
+        var function = new PredictionsHttpFunction();
 
         // Act
         var action = () => function.Run(requestStub, [ValidModels.CreateEventPrediction()]);

@@ -1,4 +1,4 @@
-﻿namespace OddsCollector.Functions.Tests.Infrastructure.Time;
+﻿namespace OddsCollector.Functions.UnitTests.Infrastructure.Time;
 
 internal sealed class FixedTimeProvider(DateTimeOffset utcNow) : TimeProvider
 {

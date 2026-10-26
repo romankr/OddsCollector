@@ -1,17 +1,21 @@
 ﻿using System.Text.Json;
-using OddsCollector.Functions.Tests.Infrastructure.Models;
-using FunctionApp = OddsCollector.Functions.Models;
+using OddsCollector.Functions.UnitTests.Infrastructure.Models;
 
-namespace OddsCollector.Functions.Tests.Tests.Models;
+namespace OddsCollector.Functions.UnitTests.Tests.Models;
 
-internal sealed class EventResult
+internal sealed class EventResultTests
 {
     [TestCase("", TestName = "Init_WithEmptyId_ThrowsArgumentException")]
     [TestCase(" ", TestName = "Init_WithWhitespaceId_ThrowsArgumentException")]
     public void Init_WithBlankId_ThrowsArgumentException(string id)
     {
-        var action = () => ValidModels.CreateEventResult() with { Id = id };
+        // Arrange
+        var eventResult = ValidModels.CreateEventResult();
 
+        // Act
+        var action = () => eventResult with { Id = id };
+
+        // Assert
         action.Should().ThrowExactly<ArgumentException>().WithParameterName("Id");
     }
 
@@ -19,8 +23,13 @@ internal sealed class EventResult
     [TestCase(" ", TestName = "Init_WithWhitespaceOutcome_ThrowsArgumentException")]
     public void Init_WithBlankOutcome_ThrowsArgumentException(string outcome)
     {
-        var action = () => ValidModels.CreateEventResult() with { Outcome = outcome };
+        // Arrange
+        var eventResult = ValidModels.CreateEventResult();
 
+        // Act
+        var action = () => eventResult with { Outcome = outcome };
+
+        // Assert
         action.Should().ThrowExactly<ArgumentException>().WithParameterName("Outcome");
     }
 
@@ -28,21 +37,28 @@ internal sealed class EventResult
     [TestCase(DateTimeKind.Local, TestName = "Init_WithLocalCommenceTime_ThrowsArgumentException")]
     public void Init_WithNonUtcCommenceTime_ThrowsArgumentException(DateTimeKind kind)
     {
-        var action = () => ValidModels.CreateEventResult() with
-        {
-            CommenceTime = DateTime.SpecifyKind(ValidModels.CommenceTime, kind)
-        };
+        // Arrange
+        var eventResult = ValidModels.CreateEventResult();
+        var commenceTime = DateTime.SpecifyKind(ValidModels.CommenceTime, kind);
 
+        // Act
+        var action = () => eventResult with { CommenceTime = commenceTime };
+
+        // Assert
         action.Should().ThrowExactly<ArgumentException>().WithParameterName("CommenceTime");
     }
 
     [Test]
     public void Serialize_WithResult_WritesIdInLowercaseForCosmosDb()
     {
-        var json = JsonSerializer.Serialize(ValidModels.CreateEventResult());
+        // Arrange
+        var eventResult = ValidModels.CreateEventResult();
 
+        // Act
+        var json = JsonSerializer.Serialize(eventResult);
+
+        // Assert
         using var document = JsonDocument.Parse(json);
-
-        document.RootElement.GetProperty("id").GetString().Should().Be("id");
+        document.RootElement.GetProperty("id").GetString().Should().Be(eventResult.Id);
     }
 }

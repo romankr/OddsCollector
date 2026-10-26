@@ -1,9 +1,9 @@
-﻿using OddsCollector.Functions.OddsApi.WebApi;
-using FunctionApp = OddsCollector.Functions.OddsApi.Converters;
+﻿using OddsCollector.Functions.OddsApi.Converters;
+using OddsCollector.Functions.OddsApi.WebApi;
 
-namespace OddsCollector.Functions.Tests.Tests.OddsApi.Converters;
+namespace OddsCollector.Functions.UnitTests.Tests.OddsApi.Converters;
 
-internal sealed class MarketConverter
+internal sealed class MarketConverterTests
 {
     private const string Bookmaker = "bookmaker";
     private const string AwayTeam = "awayTeam";
@@ -13,7 +13,7 @@ internal sealed class MarketConverter
     public void ToOdd_WithNullMarkets_ThrowsArgumentNullException()
     {
         // Arrange
-        var marketConverter = new FunctionApp.MarketConverter(Substitute.For<FunctionApp.IOddConverter>());
+        var marketConverter = new MarketConverter(Substitute.For<IOddConverter>());
 
         // Act
         var action = () => marketConverter.ToOdd(null, Bookmaker, AwayTeam, HomeTeam);
@@ -26,7 +26,7 @@ internal sealed class MarketConverter
     public void ToOdd_WithEmptyMarkets_ThrowsInvalidOperationException()
     {
         // Arrange
-        var marketConverter = new FunctionApp.MarketConverter(Substitute.For<FunctionApp.IOddConverter>());
+        var marketConverter = new MarketConverter(Substitute.For<IOddConverter>());
 
         // Act
         var action = () => marketConverter.ToOdd([], Bookmaker, AwayTeam, HomeTeam);
@@ -39,7 +39,7 @@ internal sealed class MarketConverter
     public void ToOdd_WithoutHeadToHeadMarket_ThrowsInvalidOperationException()
     {
         // Arrange
-        var marketConverter = new FunctionApp.MarketConverter(Substitute.For<FunctionApp.IOddConverter>());
+        var marketConverter = new MarketConverter(Substitute.For<IOddConverter>());
 
         Markets2[] markets = [new() { Key = Markets2Key.Totals }];
 

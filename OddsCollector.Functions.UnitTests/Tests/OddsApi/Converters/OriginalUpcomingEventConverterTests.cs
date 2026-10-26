@@ -3,13 +3,13 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Logging.Testing;
 using OddsCollector.Functions.Models;
+using OddsCollector.Functions.OddsApi.Converters;
 using OddsCollector.Functions.OddsApi.WebApi;
-using OddsCollector.Functions.Tests.Infrastructure.Time;
-using FunctionApp = OddsCollector.Functions.OddsApi.Converters;
+using OddsCollector.Functions.UnitTests.Infrastructure.Time;
 
-namespace OddsCollector.Functions.Tests.Tests.OddsApi.Converters;
+namespace OddsCollector.Functions.UnitTests.Tests.OddsApi.Converters;
 
-internal sealed class OriginalUpcomingEventConverter
+internal sealed class OriginalUpcomingEventConverterTests
 {
     private const string AwayTeam = "awayTeam";
     private const string HomeTeam = "homeTeam";
@@ -57,9 +57,9 @@ internal sealed class OriginalUpcomingEventConverter
     public void ToUpcomingEvents_WithNullEvents_ThrowsArgumentNullException()
     {
         // Arrange
-        var converter = new FunctionApp.OriginalUpcomingEventConverter(
-            NullLogger<FunctionApp.OriginalUpcomingEventConverter>.Instance,
-            Substitute.For<FunctionApp.IBookmakerConverter>(), FixedTimeProvider.AtNow);
+        var converter = new OriginalUpcomingEventConverter(
+            NullLogger<OriginalUpcomingEventConverter>.Instance,
+            Substitute.For<IBookmakerConverter>(), FixedTimeProvider.AtNow);
 
         // Act
         var action = () => converter.ToUpcomingEvents(null);
@@ -72,7 +72,7 @@ internal sealed class OriginalUpcomingEventConverter
     public void ToUpcomingEvents_WithMalformedEvent_SkipsItAndReturnsTheRest()
     {
         // Arrange
-        var loggerMock = new FakeLogger<FunctionApp.OriginalUpcomingEventConverter>();
+        var loggerMock = new FakeLogger<OriginalUpcomingEventConverter>();
 
         var converter = CreateConverter(loggerMock);
 
@@ -99,7 +99,7 @@ internal sealed class OriginalUpcomingEventConverter
     public void ToUpcomingEvents_WithoutUsableOdds_SkipsEvent()
     {
         // Arrange
-        var loggerMock = new FakeLogger<FunctionApp.OriginalUpcomingEventConverter>();
+        var loggerMock = new FakeLogger<OriginalUpcomingEventConverter>();
 
         var converter = CreateConverter(loggerMock);
 
@@ -143,7 +143,7 @@ internal sealed class OriginalUpcomingEventConverter
     public void ToUpcomingEvents_WithStartedEvent_SkipsIt(int minutesFromNow)
     {
         // Arrange
-        var loggerMock = new FakeLogger<FunctionApp.OriginalUpcomingEventConverter>();
+        var loggerMock = new FakeLogger<OriginalUpcomingEventConverter>();
 
         var converter = CreateConverter(loggerMock);
 
@@ -168,7 +168,7 @@ internal sealed class OriginalUpcomingEventConverter
     public void ToUpcomingEvents_WithNonUtcCommenceTime_SkipsItWithWarning(DateTimeKind kind)
     {
         // Arrange
-        var loggerMock = new FakeLogger<FunctionApp.OriginalUpcomingEventConverter>();
+        var loggerMock = new FakeLogger<OriginalUpcomingEventConverter>();
 
         var converter = CreateConverter(loggerMock);
 
@@ -190,13 +190,13 @@ internal sealed class OriginalUpcomingEventConverter
         record.Exception.Should().BeOfType<ArgumentException>();
     }
 
-    private static FunctionApp.OriginalUpcomingEventConverter CreateConverter(
-        ILogger<FunctionApp.OriginalUpcomingEventConverter>? logger = null)
+    private static OriginalUpcomingEventConverter CreateConverter(
+        ILogger<OriginalUpcomingEventConverter>? logger = null)
     {
-        return new FunctionApp.OriginalUpcomingEventConverter(
-            logger ?? NullLogger<FunctionApp.OriginalUpcomingEventConverter>.Instance,
-            new FunctionApp.BookmakerConverter(NullLogger<FunctionApp.BookmakerConverter>.Instance,
-                new FunctionApp.MarketConverter(new FunctionApp.OddConverter())),
+        return new OriginalUpcomingEventConverter(
+            logger ?? NullLogger<OriginalUpcomingEventConverter>.Instance,
+            new BookmakerConverter(NullLogger<BookmakerConverter>.Instance,
+                new MarketConverter(new OddConverter())),
             FixedTimeProvider.AtNow);
     }
 

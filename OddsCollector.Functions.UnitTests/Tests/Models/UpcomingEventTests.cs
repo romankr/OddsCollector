@@ -1,10 +1,10 @@
 ﻿using System.Text.Json;
-using OddsCollector.Functions.Tests.Infrastructure.Models;
-using FunctionApp = OddsCollector.Functions.Models;
+using OddsCollector.Functions.Models;
+using OddsCollector.Functions.UnitTests.Infrastructure.Models;
 
-namespace OddsCollector.Functions.Tests.Tests.Models;
+namespace OddsCollector.Functions.UnitTests.Tests.Models;
 
-internal sealed class UpcomingEvent
+internal sealed class UpcomingEventTests
 {
     private static IEnumerable<TestCaseData> BlankTextCases()
     {
@@ -13,17 +13,19 @@ internal sealed class UpcomingEvent
         yield return Case("Id", "", () => ValidModels.CreateUpcomingEvent() with { Id = "" });
     }
 
-    private static TestCaseData Case(string property, string value, Func<FunctionApp.UpcomingEvent> create)
+    private static TestCaseData Case(string property, string value, Func<UpcomingEvent> create)
     {
         return new TestCaseData(property, create)
             .SetName($"Init_WithBlank{property}_ThrowsArgumentException(\"{value}\")");
     }
 
     [TestCaseSource(nameof(BlankTextCases))]
-    public void Init_WithBlankText_ThrowsArgumentException(string property, Func<FunctionApp.UpcomingEvent> create)
+    public void Init_WithBlankText_ThrowsArgumentException(string property, Func<UpcomingEvent> create)
     {
+        // Act
         var action = () => create();
 
+        // Assert
         action.Should().ThrowExactly<ArgumentException>().WithParameterName(property);
     }
 
@@ -31,31 +33,41 @@ internal sealed class UpcomingEvent
     [TestCase(DateTimeKind.Local, TestName = "Init_WithLocalCommenceTime_ThrowsArgumentException")]
     public void Init_WithNonUtcCommenceTime_ThrowsArgumentException(DateTimeKind kind)
     {
-        var action = () => ValidModels.CreateUpcomingEvent() with
-        {
-            CommenceTime = DateTime.SpecifyKind(ValidModels.CommenceTime, kind)
-        };
+        // Arrange
+        var upcomingEvent = ValidModels.CreateUpcomingEvent();
+        var commenceTime = DateTime.SpecifyKind(ValidModels.CommenceTime, kind);
 
+        // Act
+        var action = () => upcomingEvent with { CommenceTime = commenceTime };
+
+        // Assert
         action.Should().ThrowExactly<ArgumentException>().WithParameterName("CommenceTime");
     }
 
     [Test]
     public void Init_WithNullOdds_ThrowsArgumentNullException()
     {
-        var action = () => ValidModels.CreateUpcomingEvent() with { Odds = null! };
+        // Arrange
+        var upcomingEvent = ValidModels.CreateUpcomingEvent();
 
+        // Act
+        var action = () => upcomingEvent with { Odds = null! };
+
+        // Assert
         action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("Odds");
     }
 
     [Test]
     public void Deserialize_WithSerializedEvent_ReturnsEquivalentEvent()
     {
+        // Arrange
         var upcomingEvent = ValidModels.CreateUpcomingEvent();
-
         var json = JsonSerializer.Serialize(upcomingEvent);
 
-        var deserialized = JsonSerializer.Deserialize<FunctionApp.UpcomingEvent>(json);
+        // Act
+        var deserialized = JsonSerializer.Deserialize<UpcomingEvent>(json);
 
+        // Assert
         deserialized.Should().BeEquivalentTo(upcomingEvent);
     }
 }
