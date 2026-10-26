@@ -8,12 +8,12 @@ internal sealed class ScoreCalculatorTests
 {
     private const double Precision = 0.0001;
 
-    [TestCase(OutcomeTypes.Draw, 0.443, TestName = "GetScores_WithOdds_ReturnsAdjustedConsensusScoreForDraw")]
-    [TestCase(OutcomeTypes.AwayTeam, 0.5297,
+    [TestCase(OutcomeType.Draw, 0.443, TestName = "GetScores_WithOdds_ReturnsAdjustedConsensusScoreForDraw")]
+    [TestCase(OutcomeType.AwayTeam, 0.5297,
         TestName = "GetScores_WithOdds_ReturnsAdjustedConsensusScoreForAwayTeam")]
-    [TestCase(OutcomeTypes.HomeTeam, 0.5327,
+    [TestCase(OutcomeType.HomeTeam, 0.5327,
         TestName = "GetScores_WithOdds_ReturnsAdjustedConsensusScoreForHomeTeam")]
-    public void GetScores_WithOdds_ReturnsAdjustedConsensusScore(string outcome, double expectedScore)
+    public void GetScores_WithOdds_ReturnsAdjustedConsensusScore(OutcomeType outcome, double expectedScore)
     {
         // Arrange
         List<Odd> odds =
@@ -51,9 +51,9 @@ internal sealed class ScoreCalculatorTests
         // Assert
         scores.Should().BeEquivalentTo(
         [
-            new { Outcome = OutcomeTypes.Draw, Score = 0.2763 },
-            new { Outcome = OutcomeTypes.AwayTeam, Score = 0.1852 },
-            new { Outcome = OutcomeTypes.HomeTeam, Score = 0.1882 }
+            new { Outcome = OutcomeType.Draw, Score = 0.2763 },
+            new { Outcome = OutcomeType.AwayTeam, Score = 0.1852 },
+            new { Outcome = OutcomeType.HomeTeam, Score = 0.1882 }
         ], options => options.Using<double>(c => c.Subject.Should().BeApproximately(c.Expectation, Precision))
             .WhenTypeIs<double>());
     }
@@ -75,8 +75,21 @@ internal sealed class ScoreCalculatorTests
         var scores = calculator.GetScores(odds);
 
         // Assert
-        scores.Should().ContainSingle(s => s.Outcome == OutcomeTypes.Draw)
+        scores.Should().ContainSingle(s => s.Outcome == OutcomeType.Draw)
             .Which.Score.Should().BeApproximately(0.443, Precision);
+    }
+
+    [Test]
+    public void GetScores_WithNullOdds_ThrowsArgumentNullException()
+    {
+        // Arrange
+        var calculator = new ScoreCalculator();
+
+        // Act
+        var action = () => calculator.GetScores(null!);
+
+        // Assert
+        action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("odds");
     }
 
     [TestCase(0, TestName = "GetScores_WithZeroOdds_ScoresNothing")]
@@ -96,8 +109,7 @@ internal sealed class ScoreCalculatorTests
         // Assert
         using var scope = new AssertionScope();
 
-        scores.Select(s => s.Outcome).Should()
-            .BeEquivalentTo(OutcomeTypes.Draw, OutcomeTypes.AwayTeam, OutcomeTypes.HomeTeam);
+        scores.Select(s => s.Outcome).Should().BeEquivalentTo(Enum.GetValues<OutcomeType>());
         scores.Should().OnlyContain(s => s.Score == 0);
     }
 }

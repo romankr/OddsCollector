@@ -10,17 +10,19 @@ internal sealed class ScoreCalculator : IScoreCalculator
     private const double HomeTeamAdjustment = 0.034;
     private const double AwayTeamAdjustment = 0.037;
 
-    public OutcomeScore[] GetScores(ICollection<Odd> odds)
+    public OutcomeScore[] GetScores(IReadOnlyCollection<Odd> odds)
     {
+        ArgumentNullException.ThrowIfNull(odds);
+
         return
         [
-            Calculate(OutcomeTypes.Draw, odds, DrawAdjustment, x => x.Draw),
-            Calculate(OutcomeTypes.AwayTeam, odds, AwayTeamAdjustment, x => x.Away),
-            Calculate(OutcomeTypes.HomeTeam, odds, HomeTeamAdjustment, x => x.Home)
+            Calculate(OutcomeType.Draw, odds, DrawAdjustment, x => x.Draw),
+            Calculate(OutcomeType.AwayTeam, odds, AwayTeamAdjustment, x => x.Away),
+            Calculate(OutcomeType.HomeTeam, odds, HomeTeamAdjustment, x => x.Home)
         ];
     }
 
-    private static OutcomeScore Calculate(string outcome, ICollection<Odd> odds, double adjustment,
+    private static OutcomeScore Calculate(OutcomeType outcome, IReadOnlyCollection<Odd> odds, double adjustment,
         Func<Odd, double> valueExtractor)
     {
         var probabilities = GetImpliedProbabilities(odds, valueExtractor);
@@ -30,7 +32,7 @@ internal sealed class ScoreCalculator : IScoreCalculator
         return new OutcomeScore { Outcome = outcome, Score = score };
     }
 
-    private static List<double> GetImpliedProbabilities(ICollection<Odd> odds, Func<Odd, double> valueExtractor)
+    private static List<double> GetImpliedProbabilities(IReadOnlyCollection<Odd> odds, Func<Odd, double> valueExtractor)
     {
         return odds.Select(valueExtractor)
             .Where(o => o > BreakEvenDecimalOdds)

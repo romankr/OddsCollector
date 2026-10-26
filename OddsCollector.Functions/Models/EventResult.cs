@@ -10,5 +10,5 @@ internal sealed record EventResult
     [JsonPropertyName("id")]
     public required string Id { get; init => field = Guard.NotBlank(value, nameof(Id)); }
 
-    public required string Outcome { get; init => field = Guard.NotBlank(value, nameof(Outcome)); }
+    public required OutcomeType Outcome { get; init => field = Guard.Defined(value, nameof(Outcome)); }
 }

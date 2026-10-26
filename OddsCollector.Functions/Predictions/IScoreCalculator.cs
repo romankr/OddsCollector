@@ -4,5 +4,5 @@ namespace OddsCollector.Functions.Predictions;
 
 internal interface IScoreCalculator
 {
-    OutcomeScore[] GetScores(ICollection<Odd> odds);
+    OutcomeScore[] GetScores(IReadOnlyCollection<Odd> odds);
 }

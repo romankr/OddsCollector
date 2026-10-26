@@ -22,7 +22,7 @@ internal sealed class PredictionsHttpFunctionTests
                 Id = "id",
                 AwayTeam = "awayTeam",
                 HomeTeam = "homeTeam",
-                Outcome = OutcomeTypes.HomeTeam,
+                Outcome = OutcomeType.HomeTeam,
                 CommenceTime = new DateTime(2026, 9, 22, 18, 0, 0, DateTimeKind.Utc)
             }
         ];
@@ -32,7 +32,7 @@ internal sealed class PredictionsHttpFunctionTests
         var function = new PredictionsHttpFunction();
 
         // Act
-        var response = await function.Run(requestStub, predictions);
+        var response = await function.Run(requestStub, predictions, CancellationToken.None);
 
         // Assert
         using var scope = new AssertionScope();
@@ -52,7 +52,7 @@ internal sealed class PredictionsHttpFunctionTests
         var function = new PredictionsHttpFunction();
 
         // Act
-        var response = await function.Run(requestStub, []);
+        var response = await function.Run(requestStub, [], CancellationToken.None);
 
         // Assert
         using var scope = new AssertionScope();
@@ -72,7 +72,7 @@ internal sealed class PredictionsHttpFunctionTests
         var function = new PredictionsHttpFunction();
 
         // Act
-        var action = () => function.Run(requestStub, [ValidModels.CreateEventPrediction()]);
+        var action = () => function.Run(requestStub, [ValidModels.CreateEventPrediction()], CancellationToken.None);
 
         // Assert
         (await action.Should().ThrowAsync<InvalidOperationException>()).Which.Should().BeSameAs(expectedException);

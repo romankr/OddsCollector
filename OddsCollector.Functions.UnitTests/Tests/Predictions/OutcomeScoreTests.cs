@@ -1,17 +1,20 @@
-﻿using OddsCollector.Functions.Predictions;
+﻿using OddsCollector.Functions.Models;
+using OddsCollector.Functions.Predictions;
 
 namespace OddsCollector.Functions.UnitTests.Tests.Predictions;
 
 internal sealed class OutcomeScoreTests
 {
-    [TestCase("", TestName = "Init_WithEmptyOutcome_ThrowsArgumentException")]
-    [TestCase(" ", TestName = "Init_WithWhitespaceOutcome_ThrowsArgumentException")]
-    public void Init_WithBlankOutcome_ThrowsArgumentException(string outcome)
+    [Test]
+    public void Init_WithUndefinedOutcome_ThrowsArgumentOutOfRangeException()
     {
+        // Arrange
+        const OutcomeType undefinedOutcome = (OutcomeType)42;
+
         // Act
-        var action = () => new OutcomeScore { Outcome = outcome, Score = 1 };
+        var action = () => new OutcomeScore { Outcome = undefinedOutcome, Score = 1 };
 
         // Assert
-        action.Should().ThrowExactly<ArgumentException>().WithParameterName("Outcome");
+        action.Should().ThrowExactly<ArgumentOutOfRangeException>().WithParameterName("Outcome");
     }
 }

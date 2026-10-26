@@ -31,12 +31,12 @@ internal static class ValidModels
             HomeTeam = "homeTeam",
             AwayTeam = "awayTeam",
             CommenceTime = CommenceTime,
-            Outcome = OutcomeTypes.HomeTeam
+            Outcome = OutcomeType.HomeTeam
         };
     }
 
     public static EventResult CreateEventResult()
     {
-        return new EventResult { Id = "id", CommenceTime = CommenceTime, Outcome = OutcomeTypes.HomeTeam };
+        return new EventResult { Id = "id", CommenceTime = CommenceTime, Outcome = OutcomeType.HomeTeam };
     }
 }

@@ -16,10 +16,13 @@ internal sealed class PredictionsHttpFunction
             "%CosmosDb:EventPredictionsContainer%",
             Connection = "CosmosDb:Connection",
             SqlQuery = "SELECT TOP 100 * FROM p WHERE p.CommenceTime > GetCurrentDateTime() ORDER BY p.CommenceTime")]
-        EventPrediction[] predictions)
+        EventPrediction[] predictions,
+        CancellationToken cancellationToken)
     {
         var response = request.CreateResponse(HttpStatusCode.OK);
-        await response.WriteAsJsonAsync(predictions);
+
+        await response.WriteAsJsonAsync(predictions, cancellationToken);
+
         return response;
     }
 }

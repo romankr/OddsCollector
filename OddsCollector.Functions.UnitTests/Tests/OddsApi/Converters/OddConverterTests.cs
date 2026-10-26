@@ -6,6 +6,9 @@ namespace OddsCollector.Functions.UnitTests.Tests.OddsApi.Converters;
 
 internal sealed class OddConverterTests
 {
+    // The name The Odds API gives the draw outcome of a head-to-head market.
+    private const string DrawOutcomeName = "Draw";
+
     private const string Bookmaker = "bookmaker";
     private const string AwayTeam = "awayTeam";
     private const string HomeTeam = "homeTeam";
@@ -48,7 +51,7 @@ internal sealed class OddConverterTests
         Outcome[] outcomes =
         [
             new() { Name = HomeTeam, Price = Price },
-            new() { Name = OutcomeTypes.Draw, Price = Price }
+            new() { Name = DrawOutcomeName, Price = Price }
         ];
 
         // Act
@@ -68,7 +71,7 @@ internal sealed class OddConverterTests
         Outcome[] outcomes =
         [
             new() { Name = AwayTeam, Price = Price },
-            new() { Name = OutcomeTypes.Draw, Price = Price }
+            new() { Name = DrawOutcomeName, Price = Price }
         ];
 
         // Act
@@ -96,7 +99,7 @@ internal sealed class OddConverterTests
 
         // Assert
         action.Should().Throw<ArgumentException>()
-            .WithMessage($"Outcome {OutcomeTypes.Draw} is missing*").And.ParamName.Should().Be("outcomes");
+            .WithMessage($"Outcome {DrawOutcomeName} is missing*").And.ParamName.Should().Be("outcomes");
     }
 
     [Test]
@@ -109,7 +112,7 @@ internal sealed class OddConverterTests
         [
             new() { Name = AwayTeam, Price = Price },
             new() { Name = HomeTeam, Price = Price },
-            new() { Name = OutcomeTypes.Draw, Price = null }
+            new() { Name = DrawOutcomeName, Price = null }
         ];
 
         // Act
@@ -117,7 +120,7 @@ internal sealed class OddConverterTests
 
         // Assert
         action.Should().Throw<ArgumentException>()
-            .WithMessage($"Outcome {OutcomeTypes.Draw} has no price*").And.ParamName.Should().Be("outcomes");
+            .WithMessage($"Outcome {DrawOutcomeName} has no price*").And.ParamName.Should().Be("outcomes");
     }
 
     [Test]
@@ -134,7 +137,7 @@ internal sealed class OddConverterTests
         [
             new() { Name = AwayTeam, Price = awayPrice },
             new() { Name = HomeTeam, Price = homePrice },
-            new() { Name = OutcomeTypes.Draw, Price = drawPrice }
+            new() { Name = DrawOutcomeName, Price = drawPrice }
         ];
 
         // Act

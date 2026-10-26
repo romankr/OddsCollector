@@ -4,8 +4,10 @@ namespace OddsCollector.Functions.Predictions;
 
 internal sealed class OutcomePredictor(IScoreCalculator calculator) : IOutcomePredictor
 {
-    public string GetOutcome(ICollection<Odd> odds)
+    public OutcomeType GetOutcome(IReadOnlyCollection<Odd> odds)
     {
+        ArgumentNullException.ThrowIfNull(odds);
+
         if (odds.Count == 0)
         {
             throw new ArgumentException($"{nameof(odds)} cannot be empty", nameof(odds));

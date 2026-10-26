@@ -1,8 +1,9 @@
-﻿using OddsCollector.Functions.OddsApi.WebApi;
+﻿using OddsCollector.Functions.Models;
+using OddsCollector.Functions.OddsApi.WebApi;
 
 namespace OddsCollector.Functions.OddsApi.Converters;
 
 internal interface IOutcomeConverter
 {
-    string GetOutcome(ICollection<ScoreModel>? scores);
+    OutcomeType GetOutcome(ICollection<ScoreModel>? scores, string? awayTeam, string? homeTeam);
 }

@@ -16,7 +16,7 @@ internal sealed class OriginalCompletedEventConverterTests
     private static readonly DateTime CommenceTime = new(2026, 9, 22, 18, 0, 0, DateTimeKind.Utc);
 
     [Test]
-    public void ToEventResults_WithCompletedEvent_ReturnsEventResultWithWinnerAsOutcome()
+    public void ToEventResults_WithCompletedEvent_ReturnsEventResultWithWinningSideAsOutcome()
     {
         // Arrange
         var converter = CreateConverter();
@@ -31,7 +31,7 @@ internal sealed class OriginalCompletedEventConverterTests
         {
             Id = "id",
             CommenceTime = CommenceTime,
-            Outcome = HomeTeam
+            Outcome = OutcomeType.HomeTeam
         });
     }
 
@@ -132,6 +132,34 @@ internal sealed class OriginalCompletedEventConverterTests
         loggerMock.Collector.GetSnapshot().Select(r => r.Message).Should().Equal(
             "Skipped event withoutScores",
             "Skipped event withOneScore");
+    }
+
+    [Test]
+    public void ToEventResults_WithScoreOfTeamNotPlaying_SkipsIt()
+    {
+        // Arrange
+        var loggerMock = new FakeLogger<OriginalCompletedEventConverter>();
+
+        var converter = CreateConverter(loggerMock);
+
+        var mismatched = CreateCompletedEvent("mismatched", awayScore: "1", homeScore: "2");
+        mismatched.Scores =
+        [
+            new ScoreModel { Name = "otherTeam", Score = "1" },
+            new ScoreModel { Name = HomeTeam, Score = "2" }
+        ];
+
+        var working = CreateCompletedEvent("working", awayScore: "1", homeScore: "2");
+
+        // Act
+        var eventResults = converter.ToEventResults([mismatched, working]).ToList();
+
+        // Assert
+        using var scope = new AssertionScope();
+
+        eventResults.Should().ContainSingle().Which.Id.Should().Be("working");
+        loggerMock.Collector.GetSnapshot().Should().ContainSingle()
+            .Which.Message.Should().Be("Skipped event mismatched");
     }
 
     private static OriginalCompletedEventConverter CreateConverter(
