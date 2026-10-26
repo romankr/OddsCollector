@@ -97,7 +97,8 @@ internal sealed class BookmakerConverter
 
         odds.Should().ContainSingle().Which.Bookmaker.Should().Be("working");
         loggerMock.Collector.GetSnapshot().Should().ContainSingle()
-            .Which.Exception.Should().BeOfType<InvalidOperationException>();
+            .Which.Exception.Should().BeOfType<ArgumentException>()
+            .Which.Message.Should().StartWith($"Outcome {OutcomeTypes.Draw} is missing");
     }
 
     [Test]

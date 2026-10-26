@@ -11,7 +11,7 @@ namespace OddsCollector.Functions.Tests.Tests.OddsApi.Configuration;
 
 internal sealed class ServiceCollectionExtensions
 {
-    private static ServiceProvider BuildProvider(string? leagues = "league1;league2", string? apiKey = "key",
+    private static ServiceProvider BuildProvider(string? leagues = "soccer_epl;soccer_spain_la_liga", string? apiKey = "key",
         string? baseUrl = null)
     {
         var configuration = new ConfigurationBuilder()
@@ -43,7 +43,7 @@ internal sealed class ServiceCollectionExtensions
 
     [TestCase(null, "key", "OddsApiClient:Leagues",
         TestName = "AddOddsApiClientWithDependencies_WithoutLeagues_FailsStartupValidation")]
-    [TestCase("league1", null, "OddsApiClient:ApiKey",
+    [TestCase("soccer_epl", null, "OddsApiClient:ApiKey",
         TestName = "AddOddsApiClientWithDependencies_WithoutApiKey_FailsStartupValidation")]
     public void AddOddsApiClientWithDependencies_WithMissingSetting_FailsStartupValidation(string? leagues,
         string? apiKey, string setting)
@@ -69,13 +69,13 @@ internal sealed class ServiceCollectionExtensions
     [Test]
     public void AddOddsApiClientWithDependencies_WithLeaguesAndApiKey_BindsThemToOptions()
     {
-        using var provider = BuildProvider(leagues: "league1;league2", apiKey: "key");
+        using var provider = BuildProvider(leagues: "soccer_epl;soccer_spain_la_liga", apiKey: "key");
 
         var options = provider.GetRequiredService<IOptions<FunctionApp.Configuration.OddsApiClientOptions>>().Value;
 
         using var scope = new AssertionScope();
 
-        options.Leagues.Should().BeEquivalentTo("league1", "league2");
+        options.Leagues.Should().BeEquivalentTo("soccer_epl", "soccer_spain_la_liga");
         options.ApiKey.Should().Be("key");
     }
 

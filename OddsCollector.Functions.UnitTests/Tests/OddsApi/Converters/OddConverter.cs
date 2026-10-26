@@ -40,7 +40,7 @@ internal sealed class OddConverter
     }
 
     [Test]
-    public void ToOdd_WithoutAwayTeamPrice_ThrowsInvalidOperationException()
+    public void ToOdd_WithoutAwayTeamOutcome_ThrowsArgumentExceptionNamingIt()
     {
         // Arrange
         var converter = new FunctionApp.OddConverter();
@@ -55,11 +55,12 @@ internal sealed class OddConverter
         var action = () => converter.ToOdd(outcomes, Bookmaker, AwayTeam, HomeTeam);
 
         // Assert
-        action.Should().Throw<InvalidOperationException>();
+        action.Should().Throw<ArgumentException>()
+            .WithMessage($"Outcome {AwayTeam} is missing*").And.ParamName.Should().Be("outcomes");
     }
 
     [Test]
-    public void ToOdd_WithoutHomeTeamPrice_ThrowsInvalidOperationException()
+    public void ToOdd_WithoutHomeTeamOutcome_ThrowsArgumentExceptionNamingIt()
     {
         // Arrange
         var converter = new FunctionApp.OddConverter();
@@ -74,11 +75,12 @@ internal sealed class OddConverter
         var action = () => converter.ToOdd(outcomes, Bookmaker, AwayTeam, HomeTeam);
 
         // Assert
-        action.Should().Throw<InvalidOperationException>();
+        action.Should().Throw<ArgumentException>()
+            .WithMessage($"Outcome {HomeTeam} is missing*").And.ParamName.Should().Be("outcomes");
     }
 
     [Test]
-    public void ToOdd_WithoutDrawPrice_ThrowsInvalidOperationException()
+    public void ToOdd_WithoutDrawOutcome_ThrowsArgumentExceptionNamingIt()
     {
         // Arrange
         var converter = new FunctionApp.OddConverter();
@@ -93,6 +95,52 @@ internal sealed class OddConverter
         var action = () => converter.ToOdd(outcomes, Bookmaker, AwayTeam, HomeTeam);
 
         // Assert
-        action.Should().Throw<InvalidOperationException>();
+        action.Should().Throw<ArgumentException>()
+            .WithMessage($"Outcome {OutcomeTypes.Draw} is missing*").And.ParamName.Should().Be("outcomes");
+    }
+
+    [Test]
+    public void ToOdd_WithOutcomeWithoutPrice_ThrowsArgumentExceptionNamingIt()
+    {
+        // Arrange
+        var converter = new FunctionApp.OddConverter();
+
+        Outcome[] outcomes =
+        [
+            new() { Name = AwayTeam, Price = Price },
+            new() { Name = HomeTeam, Price = Price },
+            new() { Name = OutcomeTypes.Draw, Price = null }
+        ];
+
+        // Act
+        var action = () => converter.ToOdd(outcomes, Bookmaker, AwayTeam, HomeTeam);
+
+        // Assert
+        action.Should().Throw<ArgumentException>()
+            .WithMessage($"Outcome {OutcomeTypes.Draw} has no price*").And.ParamName.Should().Be("outcomes");
+    }
+
+    [Test]
+    public void ToOdd_WithAllPrices_ReturnsOddForBookmaker()
+    {
+        // Arrange
+        const double homePrice = 1.5;
+        const double drawPrice = 3.5;
+        const double awayPrice = 6.0;
+
+        var converter = new FunctionApp.OddConverter();
+
+        Outcome[] outcomes =
+        [
+            new() { Name = AwayTeam, Price = awayPrice },
+            new() { Name = HomeTeam, Price = homePrice },
+            new() { Name = OutcomeTypes.Draw, Price = drawPrice }
+        ];
+
+        // Act
+        var odd = converter.ToOdd(outcomes, Bookmaker, AwayTeam, HomeTeam);
+
+        // Assert
+        odd.Should().Be(new Odd { Bookmaker = Bookmaker, Home = homePrice, Draw = drawPrice, Away = awayPrice });
     }
 }
