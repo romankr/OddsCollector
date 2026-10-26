@@ -29,6 +29,20 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Using Include="FluentAssertions"/>
+    <Using Include="NSubstitute"/>
+    <Using Include="NUnit.Framework"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Test fixtures run in parallel with each other; tests within a fixture run one at a time. -->
+    <AssemblyAttribute Include="NUnit.Framework.ParallelizableAttribute">
+      <_Parameter1>NUnit.Framework.ParallelScope.Fixtures</_Parameter1>
+      <_Parameter1_IsLiteral>true</_Parameter1_IsLiteral>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\OddsCollector.Functions\OddsCollector.Functions.csproj"/>
   </ItemGroup>
 
