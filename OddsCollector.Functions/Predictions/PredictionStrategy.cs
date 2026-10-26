@@ -12,7 +12,7 @@ internal sealed class PredictionStrategy(IOutcomePredictor predictor) : IPredict
     {
         ArgumentNullException.ThrowIfNull(upcomingEvent);
 
-        var outcome = predictor.GetOutcome([.. upcomingEvent.Odds]);
+        var outcome = predictor.GetOutcome(upcomingEvent.Odds);
 
         return ToEventPrediction(outcome, upcomingEvent);
     }
