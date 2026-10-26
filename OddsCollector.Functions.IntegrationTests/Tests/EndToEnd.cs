@@ -14,6 +14,10 @@ internal sealed class EndToEnd
 
     private static readonly TimeSpan StartupTimeout = TimeSpan.FromMinutes(10);
 
+    // The host settles a message right after it logs the end of the invocation; a failed settlement is logged
+    // within this time.
+    private static readonly TimeSpan SettlementGracePeriod = TimeSpan.FromSeconds(5);
+
     private IntegrationEnvironment? _environment;
 
     private IntegrationEnvironment Environment =>
@@ -227,5 +231,40 @@ internal sealed class EndToEnd
                 Outcome = OutcomeType.HomeTeam
             });
         }
+    }
+
+    [Test]
+    [CancelAfter(TestTimeoutMilliseconds)]
+    public async Task PredictionFunction_UnreadableMessage_DeadLettersItWithoutSettlingItAgain(
+        CancellationToken cancellationToken)
+    {
+        // Arrange: the body lacks the required UpcomingEvent properties, so it cannot be deserialized.
+        var messageId = TestData.NewId("unreadable");
+        const string body = """{"Id":"unreadable"}""";
+
+        var logStart = Environment.FunctionsHost.LoggedLines;
+
+        // Act
+        await Environment.ServiceBusQueue.SendAsync(messageId, body, cancellationToken);
+
+        var deadLettered = await Environment.WaitForDeadLetteredMessageAsync(messageId, cancellationToken);
+        var executed = await Environment.WaitForLogLineAsync(logStart,
+            $"Executed 'Functions.{nameof(PredictionFunction)}'", cancellationToken);
+
+        await Task.Delay(SettlementGracePeriod, cancellationToken);
+
+        // Assert: AutoCompleteMessages is on, so the host must skip the message the function has already
+        // dead-lettered instead of completing it a second time and logging a settlement error. The emulator
+        // reports DeliveryCount 0 for a peeked dead-lettered message, so a single delivery is checked in the
+        // trigger details the host logs for every delivery.
+        var logLines = Environment.FunctionsHost.GetLogLinesAfter(logStart);
+
+        using var scope = new AssertionScope();
+
+        deadLettered.DeadLetterReason.Should().Be("JsonException");
+        executed.Should().Contain("Succeeded");
+        logLines.Where(l => l.Contains($"MessageId: {messageId},", StringComparison.Ordinal)).Should()
+            .ContainSingle().Which.Should().Contain("DeliveryCount: 1,");
+        logLines.Should().NotContain(l => l.Contains("Message processing error", StringComparison.Ordinal));
     }
 }
