@@ -27,7 +27,7 @@ internal sealed class EventResultsFunction(ILogger<EventResultsFunction> logger,
 
             return results;
         }
-        catch (OperationCanceledException exception)
+        catch (OperationCanceledException exception) when (cancellationToken.IsCancellationRequested)
         {
             logger.LogInformation(exception, "Collection was cancelled");
         }

@@ -79,7 +79,7 @@ internal sealed class UpcomingEventsFunction
     }
 
     [Test]
-    public async Task Run_WithCancellation_ReturnsNothingAndLogsInformation()
+    public async Task Run_WithHostCancellation_ReturnsNothingAndLogsInformation()
     {
         // Arrange
         var clientStub = Substitute.For<IUpcomingEventsClient>();
@@ -90,7 +90,7 @@ internal sealed class UpcomingEventsFunction
         var function = new FunctionApp.UpcomingEventsFunction(loggerMock, clientStub);
 
         // Act
-        var results = await function.Run(new TimerInfo(), CancellationToken.None);
+        var results = await function.Run(new TimerInfo(), new CancellationToken(canceled: true));
 
         // Assert
         using var scope = new AssertionScope();
@@ -98,6 +98,27 @@ internal sealed class UpcomingEventsFunction
         results.Should().BeEmpty();
         loggerMock.Collector.GetSnapshot().Should().ContainSingle()
             .Which.Should().BeEquivalentTo(new { Level = LogLevel.Information, Message = "Collection was cancelled" });
+    }
+
+    [Test]
+    public async Task Run_WithCancellationNotRequestedByHost_LetsItReachTheHost()
+    {
+        // Arrange: e.g. an HTTP timeout surfaces as OperationCanceledException without the host cancelling.
+        var expectedException = new OperationCanceledException();
+
+        var clientStub = Substitute.For<IUpcomingEventsClient>();
+        clientStub.GetUpcomingEventsAsync(Arg.Any<CancellationToken>()).Throws(expectedException);
+
+        var loggerMock = new FakeLogger<FunctionApp.UpcomingEventsFunction>();
+
+        var function = new FunctionApp.UpcomingEventsFunction(loggerMock, clientStub);
+
+        // Act
+        var action = () => function.Run(new TimerInfo(), CancellationToken.None);
+
+        // Assert
+        (await action.Should().ThrowAsync<OperationCanceledException>()).Which.Should().BeSameAs(expectedException);
+        loggerMock.Collector.GetSnapshot().Should().BeEmpty();
     }
 
     [Test]
