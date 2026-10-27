@@ -346,4 +346,52 @@ internal sealed class EndToEnd
         logLines.Where(l => l.Contains($"MessageId: {messageId},", StringComparison.Ordinal)).Should()
             .ContainSingle().Which.Should().Contain("DeliveryCount: 1,");
     }
+
+    [Test]
+    [CancelAfter(TestTimeoutMilliseconds)]
+    public async Task PredictionsHttpFunction_StoredDocumentFailingValidation_ReturnsTheOtherPredictions(
+        CancellationToken cancellationToken)
+    {
+        // Arrange: a document with an Outcome the model does not know, stored before a valid prediction.
+        var brokenId = TestData.NewId("broken");
+        var brokenDocument = new
+        {
+            id = brokenId,
+            HomeTeam = "Arsenal",
+            AwayTeam = "Chelsea",
+            CommenceTime = TestData.KickOffInDays(2),
+            Outcome = "Unknown"
+        };
+
+        var prediction = new EventPrediction
+        {
+            Id = TestData.NewId("prediction"),
+            HomeTeam = "Liverpool",
+            AwayTeam = "Everton",
+            CommenceTime = TestData.KickOffInDays(3),
+            Outcome = OutcomeType.Draw
+        };
+
+        try
+        {
+            await Environment.StorePredictionDocumentAsync(brokenId, brokenDocument, cancellationToken);
+            await Environment.StorePredictionAsync(prediction, cancellationToken);
+
+            // Act
+            var publishedPredictions =
+                await Environment.WaitForPublishedPredictionsAsync(prediction.Id, cancellationToken);
+
+            // Assert: the response is still OK, with the valid prediction and without the unreadable document.
+            using var scope = new AssertionScope();
+
+            publishedPredictions.Should().ContainSingle(p => p.Id == prediction.Id)
+                .Which.Should().BeEquivalentTo(prediction);
+            publishedPredictions.Should().NotContain(p => p.Id == brokenId);
+        }
+        finally
+        {
+            await Environment.DeletePredictionAsync(brokenId, CancellationToken.None);
+            await Environment.DeletePredictionAsync(prediction.Id, CancellationToken.None);
+        }
+    }
 }

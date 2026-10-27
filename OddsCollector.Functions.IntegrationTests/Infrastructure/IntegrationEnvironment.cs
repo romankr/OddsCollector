@@ -97,6 +97,11 @@ internal sealed class IntegrationEnvironment : IAsyncDisposable
             cancellationToken);
     }
 
+    public Task StorePredictionDocumentAsync<T>(string id, T document, CancellationToken cancellationToken)
+    {
+        return CosmosDb.UpsertItemAsync(Database, EventPredictionsContainer, id, document, cancellationToken);
+    }
+
     public Task DeletePredictionAsync(string id, CancellationToken cancellationToken)
     {
         return CosmosDb.DeleteItemAsync(Database, EventPredictionsContainer, id, cancellationToken);
