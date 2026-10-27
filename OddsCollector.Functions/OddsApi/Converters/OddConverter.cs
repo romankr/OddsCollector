@@ -5,7 +5,6 @@ namespace OddsCollector.Functions.OddsApi.Converters;
 
 internal sealed class OddConverter : IOddConverter
 {
-    // The name The Odds API gives the draw outcome of a head-to-head market.
     private const string DrawOutcomeName = "Draw";
 
     public Odd ToOdd(ICollection<Outcome>? outcomes, string? bookmaker, string homeTeam, string awayTeam)

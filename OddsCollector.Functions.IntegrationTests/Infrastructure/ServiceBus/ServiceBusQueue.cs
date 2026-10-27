@@ -22,13 +22,23 @@ internal sealed class ServiceBusQueue(string connectionString, string queueName)
             cancellationToken);
     }
 
-    public async Task<ServiceBusReceivedMessage?> TryPeekDeadLetteredAsync(string messageId,
+    public Task<ServiceBusReceivedMessage?> TryPeekAsync(string messageId, CancellationToken cancellationToken)
+    {
+        return TryPeekAsync(SubQueue.None, messageId, cancellationToken);
+    }
+
+    public Task<ServiceBusReceivedMessage?> TryPeekDeadLetteredAsync(string messageId,
+        CancellationToken cancellationToken)
+    {
+        return TryPeekAsync(SubQueue.DeadLetter, messageId, cancellationToken);
+    }
+
+    private async Task<ServiceBusReceivedMessage?> TryPeekAsync(SubQueue subQueue, string messageId,
         CancellationToken cancellationToken)
     {
         await using var receiver = _client.CreateReceiver(queueName,
-            new ServiceBusReceiverOptions { SubQueue = SubQueue.DeadLetter });
+            new ServiceBusReceiverOptions { SubQueue = subQueue });
 
-        // Peeking leaves the message in place, so every probe sees the whole dead-letter queue from the start.
         var messages = await receiver.PeekMessagesAsync(MaxPeekedMessages, fromSequenceNumber: 0,
             cancellationToken: cancellationToken);
 

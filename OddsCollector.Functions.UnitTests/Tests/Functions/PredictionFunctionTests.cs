@@ -27,7 +27,13 @@ internal sealed class PredictionFunctionTests
         var expectedPrediction = ValidModels.CreateEventPrediction() with { Id = EventId };
 
         var strategyStub = Substitute.For<IPredictionStrategy>();
-        strategyStub.GetPrediction(Arg.Any<UpcomingEvent>()).Returns(expectedPrediction);
+        strategyStub.TryGetPrediction(Arg.Any<UpcomingEvent>(), out Arg.Any<EventPrediction?>())
+            .Returns(call =>
+            {
+                call[1] = expectedPrediction;
+
+                return true;
+            });
 
         var messageActionsMock = Substitute.For<ServiceBusMessageActions>();
 
@@ -46,12 +52,11 @@ internal sealed class PredictionFunctionTests
     }
 
     [Test]
-    public async Task Run_WithEventNothingCanBePredictedFrom_DeadLettersMessage()
+    public async Task Run_WithEventNothingCanBePredictedFrom_SkipsItWithoutDeadLettering()
     {
         // Arrange
         var strategyStub = Substitute.For<IPredictionStrategy>();
-        strategyStub.GetPrediction(Arg.Any<UpcomingEvent>())
-            .Throws(new ArgumentException("odds cannot be empty", "odds"));
+        strategyStub.TryGetPrediction(Arg.Any<UpcomingEvent>(), out Arg.Any<EventPrediction?>()).Returns(false);
 
         var messageActionsMock = Substitute.For<ServiceBusMessageActions>();
 
@@ -65,17 +70,13 @@ internal sealed class PredictionFunctionTests
         // Act
         var prediction = await function.Run(message, messageActionsMock, CancellationToken.None);
 
-        // Assert
+        // Assert: the message is left to the host to complete, like any other successfully handled one.
         using var scope = new AssertionScope();
 
         prediction.Should().BeNull();
-
-        await messageActionsMock.Received(1).DeadLetterMessageAsync(message, Arg.Any<Dictionary<string, object>?>(),
-            nameof(ArgumentException), Arg.Is<string>(d => d.StartsWith("odds cannot be empty")),
-            Arg.Any<CancellationToken>());
-
+        messageActionsMock.ReceivedCalls().Should().BeEmpty();
         loggerMock.Collector.GetSnapshot().Should().ContainSingle().Which.Should().BeEquivalentTo(
-            new { Level = LogLevel.Error, Message = $"Dead-lettering message {MessageId}" });
+            new { Level = LogLevel.Information, Message = $"Skipped event {EventId}: no usable odds" });
     }
 
     [TestCase("not json", "", TestName = "Run_WithUnreadableBody_DeadLettersMessage")]
@@ -141,7 +142,8 @@ internal sealed class PredictionFunctionTests
         var expectedException = new InvalidOperationException();
 
         var strategyStub = Substitute.For<IPredictionStrategy>();
-        strategyStub.GetPrediction(Arg.Any<UpcomingEvent>()).Throws(expectedException);
+        strategyStub.TryGetPrediction(Arg.Any<UpcomingEvent>(), out Arg.Any<EventPrediction?>())
+            .Throws(expectedException);
 
         var messageActionsMock = Substitute.For<ServiceBusMessageActions>();
 

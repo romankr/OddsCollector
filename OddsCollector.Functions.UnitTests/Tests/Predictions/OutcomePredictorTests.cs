@@ -1,4 +1,5 @@
-﻿using OddsCollector.Functions.Models;
+﻿using FluentAssertions.Execution;
+using OddsCollector.Functions.Models;
 using OddsCollector.Functions.Predictions;
 using OddsCollector.Functions.UnitTests.Infrastructure.Models;
 
@@ -7,131 +8,132 @@ namespace OddsCollector.Functions.UnitTests.Tests.Predictions;
 internal sealed class OutcomePredictorTests
 {
     [Test]
-    public void GetOutcome_WithOdds_ReturnsOutcomeWithHighestScore()
+    public void TryGetOutcome_WithOdds_ReturnsOutcomeWithHighestScore()
     {
         // Arrange
-        var calculatorStub = Substitute.For<IScoreCalculator>();
-        calculatorStub.GetScores(Arg.Any<IReadOnlyCollection<Odd>>()).Returns(
-        [
+        var predictor = CreatePredictor(
             new OutcomeScore { Outcome = OutcomeType.Draw, Score = 0.5 },
             new OutcomeScore { Outcome = OutcomeType.AwayTeam, Score = 1.0 },
-            new OutcomeScore { Outcome = OutcomeType.HomeTeam, Score = 2.0 }
-        ]);
-
-        var predictor = new OutcomePredictor(calculatorStub);
+            new OutcomeScore { Outcome = OutcomeType.HomeTeam, Score = 2.0 });
 
         // Act
-        var outcome = predictor.GetOutcome([ValidModels.CreateOdd()]);
+        var predicted = predictor.TryGetOutcome([ValidModels.CreateOdd()], out var outcome);
 
         // Assert
+        using var scope = new AssertionScope();
+
+        predicted.Should().BeTrue();
         outcome.Should().Be(OutcomeType.HomeTeam);
     }
 
     [TestCase(OutcomeType.AwayTeam, OutcomeType.Draw, OutcomeType.HomeTeam,
-        TestName = "GetOutcome_WithAllScoresEqual_ReturnsHomeTeam")]
+        TestName = "TryGetOutcome_WithAllScoresEqual_ReturnsHomeTeam")]
     [TestCase(OutcomeType.HomeTeam, OutcomeType.AwayTeam, OutcomeType.Draw,
-        TestName = "GetOutcome_WithAllScoresEqualInAnotherOrder_ReturnsHomeTeam")]
-    public void GetOutcome_WithTiedScores_PrefersHomeTeam(OutcomeType first, OutcomeType second, OutcomeType third)
+        TestName = "TryGetOutcome_WithAllScoresEqualInAnotherOrder_ReturnsHomeTeam")]
+    public void TryGetOutcome_WithTiedScores_PrefersHomeTeam(OutcomeType first, OutcomeType second,
+        OutcomeType third)
     {
         // Arrange
-        var calculatorStub = Substitute.For<IScoreCalculator>();
-        calculatorStub.GetScores(Arg.Any<IReadOnlyCollection<Odd>>()).Returns(
-        [
+        var predictor = CreatePredictor(
             new OutcomeScore { Outcome = first, Score = 0.4 },
             new OutcomeScore { Outcome = second, Score = 0.4 },
-            new OutcomeScore { Outcome = third, Score = 0.4 }
-        ]);
-
-        var predictor = new OutcomePredictor(calculatorStub);
+            new OutcomeScore { Outcome = third, Score = 0.4 });
 
         // Act
-        var outcome = predictor.GetOutcome([ValidModels.CreateOdd()]);
+        var predicted = predictor.TryGetOutcome([ValidModels.CreateOdd()], out var outcome);
 
         // Assert
+        using var scope = new AssertionScope();
+
+        predicted.Should().BeTrue();
         outcome.Should().Be(OutcomeType.HomeTeam);
     }
 
     [Test]
-    public void GetOutcome_WithDrawAndAwayTeamTiedOnTop_ReturnsDraw()
+    public void TryGetOutcome_WithDrawAndAwayTeamTiedOnTop_ReturnsDraw()
     {
         // Arrange
-        var calculatorStub = Substitute.For<IScoreCalculator>();
-        calculatorStub.GetScores(Arg.Any<IReadOnlyCollection<Odd>>()).Returns(
-        [
+        var predictor = CreatePredictor(
             new OutcomeScore { Outcome = OutcomeType.AwayTeam, Score = 0.4 },
             new OutcomeScore { Outcome = OutcomeType.Draw, Score = 0.4 },
-            new OutcomeScore { Outcome = OutcomeType.HomeTeam, Score = 0.3 }
-        ]);
-
-        var predictor = new OutcomePredictor(calculatorStub);
+            new OutcomeScore { Outcome = OutcomeType.HomeTeam, Score = 0.3 });
 
         // Act
-        var outcome = predictor.GetOutcome([ValidModels.CreateOdd()]);
+        var predicted = predictor.TryGetOutcome([ValidModels.CreateOdd()], out var outcome);
 
         // Assert
+        using var scope = new AssertionScope();
+
+        predicted.Should().BeTrue();
         outcome.Should().Be(OutcomeType.Draw);
     }
 
     [Test]
-    public void GetOutcome_WithNoOdds_ThrowsArgumentException()
+    public void TryGetOutcome_WithNoOdds_ReturnsFalse()
     {
         // Arrange
-        var predictor = new OutcomePredictor(Substitute.For<IScoreCalculator>());
+        var calculatorMock = Substitute.For<IScoreCalculator>();
+
+        var predictor = new OutcomePredictor(calculatorMock);
 
         // Act
-        var action = () => predictor.GetOutcome([]);
+        var predicted = predictor.TryGetOutcome([], out _);
 
         // Assert
-        action.Should().Throw<ArgumentException>().WithParameterName("odds")
-            .WithMessage("odds cannot be empty*");
+        using var scope = new AssertionScope();
+
+        predicted.Should().BeFalse();
+        calculatorMock.ReceivedCalls().Should().BeEmpty();
     }
 
     [Test]
-    public void GetOutcome_WithNullOdds_ThrowsArgumentNullException()
+    public void TryGetOutcome_WithNullOdds_ThrowsArgumentNullException()
     {
         // Arrange
         var predictor = new OutcomePredictor(Substitute.For<IScoreCalculator>());
 
         // Act
-        var action = () => predictor.GetOutcome(null!);
+        var action = () => predictor.TryGetOutcome(null!, out _);
 
         // Assert
         action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("odds");
     }
 
-    [Test]
-    public void GetOutcome_WithNothingScoring_ThrowsArgumentException()
+    [TestCase(0, TestName = "TryGetOutcome_WithNothingScoring_ReturnsFalse")]
+    [TestCase(-0.01, TestName = "TryGetOutcome_WithOnlyNegativeScores_ReturnsFalse")]
+    public void TryGetOutcome_WithNoPositiveScore_ReturnsFalse(double score)
     {
         // Arrange
-        var calculatorStub = Substitute.For<IScoreCalculator>();
-        calculatorStub.GetScores(Arg.Any<IReadOnlyCollection<Odd>>()).Returns(
-        [
-            new OutcomeScore { Outcome = OutcomeType.Draw, Score = 0 },
-            new OutcomeScore { Outcome = OutcomeType.AwayTeam, Score = 0 },
-            new OutcomeScore { Outcome = OutcomeType.HomeTeam, Score = 0 }
-        ]);
-
-        var predictor = new OutcomePredictor(calculatorStub);
+        var predictor = CreatePredictor(
+            new OutcomeScore { Outcome = OutcomeType.Draw, Score = score },
+            new OutcomeScore { Outcome = OutcomeType.AwayTeam, Score = score },
+            new OutcomeScore { Outcome = OutcomeType.HomeTeam, Score = score });
 
         // Act
-        var action = () => predictor.GetOutcome([ValidModels.CreateOdd()]);
+        var predicted = predictor.TryGetOutcome([ValidModels.CreateOdd()], out _);
 
         // Assert
-        action.Should().Throw<ArgumentException>().WithParameterName("odds")
-            .WithMessage("odds has no usable quote*");
+        predicted.Should().BeFalse();
     }
 
     [Test]
-    public void GetOutcome_WithUnusableOdds_ThrowsInsteadOfPredictingADraw()
+    public void TryGetOutcome_WithUnusableOdds_ReturnsFalseInsteadOfPredictingADraw()
     {
         // Arrange
         var predictor = new OutcomePredictor(new ScoreCalculator());
 
         // Act
-        var action = () => predictor.GetOutcome([ValidModels.CreateOdd(home: 0, draw: 0, away: 0)]);
+        var predicted = predictor.TryGetOutcome([ValidModels.CreateOdd(home: 0, draw: 0, away: 0)], out _);
 
         // Assert
-        action.Should().Throw<ArgumentException>().WithParameterName("odds")
-            .WithMessage("odds has no usable quote*");
+        predicted.Should().BeFalse();
+    }
+
+    private static OutcomePredictor CreatePredictor(params OutcomeScore[] scores)
+    {
+        var calculatorStub = Substitute.For<IScoreCalculator>();
+        calculatorStub.GetScores(Arg.Any<IReadOnlyCollection<Odd>>()).Returns(scores);
+
+        return new OutcomePredictor(calculatorStub);
     }
 }

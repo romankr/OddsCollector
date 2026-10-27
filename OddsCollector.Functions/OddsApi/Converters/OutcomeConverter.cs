@@ -26,7 +26,6 @@ internal sealed class OutcomeConverter(IScoreModelsConverter converter) : IOutco
 
     private static int GetScore(IEnumerable<EventScore> eventScores, string team, string paramName)
     {
-        // Scores are matched to the teams by name, so a score for a team that is not playing is never counted.
         var eventScore = eventScores.FirstOrDefault(s => s.Name == team)
                          ?? throw new ArgumentException($"Score of {team} is missing", paramName);
 

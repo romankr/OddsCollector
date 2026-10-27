@@ -1,4 +1,5 @@
-﻿using OddsCollector.Functions.Models;
+﻿using FluentAssertions.Execution;
+using OddsCollector.Functions.Models;
 using OddsCollector.Functions.Predictions;
 using OddsCollector.Functions.UnitTests.Infrastructure.Models;
 
@@ -7,7 +8,7 @@ namespace OddsCollector.Functions.UnitTests.Tests.Predictions;
 internal sealed class PredictionStrategyTests
 {
     [Test]
-    public void GetPrediction_WithUpcomingEvent_ReturnsPredictionForIt()
+    public void TryGetPrediction_WithPredictableEvent_ReturnsPredictionForIt()
     {
         // Arrange
         var upcomingEvent = new UpcomingEvent
@@ -19,15 +20,15 @@ internal sealed class PredictionStrategyTests
             Odds = [ValidModels.CreateOdd()]
         };
 
-        var predictorStub = Substitute.For<IOutcomePredictor>();
-        predictorStub.GetOutcome(Arg.Any<IReadOnlyCollection<Odd>>()).Returns(OutcomeType.HomeTeam);
-
-        var strategy = new PredictionStrategy(predictorStub);
+        var strategy = new PredictionStrategy(CreatePredictorStub(OutcomeType.HomeTeam));
 
         // Act
-        var prediction = strategy.GetPrediction(upcomingEvent);
+        var predicted = strategy.TryGetPrediction(upcomingEvent, out var prediction);
 
         // Assert
+        using var scope = new AssertionScope();
+
+        predicted.Should().BeTrue();
         prediction.Should().BeEquivalentTo(new EventPrediction
         {
             Id = upcomingEvent.Id,
@@ -39,33 +40,65 @@ internal sealed class PredictionStrategyTests
     }
 
     [Test]
-    public void GetPrediction_WithUpcomingEvent_PassesItsOddsToThePredictor()
+    public void TryGetPrediction_WithUpcomingEvent_PassesItsOddsToThePredictor()
     {
         // Arrange
         var upcomingEvent = ValidModels.CreateUpcomingEvent();
 
-        var predictorMock = Substitute.For<IOutcomePredictor>();
-        predictorMock.GetOutcome(Arg.Any<IReadOnlyCollection<Odd>>()).Returns(OutcomeType.HomeTeam);
+        var predictorMock = CreatePredictorStub(OutcomeType.HomeTeam);
 
         var strategy = new PredictionStrategy(predictorMock);
 
         // Act
-        strategy.GetPrediction(upcomingEvent);
+        strategy.TryGetPrediction(upcomingEvent, out _);
 
         // Assert: the event's own list is handed over as is, without being copied first.
-        predictorMock.Received(1).GetOutcome(upcomingEvent.Odds);
+        predictorMock.Received(1).TryGetOutcome(upcomingEvent.Odds, out Arg.Any<OutcomeType>());
     }
 
     [Test]
-    public void GetPrediction_WithNullUpcomingEvent_ThrowsArgumentNullException()
+    public void TryGetPrediction_WithEventNothingCanBePredictedFrom_ReturnsFalse()
+    {
+        // Arrange
+        var predictorStub = Substitute.For<IOutcomePredictor>();
+        predictorStub.TryGetOutcome(Arg.Any<IReadOnlyCollection<Odd>>(), out Arg.Any<OutcomeType>()).Returns(false);
+
+        var strategy = new PredictionStrategy(predictorStub);
+
+        // Act
+        var predicted = strategy.TryGetPrediction(ValidModels.CreateUpcomingEvent(), out var prediction);
+
+        // Assert
+        using var scope = new AssertionScope();
+
+        predicted.Should().BeFalse();
+        prediction.Should().BeNull();
+    }
+
+    [Test]
+    public void TryGetPrediction_WithNullUpcomingEvent_ThrowsArgumentNullException()
     {
         // Arrange
         var strategy = new PredictionStrategy(Substitute.For<IOutcomePredictor>());
 
         // Act
-        var action = () => strategy.GetPrediction(null!);
+        var action = () => strategy.TryGetPrediction(null!, out _);
 
         // Assert
         action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("upcomingEvent");
+    }
+
+    private static IOutcomePredictor CreatePredictorStub(OutcomeType outcome)
+    {
+        var predictorStub = Substitute.For<IOutcomePredictor>();
+        predictorStub.TryGetOutcome(Arg.Any<IReadOnlyCollection<Odd>>(), out Arg.Any<OutcomeType>())
+            .Returns(call =>
+            {
+                call[1] = outcome;
+
+                return true;
+            });
+
+        return predictorStub;
     }
 }

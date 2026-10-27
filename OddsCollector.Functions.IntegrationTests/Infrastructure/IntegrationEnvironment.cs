@@ -109,6 +109,11 @@ internal sealed class IntegrationEnvironment : IAsyncDisposable
             $"prediction {id} in Cosmos DB", cancellationToken);
     }
 
+    public Task<EventPrediction?> TryReadPredictionAsync(string id, CancellationToken cancellationToken)
+    {
+        return CosmosDb.TryReadItemAsync<EventPrediction>(Database, EventPredictionsContainer, id, cancellationToken);
+    }
+
     public Task<EventResult> WaitForStoredResultAsync(string id, CancellationToken cancellationToken)
     {
         return WaitForAsync(

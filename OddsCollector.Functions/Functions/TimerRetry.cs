@@ -1,6 +1,5 @@
 ﻿namespace OddsCollector.Functions.Functions;
 
-// Retry settings shared by the timer functions that call The Odds API; attribute arguments must be constants.
 internal static class TimerRetry
 {
     public const int MaxRetryCount = 2;

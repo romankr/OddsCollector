@@ -1,4 +1,5 @@
-﻿using FluentAssertions.Execution;
+﻿using System.Text.Json;
+using FluentAssertions.Execution;
 using OddsCollector.Functions.Functions;
 using OddsCollector.Functions.IntegrationTests.Infrastructure;
 using OddsCollector.Functions.IntegrationTests.Infrastructure.OddsApi;
@@ -14,8 +15,6 @@ internal sealed class EndToEnd
 
     private static readonly TimeSpan StartupTimeout = TimeSpan.FromMinutes(10);
 
-    // The host settles a message right after it logs the end of the invocation; a failed settlement is logged
-    // within this time.
     private static readonly TimeSpan SettlementGracePeriod = TimeSpan.FromSeconds(5);
 
     private IntegrationEnvironment? _environment;
@@ -166,7 +165,6 @@ internal sealed class EndToEnd
         }
         finally
         {
-            // Not the test's token: the cleanup has to run even when the test timed out.
             foreach (var prediction in predictions)
             {
                 await Environment.DeletePredictionAsync(prediction.Id, CancellationToken.None);
@@ -238,7 +236,7 @@ internal sealed class EndToEnd
     public async Task PredictionFunction_UnreadableMessage_DeadLettersItWithoutSettlingItAgain(
         CancellationToken cancellationToken)
     {
-        // Arrange: the body lacks the required UpcomingEvent properties, so it cannot be deserialized.
+        // Arrange
         var messageId = TestData.NewId("unreadable");
         const string body = """{"Id":"unreadable"}""";
 
@@ -253,10 +251,7 @@ internal sealed class EndToEnd
 
         await Task.Delay(SettlementGracePeriod, cancellationToken);
 
-        // Assert: AutoCompleteMessages is on, so the host must skip the message the function has already
-        // dead-lettered instead of completing it a second time and logging a settlement error. The emulator
-        // reports DeliveryCount 0 for a peeked dead-lettered message, so a single delivery is checked in the
-        // trigger details the host logs for every delivery.
+        // Assert
         var logLines = Environment.FunctionsHost.GetLogLinesAfter(logStart);
 
         using var scope = new AssertionScope();
@@ -266,5 +261,49 @@ internal sealed class EndToEnd
         logLines.Where(l => l.Contains($"MessageId: {messageId},", StringComparison.Ordinal)).Should()
             .ContainSingle().Which.Should().Contain("DeliveryCount: 1,");
         logLines.Should().NotContain(l => l.Contains("Message processing error", StringComparison.Ordinal));
+    }
+
+    [Test]
+    [CancelAfter(TestTimeoutMilliseconds)]
+    public async Task PredictionFunction_EventWithoutUsableOdds_CompletesMessageWithoutPrediction(
+        CancellationToken cancellationToken)
+    {
+        // Arrange
+        var messageId = TestData.NewId("unpredictable");
+        var upcomingEvent = new UpcomingEvent
+        {
+            Id = TestData.NewId("unpredictable"),
+            HomeTeam = "Arsenal",
+            AwayTeam = "Chelsea",
+            CommenceTime = TestData.KickOffInDays(2),
+            Odds = [new Odd { Bookmaker = "bookmaker1", Home = 1.0, Draw = 1.0, Away = 1.0 }]
+        };
+
+        var logStart = Environment.FunctionsHost.LoggedLines;
+
+        // Act
+        await Environment.ServiceBusQueue.SendAsync(messageId, JsonSerializer.Serialize(upcomingEvent),
+            cancellationToken);
+
+        var executed = await Environment.WaitForLogLineAsync(logStart,
+            $"Executed 'Functions.{nameof(PredictionFunction)}'", cancellationToken);
+
+        await Task.Delay(SettlementGracePeriod, cancellationToken);
+
+        var pending = await Environment.ServiceBusQueue.TryPeekAsync(messageId, cancellationToken);
+        var deadLettered = await Environment.ServiceBusQueue.TryPeekDeadLetteredAsync(messageId, cancellationToken);
+        var storedPrediction = await Environment.TryReadPredictionAsync(upcomingEvent.Id, cancellationToken);
+
+        // Assert
+        var logLines = Environment.FunctionsHost.GetLogLinesAfter(logStart);
+
+        using var scope = new AssertionScope();
+
+        executed.Should().Contain("Succeeded");
+        pending.Should().BeNull();
+        deadLettered.Should().BeNull();
+        storedPrediction.Should().BeNull();
+        logLines.Where(l => l.Contains($"MessageId: {messageId},", StringComparison.Ordinal)).Should()
+            .ContainSingle().Which.Should().Contain("DeliveryCount: 1,");
     }
 }

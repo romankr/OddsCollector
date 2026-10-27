@@ -4,17 +4,17 @@ namespace OddsCollector.Functions.Predictions;
 
 internal sealed class OutcomePredictor(IScoreCalculator calculator) : IOutcomePredictor
 {
-    public OutcomeType GetOutcome(IReadOnlyCollection<Odd> odds)
+    public bool TryGetOutcome(IReadOnlyCollection<Odd> odds, out OutcomeType outcome)
     {
         ArgumentNullException.ThrowIfNull(odds);
 
+        outcome = default;
+
         if (odds.Count == 0)
         {
-            throw new ArgumentException($"{nameof(odds)} cannot be empty", nameof(odds));
+            return false;
         }
 
-        // On equal scores the outcome declared first in OutcomeType wins (HomeTeam, then Draw, then AwayTeam),
-        // so ties do not depend on the order in which the calculator returns its scores.
         var best = calculator.GetScores(odds)
             .OrderByDescending(s => s.Score)
             .ThenBy(s => s.Outcome)
@@ -22,9 +22,11 @@ internal sealed class OutcomePredictor(IScoreCalculator calculator) : IOutcomePr
 
         if (best.Score <= 0)
         {
-            throw new ArgumentException($"{nameof(odds)} has no usable quote", nameof(odds));
+            return false;
         }
 
-        return best.Outcome;
+        outcome = best.Outcome;
+
+        return true;
     }
 }

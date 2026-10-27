@@ -1,20 +1,24 @@
-﻿using OddsCollector.Functions.Models;
+﻿using System.Diagnostics.CodeAnalysis;
+using OddsCollector.Functions.Models;
 
 namespace OddsCollector.Functions.Predictions;
 
-/// <remarks>
-///     Based on this article
-///     https://www.researchgate.net/publication/320296375_Beating_the_bookies_with_their_own_numbers_-_and_how_the_online_sports_betting_market_is_rigged.
-/// </remarks>
 internal sealed class PredictionStrategy(IOutcomePredictor predictor) : IPredictionStrategy
 {
-    public EventPrediction GetPrediction(UpcomingEvent upcomingEvent)
+    public bool TryGetPrediction(UpcomingEvent upcomingEvent, [NotNullWhen(true)] out EventPrediction? prediction)
     {
         ArgumentNullException.ThrowIfNull(upcomingEvent);
 
-        var outcome = predictor.GetOutcome(upcomingEvent.Odds);
+        if (!predictor.TryGetOutcome(upcomingEvent.Odds, out var outcome))
+        {
+            prediction = null;
 
-        return ToEventPrediction(outcome, upcomingEvent);
+            return false;
+        }
+
+        prediction = ToEventPrediction(outcome, upcomingEvent);
+
+        return true;
     }
 
     private static EventPrediction ToEventPrediction(OutcomeType outcome, UpcomingEvent upcomingEvent)

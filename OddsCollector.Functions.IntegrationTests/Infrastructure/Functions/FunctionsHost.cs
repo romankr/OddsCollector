@@ -38,8 +38,6 @@ internal sealed class FunctionsHost : IAsyncDisposable
 
     public string Logs => string.Join(Environment.NewLine, _logs.Select(l => l.Line));
 
-    // Lines are numbered from the host start, so a test can read what was logged after a given point even though
-    // only the last MaxLogLines lines are kept.
     public long LoggedLines => Interlocked.Read(ref _loggedLines);
 
     public async ValueTask DisposeAsync()
