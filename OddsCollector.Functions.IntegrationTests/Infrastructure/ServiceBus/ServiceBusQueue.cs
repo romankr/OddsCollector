@@ -39,7 +39,6 @@ internal sealed class ServiceBusQueue(string connectionString, string queueName)
         await using var receiver = _client.CreateReceiver(queueName,
             new ServiceBusReceiverOptions { SubQueue = subQueue });
 
-        // Peeking leaves the message in place, so every probe sees the whole (sub)queue from the start.
         var messages = await receiver.PeekMessagesAsync(MaxPeekedMessages, fromSequenceNumber: 0,
             cancellationToken: cancellationToken);
 

@@ -14,7 +14,6 @@ internal sealed class ScoreModelConverter : IScoreModelConverter
                 nameof(scoreModel));
         }
 
-        // A missing name is rejected by EventScore.
         return new EventScore { Name = scoreModel.Name ?? string.Empty, Score = score };
     }
 }

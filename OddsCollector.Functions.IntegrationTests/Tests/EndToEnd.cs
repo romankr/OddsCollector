@@ -15,8 +15,6 @@ internal sealed class EndToEnd
 
     private static readonly TimeSpan StartupTimeout = TimeSpan.FromMinutes(10);
 
-    // The host settles a message right after it logs the end of the invocation; a failed settlement is logged
-    // within this time.
     private static readonly TimeSpan SettlementGracePeriod = TimeSpan.FromSeconds(5);
 
     private IntegrationEnvironment? _environment;
@@ -167,7 +165,6 @@ internal sealed class EndToEnd
         }
         finally
         {
-            // Not the test's token: the cleanup has to run even when the test timed out.
             foreach (var prediction in predictions)
             {
                 await Environment.DeletePredictionAsync(prediction.Id, CancellationToken.None);
@@ -239,7 +236,7 @@ internal sealed class EndToEnd
     public async Task PredictionFunction_UnreadableMessage_DeadLettersItWithoutSettlingItAgain(
         CancellationToken cancellationToken)
     {
-        // Arrange: the body lacks the required UpcomingEvent properties, so it cannot be deserialized.
+        // Arrange
         var messageId = TestData.NewId("unreadable");
         const string body = """{"Id":"unreadable"}""";
 
@@ -254,10 +251,7 @@ internal sealed class EndToEnd
 
         await Task.Delay(SettlementGracePeriod, cancellationToken);
 
-        // Assert: AutoCompleteMessages is on, so the host must skip the message the function has already
-        // dead-lettered instead of completing it a second time and logging a settlement error. The emulator
-        // reports DeliveryCount 0 for a peeked dead-lettered message, so a single delivery is checked in the
-        // trigger details the host logs for every delivery.
+        // Assert
         var logLines = Environment.FunctionsHost.GetLogLinesAfter(logStart);
 
         using var scope = new AssertionScope();
@@ -274,7 +268,7 @@ internal sealed class EndToEnd
     public async Task PredictionFunction_EventWithoutUsableOdds_CompletesMessageWithoutPrediction(
         CancellationToken cancellationToken)
     {
-        // Arrange: a price of 1.0 returns only the stake, so no bookmaker quote is usable for a prediction.
+        // Arrange
         var messageId = TestData.NewId("unpredictable");
         var upcomingEvent = new UpcomingEvent
         {
@@ -300,8 +294,7 @@ internal sealed class EndToEnd
         var deadLettered = await Environment.ServiceBusQueue.TryPeekDeadLetteredAsync(messageId, cancellationToken);
         var storedPrediction = await Environment.TryReadPredictionAsync(upcomingEvent.Id, cancellationToken);
 
-        // Assert: nothing can be predicted, which is a normal case, so the host completes the message once
-        // instead of it being dead-lettered or delivered again.
+        // Assert
         var logLines = Environment.FunctionsHost.GetLogLinesAfter(logStart);
 
         using var scope = new AssertionScope();
