@@ -1,4 +1,5 @@
-﻿using OddsCollector.Functions.Models;
+﻿using System.Diagnostics.CodeAnalysis;
+using OddsCollector.Functions.Models;
 
 namespace OddsCollector.Functions.Predictions;
 
@@ -8,13 +9,20 @@ namespace OddsCollector.Functions.Predictions;
 /// </remarks>
 internal sealed class PredictionStrategy(IOutcomePredictor predictor) : IPredictionStrategy
 {
-    public EventPrediction GetPrediction(UpcomingEvent upcomingEvent)
+    public bool TryGetPrediction(UpcomingEvent upcomingEvent, [NotNullWhen(true)] out EventPrediction? prediction)
     {
         ArgumentNullException.ThrowIfNull(upcomingEvent);
 
-        var outcome = predictor.GetOutcome(upcomingEvent.Odds);
+        if (!predictor.TryGetOutcome(upcomingEvent.Odds, out var outcome))
+        {
+            prediction = null;
 
-        return ToEventPrediction(outcome, upcomingEvent);
+            return false;
+        }
+
+        prediction = ToEventPrediction(outcome, upcomingEvent);
+
+        return true;
     }
 
     private static EventPrediction ToEventPrediction(OutcomeType outcome, UpcomingEvent upcomingEvent)

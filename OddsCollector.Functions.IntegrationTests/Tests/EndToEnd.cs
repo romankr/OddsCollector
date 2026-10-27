@@ -1,4 +1,5 @@
-﻿using FluentAssertions.Execution;
+﻿using System.Text.Json;
+using FluentAssertions.Execution;
 using OddsCollector.Functions.Functions;
 using OddsCollector.Functions.IntegrationTests.Infrastructure;
 using OddsCollector.Functions.IntegrationTests.Infrastructure.OddsApi;
@@ -266,5 +267,50 @@ internal sealed class EndToEnd
         logLines.Where(l => l.Contains($"MessageId: {messageId},", StringComparison.Ordinal)).Should()
             .ContainSingle().Which.Should().Contain("DeliveryCount: 1,");
         logLines.Should().NotContain(l => l.Contains("Message processing error", StringComparison.Ordinal));
+    }
+
+    [Test]
+    [CancelAfter(TestTimeoutMilliseconds)]
+    public async Task PredictionFunction_EventWithoutUsableOdds_CompletesMessageWithoutPrediction(
+        CancellationToken cancellationToken)
+    {
+        // Arrange: a price of 1.0 returns only the stake, so no bookmaker quote is usable for a prediction.
+        var messageId = TestData.NewId("unpredictable");
+        var upcomingEvent = new UpcomingEvent
+        {
+            Id = TestData.NewId("unpredictable"),
+            HomeTeam = "Arsenal",
+            AwayTeam = "Chelsea",
+            CommenceTime = TestData.KickOffInDays(2),
+            Odds = [new Odd { Bookmaker = "bookmaker1", Home = 1.0, Draw = 1.0, Away = 1.0 }]
+        };
+
+        var logStart = Environment.FunctionsHost.LoggedLines;
+
+        // Act
+        await Environment.ServiceBusQueue.SendAsync(messageId, JsonSerializer.Serialize(upcomingEvent),
+            cancellationToken);
+
+        var executed = await Environment.WaitForLogLineAsync(logStart,
+            $"Executed 'Functions.{nameof(PredictionFunction)}'", cancellationToken);
+
+        await Task.Delay(SettlementGracePeriod, cancellationToken);
+
+        var pending = await Environment.ServiceBusQueue.TryPeekAsync(messageId, cancellationToken);
+        var deadLettered = await Environment.ServiceBusQueue.TryPeekDeadLetteredAsync(messageId, cancellationToken);
+        var storedPrediction = await Environment.TryReadPredictionAsync(upcomingEvent.Id, cancellationToken);
+
+        // Assert: nothing can be predicted, which is a normal case, so the host completes the message once
+        // instead of it being dead-lettered or delivered again.
+        var logLines = Environment.FunctionsHost.GetLogLinesAfter(logStart);
+
+        using var scope = new AssertionScope();
+
+        executed.Should().Contain("Succeeded");
+        pending.Should().BeNull();
+        deadLettered.Should().BeNull();
+        storedPrediction.Should().BeNull();
+        logLines.Where(l => l.Contains($"MessageId: {messageId},", StringComparison.Ordinal)).Should()
+            .ContainSingle().Which.Should().Contain("DeliveryCount: 1,");
     }
 }
