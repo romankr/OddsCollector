@@ -3,10 +3,10 @@
 internal sealed class HostProviderTests
 {
     [Test]
-    public void CreateHost_WhenCalled_ReturnsHost()
+    public void CreateHost_WithoutArguments_ReturnsHost()
     {
         // Act
-        var host = HostProvider.CreateHost();
+        using var host = HostProvider.CreateHost([]);
 
         // Assert
         host.Should().NotBeNull();

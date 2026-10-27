@@ -51,5 +51,10 @@ jobs:
         dotnet-version: 10.0.x
     - name: Install Azure Functions Core Tools
       run: npm install --global azure-functions-core-tools@4 --unsafe-perm true
+    # The Cosmos DB emulator that the AppHost runs serves HTTPS with the development certificate.
+    - name: Create and trust the HTTPS development certificate
+      run: |
+        dotnet dev-certs https --trust
+        echo "SSL_CERT_DIR=$HOME/.aspnet/dev-certs/trust:/etc/ssl/certs" >> "$GITHUB_ENV"
     - name: Run integration tests
       run: dotnet test OddsCollector.Functions.IntegrationTests --verbosity normal

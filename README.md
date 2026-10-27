@@ -10,7 +10,7 @@ Unlike the paper, it does not look for value bets: it averages the bookmakers' i
 
 - [.NET 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0)
 - [Azure Functions Core Tools](https://learn.microsoft.com/en-us/azure/azure-functions/functions-run-local) (`func`)
-- [Docker](https://www.docker.com/), for the integration tests only
+- [Docker](https://www.docker.com/), for the integration tests and for running the app locally with the emulators
 - (Optional) [NSwag Studio](https://github.com/RicoSuter/NSwag/wiki/NSwagStudio). The repository already has [The Odds API C# client](https://github.com/romankr/OddsCollector/blob/master/OddsCollector.Functions/OddsApi/WebApi/WebApiClient.cs). However, you can use [parameters.nswag](https://github.com/romankr/OddsCollector/blob/master/OddsCollector.Functions/OddsApi/WebApi/parameters.nswag) to modify it.
 
 # Configuration
@@ -48,16 +48,32 @@ Instead of connection strings, turn on the function app's managed identity, gran
 | `ServiceBus:Connection` | `ServiceBus:Connection__fullyQualifiedNamespace` | Azure Service Bus Data Sender and Data Receiver |
 | `AzureWebJobsStorage` | `AzureWebJobsStorage__accountName` | Storage Blob Data Owner |
 
+## Running locally with the emulators
+
+`OddsCollector.AppHost` is an [Aspire](https://aspire.dev/) AppHost that runs the function app in the Azure
+Functions host against Microsoft's emulators: Cosmos DB (Linux, vNext), Service Bus and Azurite. It creates the
+database, the containers and the queue, and passes every application setting except the Odds API key:
+
+```
+dotnet user-secrets --project OddsCollector.AppHost set "Parameters:odds-api-key" "<your key>"
+dotnet run --project OddsCollector.AppHost
+```
+
+Optional settings, in `OddsCollector.AppHost` configuration (user secrets, `appsettings.json` or command line):
+`OddsCollector:Leagues`, `OddsCollector:OddsApiBaseUrl`, `OddsCollector:UpcomingEventsTimerInterval`,
+`OddsCollector:EventResultsTimerInterval` and `OddsCollector:ApplicationInsightsConnectionString`.
+
+Port 8081 must be free: the Cosmos DB emulator is published on its own gateway port, because the Functions host
+connects to the address the emulator advertises. The emulator serves HTTPS with the ASP.NET Core development
+certificate, so create and trust it once with `dotnet dev-certs https --trust` (on Linux also add
+`~/.aspnet/dev-certs/trust` to `SSL_CERT_DIR`).
+
 ## Integration tests
 
-The integration tests start their own environment (Azurite, Service Bus and Cosmos DB emulators in Docker, a stub
-of The Odds API and the Functions host) and do not read `local.settings.json`. Optional environment variables:
-
-| Variable | Purpose |
-| --- | --- |
-| `ODDSCOLLECTOR_FUNC_PATH` | Path to `func`, if it is not in `PATH`. |
-| `ODDSCOLLECTOR_FUNCTION_APP_DIRECTORY` | Directory of the built function app. |
-| `ODDSCOLLECTOR_COSMOSDB_EMULATOR_IMAGE` | Cosmos DB emulator image. |
+The integration tests start `OddsCollector.AppHost` with
+[Aspire.Hosting.Testing](https://learn.microsoft.com/dotnet/aspire/testing/overview), point it at a stub of The Odds
+API and do not read `local.settings.json`. They need the same prerequisites as running locally: Docker, Azure
+Functions Core Tools, a free port 8081 and the development certificate.
 
 # Build and test
 

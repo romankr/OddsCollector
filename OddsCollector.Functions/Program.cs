@@ -6,8 +6,8 @@ namespace OddsCollector.Functions;
 internal static class Program
 {
     [ExcludeFromCodeCoverage]
-    private static void Main()
+    private static void Main(string[] args)
     {
-        HostProvider.CreateHost().Run();
+        HostProvider.CreateHost(args).Run();
     }
 }

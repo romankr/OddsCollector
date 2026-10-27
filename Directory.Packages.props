@@ -33,6 +33,13 @@
     <PackageVersion Include="SonarAnalyzer.CSharp" Version="10.32.0.713"/>
   </ItemGroup>
 
+  <!-- OddsCollector.AppHost (the Aspire.AppHost.Sdk version is set in its project file) -->
+  <ItemGroup>
+    <PackageVersion Include="Aspire.Hosting.Azure.CosmosDB" Version="13.6.2"/>
+    <PackageVersion Include="Aspire.Hosting.Azure.Functions" Version="13.6.2"/>
+    <PackageVersion Include="Aspire.Hosting.Azure.ServiceBus" Version="13.6.2"/>
+  </ItemGroup>
+
   <!-- OddsCollector.Functions.UnitTests -->
   <ItemGroup>
     <PackageVersion Include="coverlet.msbuild" Version="10.1.0"/>
@@ -42,12 +49,10 @@
 
   <!-- OddsCollector.Functions.IntegrationTests -->
   <ItemGroup>
+    <PackageVersion Include="Aspire.Hosting.Testing" Version="13.6.2"/>
     <PackageVersion Include="Azure.Messaging.ServiceBus" Version="7.20.1"/>
     <PackageVersion Include="Microsoft.Azure.Cosmos" Version="3.63.2"/>
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.4"/>
-    <PackageVersion Include="Testcontainers" Version="4.15.0"/>
-    <PackageVersion Include="Testcontainers.Azurite" Version="4.15.0"/>
-    <PackageVersion Include="Testcontainers.ServiceBus" Version="4.15.0"/>
     <PackageVersion Include="WireMock.Net" Version="2.18.0"/>
   </ItemGroup>
 </Project>
