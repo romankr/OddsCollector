@@ -22,26 +22,12 @@ internal sealed partial class PredictionFunction(
         ServiceBusMessageActions messageActions,
         CancellationToken cancellationToken)
     {
+        UpcomingEvent @event;
+
         try
         {
-            var @event = message.Body.ToObjectFromJson<UpcomingEvent>()
-                         ?? throw new JsonException("Message body is null");
-
-            if (@event.CommenceTime <= timeProvider.GetUtcNow().UtcDateTime)
-            {
-                LogStartedEventSkipped(logger, @event.Id);
-
-                return null;
-            }
-
-            if (!strategy.TryGetPrediction(@event, out var prediction))
-            {
-                LogUnpredictableEventSkipped(logger, @event.Id);
-
-                return null;
-            }
-
-            return prediction;
+            @event = message.Body.ToObjectFromJson<UpcomingEvent>()
+                     ?? throw new JsonException("Message body is null");
         }
         catch (Exception exception) when (exception is JsonException or ArgumentException)
         {
@@ -54,6 +40,22 @@ internal sealed partial class PredictionFunction(
 
             return null;
         }
+
+        if (@event.CommenceTime <= timeProvider.GetUtcNow().UtcDateTime)
+        {
+            LogStartedEventSkipped(logger, @event.Id);
+
+            return null;
+        }
+
+        if (!strategy.TryGetPrediction(@event, out var prediction))
+        {
+            LogUnpredictableEventSkipped(logger, @event.Id);
+
+            return null;
+        }
+
+        return prediction;
     }
 
     [LoggerMessage(Level = LogLevel.Information, Message = "Skipped event {Id}: already started")]

@@ -306,4 +306,44 @@ internal sealed class EndToEnd
         logLines.Where(l => l.Contains($"MessageId: {messageId},", StringComparison.Ordinal)).Should()
             .ContainSingle().Which.Should().Contain("DeliveryCount: 1,");
     }
+
+    [Test]
+    [CancelAfter(TestTimeoutMilliseconds)]
+    public async Task PredictionFunction_EventFailingValidation_DeadLettersIt(CancellationToken cancellationToken)
+    {
+        // Arrange
+        var messageId = TestData.NewId("invalid");
+        var invalidEvent = new
+        {
+            Id = TestData.NewId("invalid"),
+            HomeTeam = " ",
+            AwayTeam = "Chelsea",
+            CommenceTime = TestData.KickOffInDays(2),
+            Odds = new[] { new { Bookmaker = "bookmaker1", Home = 1.5, Draw = 4.0, Away = 6.0 } }
+        };
+
+        var logStart = Environment.FunctionsHost.LoggedLines;
+
+        // Act
+        await Environment.ServiceBusQueue.SendAsync(messageId, JsonSerializer.Serialize(invalidEvent),
+            cancellationToken);
+
+        var deadLettered = await Environment.WaitForDeadLetteredMessageAsync(messageId, cancellationToken);
+        var executed = await Environment.WaitForLogLineAsync(logStart,
+            $"Executed 'Functions.{nameof(PredictionFunction)}'", cancellationToken);
+
+        var storedPrediction = await Environment.TryReadPredictionAsync(invalidEvent.Id, cancellationToken);
+
+        // Assert
+        var logLines = Environment.FunctionsHost.GetLogLinesAfter(logStart);
+
+        using var scope = new AssertionScope();
+
+        deadLettered.DeadLetterReason.Should().Be(nameof(ArgumentException));
+        deadLettered.DeadLetterErrorDescription.Should().StartWith("HomeTeam cannot be empty");
+        executed.Should().Contain("Succeeded");
+        storedPrediction.Should().BeNull();
+        logLines.Where(l => l.Contains($"MessageId: {messageId},", StringComparison.Ordinal)).Should()
+            .ContainSingle().Which.Should().Contain("DeliveryCount: 1,");
+    }
 }
