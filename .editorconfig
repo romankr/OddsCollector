@@ -23,6 +23,9 @@ charset = utf-8-bom
 # .NET Coding Conventions     #
 ###############################
 [*.{cs,vb}]
+# Logging: arguments must not be evaluated when the log level is off (use [LoggerMessage]).
+# A warning, so the CI build (-warnaserror) rejects new violations.
+dotnet_diagnostic.CA1873.severity = warning
 # Organize usings
 dotnet_sort_system_directives_first = true
 # this. preferences

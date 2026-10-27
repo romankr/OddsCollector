@@ -7,7 +7,7 @@ using OddsCollector.Functions.OddsApi.WebApi;
 
 namespace OddsCollector.Functions.OddsApi;
 
-internal sealed class EventResultsClient(
+internal sealed partial class EventResultsClient(
     ILogger<EventResultsClient> logger,
     IOptions<OddsApiClientOptions> options,
     IClient client,
@@ -33,14 +33,13 @@ internal sealed class EventResultsClient(
             }
             catch (Exception exception) when (cancellationToken.IsCancellationRequested)
             {
-                logger.LogInformation(exception,
-                    "Collection was cancelled, keeping {Count} event results collected so far", result.Count);
+                LogCollectionCancelled(logger, exception, result.Count);
 
                 break;
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, "Failed to get event results for {League}", league);
+                LogLeagueFailed(logger, exception, league);
                 failures.Add(exception);
             }
         }
@@ -52,4 +51,11 @@ internal sealed class EventResultsClient(
 
         return [.. result];
     }
+
+    [LoggerMessage(Level = LogLevel.Information,
+        Message = "Collection was cancelled, keeping {Count} event results collected so far")]
+    private static partial void LogCollectionCancelled(ILogger logger, Exception exception, int count);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Failed to get event results for {League}")]
+    private static partial void LogLeagueFailed(ILogger logger, Exception exception, string league);
 }
