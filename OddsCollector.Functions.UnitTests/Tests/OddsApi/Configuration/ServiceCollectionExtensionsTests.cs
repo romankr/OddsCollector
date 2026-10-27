@@ -1,18 +1,25 @@
-﻿using FluentAssertions.Execution;
+﻿using System.Net;
+using FluentAssertions.Execution;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Http.Resilience;
 using Microsoft.Extensions.Options;
 using OddsCollector.Functions.OddsApi;
 using OddsCollector.Functions.OddsApi.Configuration;
 using OddsCollector.Functions.OddsApi.Converters;
 using OddsCollector.Functions.OddsApi.WebApi;
+using OddsCollector.Functions.UnitTests.Infrastructure.Http;
 
 namespace OddsCollector.Functions.UnitTests.Tests.OddsApi.Configuration;
 
 internal sealed class ServiceCollectionExtensionsTests
 {
+    private const string League = "soccer_epl";
+    private const string ApiKey = "key";
+    private const int DaysFrom = 3;
+
     private static ServiceProvider BuildProvider(string? leagues = "soccer_epl;soccer_spain_la_liga",
-        string? apiKey = "key", string? baseUrl = null)
+        string? apiKey = "key", string? baseUrl = null, HttpMessageHandler? primaryHandler = null)
     {
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
@@ -27,6 +34,15 @@ internal sealed class ServiceCollectionExtensionsTests
 
         services.AddLogging();
         services.AddOddsApiClientWithDependencies(configuration);
+
+        if (primaryHandler is not null)
+        {
+            services.AddHttpClient(nameof(IClient)).ConfigurePrimaryHttpMessageHandler(() => primaryHandler);
+
+            // Retry without waiting, so the test does not sleep through the production backoff.
+            services.Configure<HttpStandardResilienceOptions>($"{nameof(IClient)}-standard",
+                options => options.Retry.Delay = TimeSpan.Zero);
+        }
 
         return services.BuildServiceProvider();
     }
@@ -344,5 +360,64 @@ internal sealed class ServiceCollectionExtensionsTests
 
         first.Should().BeOfType<ScoreModelConverter>();
         second.Should().BeSameAs(first);
+    }
+
+    [TestCase(HttpStatusCode.ServiceUnavailable, TestName = "IClient_WithServiceUnavailableOnce_RetriesTheRequest")]
+    [TestCase(HttpStatusCode.TooManyRequests, TestName = "IClient_WithTooManyRequestsOnce_RetriesTheRequest")]
+    [TestCase(HttpStatusCode.RequestTimeout, TestName = "IClient_WithRequestTimeoutOnce_RetriesTheRequest")]
+    public async Task IClient_WithTransientFailureOnce_RetriesTheRequest(HttpStatusCode transientStatusCode)
+    {
+        // Arrange
+        var handlerMock = new SequenceHttpMessageHandler(transientStatusCode, HttpStatusCode.OK);
+
+        using var provider = BuildProvider(primaryHandler: handlerMock);
+
+        var client = provider.GetRequiredService<IClient>();
+
+        // Act
+        var scores = await client.ScoresAsync(League, ApiKey, DaysFrom, CancellationToken.None);
+
+        // Assert
+        using var scope = new AssertionScope();
+
+        scores.Should().BeEmpty();
+        handlerMock.CallCount.Should().Be(2);
+    }
+
+    [Test]
+    public async Task IClient_WithPersistentServiceUnavailable_GivesUpAfterThreeRetries()
+    {
+        // Arrange
+        var handlerMock = new SequenceHttpMessageHandler(HttpStatusCode.ServiceUnavailable);
+
+        using var provider = BuildProvider(primaryHandler: handlerMock);
+
+        var client = provider.GetRequiredService<IClient>();
+
+        // Act
+        var action = () => client.ScoresAsync(League, ApiKey, DaysFrom, CancellationToken.None);
+
+        // Assert: the first request and the standard handler's three retries, and nothing more.
+        await action.Should().ThrowAsync<ApiException>();
+        handlerMock.CallCount.Should().Be(4);
+    }
+
+    [TestCase(HttpStatusCode.Unauthorized, TestName = "IClient_WithUnauthorized_DoesNotRetry")]
+    [TestCase(HttpStatusCode.UnprocessableEntity, TestName = "IClient_WithUnprocessableEntity_DoesNotRetry")]
+    public async Task IClient_WithPermanentFailure_DoesNotRetry(HttpStatusCode permanentStatusCode)
+    {
+        // Arrange: an invalid API key or league is not fixed by asking again, and every retry would cost quota.
+        var handlerMock = new SequenceHttpMessageHandler(permanentStatusCode, HttpStatusCode.OK);
+
+        using var provider = BuildProvider(primaryHandler: handlerMock);
+
+        var client = provider.GetRequiredService<IClient>();
+
+        // Act
+        var action = () => client.ScoresAsync(League, ApiKey, DaysFrom, CancellationToken.None);
+
+        // Assert
+        await action.Should().ThrowAsync<ApiException>();
+        handlerMock.CallCount.Should().Be(1);
     }
 }

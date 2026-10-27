@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Net;
 using System.Text.Json;
 using WireMock.RequestBuilders;
 using WireMock.ResponseBuilders;
@@ -50,7 +51,17 @@ internal sealed class OddsApiStub(string league, string apiKey) : IDisposable
             })
         });
 
-        Respond($"/v4/sports/{league}/odds", body);
+        Respond(UpcomingEventsPath, body);
+    }
+
+    public void FailUpcomingEvents(HttpStatusCode statusCode)
+    {
+        Respond(UpcomingEventsPath, statusCode, body: null);
+    }
+
+    public int CountUpcomingEventsRequests()
+    {
+        return _server.LogEntries.Count(e => e.RequestMessage?.Path == UpcomingEventsPath);
     }
 
     public void SetCompletedEvents(IEnumerable<OddsApiCompletedEvent> events)
@@ -75,7 +86,14 @@ internal sealed class OddsApiStub(string league, string apiKey) : IDisposable
         Respond($"/v4/sports/{league}/scores", body);
     }
 
+    private string UpcomingEventsPath => $"/v4/sports/{league}/odds";
+
     private void Respond(string path, object body)
+    {
+        Respond(path, HttpStatusCode.OK, body);
+    }
+
+    private void Respond(string path, HttpStatusCode statusCode, object? body)
     {
         if (!_mappings.TryGetValue(path, out var mapping))
         {
@@ -87,9 +105,9 @@ internal sealed class OddsApiStub(string league, string apiKey) : IDisposable
             .Given(Request.Create().WithPath(path).WithParam("apiKey", apiKey).UsingGet())
             .WithGuid(mapping)
             .RespondWith(Response.Create()
-                .WithStatusCode(200)
+                .WithStatusCode(statusCode)
                 .WithHeader("Content-Type", "application/json")
-                .WithBody(JsonSerializer.Serialize(body)));
+                .WithBody(body is null ? string.Empty : JsonSerializer.Serialize(body)));
     }
 
     private static string ToIso(DateTime value)

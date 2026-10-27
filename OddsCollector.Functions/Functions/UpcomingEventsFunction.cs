@@ -7,7 +7,6 @@ namespace OddsCollector.Functions.Functions;
 
 internal sealed class UpcomingEventsFunction(ILogger<UpcomingEventsFunction> logger, IUpcomingEventsClient client)
 {
-    [ExponentialBackoffRetry(TimerRetry.MaxRetryCount, TimerRetry.MinimumInterval, TimerRetry.MaximumInterval)]
     [Function(nameof(UpcomingEventsFunction))]
     [ServiceBusOutput("%ServiceBus:Queue%", Connection = "ServiceBus:Connection")]
     public async Task<UpcomingEvent[]> Run(

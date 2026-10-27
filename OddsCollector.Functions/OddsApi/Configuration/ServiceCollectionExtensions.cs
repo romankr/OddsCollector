@@ -33,6 +33,9 @@ internal static class ServiceCollectionExtensions
                         .AbsoluteUri
                 });
 
+            // The only retry level for The Odds API: a failed request is retried here, on transient errors only.
+            // The timer functions are not retried as a whole, which would repeat every league's request and
+            // multiply the calls on top of these retries; the next timer run collects the data again.
             clientBuilder.AddStandardResilienceHandler();
             clientBuilder.AddHttpMessageHandler<QuotaLoggingHandler>();
 
