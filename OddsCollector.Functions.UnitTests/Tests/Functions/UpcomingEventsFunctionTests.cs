@@ -7,6 +7,7 @@ using OddsCollector.Functions.Functions;
 using OddsCollector.Functions.Models;
 using OddsCollector.Functions.OddsApi;
 using OddsCollector.Functions.UnitTests.Infrastructure.Models;
+using FunctionsRetryAttribute = Microsoft.Azure.Functions.Worker.RetryAttribute;
 
 namespace OddsCollector.Functions.UnitTests.Tests.Functions;
 
@@ -143,19 +144,16 @@ internal sealed class UpcomingEventsFunctionTests
     }
 
     [Test]
-    public void Run_FailedRun_IsRetriedByTheHost()
+    public void Run_FailedRun_IsNotRetriedByTheHost()
     {
         // Arrange
-        var method = typeof(UpcomingEventsFunction)
-            .GetMethod(nameof(UpcomingEventsFunction.Run))!;
+        var method = typeof(UpcomingEventsFunction).GetMethod(nameof(UpcomingEventsFunction.Run))!;
 
         // Act
-        var retry = method.GetCustomAttributes(typeof(ExponentialBackoffRetryAttribute), inherit: false)
-            .Cast<ExponentialBackoffRetryAttribute>()
-            .SingleOrDefault();
+        var retries = method.GetCustomAttributes(typeof(FunctionsRetryAttribute), inherit: false);
 
-        // Assert
-        retry.Should().NotBeNull();
-        retry!.MaxRetryCount.Should().BePositive();
+        // Assert: failed Odds API requests are retried by the HTTP client; retrying the whole run on top of that
+        // would repeat every league's request.
+        retries.Should().BeEmpty();
     }
 }

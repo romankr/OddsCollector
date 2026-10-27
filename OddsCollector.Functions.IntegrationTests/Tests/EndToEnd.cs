@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Net;
+using System.Text.Json;
 using FluentAssertions.Execution;
 using OddsCollector.Functions.Functions;
 using OddsCollector.Functions.IntegrationTests.Infrastructure;
@@ -392,6 +393,45 @@ internal sealed class EndToEnd
         {
             await Environment.DeletePredictionAsync(brokenId, CancellationToken.None);
             await Environment.DeletePredictionAsync(prediction.Id, CancellationToken.None);
+        }
+    }
+
+    [Test]
+    [CancelAfter(TestTimeoutMilliseconds)]
+    public async Task UpcomingEventsFunction_OddsApiUnavailable_RetriesRequestsButNotTheRun(
+        CancellationToken cancellationToken)
+    {
+        // Arrange
+        Environment.OddsApi.FailUpcomingEvents(HttpStatusCode.ServiceUnavailable);
+
+        var requestsBefore = Environment.OddsApi.CountUpcomingEventsRequests();
+        var logStart = Environment.FunctionsHost.LoggedLines;
+
+        try
+        {
+            // Act
+            await Environment.FunctionsHost.InvokeAsync(nameof(UpcomingEventsFunction), cancellationToken);
+
+            var executed = await Environment.WaitForLogLineAsync(logStart,
+                $"Executed 'Functions.{nameof(UpcomingEventsFunction)}'", cancellationToken);
+
+            // A host retry of the whole run would be scheduled right after the failed execution is logged.
+            await Task.Delay(SettlementGracePeriod, cancellationToken);
+
+            var requests = Environment.OddsApi.CountUpcomingEventsRequests() - requestsBefore;
+
+            // Assert: the HTTP client retries the request (at most three times, fewer if its 30 second total
+            // timeout runs out first), and the failed run is not retried by the host on top of that.
+            using var scope = new AssertionScope();
+
+            executed.Should().Contain("Failed");
+            requests.Should().BeInRange(2, 4);
+            Environment.FunctionsHost.GetLogLinesAfter(logStart).Should()
+                .NotContain(l => l.Contains("before retrying function execution", StringComparison.Ordinal));
+        }
+        finally
+        {
+            Environment.OddsApi.SetUpcomingEvents([]);
         }
     }
 }
