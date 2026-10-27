@@ -7,7 +7,7 @@ using OddsCollector.Functions.Predictions;
 
 namespace OddsCollector.Functions.Functions;
 
-internal sealed class PredictionFunction(
+internal sealed partial class PredictionFunction(
     ILogger<PredictionFunction> logger,
     IPredictionStrategy strategy,
     TimeProvider timeProvider)
@@ -29,14 +29,14 @@ internal sealed class PredictionFunction(
 
             if (@event.CommenceTime <= timeProvider.GetUtcNow().UtcDateTime)
             {
-                logger.LogInformation("Skipped event {Id}: already started", @event.Id);
+                LogStartedEventSkipped(logger, @event.Id);
 
                 return null;
             }
 
             if (!strategy.TryGetPrediction(@event, out var prediction))
             {
-                logger.LogInformation("Skipped event {Id}: no usable odds", @event.Id);
+                LogUnpredictableEventSkipped(logger, @event.Id);
 
                 return null;
             }
@@ -45,7 +45,7 @@ internal sealed class PredictionFunction(
         }
         catch (Exception exception) when (exception is JsonException or ArgumentException)
         {
-            logger.LogError(exception, "Dead-lettering message {MessageId}", message.MessageId);
+            LogDeadLettering(logger, exception, message.MessageId);
 
             await messageActions.DeadLetterMessageAsync(message,
                 deadLetterReason: exception.GetType().Name,
@@ -55,4 +55,13 @@ internal sealed class PredictionFunction(
             return null;
         }
     }
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Skipped event {Id}: already started")]
+    private static partial void LogStartedEventSkipped(ILogger logger, string id);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Skipped event {Id}: no usable odds")]
+    private static partial void LogUnpredictableEventSkipped(ILogger logger, string id);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Dead-lettering message {MessageId}")]
+    private static partial void LogDeadLettering(ILogger logger, Exception exception, string messageId);
 }

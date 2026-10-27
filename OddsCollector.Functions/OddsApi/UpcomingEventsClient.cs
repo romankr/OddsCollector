@@ -7,7 +7,7 @@ using OddsCollector.Functions.OddsApi.WebApi;
 
 namespace OddsCollector.Functions.OddsApi;
 
-internal sealed class UpcomingEventsClient(
+internal sealed partial class UpcomingEventsClient(
     ILogger<UpcomingEventsClient> logger,
     IOptions<OddsApiClientOptions> options,
     IClient client,
@@ -36,14 +36,13 @@ internal sealed class UpcomingEventsClient(
             }
             catch (Exception exception) when (cancellationToken.IsCancellationRequested)
             {
-                logger.LogInformation(exception,
-                    "Collection was cancelled, keeping {Count} upcoming events collected so far", result.Count);
+                LogCollectionCancelled(logger, exception, result.Count);
 
                 break;
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, "Failed to get upcoming events for {League}", league);
+                LogLeagueFailed(logger, exception, league);
                 failures.Add(exception);
             }
         }
@@ -55,4 +54,11 @@ internal sealed class UpcomingEventsClient(
 
         return [.. result];
     }
+
+    [LoggerMessage(Level = LogLevel.Information,
+        Message = "Collection was cancelled, keeping {Count} upcoming events collected so far")]
+    private static partial void LogCollectionCancelled(ILogger logger, Exception exception, int count);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Failed to get upcoming events for {League}")]
+    private static partial void LogLeagueFailed(ILogger logger, Exception exception, string league);
 }

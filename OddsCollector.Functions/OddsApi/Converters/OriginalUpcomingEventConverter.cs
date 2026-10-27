@@ -4,7 +4,7 @@ using OddsCollector.Functions.OddsApi.WebApi;
 
 namespace OddsCollector.Functions.OddsApi.Converters;
 
-internal sealed class OriginalUpcomingEventConverter(
+internal sealed partial class OriginalUpcomingEventConverter(
     ILogger<OriginalUpcomingEventConverter> logger,
     IBookmakerConverter bookmakerConverter,
     TimeProvider timeProvider)
@@ -25,7 +25,7 @@ internal sealed class OriginalUpcomingEventConverter(
         {
             if (originalEvent.Commence_time.Kind == DateTimeKind.Utc && originalEvent.Commence_time <= now)
             {
-                logger.LogDebug("Skipped event {Id}: already started", originalEvent.Id);
+                LogStartedEventSkipped(logger, originalEvent.Id);
 
                 continue;
             }
@@ -47,7 +47,7 @@ internal sealed class OriginalUpcomingEventConverter(
 
             if (upcomingEvent.Odds.Count == 0)
             {
-                logger.LogWarning("Skipped event {Id}: no usable odds", originalEvent.Id);
+                LogEventWithoutOddsSkipped(logger, originalEvent.Id);
 
                 return null;
             }
@@ -56,7 +56,7 @@ internal sealed class OriginalUpcomingEventConverter(
         }
         catch (Exception exception) when (exception is ArgumentException or InvalidOperationException)
         {
-            logger.LogWarning(exception, "Skipped event {Id}", originalEvent.Id);
+            LogMalformedEventSkipped(logger, exception, originalEvent.Id);
 
             return null;
         }
@@ -78,4 +78,13 @@ internal sealed class OriginalUpcomingEventConverter(
             ]
         };
     }
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "Skipped event {Id}: already started")]
+    private static partial void LogStartedEventSkipped(ILogger logger, string? id);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Skipped event {Id}: no usable odds")]
+    private static partial void LogEventWithoutOddsSkipped(ILogger logger, string? id);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Skipped event {Id}")]
+    private static partial void LogMalformedEventSkipped(ILogger logger, Exception exception, string? id);
 }
