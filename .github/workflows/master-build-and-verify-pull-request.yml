@@ -52,9 +52,14 @@ jobs:
     - name: Install Azure Functions Core Tools
       run: npm install --global azure-functions-core-tools@4 --unsafe-perm true
     # The Cosmos DB emulator that the AppHost runs serves HTTPS with the development certificate.
+    # On Linux, .NET trusts certificates through OpenSSL, which reads SSL_CERT_DIR. The trust directory of the
+    # development certificate has to be listed there before trusting it: otherwise the tool reports only partial
+    # trust and exits with code 4. The variable is also kept for the following steps (the tests).
     - name: Create and trust the HTTPS development certificate
       run: |
+        export SSL_CERT_DIR="$HOME/.aspnet/dev-certs/trust:/usr/lib/ssl/certs"
+        echo "SSL_CERT_DIR=$SSL_CERT_DIR" >> "$GITHUB_ENV"
         dotnet dev-certs https --trust
-        echo "SSL_CERT_DIR=$HOME/.aspnet/dev-certs/trust:/etc/ssl/certs" >> "$GITHUB_ENV"
+        dotnet dev-certs https --check --trust
     - name: Run integration tests
       run: dotnet test OddsCollector.Functions.IntegrationTests --verbosity normal

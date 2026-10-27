@@ -30,7 +30,10 @@ internal sealed class FunctionsHost : IAsyncDisposable
         Client = app.CreateHttpClient(AppHostSettings.FunctionsResource);
         Client.Timeout = TimeSpan.FromSeconds(30);
 
-        _watchingLogs = WatchLogsAsync(app.Services.GetRequiredService<ResourceLoggerService>(),
+        var functions = app.Services.GetRequiredService<DistributedApplicationModel>().Resources
+            .Single(r => r.Name == AppHostSettings.FunctionsResource);
+
+        _watchingLogs = WatchLogsAsync(app.Services.GetRequiredService<ResourceLoggerService>(), functions,
             _stopWatchingLogs.Token);
     }
 
@@ -127,12 +130,14 @@ internal sealed class FunctionsHost : IAsyncDisposable
         }
     }
 
-    private async Task WatchLogsAsync(ResourceLoggerService loggers, CancellationToken cancellationToken)
+    // Logs are kept under the name of the running instance ("functions-<suffix>"), not the resource name, so the
+    // overload taking the resource is used: it resolves that name.
+    private async Task WatchLogsAsync(ResourceLoggerService loggers, IResource functions,
+        CancellationToken cancellationToken)
     {
         try
         {
-            await foreach (var lines in loggers.WatchAsync(AppHostSettings.FunctionsResource)
-                               .WithCancellation(cancellationToken))
+            await foreach (var lines in loggers.WatchAsync(functions).WithCancellation(cancellationToken))
             {
                 foreach (var line in lines)
                 {

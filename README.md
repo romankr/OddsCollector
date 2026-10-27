@@ -65,8 +65,10 @@ Optional settings, in `OddsCollector.AppHost` configuration (user secrets, `apps
 
 Port 8081 must be free: the Cosmos DB emulator is published on its own gateway port, because the Functions host
 connects to the address the emulator advertises. The emulator serves HTTPS with the ASP.NET Core development
-certificate, so create and trust it once with `dotnet dev-certs https --trust` (on Linux also add
-`~/.aspnet/dev-certs/trust` to `SSL_CERT_DIR`).
+certificate, so create and trust it once with `dotnet dev-certs https --trust`. On Linux, first add the
+certificate's trust directory to `SSL_CERT_DIR` (for example
+`export SSL_CERT_DIR="$HOME/.aspnet/dev-certs/trust:/usr/lib/ssl/certs"`) and keep it set when running the app or
+the tests; otherwise the certificate is only partially trusted and .NET does not accept it.
 
 ## Integration tests
 
