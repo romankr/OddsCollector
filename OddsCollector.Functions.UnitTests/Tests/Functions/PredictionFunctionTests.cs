@@ -159,6 +159,32 @@ internal sealed class PredictionFunctionTests
         messageActionsMock.ReceivedCalls().Should().BeEmpty();
     }
 
+    [TestCase(typeof(ArgumentException), TestName = "Run_WithArgumentExceptionFromStrategy_LetsItReachTheHost")]
+    [TestCase(typeof(ArgumentNullException),
+        TestName = "Run_WithArgumentNullExceptionFromStrategy_LetsItReachTheHost")]
+    public async Task Run_WithArgumentExceptionFromStrategy_LetsItReachTheHost(Type exceptionType)
+    {
+        // Arrange
+        var expectedException = (Exception)Activator.CreateInstance(exceptionType)!;
+
+        var strategyStub = Substitute.For<IPredictionStrategy>();
+        strategyStub.TryGetPrediction(Arg.Any<UpcomingEvent>(), out Arg.Any<EventPrediction?>())
+            .Throws(expectedException);
+
+        var messageActionsMock = Substitute.For<ServiceBusMessageActions>();
+
+        var function = CreateFunction(strategyStub);
+
+        var message = ServiceBusReceivedMessageFactory.CreateFromObject(CreateUpcomingEvent(minutesFromNow: 60));
+
+        // Act
+        var action = () => function.Run(message, messageActionsMock, CancellationToken.None);
+
+        // Assert
+        (await action.Should().ThrowAsync<ArgumentException>()).Which.Should().BeSameAs(expectedException);
+        messageActionsMock.ReceivedCalls().Should().BeEmpty();
+    }
+
     [TestCase(0, TestName = "Run_WithEventStartingNow_SkipsIt")]
     [TestCase(-90, TestName = "Run_WithEventInPlay_SkipsIt")]
     public async Task Run_WithStartedEvent_SkipsIt(int minutesFromNow)
