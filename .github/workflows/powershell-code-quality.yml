@@ -1,0 +1,53 @@
+name: PowerShell code quality
+
+on:
+  push:
+    branches: [ "master" ]
+    paths:
+      - '**.ps1'
+      - '**.psm1'
+      - '**.psd1'
+      - '.github/workflows/powershell-code-quality.yml'
+  pull_request:
+    branches: [ "master" ]
+    paths:
+      - '**.ps1'
+      - '**.psm1'
+      - '**.psd1'
+      - '.github/workflows/powershell-code-quality.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v7
+    # Pinned, so that a new PSScriptAnalyzer release with new rules can't break the build unannounced.
+    # Keep the version in sync with #Requires in tools/Invoke-PowerShellAnalysis.ps1.
+    - name: Install PSScriptAnalyzer
+      shell: pwsh
+      run: Install-PSResource -Name PSScriptAnalyzer -Version 1.24.0 -Repository PSGallery -TrustRepository -Scope CurrentUser
+    - name: Check code style and run static analysis
+      shell: pwsh
+      run: |
+        $findings = @(./tools/Invoke-PowerShellAnalysis.ps1)
+
+        # One annotation per finding, shown on the changed lines of the pull request.
+        $levels = @{ Error = 'error'; Warning = 'warning'; Information = 'notice' }
+        foreach ($finding in $findings) {
+            $file = [System.IO.Path]::GetRelativePath($PWD, $finding.Path)
+            $message = $finding.Message -replace '%', '%25' -replace "`r", '%0D' -replace "`n", '%0A'
+            "::$($levels[$finding.Severity]) file=$file,line=$($finding.Line),col=$($finding.Column),title=$($finding.RuleName)::$message"
+        }
+
+        if ($findings.Count -gt 0) {
+            $findings | Format-Table -AutoSize -Wrap -Property Path, Line, Severity, RuleName, Message | Out-String -Width 200
+            "::error::$($findings.Count) PowerShell finding(s). Run ./tools/Invoke-PowerShellAnalysis.ps1 locally; -Fix formats the code."
+            exit 1
+        }
+
+        'No findings.'
