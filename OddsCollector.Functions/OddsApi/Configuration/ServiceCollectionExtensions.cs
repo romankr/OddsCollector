@@ -26,6 +26,9 @@ internal static class ServiceCollectionExtensions
 
             services.AddTransient<QuotaLoggingHandler>();
 
+            services.AddMetrics();
+            services.TryAddSingleton<OddsApiMetrics>();
+
             var clientBuilder = services.AddHttpClient<IClient, Client>((httpClient, provider) =>
                 new Client(httpClient)
                 {

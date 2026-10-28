@@ -1,4 +1,5 @@
 ﻿using FluentAssertions.Execution;
+using Microsoft.Extensions.Diagnostics.Metrics.Testing;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Logging.Testing;
@@ -9,6 +10,7 @@ using OddsCollector.Functions.OddsApi;
 using OddsCollector.Functions.OddsApi.Configuration;
 using OddsCollector.Functions.OddsApi.Converters;
 using OddsCollector.Functions.OddsApi.WebApi;
+using OddsCollector.Functions.UnitTests.Infrastructure.Metrics;
 using OddsCollector.Functions.UnitTests.Infrastructure.Models;
 
 namespace OddsCollector.Functions.UnitTests.Tests.OddsApi;
@@ -17,6 +19,8 @@ internal sealed class UpcomingEventsClientTests
 {
     private const string ApiKey = "apiKey";
     private const string League = "league";
+
+    private static readonly OddsApiMetrics UnobservedMetrics = new(new TestMeterFactory());
 
 
     [Test]
@@ -154,6 +158,49 @@ internal sealed class UpcomingEventsClientTests
     }
 
     [Test]
+    public async Task GetUpcomingEventsAsync_WithFailingLeague_RecordsLeagueFailure()
+    {
+        // Arrange
+        const string failingLeague = nameof(failingLeague);
+        const string workingLeague = nameof(workingLeague);
+
+        ICollection<Anonymous2> originalEvents = [];
+        var webApiClientStub = Substitute.For<IClient>();
+        webApiClientStub.OddsAsync(failingLeague, ApiKey, Regions.Eu, Markets.H2h, DateFormat.Iso,
+            OddsFormat.Decimal, null, null, Arg.Any<CancellationToken>())
+            .Throws(new HttpRequestException());
+        webApiClientStub.OddsAsync(workingLeague, ApiKey, Regions.Eu, Markets.H2h, DateFormat.Iso,
+            OddsFormat.Decimal, null, null, Arg.Any<CancellationToken>())
+            .Returns(originalEvents);
+
+        UpcomingEvent[] upcomingEvents = [];
+        var converterStub = Substitute.For<IOriginalUpcomingEventConverter>();
+        converterStub.ToUpcomingEvents(originalEvents).Returns(upcomingEvents);
+
+        using var meterFactory = new TestMeterFactory();
+        using var leagueFailuresMock = new MetricCollector<long>(meterFactory, OddsApiMetrics.MeterName,
+            OddsApiMetrics.LeagueFailuresInstrumentName);
+
+        var client = CreateClient([failingLeague, workingLeague], webApiClientStub, converterStub,
+            metrics: new OddsApiMetrics(meterFactory));
+
+        // Act
+        await client.GetUpcomingEventsAsync(CancellationToken.None);
+
+        // Assert
+        var measurement = leagueFailuresMock.GetMeasurementSnapshot().Should().ContainSingle().Subject;
+
+        using var scope = new AssertionScope();
+
+        measurement.Value.Should().Be(1);
+        measurement.Tags.Should().BeEquivalentTo(new Dictionary<string, object?>
+        {
+            [OddsApiMetrics.OperationTag] = OddsApiMetrics.UpcomingEventsOperation,
+            [OddsApiMetrics.LeagueTag] = failingLeague
+        });
+    }
+
+    [Test]
     public async Task GetUpcomingEventsAsync_WithEveryLeagueFailing_ThrowsWithEveryFailure()
     {
         // Arrange
@@ -182,7 +229,7 @@ internal sealed class UpcomingEventsClientTests
     }
 
     private static UpcomingEventsClient CreateClient(HashSet<string> leagues, IClient webApiClient,
-        IOriginalUpcomingEventConverter converter, ILogger<UpcomingEventsClient>? logger = null)
+        IOriginalUpcomingEventConverter converter, ILogger<UpcomingEventsClient>? logger = null, OddsApiMetrics? metrics = null)
     {
         var clientOptions = new OddsApiClientOptions { ApiKey = ApiKey };
         clientOptions.AddLeagues(string.Join(';', leagues));
@@ -190,6 +237,6 @@ internal sealed class UpcomingEventsClientTests
         var options = Options.Create(clientOptions);
 
         return new UpcomingEventsClient(logger ?? NullLogger<UpcomingEventsClient>.Instance,
-            options, webApiClient, converter);
+            options, webApiClient, converter, metrics ?? UnobservedMetrics);
     }
 }
