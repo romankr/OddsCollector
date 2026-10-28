@@ -48,6 +48,40 @@ Instead of connection strings, turn on the function app's managed identity, gran
 | `ServiceBus:Connection` | `ServiceBus:Connection__fullyQualifiedNamespace` | Azure Service Bus Data Sender and Data Receiver |
 | `AzureWebJobsStorage` | `AzureWebJobsStorage__accountName` | Storage Blob Data Owner |
 
+## Deploying to Azure
+
+`deploy` creates the whole environment with [Bicep](https://learn.microsoft.com/azure/azure-resource-manager/bicep/)
+and PowerShell: a Flex Consumption function app with a managed identity, Cosmos DB (serverless) with the database and
+containers, the Service Bus queue, Key Vault with The Odds API key, storage, Application Insights, the role
+assignments above and, with `-AlertEmail`, alerts on league failures (`oddscollector.oddsapi.league.failures`) and
+dead-lettered messages. Every connection is identity-based; no keys or connection strings are stored.
+
+Needs PowerShell 7.4+, [Az PowerShell](https://learn.microsoft.com/powershell/azure/install-azure-powershell)
+(Az.Accounts, Az.Resources), the [Bicep CLI](https://learn.microsoft.com/azure/azure-resource-manager/bicep/install),
+the .NET 10 SDK and Owner (or Contributor and Role Based Access Control Administrator) on the subscription or
+resource group.
+
+```powershell
+Connect-AzAccount
+./deploy/Deploy-Environment.ps1 -EnvironmentName prod -Location westeurope `
+    -League soccer_epl, soccer_spain_la_liga -AlertEmail ops@example.com
+```
+
+- The first deployment asks for The Odds API key and stores it in Key Vault; later ones keep it. Pass
+  `-OddsApiKey (Read-Host -AsSecureString)` to rotate it, and `-Force` in CI so the script never prompts.
+- `-WhatIf` shows what would change and changes nothing. Deployments are idempotent: change `deploy/main.bicep` or a
+  parameter and run the script again.
+- `deploy/Deploy-Infrastructure.ps1` deploys only the resources and writes an object describing them, which can be
+  piped to `deploy/Publish-FunctionApp.ps1` (only the code). `Get-Help ./deploy/Deploy-Infrastructure.ps1 -Full`
+  lists every parameter and the output. The scripts follow the `powershell-development-guidelines` skill.
+- The Cosmos DB schema (database, containers, partition keys, indexing, time to live) is defined in
+  `deploy/modules/cosmos.bicep`, and only there: the app does not create containers, and key-based metadata writes
+  are off. Indexing and time to live change in place; a partition key can't change, so move such data to a new
+  container. `-GrantMeDataAccess` gives you data access for Data Explorer or data migrations.
+- The template owns the application settings: settings changed in the portal are replaced on the next deployment.
+- The region must offer Flex Consumption with .NET 10
+  (`az functionapp list-flexconsumption-runtimes --location <region> --runtime dotnet-isolated`).
+
 ## Running locally with the emulators
 
 `OddsCollector.AppHost` is an [Aspire](https://aspire.dev/) AppHost that runs the function app in the Azure
@@ -86,6 +120,16 @@ dotnet test OddsCollector.Functions.IntegrationTests
 ```
 
 The first integration test run downloads the emulator images, which takes a few minutes.
+
+PowerShell code (the scripts in `deploy` and `tools`) is checked for code style and with static analysis by
+[PSScriptAnalyzer](https://learn.microsoft.com/powershell/utility-modules/psscriptanalyzer/overview), using the rules
+in `PSScriptAnalyzerSettings.psd1`; the "PowerShell code quality" workflow fails on any finding. To run it locally:
+
+```powershell
+Install-PSResource -Name PSScriptAnalyzer -Version 1.24.0
+./tools/Invoke-PowerShellAnalysis.ps1        # no output: no findings
+./tools/Invoke-PowerShellAnalysis.ps1 -Fix   # also formats the files
+```
 
 # Special thanks
 
