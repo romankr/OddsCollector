@@ -11,7 +11,8 @@ internal sealed partial class EventResultsClient(
     ILogger<EventResultsClient> logger,
     IOptions<OddsApiClientOptions> options,
     IClient client,
-    IOriginalCompletedEventConverter converter) : IEventResultsClient
+    IOriginalCompletedEventConverter converter,
+    OddsApiMetrics metrics) : IEventResultsClient
 {
     private const int DaysFromToday = 3;
 
@@ -40,6 +41,7 @@ internal sealed partial class EventResultsClient(
             catch (Exception exception)
             {
                 LogLeagueFailed(logger, exception, league);
+                metrics.RecordLeagueFailure(OddsApiMetrics.EventResultsOperation, league);
                 failures.Add(exception);
             }
         }

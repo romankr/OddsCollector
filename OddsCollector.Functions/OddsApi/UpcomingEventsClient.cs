@@ -11,7 +11,8 @@ internal sealed partial class UpcomingEventsClient(
     ILogger<UpcomingEventsClient> logger,
     IOptions<OddsApiClientOptions> options,
     IClient client,
-    IOriginalUpcomingEventConverter converter) : IUpcomingEventsClient
+    IOriginalUpcomingEventConverter converter,
+    OddsApiMetrics metrics) : IUpcomingEventsClient
 {
     private const DateFormat IsoDateFormat = DateFormat.Iso;
     private const Markets HeadToHeadMarket = Markets.H2h;
@@ -43,6 +44,7 @@ internal sealed partial class UpcomingEventsClient(
             catch (Exception exception)
             {
                 LogLeagueFailed(logger, exception, league);
+                metrics.RecordLeagueFailure(OddsApiMetrics.UpcomingEventsOperation, league);
                 failures.Add(exception);
             }
         }
