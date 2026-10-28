@@ -353,7 +353,7 @@ internal sealed class EndToEnd
     public async Task PredictionsHttpFunction_StoredDocumentFailingValidation_ReturnsTheOtherPredictions(
         CancellationToken cancellationToken)
     {
-        // Arrange: a document with an Outcome the model does not know, stored before a valid prediction.
+        // Arrange
         var brokenId = TestData.NewId("broken");
         var brokenDocument = new
         {
@@ -382,7 +382,7 @@ internal sealed class EndToEnd
             var publishedPredictions =
                 await Environment.WaitForPublishedPredictionsAsync(prediction.Id, cancellationToken);
 
-            // Assert: the response is still OK, with the valid prediction and without the unreadable document.
+            // Assert
             using var scope = new AssertionScope();
 
             publishedPredictions.Should().ContainSingle(p => p.Id == prediction.Id)
@@ -415,13 +415,10 @@ internal sealed class EndToEnd
             var executed = await Environment.WaitForLogLineAsync(logStart,
                 $"Executed 'Functions.{nameof(UpcomingEventsFunction)}'", cancellationToken);
 
-            // A host retry of the whole run would be scheduled right after the failed execution is logged.
             await Task.Delay(SettlementGracePeriod, cancellationToken);
 
             var requests = Environment.OddsApi.CountUpcomingEventsRequests() - requestsBefore;
 
-            // Assert: the HTTP client retries the request (at most three times, fewer if its 30 second total
-            // timeout runs out first), and the failed run is not retried by the host on top of that.
             using var scope = new AssertionScope();
 
             executed.Should().Contain("Failed");

@@ -6,9 +6,6 @@ var settings = builder.Configuration.GetSection(AppHostSettings.Section);
 
 var oddsApiKey = builder.AddParameter(AppHostSettings.OddsApiKeyParameter, secret: true);
 
-// The Cosmos DB extension of the Functions host connects to the address the emulator advertises, which is its
-// own gateway port, so the host port must be the same (https://github.com/microsoft/aspire/issues/16195). Without
-// a proxy the port is also kept when the tests run, where Aspire randomizes proxied ports.
 var cosmos = builder.AddAzureCosmosDB(AppHostSettings.CosmosResource)
     .RunAsEmulator(emulator => emulator
         .WithGatewayPort(AppHostSettings.CosmosGatewayPort)
@@ -35,14 +32,12 @@ var functions = builder.AddAzureFunctionsProject<Projects.OddsCollector_Function
     .WithEnvironment("CosmosDb__EventPredictionsContainer", AppHostSettings.EventPredictionsContainer)
     .WithEnvironment("CosmosDb__EventResultsContainer", AppHostSettings.EventResultsContainer)
     .WithEnvironment("ServiceBus__Queue", AppHostSettings.Queue)
-    // The emulator serves the API for NoSQL in gateway mode only.
     .WithEnvironment("AzureFunctionsJobHost__extensions__cosmosDB__connectionMode", "Gateway")
     .WithEnvironment("OddsApiClient__ApiKey", oddsApiKey)
     .WithEnvironment("OddsApiClient__Leagues", settings["Leagues"] ?? "soccer_epl")
     .WithEnvironment("UpcomingEventsFunction__TimerInterval",
         settings["UpcomingEventsTimerInterval"] ?? "0 0 */6 * * *")
     .WithEnvironment("EventResultsFunction__TimerInterval", settings["EventResultsTimerInterval"] ?? "0 0 6 * * *")
-    // Azure Monitor needs a connection string to start; without a real one nothing is exported.
     .WithEnvironment("APPLICATIONINSIGHTS_CONNECTION_STRING",
         settings["ApplicationInsightsConnectionString"] ?? AppHostSettings.UnreachableApplicationInsights)
     .WaitFor(cosmos)

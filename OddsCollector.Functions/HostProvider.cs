@@ -12,7 +12,6 @@ internal static class HostProvider
 {
     public static IHost CreateHost(string[] args)
     {
-        // FunctionsApplication is what the Aspire Azure Functions integration (OddsCollector.AppHost) expects.
         var builder = FunctionsApplication.CreateBuilder(args);
 
         builder.Services.AddPredictionStrategy();

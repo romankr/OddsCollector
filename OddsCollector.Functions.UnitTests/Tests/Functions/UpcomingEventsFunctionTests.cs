@@ -104,7 +104,7 @@ internal sealed class UpcomingEventsFunctionTests
     [Test]
     public async Task Run_WithCancellationNotRequestedByHost_LetsItReachTheHost()
     {
-        // Arrange: e.g. an HTTP timeout surfaces as OperationCanceledException without the host cancelling.
+        // Arrange
         var expectedException = new OperationCanceledException();
 
         var clientStub = Substitute.For<IUpcomingEventsClient>();
@@ -152,8 +152,7 @@ internal sealed class UpcomingEventsFunctionTests
         // Act
         var retries = method.GetCustomAttributes(typeof(FunctionsRetryAttribute), inherit: false);
 
-        // Assert: failed Odds API requests are retried by the HTTP client; retrying the whole run on top of that
-        // would repeat every league's request.
+        // Assert
         retries.Should().BeEmpty();
     }
 }

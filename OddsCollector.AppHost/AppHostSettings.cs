@@ -1,8 +1,5 @@
 ﻿namespace OddsCollector.AppHost;
 
-/// <summary>
-///     Names shared by the AppHost and the integration tests that start it.
-/// </summary>
 public static class AppHostSettings
 {
     public const string Section = "OddsCollector";

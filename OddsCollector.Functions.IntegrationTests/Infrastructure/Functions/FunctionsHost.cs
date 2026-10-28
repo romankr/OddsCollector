@@ -13,7 +13,6 @@ using OddsCollector.Functions.Models;
 
 namespace OddsCollector.Functions.IntegrationTests.Infrastructure.Functions;
 
-// The function app that the AppHost runs in the Azure Functions host: its HTTP endpoint and its console log.
 internal sealed class FunctionsHost : IAsyncDisposable
 {
     private const int MaxLogLines = 2000;
@@ -41,8 +40,6 @@ internal sealed class FunctionsHost : IAsyncDisposable
 
     public string Logs => string.Join(Environment.NewLine, _logs.Select(l => l.Line));
 
-    // Lines are numbered from the host start, so a test can read what was logged after a given point even though
-    // only the last MaxLogLines lines are kept.
     public long LoggedLines => Interlocked.Read(ref _loggedLines);
 
     public async ValueTask DisposeAsync()
@@ -102,7 +99,6 @@ internal sealed class FunctionsHost : IAsyncDisposable
             : null;
     }
 
-    // Aspire reports the resource as running once func has started, before the host has loaded the functions.
     private async Task WaitUntilRunningAsync(CancellationToken cancellationToken)
     {
         try
@@ -130,8 +126,6 @@ internal sealed class FunctionsHost : IAsyncDisposable
         }
     }
 
-    // Logs are kept under the name of the running instance ("functions-<suffix>"), not the resource name, so the
-    // overload taking the resource is used: it resolves that name.
     private async Task WatchLogsAsync(ResourceLoggerService loggers, IResource functions,
         CancellationToken cancellationToken)
     {

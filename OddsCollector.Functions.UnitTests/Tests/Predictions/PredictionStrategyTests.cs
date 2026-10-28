@@ -52,7 +52,7 @@ internal sealed class PredictionStrategyTests
         // Act
         strategy.TryGetPrediction(upcomingEvent, out _);
 
-        // Assert: the event's own list is handed over as is, without being copied first.
+        // Assert
         predictorMock.Received(1).TryGetOutcome(upcomingEvent.Odds, out Arg.Any<OutcomeType>());
     }
 

@@ -6,7 +6,6 @@ namespace OddsCollector.Functions.UnitTests.Tests.OddsApi.Converters;
 
 internal sealed class OddConverterTests
 {
-    // The name The Odds API gives the draw outcome of a head-to-head market.
     private const string DrawOutcomeName = "Draw";
 
     private const string Bookmaker = "bookmaker";

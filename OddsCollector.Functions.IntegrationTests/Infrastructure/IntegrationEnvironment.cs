@@ -11,8 +11,6 @@ using OddsCollector.Functions.Models;
 
 namespace OddsCollector.Functions.IntegrationTests.Infrastructure;
 
-// The function app and its emulators (Cosmos DB, Service Bus, Azurite), started by OddsCollector.AppHost through
-// Aspire, with a stub of The Odds API in place of the real one.
 internal sealed class IntegrationEnvironment : IAsyncDisposable
 {
     public const string ApiKey = "integration-test-key";
@@ -188,7 +186,6 @@ internal sealed class IntegrationEnvironment : IAsyncDisposable
         _functionsHost = await FunctionsHost.StartAsync(_app, cancellationToken);
     }
 
-    // Settings the AppHost reads from its configuration (see OddsCollector.AppHost/Program.cs).
     private string[] GetAppHostArguments()
     {
         return

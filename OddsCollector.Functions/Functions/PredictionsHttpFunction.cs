@@ -9,15 +9,12 @@ namespace OddsCollector.Functions.Functions;
 
 internal sealed partial class PredictionsHttpFunction(ILogger<PredictionsHttpFunction> logger)
 {
-    // Matches the worker serializer that writes the documents through the Cosmos DB output binding.
     private static readonly JsonSerializerOptions DocumentOptions = new() { PropertyNameCaseInsensitive = true };
 
     [Function(nameof(PredictionsHttpFunction))]
     public async Task<HttpResponseData> Run(
         [HttpTrigger(AuthorizationLevel.Function, "get")]
         HttpRequestData request,
-        // Documents are bound as raw JSON and read one by one, so a single document the model rejects is skipped
-        // instead of failing the whole response.
         [CosmosDBInput(
             "%CosmosDb:Database%",
             "%CosmosDb:EventPredictionsContainer%",

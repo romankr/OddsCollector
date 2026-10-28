@@ -39,7 +39,6 @@ internal sealed class ServiceCollectionExtensionsTests
         {
             services.AddHttpClient(nameof(IClient)).ConfigurePrimaryHttpMessageHandler(() => primaryHandler);
 
-            // Retry without waiting, so the test does not sleep through the production backoff.
             services.Configure<HttpStandardResilienceOptions>($"{nameof(IClient)}-standard",
                 options => options.Retry.Delay = TimeSpan.Zero);
         }
@@ -397,7 +396,7 @@ internal sealed class ServiceCollectionExtensionsTests
         // Act
         var action = () => client.ScoresAsync(League, ApiKey, DaysFrom, CancellationToken.None);
 
-        // Assert: the first request and the standard handler's three retries, and nothing more.
+        // Assert
         await action.Should().ThrowAsync<ApiException>();
         handlerMock.CallCount.Should().Be(4);
     }
@@ -406,7 +405,7 @@ internal sealed class ServiceCollectionExtensionsTests
     [TestCase(HttpStatusCode.UnprocessableEntity, TestName = "IClient_WithUnprocessableEntity_DoesNotRetry")]
     public async Task IClient_WithPermanentFailure_DoesNotRetry(HttpStatusCode permanentStatusCode)
     {
-        // Arrange: an invalid API key or league is not fixed by asking again, and every retry would cost quota.
+        // Arrange
         var handlerMock = new SequenceHttpMessageHandler(permanentStatusCode, HttpStatusCode.OK);
 
         using var provider = BuildProvider(primaryHandler: handlerMock);

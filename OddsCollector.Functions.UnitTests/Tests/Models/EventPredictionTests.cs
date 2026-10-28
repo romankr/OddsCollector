@@ -48,7 +48,7 @@ internal sealed class EventPredictionTests
     [TestCase(OutcomeType.AwayTeam, "AwayTeam", TestName = "Serialize_WithAwayTeamOutcome_WritesItsName")]
     public void Serialize_WithOutcome_WritesItsName(OutcomeType outcome, string expectedName)
     {
-        // Arrange: documents written before Outcome became an enum hold these names, so they must not change.
+        // Arrange
         var prediction = ValidModels.CreateEventPrediction() with { Outcome = outcome };
 
         // Act

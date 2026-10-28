@@ -69,7 +69,7 @@ internal sealed class PredictionFunctionTests
         // Act
         var prediction = await function.Run(message, messageActionsMock, CancellationToken.None);
 
-        // Assert: the message is left to the host to complete, like any other successfully handled one.
+        // Assert
         using var scope = new AssertionScope();
 
         prediction.Should().BeNull();

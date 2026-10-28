@@ -30,7 +30,7 @@ internal sealed class OutcomeConverterTests
     [Test]
     public void GetOutcome_WithAwayTeamListedFirst_MatchesScoresByTeamName()
     {
-        // Arrange: the API does not promise any order of the two scores.
+        // Arrange
         var converter = CreateConverter(
             new EventScore { Name = AwayTeam, Score = 0 },
             new EventScore { Name = HomeTeam, Score = 3 });

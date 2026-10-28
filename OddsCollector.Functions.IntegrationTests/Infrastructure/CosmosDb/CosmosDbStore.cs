@@ -4,13 +4,11 @@ using Microsoft.Azure.Cosmos;
 
 namespace OddsCollector.Functions.IntegrationTests.Infrastructure.CosmosDb;
 
-// Reads and writes documents in the Cosmos DB emulator that the AppHost runs.
 internal sealed class CosmosDbStore(string connectionString) : IDisposable
 {
     private readonly CosmosClient _client = new(connectionString,
         new CosmosClientOptions
         {
-            // The emulator serves the API for NoSQL in gateway mode only, at the endpoint it was started with.
             ConnectionMode = ConnectionMode.Gateway,
             LimitToEndpoint = true,
             UseSystemTextJsonSerializerWithOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
