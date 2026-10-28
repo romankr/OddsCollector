@@ -1,12 +1,13 @@
-﻿using Azure.Messaging.ServiceBus;
+﻿using Aspire.Hosting;
+using Aspire.Hosting.Testing;
+using Azure.Messaging.ServiceBus;
+using OddsCollector.AppHost;
 using OddsCollector.Functions.IntegrationTests.Infrastructure.CosmosDb;
 using OddsCollector.Functions.IntegrationTests.Infrastructure.Functions;
 using OddsCollector.Functions.IntegrationTests.Infrastructure.OddsApi;
 using OddsCollector.Functions.IntegrationTests.Infrastructure.Polling;
 using OddsCollector.Functions.IntegrationTests.Infrastructure.ServiceBus;
 using OddsCollector.Functions.Models;
-using Testcontainers.Azurite;
-using Testcontainers.ServiceBus;
 
 namespace OddsCollector.Functions.IntegrationTests.Infrastructure;
 
@@ -14,37 +15,22 @@ internal sealed class IntegrationEnvironment : IAsyncDisposable
 {
     public const string ApiKey = "integration-test-key";
     public const string League = "soccer_epl";
-    public const string Database = "OddsCollector";
-    public const string EventPredictionsContainer = "EventPredictions";
-    public const string EventResultsContainer = "EventResults";
-
-    public const string Queue = "upcoming-events";
+    public const string Database = AppHostSettings.DatabaseName;
+    public const string EventPredictionsContainer = AppHostSettings.EventPredictionsContainer;
+    public const string EventResultsContainer = AppHostSettings.EventResultsContainer;
 
     private const string NeverDuringTests = "0 0 0 1 1 *";
 
-    private const string AzuriteImage = "mcr.microsoft.com/azure-storage/azurite:latest";
-    private const string ServiceBusImage = "mcr.microsoft.com/azure-messaging/servicebus-emulator:latest";
-
-    private const string ApplicationInsightsConnectionString =
-        "InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint=http://127.0.0.1:9/";
-
     private static readonly TimeSpan WaitTimeout = TimeSpan.FromMinutes(2);
 
-    private readonly AzuriteContainer _azurite = new AzuriteBuilder(AzuriteImage).Build();
-
-    private readonly ServiceBusContainer _serviceBus = new ServiceBusBuilder(ServiceBusImage)
-        .WithAcceptLicenseAgreement(true)
-        .WithConfig(Path.Combine(AppContext.BaseDirectory, "Infrastructure", "ServiceBus", "Config.json"))
-        .Build();
-
+    private DistributedApplication? _app;
+    private CosmosDbStore? _cosmosDb;
     private FunctionsHost? _functionsHost;
     private ServiceBusQueue? _serviceBusQueue;
 
     private IntegrationEnvironment()
     {
     }
-
-    public CosmosDbEmulator CosmosDb { get; } = new();
 
     public OddsApiStub OddsApi { get; } = new(League, ApiKey);
 
@@ -53,6 +39,9 @@ internal sealed class IntegrationEnvironment : IAsyncDisposable
 
     public ServiceBusQueue ServiceBusQueue =>
         _serviceBusQueue ?? throw new InvalidOperationException("The environment is not started");
+
+    private CosmosDbStore CosmosDb =>
+        _cosmosDb ?? throw new InvalidOperationException("The environment is not started");
 
     public async ValueTask DisposeAsync()
     {
@@ -66,12 +55,14 @@ internal sealed class IntegrationEnvironment : IAsyncDisposable
             await _serviceBusQueue.DisposeAsync();
         }
 
-        OddsApi.Dispose();
+        _cosmosDb?.Dispose();
 
-        await Task.WhenAll(
-            _azurite.DisposeAsync().AsTask(),
-            _serviceBus.DisposeAsync().AsTask(),
-            CosmosDb.DisposeAsync().AsTask());
+        if (_app is not null)
+        {
+            await _app.DisposeAsync();
+        }
+
+        OddsApi.Dispose();
     }
 
     public static async Task<IntegrationEnvironment> StartAsync(CancellationToken cancellationToken)
@@ -80,7 +71,7 @@ internal sealed class IntegrationEnvironment : IAsyncDisposable
 
         try
         {
-            await environment.StartPartsAsync(cancellationToken);
+            await environment.StartAppAsync(cancellationToken);
         }
         catch
         {
@@ -176,40 +167,41 @@ internal sealed class IntegrationEnvironment : IAsyncDisposable
         }
     }
 
-    private async Task StartPartsAsync(CancellationToken cancellationToken)
+    private async Task StartAppAsync(CancellationToken cancellationToken)
     {
-        await Task.WhenAll(
-            _azurite.StartAsync(cancellationToken),
-            _serviceBus.StartAsync(cancellationToken),
-            CosmosDb.StartAsync(cancellationToken));
+        var appHost = await DistributedApplicationTestingBuilder.CreateAsync<Projects.OddsCollector_AppHost>(
+            GetAppHostArguments(), cancellationToken);
 
-        await CosmosDb.CreateContainersAsync(Database, [EventPredictionsContainer, EventResultsContainer],
-            cancellationToken);
+        _app = await appHost.BuildAsync(cancellationToken);
 
-        _serviceBusQueue = new ServiceBusQueue(_serviceBus.GetConnectionString(), Queue);
+        await _app.StartAsync(cancellationToken);
 
-        _functionsHost = await FunctionsHost.StartAsync(GetAppSettings(), cancellationToken);
+        _cosmosDb = new CosmosDbStore(
+            await GetConnectionStringAsync(_app, AppHostSettings.CosmosResource, cancellationToken));
+
+        _serviceBusQueue = new ServiceBusQueue(
+            await GetConnectionStringAsync(_app, AppHostSettings.ServiceBusResource, cancellationToken),
+            AppHostSettings.Queue);
+
+        _functionsHost = await FunctionsHost.StartAsync(_app, cancellationToken);
     }
 
-    private Dictionary<string, string> GetAppSettings()
+    private string[] GetAppHostArguments()
     {
-        return new Dictionary<string, string>
-        {
-            ["FUNCTIONS_WORKER_RUNTIME"] = "dotnet-isolated",
-            ["AzureWebJobsStorage"] = _azurite.GetConnectionString(),
-            ["APPLICATIONINSIGHTS_CONNECTION_STRING"] = ApplicationInsightsConnectionString,
-            ["OddsApiClient__ApiKey"] = ApiKey,
-            ["OddsApiClient__Leagues"] = League,
-            ["OddsApiClient__BaseUrl"] = OddsApi.BaseUrl,
-            ["CosmosDb__Connection"] = CosmosDb.ConnectionString,
-            ["CosmosDb__Database"] = Database,
-            ["CosmosDb__EventPredictionsContainer"] = EventPredictionsContainer,
-            ["CosmosDb__EventResultsContainer"] = EventResultsContainer,
-            ["ServiceBus__Connection"] = _serviceBus.GetConnectionString(),
-            ["ServiceBus__Queue"] = Queue,
-            ["EventResultsFunction__TimerInterval"] = NeverDuringTests,
-            ["UpcomingEventsFunction__TimerInterval"] = NeverDuringTests,
-            ["AzureFunctionsJobHost__extensions__cosmosDB__connectionMode"] = "Gateway"
-        };
+        return
+        [
+            $"Parameters:{AppHostSettings.OddsApiKeyParameter}={ApiKey}",
+            $"{AppHostSettings.Section}:Leagues={League}",
+            $"{AppHostSettings.Section}:OddsApiBaseUrl={OddsApi.BaseUrl}",
+            $"{AppHostSettings.Section}:UpcomingEventsTimerInterval={NeverDuringTests}",
+            $"{AppHostSettings.Section}:EventResultsTimerInterval={NeverDuringTests}"
+        ];
+    }
+
+    private static async Task<string> GetConnectionStringAsync(DistributedApplication app, string resourceName,
+        CancellationToken cancellationToken)
+    {
+        return await app.GetConnectionStringAsync(resourceName, cancellationToken)
+               ?? throw new InvalidOperationException($"The AppHost has no connection string for {resourceName}");
     }
 }

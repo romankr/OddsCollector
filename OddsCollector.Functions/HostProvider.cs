@@ -1,4 +1,5 @@
 ﻿using Azure.Monitor.OpenTelemetry.Exporter;
+using Microsoft.Azure.Functions.Worker.Builder;
 using Microsoft.Azure.Functions.Worker.OpenTelemetry;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -9,18 +10,16 @@ namespace OddsCollector.Functions;
 
 internal static class HostProvider
 {
-    public static IHost CreateHost()
+    public static IHost CreateHost(string[] args)
     {
-        return new HostBuilder()
-            .ConfigureFunctionsWorkerDefaults()
-            .ConfigureServices((context, services) =>
-            {
-                services.AddPredictionStrategy();
-                services.AddOpenTelemetry()
-                    .UseFunctionsWorkerDefaults()
-                    .UseAzureMonitorExporter();
-                services.AddOddsApiClientWithDependencies(context.Configuration);
-            })
-            .Build();
+        var builder = FunctionsApplication.CreateBuilder(args);
+
+        builder.Services.AddPredictionStrategy();
+        builder.Services.AddOpenTelemetry()
+            .UseFunctionsWorkerDefaults()
+            .UseAzureMonitorExporter();
+        builder.Services.AddOddsApiClientWithDependencies(builder.Configuration);
+
+        return builder.Build();
     }
 }

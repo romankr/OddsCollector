@@ -3,7 +3,6 @@ using System.Text;
 
 namespace OddsCollector.Functions.UnitTests.Infrastructure.Http;
 
-// Answers each request with the next status code in the sequence and keeps answering with the last one.
 internal sealed class SequenceHttpMessageHandler(params HttpStatusCode[] statusCodes) : HttpMessageHandler
 {
     private const string EmptyJsonArray = "[]";

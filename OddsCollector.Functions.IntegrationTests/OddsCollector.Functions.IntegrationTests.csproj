@@ -12,6 +12,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.Testing"/>
     <PackageReference Include="Azure.Messaging.ServiceBus"/>
     <PackageReference Include="FluentAssertions"/>
     <PackageReference Include="Microsoft.Azure.Cosmos"/>
@@ -23,9 +24,6 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Testcontainers"/>
-    <PackageReference Include="Testcontainers.Azurite"/>
-    <PackageReference Include="Testcontainers.ServiceBus"/>
     <PackageReference Include="WireMock.Net"/>
   </ItemGroup>
 
@@ -35,24 +33,12 @@
   </ItemGroup>
 
   <!--
-    The tests run the build output of the function app in the Azure Functions host (func) and use
-    its models (internal, see InternalsVisibleTo in OddsCollector.Functions.csproj) to check what it stores and returns.
+    OddsCollector.AppHost starts the function app and the emulators through Aspire. The function app's models
+    (internal, see InternalsVisibleTo in OddsCollector.Functions.csproj) are used to check what it stores and returns.
   -->
   <ItemGroup>
+    <ProjectReference Include="..\OddsCollector.AppHost\OddsCollector.AppHost.csproj"/>
     <ProjectReference Include="..\OddsCollector.Functions\OddsCollector.Functions.csproj"/>
-  </ItemGroup>
-
-  <ItemGroup>
-    <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
-      <_Parameter1>FunctionAppDirectory</_Parameter1>
-      <_Parameter2>$(MSBuildThisFileDirectory)..\OddsCollector.Functions\bin\$(Configuration)\$(TargetFramework)</_Parameter2>
-    </AssemblyAttribute>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="Infrastructure\ServiceBus\Config.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>

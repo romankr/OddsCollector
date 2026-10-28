@@ -150,7 +150,6 @@ internal sealed class PredictionsHttpFunctionTests
         var document = JsonSerializer.SerializeToNode(ValidModels.CreateEventPrediction() with { Id = id })!
             .AsObject();
 
-        // A null value removes the property, so the document misses it entirely.
         document.Remove(property);
 
         if (jsonValue is not null)
