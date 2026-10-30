@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ "master" ]
 
+permissions:
+  contents: read
+
 jobs:
   build:
 
@@ -51,10 +54,6 @@ jobs:
         dotnet-version: 10.0.x
     - name: Install Azure Functions Core Tools
       run: npm install --global azure-functions-core-tools@4 --unsafe-perm true
-    # The Cosmos DB emulator that the AppHost runs serves HTTPS with the development certificate.
-    # On Linux, .NET trusts certificates through OpenSSL, which reads SSL_CERT_DIR. The trust directory of the
-    # development certificate has to be listed there before trusting it: otherwise the tool reports only partial
-    # trust and exits with code 4. The variable is also kept for the following steps (the tests).
     - name: Create and trust the HTTPS development certificate
       run: |
         export SSL_CERT_DIR="$HOME/.aspnet/dev-certs/trust:/usr/lib/ssl/certs"
@@ -63,3 +62,35 @@ jobs:
         dotnet dev-certs https --check --trust
     - name: Run integration tests
       run: dotnet test OddsCollector.Functions.IntegrationTests --verbosity normal
+
+  powershell-code-quality:
+
+    name: PowerShell code quality
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v7
+    - name: Install PSScriptAnalyzer
+      shell: pwsh
+      run: Install-PSResource -Name PSScriptAnalyzer -Version 1.24.0 -Repository PSGallery -TrustRepository -Scope CurrentUser
+    - name: Check code style and run static analysis
+      shell: pwsh
+      run: |
+        $findings = @(./tools/Invoke-PowerShellAnalysis.ps1)
+
+        # One annotation per finding, shown on the changed lines of the pull request.
+        $levels = @{ Error = 'error'; Warning = 'warning'; Information = 'notice' }
+        foreach ($finding in $findings) {
+            $file = [System.IO.Path]::GetRelativePath($PWD, $finding.Path)
+            $message = $finding.Message -replace '%', '%25' -replace "`r", '%0D' -replace "`n", '%0A'
+            "::$($levels[$finding.Severity]) file=$file,line=$($finding.Line),col=$($finding.Column),title=$($finding.RuleName)::$message"
+        }
+
+        if ($findings.Count -gt 0) {
+            $findings | Format-Table -AutoSize -Wrap -Property Path, Line, Severity, RuleName, Message | Out-String -Width 200
+            "::error::$($findings.Count) PowerShell finding(s). Run ./tools/Invoke-PowerShellAnalysis.ps1 locally; -Fix formats the code."
+            exit 1
+        }
+
+        'No findings.'

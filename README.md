@@ -123,7 +123,8 @@ The first integration test run downloads the emulator images, which takes a few 
 
 PowerShell code (the scripts in `deploy` and `tools`) is checked for code style and with static analysis by
 [PSScriptAnalyzer](https://learn.microsoft.com/powershell/utility-modules/psscriptanalyzer/overview), using the rules
-in `PSScriptAnalyzerSettings.psd1`; the "PowerShell code quality" workflow fails on any finding. To run it locally:
+in `PSScriptAnalyzerSettings.psd1`; the "PowerShell code quality" job of the build workflow fails on any finding.
+To run it locally:
 
 ```powershell
 Install-PSResource -Name PSScriptAnalyzer -Version 1.24.0

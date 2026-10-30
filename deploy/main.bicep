@@ -1,8 +1,3 @@
-// Azure environment of OddsCollector: Flex Consumption function app, Cosmos DB (serverless) with the database and
-// containers, Service Bus queue, Key Vault for The Odds API key, storage, Application Insights and alerts.
-// Every connection is identity-based (managed identity + RBAC); no keys or connection strings are stored.
-// Deploy with Deploy-Infrastructure.ps1 (or Deploy-Environment.ps1, which also publishes the code).
-
 targetScope = 'resourceGroup'
 
 @description('Short environment name, used in resource names: lowercase letters and digits, for example dev or prod.')
@@ -59,7 +54,6 @@ param alertEmail string = ''
 @description('Turn on Key Vault purge protection. It cannot be turned off later.')
 param enablePurgeProtection bool = false
 
-// Names that the code and OddsCollector.AppHost (AppHostSettings.cs) also use.
 var databaseName = 'OddsCollector'
 var eventPredictionsContainerName = 'EventPredictions'
 var eventResultsContainerName = 'EventResults'

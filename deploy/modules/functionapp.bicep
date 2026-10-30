@@ -1,6 +1,3 @@
-// Flex Consumption plan and the function app (.NET 10 isolated worker, Linux) with a system-assigned identity.
-// The template owns all application settings: a redeployment replaces settings changed in the portal.
-
 param planName string
 param appName string
 param location string
@@ -31,8 +28,6 @@ resource plan 'Microsoft.Web/serverfarms@2024-04-01' = {
   }
 }
 
-// Host settings. Flex Consumption sets the runtime in functionAppConfig and rejects
-// FUNCTIONS_WORKER_RUNTIME and FUNCTIONS_EXTENSION_VERSION.
 var hostSettings = {
   AzureWebJobsStorage__accountName: storageAccountName
   APPLICATIONINSIGHTS_CONNECTION_STRING: applicationInsightsConnectionString
@@ -80,7 +75,6 @@ resource app 'Microsoft.Web/sites@2024-04-01' = {
   }
 }
 
-// Deployments use Microsoft Entra ID (Publish-FunctionApp.ps1), so basic (user/password) publishing is turned off.
 resource scmBasicAuth 'Microsoft.Web/sites/basicPublishingCredentialsPolicies@2024-04-01' = {
   parent: app
   name: 'scm'

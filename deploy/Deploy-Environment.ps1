@@ -30,74 +30,55 @@
 [OutputType('OddsCollector.Deployment.Infrastructure')]
 [OutputType('Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.Deployments.PSWhatIfOperationResult')]
 param(
-    # Short environment name used in resource names: 2-8 letters and digits, for example dev or prod.
     [Parameter(Mandatory)]
     [ValidatePattern('^[a-z0-9]{2,8}$', ErrorMessage = '{0} is not 2-8 letters and digits.')]
     [string] $EnvironmentName,
 
-    # Azure region, for example westeurope. It must offer Flex Consumption with .NET 10.
     [Parameter(Mandatory)]
     [string] $Location,
 
-    # Resource group, created if missing. Default: rg-oddscollector-<EnvironmentName>.
     [string] $ResourceGroupName,
 
-    # Subscription to deploy to. Default: the subscription of the current Az context.
     [guid] $SubscriptionId,
 
-    # Sport keys of The Odds API to collect; only football (soccer_*) is supported. Default: soccer_epl.
     [Alias('Leagues')]
     [ValidateNotNullOrEmpty()]
     [ValidatePattern('^soccer_[a-z0-9_]+$', ErrorMessage = '{0} is not a soccer_* sport key of The Odds API.')]
     [string[]] $League,
 
-    # NCRONTAB schedule of UpcomingEventsFunction. Default: every 6 hours.
     [ValidateNotNullOrEmpty()]
     [string] $UpcomingEventsTimerInterval,
 
-    # NCRONTAB schedule of EventResultsFunction. Default: daily at 06:00 UTC.
     [ValidateNotNullOrEmpty()]
     [string] $EventResultsTimerInterval,
 
-    # The Odds API key. Default: keep the stored key, or ask for it on the first deployment.
     [securestring] $OddsApiKey,
 
-    # Service Bus tier. Default: Basic.
     [ValidateSet('Basic', 'Standard')]
     [string] $ServiceBusSku,
 
-    # Maximum number of Flex Consumption instances. Default: 40.
     [ValidateRange(40, 1000)]
     [int] $MaximumInstanceCount,
 
-    # Memory of a Flex Consumption instance, in MB. Default: 2048.
     [ValidateSet(512, 2048, 4096)]
     [int] $InstanceMemoryMB,
 
-    # How long stored predictions are kept. Default: forever.
     [ValidateScript({ $_ -ge [timespan]::Zero }, ErrorMessage = 'The time to live cannot be negative.')]
     [timespan] $PredictionTimeToLive,
 
-    # E-mail that receives the alerts. Default: no alerts.
     [mailaddress] $AlertEmail,
 
-    # Object id of a user, group or service principal that gets Cosmos DB data access.
     [guid] $DataContributorPrincipalId,
 
-    # Give the signed-in user or service principal Cosmos DB data access.
     [switch] $GrantMeDataAccess,
 
-    # Turn on Key Vault purge protection. It can't be turned off later.
     [switch] $EnablePurgeProtection,
 
-    # Never prompt (for CI): fail when The Odds API key is needed and -OddsApiKey is missing.
     [switch] $Force,
 
-    # Build configuration of OddsCollector.Functions.
     [ValidateSet('Release', 'Debug')]
     [string] $Configuration = 'Release',
 
-    # Deploy only the infrastructure.
     [switch] $SkipPublish
 )
 

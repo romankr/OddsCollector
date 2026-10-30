@@ -1,6 +1,3 @@
-// Log Analytics workspace and workspace-based Application Insights. The app exports logs, traces and metrics
-// (including oddscollector.oddsapi.league.failures) through OpenTelemetry (UseAzureMonitorExporter).
-
 param workspaceName string
 param applicationInsightsName string
 param location string

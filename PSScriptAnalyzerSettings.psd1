@@ -1,6 +1,7 @@
 # PSScriptAnalyzer settings of the repository: static analysis and code style of every *.ps1, *.psm1 and *.psd1.
-# Used by tools/Invoke-PowerShellAnalysis.ps1 (locally and in the "PowerShell code quality" workflow) and, as the
-# default settings path, by the VS Code PowerShell extension. Rules follow the powershell-development-guidelines skill.
+# Used by tools/Invoke-PowerShellAnalysis.ps1 (locally and in the "PowerShell code quality" job of the "Build and
+# verify pull request" workflow) and, as the default settings path, by the VS Code PowerShell extension.
+# Rules follow the powershell-development-guidelines skill.
 @{
     Severity            = @('Error', 'Warning', 'Information')
 

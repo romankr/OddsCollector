@@ -1,7 +1,3 @@
-// Alerts that cover failures the functions survive: a league that keeps failing (the run still succeeds with the
-// other leagues and only counts oddscollector.oddsapi.league.failures) and messages dead-lettered by
-// PredictionFunction.
-
 param environmentName string
 param location string
 param tags object
@@ -31,7 +27,6 @@ resource actionGroup 'Microsoft.Insights/actionGroups@2023-01-01' = {
   }
 }
 
-// Collection runs every 6 hours (upcoming events) and once a day (results), so a 6-hour window sees each run once.
 resource leagueFailures 'Microsoft.Insights/scheduledQueryRules@2023-12-01' = {
   name: 'alert-oddscollector-${environmentName}-league-failures'
   location: location

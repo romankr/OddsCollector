@@ -1,12 +1,3 @@
-// Cosmos DB account (serverless) and the data schema of OddsCollector: the database and its containers.
-// The containers are the only source of truth for the schema in Azure: the app never creates them, and
-// key-based metadata writes are turned off, so containers can't be created or changed outside this template.
-//
-// Changing the schema:
-// - Indexing policy and time to live change in place; Cosmos DB rebuilds the index in the background.
-// - The partition key and unique keys can't change. To change them, add a new container here, copy the data
-//   (container copy job or change feed) and switch the CosmosDb__*Container settings to it.
-
 param accountName string
 param location string
 param tags object
@@ -57,8 +48,6 @@ resource database 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2024-11-15
   }
 }
 
-// Documents are keyed by the event id (EventPrediction.Id / EventResult.Id, serialized as "id"); the output
-// bindings upsert by it, which keeps the functions idempotent. Same partition key as OddsCollector.AppHost.
 var partitionKey = {
   paths: [
     '/id'
@@ -67,7 +56,6 @@ var partitionKey = {
   version: 2
 }
 
-// Everything is indexed: PredictionsHttpFunction filters and sorts by CommenceTime, and ad hoc queries keep working.
 var indexingPolicy = {
   indexingMode: 'consistent'
   automatic: true

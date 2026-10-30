@@ -34,28 +34,22 @@
 [CmdletBinding(SupportsShouldProcess)]
 [OutputType('OddsCollector.Deployment.FunctionApp')]
 param(
-    # Resource group of the function app.
     [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
     [ValidateNotNullOrEmpty()]
     [string] $ResourceGroupName,
 
-    # Name of the function app.
     [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
     [ValidateNotNullOrEmpty()]
     [string] $FunctionAppName,
 
-    # Build configuration of OddsCollector.Functions.
     [ValidateSet('Release', 'Debug')]
     [string] $Configuration = 'Release',
 
-    # Subscription of the function app. Default: the subscription of the current Az context.
     [guid] $SubscriptionId,
 
-    # How long to wait for a deployment to finish.
     [ValidateScript({ $_ -gt [timespan]::Zero }, ErrorMessage = 'The timeout must be positive.')]
     [timespan] $Timeout = [timespan]::FromMinutes(15),
 
-    # Write an object for each published app.
     [switch] $PassThru
 )
 
@@ -68,7 +62,6 @@ begin {
     $projectFile = Join-Path (Split-Path $PSScriptRoot -Parent) 'OddsCollector.Functions/OddsCollector.Functions.csproj'
     $webApiVersion = '2024-04-01'
 
-    # Kudu deployment status codes: https://github.com/projectkudu/kudu/wiki/REST-API
     $deploymentFailed = 3
     $deploymentSucceeded = 4
 
@@ -90,8 +83,6 @@ begin {
         [OutputType([hashtable])]
         param($Context)
 
-        # Kudu accepts Microsoft Entra ID tokens for the Azure Resource Manager audience. The plain token is only
-        # kept in the header of the requests (AC06).
         $token = (Get-AzAccessToken -ResourceUrl $Context.Environment.ActiveDirectoryServiceEndpointResourceId).Token
         if ($token -is [securestring]) {
             $token = ConvertFrom-SecureString -SecureString $token -AsPlainText
@@ -109,7 +100,6 @@ begin {
 
         Write-Progress -Activity 'Building OddsCollector.Functions' -Status $Configuration
 
-        # The build log goes to the verbose stream, so that only the package path is written to the pipeline.
         dotnet publish $projectFile --configuration $Configuration --output $publishDirectory --nologo 2>&1 |
             ForEach-Object { Write-Verbose "$_" }
         if ($LASTEXITCODE -ne 0) {
@@ -119,7 +109,6 @@ begin {
             $PSCmdlet.ThrowTerminatingError($errorRecord)
         }
 
-        # ZipFile keeps the .azurefunctions folder, which Compress-Archive skips as hidden on Linux and macOS.
         [System.IO.Compression.ZipFile]::CreateFromDirectory($publishDirectory, $package)
 
         Write-Progress -Activity 'Building OddsCollector.Functions' -Completed
@@ -225,8 +214,6 @@ process {
 }
 
 clean {
-    # Runs after end, Ctrl+C or a terminating error (AC03, AC04).
-    # The variable is missing when begin failed before creating it (and Set-StrictMode rejects unset variables).
     $directory = Get-Variable -Name workDirectory -ValueOnly -ErrorAction Ignore
     if ($directory -and (Test-Path -LiteralPath $directory)) {
         Remove-Item -LiteralPath $directory -Recurse -Force -ErrorAction SilentlyContinue

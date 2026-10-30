@@ -26,21 +26,17 @@ function New-OddsCollectorErrorRecord {
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '',
         Justification = 'Creates an object in memory, like New-Object; nothing in the system changes.')]
     param(
-        # What went wrong and, when possible, how to fix it.
         [Parameter(Mandatory)]
         [string] $Message,
 
-        # Stable identifier of the error, for example BicepNotInstalled.
         [Parameter(Mandatory)]
         [string] $ErrorId,
 
         [Parameter(Mandatory)]
         [System.Management.Automation.ErrorCategory] $Category,
 
-        # The object the error is about: a resource name, a path, a URI.
         [object] $TargetObject,
 
-        # Type of the exception in the record. It needs a (string) constructor.
         [ValidateScript({ [System.Exception].IsAssignableFrom($_) })]
         [type] $ExceptionType = [System.InvalidOperationException]
     )
@@ -64,7 +60,6 @@ function Connect-OddsCollectorSubscription {
     [CmdletBinding()]
     [OutputType('Microsoft.Azure.Commands.Profile.Models.Core.PSAzureContext')]
     param(
-        # Subscription to use. Default: the subscription of the current Az context.
         [guid] $SubscriptionId
     )
 
