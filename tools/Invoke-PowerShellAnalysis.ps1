@@ -11,7 +11,8 @@
     the same settings. Writes one object per finding; no output means the code is clean.
 
     With -Fix, unformatted files are rewritten by Invoke-Formatter (the code style findings disappear; the analysis
-    findings have to be fixed by hand). The "PowerShell code quality" GitHub workflow runs this script.
+    findings have to be fixed by hand). The "PowerShell code quality" job of the "Build and verify pull request" GitHub
+    workflow runs this script.
 
 .INPUTS
     System.String. Paths of files or folders, for example from Get-ChildItem (FullName).

@@ -46,67 +46,50 @@
 [OutputType('OddsCollector.Deployment.Infrastructure')]
 [OutputType('Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.Deployments.PSWhatIfOperationResult')]
 param(
-    # Short environment name used in resource names: 2-8 letters and digits, for example dev or prod.
     [Parameter(Mandatory)]
     [ValidatePattern('^[a-z0-9]{2,8}$', ErrorMessage = '{0} is not 2-8 letters and digits.')]
     [string] $EnvironmentName,
 
-    # Azure region, for example westeurope. It must offer Flex Consumption with .NET 10.
     [Parameter(Mandatory)]
     [string] $Location,
 
-    # Resource group, created if missing. Default: rg-oddscollector-<EnvironmentName>.
     [string] $ResourceGroupName,
 
-    # Subscription to deploy to. Default: the subscription of the current Az context.
     [guid] $SubscriptionId,
 
-    # Sport keys of The Odds API to collect; only football (soccer_*) is supported.
     [Alias('Leagues')]
     [ValidateNotNullOrEmpty()]
     [ValidatePattern('^soccer_[a-z0-9_]+$', ErrorMessage = '{0} is not a soccer_* sport key of The Odds API.')]
     [string[]] $League = @('soccer_epl'),
 
-    # NCRONTAB schedule of UpcomingEventsFunction.
     [ValidateNotNullOrEmpty()]
     [string] $UpcomingEventsTimerInterval = '0 0 */6 * * *',
 
-    # NCRONTAB schedule of EventResultsFunction. Keep it under 3 days, or some results are never stored.
     [ValidateNotNullOrEmpty()]
     [string] $EventResultsTimerInterval = '0 0 6 * * *',
 
-    # The Odds API key. Default: keep the stored key, or ask for it on the first deployment.
     [securestring] $OddsApiKey,
 
-    # Service Bus tier. Basic is enough for one queue with dead-lettering.
     [ValidateSet('Basic', 'Standard')]
     [string] $ServiceBusSku = 'Basic',
 
-    # Maximum number of Flex Consumption instances.
     [ValidateRange(40, 1000)]
     [int] $MaximumInstanceCount = 40,
 
-    # Memory of a Flex Consumption instance, in MB.
     [ValidateSet(512, 2048, 4096)]
     [int] $InstanceMemoryMB = 2048,
 
-    # How long stored predictions are kept. Zero (default) keeps them forever.
     [ValidateScript({ $_ -ge [timespan]::Zero }, ErrorMessage = 'The time to live cannot be negative.')]
     [timespan] $PredictionTimeToLive = [timespan]::Zero,
 
-    # E-mail that receives the alerts (league failures, dead-lettered messages). Default: no alerts.
     [mailaddress] $AlertEmail,
 
-    # Object id of a user, group or service principal that gets Cosmos DB data access.
     [guid] $DataContributorPrincipalId,
 
-    # Give the signed-in user or service principal Cosmos DB data access (Data Explorer, data migrations).
     [switch] $GrantMeDataAccess,
 
-    # Turn on Key Vault purge protection. It can't be turned off later.
     [switch] $EnablePurgeProtection,
 
-    # Never prompt (for CI): fail when The Odds API key is needed and -OddsApiKey is missing.
     [switch] $Force
 )
 
@@ -139,7 +122,6 @@ function Test-StoredOddsApiKey {
         return $false
     }
 
-    # Azure Resource Manager returns the secret's metadata (never its value), so no Key Vault data role is needed.
     $response = Invoke-AzRestMethod -Method GET `
         -Path "$($vault.ResourceId)/secrets/$($oddsApiKeySecretName)?api-version=$keyVaultApiVersion"
 
@@ -246,8 +228,6 @@ $progress = @{ Activity = "Deploying $deploymentName"; Status = $ResourceGroupNa
 Write-Progress @progress
 
 try {
-    # oddsApiKey is a @secure() template parameter: Azure Resource Manager neither logs nor returns it. The plain
-    # value exists only for this call (AC06).
     if ($OddsApiKey) {
         $templateParameters.oddsApiKey = ConvertFrom-SecureString -SecureString $OddsApiKey -AsPlainText
     }

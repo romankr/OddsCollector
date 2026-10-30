@@ -1,6 +1,3 @@
-// Storage account of the Functions host (AzureWebJobsStorage: timer leases, keys) and of the Flex Consumption
-// deployment packages. Accessed only with the app's managed identity.
-
 param accountName string
 param location string
 param tags object
