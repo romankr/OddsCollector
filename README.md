@@ -50,16 +50,10 @@ Instead of connection strings, turn on the function app's managed identity, gran
 
 ## Deploying to Azure
 
-`deploy` creates the whole environment with [Bicep](https://learn.microsoft.com/azure/azure-resource-manager/bicep/)
-and PowerShell: a Flex Consumption function app with a managed identity, Cosmos DB (serverless) with the database and
-containers, the Service Bus queue, Key Vault with The Odds API key, storage, Application Insights, the role
-assignments above and, with `-AlertEmail`, alerts on league failures (`oddscollector.oddsapi.league.failures`) and
-dead-lettered messages. Every connection is identity-based; no keys or connection strings are stored.
-
-Needs PowerShell 7.4+, [Az PowerShell](https://learn.microsoft.com/powershell/azure/install-azure-powershell)
-(Az.Accounts, Az.Resources), the [Bicep CLI](https://learn.microsoft.com/azure/azure-resource-manager/bicep/install),
-the .NET 10 SDK and Owner (or Contributor and Role Based Access Control Administrator) on the subscription or
-resource group.
+Needs PowerShell 7.4+, [Az PowerShell](https://learn.microsoft.com/powershell/azure/install-azure-powershell),
+the [Bicep CLI](https://learn.microsoft.com/azure/azure-resource-manager/bicep/install) and Owner (or Contributor and
+Role Based Access Control Administrator) on the subscription. The region must offer Flex Consumption with .NET 10
+(`az functionapp list-flexconsumption-runtimes --location <region> --runtime dotnet-isolated`).
 
 ```powershell
 Connect-AzAccount
@@ -67,42 +61,28 @@ Connect-AzAccount
     -League soccer_epl, soccer_spain_la_liga -AlertEmail ops@example.com
 ```
 
-- The first deployment asks for The Odds API key and stores it in Key Vault; later ones keep it. Pass
-  `-OddsApiKey (Read-Host -AsSecureString)` to rotate it, and `-Force` in CI so the script never prompts.
-- `-WhatIf` shows what would change and changes nothing. Deployments are idempotent: change `deploy/main.bicep` or a
-  parameter and run the script again.
-- `deploy/Deploy-Infrastructure.ps1` deploys only the resources and writes an object describing them, which can be
-  piped to `deploy/Publish-FunctionApp.ps1` (only the code). `Get-Help ./deploy/Deploy-Infrastructure.ps1 -Full`
-  lists every parameter and the output. The scripts follow the `powershell-development-guidelines` skill.
-- The Cosmos DB schema (database, containers, partition keys, indexing, time to live) is defined in
-  `deploy/modules/cosmos.bicep`, and only there: the app does not create containers, and key-based metadata writes
-  are off. Indexing and time to live change in place; a partition key can't change, so move such data to a new
-  container. `-GrantMeDataAccess` gives you data access for Data Explorer or data migrations.
-- The template owns the application settings: settings changed in the portal are replaced on the next deployment.
-- The region must offer Flex Consumption with .NET 10
-  (`az functionapp list-flexconsumption-runtimes --location <region> --runtime dotnet-isolated`).
+The first run asks for The Odds API key. `-WhatIf` shows the changes without making them, `-OddsApiKey` rotates the
+key, `-Force` never prompts (for CI). To deploy the resources and the code separately:
+
+```powershell
+./deploy/Deploy-Infrastructure.ps1 -EnvironmentName prod -Location westeurope
+./deploy/Publish-FunctionApp.ps1 -ResourceGroupName <resource group> -FunctionAppName <function app>
+```
 
 ## Running locally with the emulators
 
-`OddsCollector.AppHost` is an [Aspire](https://aspire.dev/) AppHost that runs the function app in the Azure
-Functions host against Microsoft's emulators: Cosmos DB (Linux, vNext), Service Bus and Azurite. It creates the
-database, the containers and the queue, and passes every application setting except the Odds API key:
+Port 8081 must be free. On Linux, first run `export SSL_CERT_DIR="$HOME/.aspnet/dev-certs/trust:/usr/lib/ssl/certs"`
+and keep it set when running the app or the tests.
 
 ```
+dotnet dev-certs https --trust
 dotnet user-secrets --project OddsCollector.AppHost set "Parameters:odds-api-key" "<your key>"
 dotnet run --project OddsCollector.AppHost
 ```
 
-Optional settings, in `OddsCollector.AppHost` configuration (user secrets, `appsettings.json` or command line):
-`OddsCollector:Leagues`, `OddsCollector:OddsApiBaseUrl`, `OddsCollector:UpcomingEventsTimerInterval`,
-`OddsCollector:EventResultsTimerInterval` and `OddsCollector:ApplicationInsightsConnectionString`.
-
-Port 8081 must be free: the Cosmos DB emulator is published on its own gateway port, because the Functions host
-connects to the address the emulator advertises. The emulator serves HTTPS with the ASP.NET Core development
-certificate, so create and trust it once with `dotnet dev-certs https --trust`. On Linux, first add the
-certificate's trust directory to `SSL_CERT_DIR` (for example
-`export SSL_CERT_DIR="$HOME/.aspnet/dev-certs/trust:/usr/lib/ssl/certs"`) and keep it set when running the app or
-the tests; otherwise the certificate is only partially trusted and .NET does not accept it.
+Optional settings (also set with `dotnet user-secrets`): `OddsCollector:Leagues`, `OddsCollector:OddsApiBaseUrl`,
+`OddsCollector:UpcomingEventsTimerInterval`, `OddsCollector:EventResultsTimerInterval`,
+`OddsCollector:ApplicationInsightsConnectionString`.
 
 ## Integration tests
 
