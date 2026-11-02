@@ -9,72 +9,30 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
 jobs:
-  build:
+  build-and-verify:
+
+    name: Build and verify
 
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     steps:
     - uses: actions/checkout@v7
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v6
-      with:
-        dotnet-version: 10.0.x
-    - name: Restore dependencies
-      run: dotnet restore
-    - name: Check code formatting
-      run: dotnet format --verify-no-changes
-    - name: Build and run SonarAnalyzer.CSharp
-      run: dotnet build --no-restore --no-incremental -warnaserror
-    - name: Test and check coverage
-      run: >
-        dotnet test --no-restore --verbosity normal
-        --filter "TestCategory!=Integration"
-        /p:CollectCoverage=true
-        /p:CoverletOutputFormat=lcov
-        /p:CoverletOutput=lcov.info
-        /p:Threshold=70
-        /p:ThresholdType=line
-    - name: Upload coverage to Codecov
-      if: always()
-      uses: codecov/codecov-action@v7
-      with:
-        files: OddsCollector.Functions.UnitTests/lcov.info
-        token: ${{ secrets.CODECOV_TOKEN }}
 
-  integration-tests:
-
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v7
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v6
-      with:
-        dotnet-version: 10.0.x
-    - name: Install Azure Functions Core Tools
-      run: npm install --global azure-functions-core-tools@4 --unsafe-perm true
-    - name: Create and trust the HTTPS development certificate
-      run: |
-        export SSL_CERT_DIR="$HOME/.aspnet/dev-certs/trust:/usr/lib/ssl/certs"
-        echo "SSL_CERT_DIR=$SSL_CERT_DIR" >> "$GITHUB_ENV"
-        dotnet dev-certs https --trust
-        dotnet dev-certs https --check --trust
-    - name: Run integration tests
-      run: dotnet test OddsCollector.Functions.IntegrationTests --verbosity normal
-
-  powershell-code-quality:
-
-    name: PowerShell code quality
-
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v7
     - name: Install PSScriptAnalyzer
       shell: pwsh
       run: Install-PSResource -Name PSScriptAnalyzer -Version 1.24.0 -Repository PSGallery -TrustRepository -Scope CurrentUser
-    - name: Check code style and run static analysis
+    - name: Check PowerShell code style and run static analysis
       shell: pwsh
       run: |
         $findings = @(./tools/Invoke-PowerShellAnalysis.ps1)
@@ -94,3 +52,47 @@ jobs:
         }
 
         'No findings.'
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v6
+      with:
+        dotnet-version: 10.0.x
+    - name: Cache NuGet packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.nuget/packages
+        key: nuget-${{ runner.os }}-${{ hashFiles('Directory.Packages.props', '**/*.csproj') }}
+        restore-keys: nuget-${{ runner.os }}-
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Check C# code formatting
+      run: dotnet format --no-restore --verify-no-changes
+    - name: Build and run SonarAnalyzer.CSharp
+      run: dotnet build --no-restore --no-incremental -warnaserror
+
+    - name: Run unit tests and check coverage
+      run: >
+        dotnet test --no-build --verbosity normal
+        --filter "TestCategory!=Integration"
+        /p:CollectCoverage=true
+        /p:CoverletOutputFormat=lcov
+        /p:CoverletOutput=lcov.info
+        /p:Threshold=70
+        /p:ThresholdType=line
+    - name: Upload coverage to Codecov
+      if: ${{ !cancelled() && hashFiles('OddsCollector.Functions.UnitTests/lcov.info') != '' }}
+      uses: codecov/codecov-action@v7
+      with:
+        files: OddsCollector.Functions.UnitTests/lcov.info
+        token: ${{ secrets.CODECOV_TOKEN }}
+
+    - name: Install Azure Functions Core Tools
+      run: npm install --global azure-functions-core-tools@4 --unsafe-perm true
+    - name: Create and trust the HTTPS development certificate
+      run: |
+        export SSL_CERT_DIR="$HOME/.aspnet/dev-certs/trust:/usr/lib/ssl/certs"
+        echo "SSL_CERT_DIR=$SSL_CERT_DIR" >> "$GITHUB_ENV"
+        dotnet dev-certs https --trust
+        dotnet dev-certs https --check --trust
+    - name: Run integration tests
+      run: dotnet test OddsCollector.Functions.IntegrationTests --no-build --verbosity normal
