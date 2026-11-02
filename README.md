@@ -6,6 +6,47 @@ Odds Collector is an Azure Functions app that collects football (soccer) odds fr
 
 Unlike the paper, it does not look for value bets: it averages the bookmakers' implied probabilities, subtracts the paper's intercepts and predicts the single most likely outcome for every match, without using the best available odds. Only football leagues are supported.
 
+# Architecture
+
+```mermaid
+flowchart TB
+    oddsApi["The Odds API"]
+    apiClients["API clients"]
+
+    subgraph app["OddsCollector.Functions"]
+        clients["OddsApi clients<br/>NSwag client, converters, retries, quota logging"]
+        upcoming["UpcomingEventsFunction<br/>timer trigger"]
+        results["EventResultsFunction<br/>timer trigger"]
+        prediction["PredictionFunction<br/>Service Bus trigger"]
+        strategy["Predictions<br/>odds-based strategy"]
+        http["PredictionsHttpFunction<br/>HTTP GET"]
+    end
+
+    queue[("Service Bus<br/>upcoming events queue")]
+    resultsDb[("Cosmos DB<br/>EventResults")]
+    predictionsDb[("Cosmos DB<br/>EventPredictions")]
+
+    upcoming --> clients
+    results --> clients
+    clients -->|odds and scores| oddsApi
+    upcoming -->|upcoming events| queue
+    results -->|completed results| resultsDb
+    queue --> prediction
+    prediction --> strategy
+    prediction -->|predictions| predictionsDb
+    predictionsDb -->|next 100 predictions| http
+    apiClients -->|GET, function key| http
+```
+
+- `UpcomingEventsFunction` collects upcoming matches with their head-to-head odds for every configured league and
+  sends them to the Service Bus queue.
+- `PredictionFunction` reads each event from the queue, skips matches that have already started, predicts the outcome
+  and stores the prediction in Cosmos DB. Messages that cannot be read are dead-lettered.
+- `PredictionsHttpFunction` returns the next 100 stored predictions.
+- `EventResultsFunction` collects the scores of the matches completed in the last 3 days and stores them in Cosmos DB.
+- The OddsApi clients keep collecting when one league fails and throw only when every league fails. `HostProvider`
+  sets up dependency injection and OpenTelemetry with export to Azure Monitor.
+
 # Prerequisites
 
 - [.NET 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0)
