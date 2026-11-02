@@ -49,8 +49,8 @@
 
   <!-- OddsCollector.Functions.IntegrationTests -->
   <ItemGroup>
-    <PackageVersion Include="Aspire.Hosting.Testing" Version="13.6.2"/>
-    <PackageVersion Include="Azure.Messaging.ServiceBus" Version="7.20.1"/>
+    <PackageVersion Include="Aspire.Hosting.Testing" Version="13.6.4"/>
+    <PackageVersion Include="Azure.Messaging.ServiceBus" Version="7.21.0"/>
     <PackageVersion Include="Microsoft.Azure.Cosmos" Version="3.63.2"/>
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.4"/>
     <PackageVersion Include="WireMock.Net" Version="2.18.0"/>
