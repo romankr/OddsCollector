@@ -36,7 +36,7 @@
   <!-- OddsCollector.AppHost (the Aspire.AppHost.Sdk version is set in its project file) -->
   <ItemGroup>
     <PackageVersion Include="Aspire.Hosting.Azure.CosmosDB" Version="13.6.4"/>
-    <PackageVersion Include="Aspire.Hosting.Azure.Functions" Version="13.6.2"/>
+    <PackageVersion Include="Aspire.Hosting.Azure.Functions" Version="13.6.4"/>
     <PackageVersion Include="Aspire.Hosting.Azure.ServiceBus" Version="13.6.4"/>
   </ItemGroup>
 
