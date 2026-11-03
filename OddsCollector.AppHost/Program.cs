@@ -23,6 +23,7 @@ serviceBus.AddServiceBusQueue("queue", AppHostSettings.Queue)
         queue.MaxDeliveryCount = 3;
         queue.LockDuration = TimeSpan.FromMinutes(1);
         queue.DefaultMessageTimeToLive = TimeSpan.FromHours(1);
+        queue.DeadLetteringOnMessageExpiration = true;
     });
 
 var functions = builder.AddAzureFunctionsProject<Projects.OddsCollector_Functions>(AppHostSettings.FunctionsResource)

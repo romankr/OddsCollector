@@ -18,6 +18,8 @@ internal sealed class EndToEnd
 
     private static readonly TimeSpan SettlementGracePeriod = TimeSpan.FromSeconds(5);
 
+    private static readonly TimeSpan ShortMessageTimeToLive = TimeSpan.FromSeconds(2);
+
     private IntegrationEnvironment? _environment;
 
     private IntegrationEnvironment Environment =>
@@ -380,6 +382,54 @@ internal sealed class EndToEnd
             CommenceTime = upcomingEvent.CommenceTime,
             Outcome = OutcomeType.HomeTeam
         });
+    }
+
+    [Test]
+    [CancelAfter(TestTimeoutMilliseconds)]
+    public async Task PredictionFunction_MessageExpiredBeforeProcessing_DeadLettersIt(
+        CancellationToken cancellationToken)
+    {
+        // Arrange: with the function app stopped nothing receives the message, so it expires in the queue.
+        var messageId = TestData.NewId("expired");
+        var upcomingEvent = new UpcomingEvent
+        {
+            Id = TestData.NewId("expired"),
+            HomeTeam = "Arsenal",
+            AwayTeam = "Chelsea",
+            CommenceTime = TestData.KickOffInDays(2),
+            Odds = [new Odd { Bookmaker = "bookmaker1", Home = 1.5, Draw = 4.0, Away = 6.0 }]
+        };
+
+        var logStart = Environment.FunctionsHost.LoggedLines;
+
+        await Environment.FunctionsHost.StopAsync(cancellationToken);
+
+        try
+        {
+            await Environment.ServiceBusQueue.SendAsync(messageId, JsonSerializer.Serialize(upcomingEvent),
+                ShortMessageTimeToLive, cancellationToken);
+
+            await Task.Delay(ShortMessageTimeToLive + SettlementGracePeriod, cancellationToken);
+        }
+        finally
+        {
+            // Act: Service Bus moves expired messages to the dead-letter queue only while something receives from
+            // the queue, so the function app starting again is what dead-letters the message. Started in finally,
+            // so that the other tests keep a running function app.
+            await Environment.FunctionsHost.ResumeAsync(cancellationToken);
+        }
+
+        var deadLettered = await Environment.WaitForDeadLetteredMessageAsync(messageId, cancellationToken);
+        var storedPrediction = await Environment.TryReadPredictionAsync(upcomingEvent.Id, cancellationToken);
+
+        // Assert
+        var logLines = Environment.FunctionsHost.GetLogLinesAfter(logStart);
+
+        using var scope = new AssertionScope();
+
+        deadLettered.DeadLetterReason.Should().Be("TTLExpiredException");
+        storedPrediction.Should().BeNull();
+        logLines.Should().NotContain(l => l.Contains($"MessageId: {messageId},", StringComparison.Ordinal));
     }
 
     [Test]

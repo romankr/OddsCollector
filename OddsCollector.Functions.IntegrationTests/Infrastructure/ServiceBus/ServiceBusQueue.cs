@@ -13,13 +13,29 @@ internal sealed class ServiceBusQueue(string connectionString, string queueName)
         return _client.DisposeAsync();
     }
 
-    public async Task SendAsync(string messageId, string body, CancellationToken cancellationToken)
+    public Task SendAsync(string messageId, string body, CancellationToken cancellationToken)
+    {
+        return SendAsync(new ServiceBusMessage(body) { MessageId = messageId, ContentType = "application/json" },
+            cancellationToken);
+    }
+
+    public Task SendAsync(string messageId, string body, TimeSpan timeToLive, CancellationToken cancellationToken)
+    {
+        return SendAsync(
+            new ServiceBusMessage(body)
+            {
+                MessageId = messageId,
+                ContentType = "application/json",
+                TimeToLive = timeToLive
+            },
+            cancellationToken);
+    }
+
+    private async Task SendAsync(ServiceBusMessage message, CancellationToken cancellationToken)
     {
         await using var sender = _client.CreateSender(queueName);
 
-        await sender.SendMessageAsync(
-            new ServiceBusMessage(body) { MessageId = messageId, ContentType = "application/json" },
-            cancellationToken);
+        await sender.SendMessageAsync(message, cancellationToken);
     }
 
     public Task<ServiceBusReceivedMessage?> TryPeekAsync(string messageId, CancellationToken cancellationToken)

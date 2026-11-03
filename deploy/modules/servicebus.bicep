@@ -31,7 +31,7 @@ resource queue 'Microsoft.ServiceBus/namespaces/queues@2022-10-01-preview' = {
     maxDeliveryCount: 3
     lockDuration: 'PT1M'
     defaultMessageTimeToLive: 'PT1H'
-    deadLetteringOnMessageExpiration: false
+    deadLetteringOnMessageExpiration: true
   }
 }
 
