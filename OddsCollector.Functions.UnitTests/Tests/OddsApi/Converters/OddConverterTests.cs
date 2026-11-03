@@ -122,6 +122,32 @@ internal sealed class OddConverterTests
             .WithMessage($"Outcome {DrawOutcomeName} has no price*").And.ParamName.Should().Be("outcomes");
     }
 
+    [TestCase(1, TestName = "ToOdd_WithPriceOfOne_ThrowsArgumentExceptionNamingIt")]
+    [TestCase(0.5, TestName = "ToOdd_WithPriceBelowOne_ThrowsArgumentExceptionNamingIt")]
+    [TestCase(0, TestName = "ToOdd_WithZeroPrice_ThrowsArgumentExceptionNamingIt")]
+    [TestCase(-2, TestName = "ToOdd_WithNegativePrice_ThrowsArgumentExceptionNamingIt")]
+    [TestCase(double.NaN, TestName = "ToOdd_WithNaNPrice_ThrowsArgumentExceptionNamingIt")]
+    [TestCase(double.PositiveInfinity, TestName = "ToOdd_WithInfinitePrice_ThrowsArgumentExceptionNamingIt")]
+    public void ToOdd_WithUnusablePrice_ThrowsArgumentExceptionNamingIt(double drawPrice)
+    {
+        // Arrange
+        var converter = new OddConverter();
+
+        Outcome[] outcomes =
+        [
+            new() { Name = AwayTeam, Price = Price },
+            new() { Name = HomeTeam, Price = Price },
+            new() { Name = DrawOutcomeName, Price = drawPrice }
+        ];
+
+        // Act
+        var action = () => converter.ToOdd(outcomes, Bookmaker, HomeTeam, AwayTeam);
+
+        // Assert
+        action.Should().Throw<ArgumentException>()
+            .WithMessage($"Outcome {DrawOutcomeName} has an unusable price*").And.ParamName.Should().Be("outcomes");
+    }
+
     [Test]
     public void ToOdd_WithAllPrices_ReturnsOddForBookmaker()
     {
