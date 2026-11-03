@@ -4,6 +4,7 @@ namespace OddsCollector.Functions.Models;
 
 internal sealed record EventResult
 {
+    [JsonConverter(typeof(UnixSecondsDateTimeConverter))]
     public required DateTime CommenceTime { get; init => field = UtcDateTime.Require(value, nameof(CommenceTime)); }
 
     // Cosmos DB requires the id in lowercase.

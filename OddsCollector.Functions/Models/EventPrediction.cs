@@ -6,6 +6,7 @@ internal sealed record EventPrediction
 {
     public required string AwayTeam { get; init => field = Guard.NotBlank(value, nameof(AwayTeam)); }
 
+    [JsonConverter(typeof(UnixSecondsDateTimeConverter))]
     public required DateTime CommenceTime { get; init => field = UtcDateTime.Require(value, nameof(CommenceTime)); }
 
     public required string HomeTeam { get; init => field = Guard.NotBlank(value, nameof(HomeTeam)); }
