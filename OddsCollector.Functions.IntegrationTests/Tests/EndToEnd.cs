@@ -144,6 +144,61 @@ internal sealed class EndToEnd
 
     [Test]
     [CancelAfter(TestTimeoutMilliseconds)]
+    public async Task PredictionFunction_UpcomingEvent_StoresCommenceTimeAsUnixSeconds(
+        CancellationToken cancellationToken)
+    {
+        // Arrange
+        var messageId = TestData.NewId("date-format");
+        var upcomingEvent = new UpcomingEvent
+        {
+            Id = TestData.NewId("date-format"),
+            HomeTeam = "Arsenal",
+            AwayTeam = "Chelsea",
+            CommenceTime = TestData.KickOffInDays(2),
+            Odds = [new Odd { Bookmaker = "bookmaker1", Home = 1.5, Draw = 4.0, Away = 6.0 }]
+        };
+
+        // Act
+        await Environment.ServiceBusQueue.SendAsync(messageId, JsonSerializer.Serialize(upcomingEvent),
+            cancellationToken);
+
+        await Environment.WaitForStoredPredictionAsync(upcomingEvent.Id, cancellationToken);
+        var document = await Environment.TryReadPredictionDocumentAsync(upcomingEvent.Id, cancellationToken);
+
+        // Assert
+        document.Should().NotBeNull();
+        document!["CommenceTime"]!.GetValueKind().Should().Be(JsonValueKind.Number);
+    }
+
+    [Test]
+    [CancelAfter(TestTimeoutMilliseconds)]
+    public async Task EventResultsFunction_CompletedEvent_StoresCommenceTimeAsUnixSeconds(
+        CancellationToken cancellationToken)
+    {
+        // Arrange
+        var completedEvent = new OddsApiCompletedEvent(
+            TestData.NewId("date-format"),
+            TestData.KickOffInDays(-1),
+            "Liverpool",
+            "Everton",
+            HomeScore: 2,
+            AwayScore: 1);
+
+        Environment.OddsApi.SetCompletedEvents([completedEvent]);
+
+        // Act
+        await Environment.FunctionsHost.InvokeAsync(nameof(EventResultsFunction), cancellationToken);
+
+        await Environment.WaitForStoredResultAsync(completedEvent.Id, cancellationToken);
+        var document = await Environment.TryReadResultDocumentAsync(completedEvent.Id, cancellationToken);
+
+        // Assert
+        document.Should().NotBeNull();
+        document!["CommenceTime"]!.GetValueKind().Should().Be(JsonValueKind.Number);
+    }
+
+    [Test]
+    [CancelAfter(TestTimeoutMilliseconds)]
     public async Task PredictionsHttpFunction_StoredPredictionForUpcomingEvent_ReturnsPrediction(
         CancellationToken cancellationToken)
     {
@@ -484,7 +539,7 @@ internal sealed class EndToEnd
             id = brokenId,
             HomeTeam = "Arsenal",
             AwayTeam = "Chelsea",
-            CommenceTime = TestData.KickOffInDays(2),
+            CommenceTime = new DateTimeOffset(TestData.KickOffInDays(2)).ToUnixTimeSeconds(),
             Outcome = "Unknown"
         };
 

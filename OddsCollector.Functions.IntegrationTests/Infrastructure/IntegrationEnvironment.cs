@@ -1,4 +1,5 @@
-﻿using Aspire.Hosting;
+﻿using System.Text.Json.Nodes;
+using Aspire.Hosting;
 using Aspire.Hosting.Testing;
 using Azure.Messaging.ServiceBus;
 using OddsCollector.AppHost;
@@ -108,6 +109,16 @@ internal sealed class IntegrationEnvironment : IAsyncDisposable
     public Task<EventPrediction?> TryReadPredictionAsync(string id, CancellationToken cancellationToken)
     {
         return CosmosDb.TryReadItemAsync<EventPrediction>(Database, EventPredictionsContainer, id, cancellationToken);
+    }
+
+    public Task<JsonObject?> TryReadPredictionDocumentAsync(string id, CancellationToken cancellationToken)
+    {
+        return CosmosDb.TryReadItemAsync<JsonObject>(Database, EventPredictionsContainer, id, cancellationToken);
+    }
+
+    public Task<JsonObject?> TryReadResultDocumentAsync(string id, CancellationToken cancellationToken)
+    {
+        return CosmosDb.TryReadItemAsync<JsonObject>(Database, EventResultsContainer, id, cancellationToken);
     }
 
     public Task<EventResult> WaitForStoredResultAsync(string id, CancellationToken cancellationToken)
