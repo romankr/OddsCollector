@@ -19,7 +19,7 @@ internal sealed partial class PredictionsHttpFunction(ILogger<PredictionsHttpFun
             "%CosmosDb:Database%",
             "%CosmosDb:EventPredictionsContainer%",
             Connection = "CosmosDb:Connection",
-            SqlQuery = "SELECT TOP 100 * FROM p WHERE p.CommenceTime > GetCurrentDateTime() ORDER BY p.CommenceTime")]
+            SqlQuery = "SELECT TOP 100 * FROM p WHERE p.CommenceTime > GetCurrentTimestamp() / 1000 ORDER BY p.CommenceTime")]
         JsonElement[] documents,
         CancellationToken cancellationToken)
     {

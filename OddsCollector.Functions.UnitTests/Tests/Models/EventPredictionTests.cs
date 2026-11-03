@@ -128,4 +128,32 @@ internal sealed class EventPredictionTests
         // Assert
         action.Should().Throw<JsonException>();
     }
+
+    [Test]
+    public void Serialize_WithCommenceTime_WritesUnixSeconds()
+    {
+        // Arrange
+        var prediction = ValidModels.CreateEventPrediction();
+
+        // Act
+        var json = JsonSerializer.Serialize(prediction);
+
+        // Assert: 2026-09-22T18:00:00Z.
+        using var document = JsonDocument.Parse(json);
+        document.RootElement.GetProperty("CommenceTime").GetInt64().Should().Be(1790100000);
+    }
+
+    [Test]
+    public void Deserialize_WithIsoCommenceTime_ThrowsJsonException()
+    {
+        // Arrange
+        var json = JsonSerializer.Serialize(ValidModels.CreateEventPrediction())
+            .Replace("1790100000", "\"2026-09-22T18:00:00Z\"", StringComparison.Ordinal);
+
+        // Act
+        var action = () => JsonSerializer.Deserialize<EventPrediction>(json);
+
+        // Assert
+        action.Should().Throw<JsonException>();
+    }
 }

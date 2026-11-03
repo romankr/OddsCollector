@@ -76,4 +76,18 @@ internal sealed class EventResultTests
         using var document = JsonDocument.Parse(json);
         document.RootElement.GetProperty("id").GetString().Should().Be(eventResult.Id);
     }
+
+    [Test]
+    public void Serialize_WithCommenceTime_WritesUnixSeconds()
+    {
+        // Arrange
+        var result = ValidModels.CreateEventResult();
+
+        // Act
+        var json = JsonSerializer.Serialize(result);
+
+        // Assert: 2026-09-22T18:00:00Z.
+        using var document = JsonDocument.Parse(json);
+        document.RootElement.GetProperty("CommenceTime").GetInt64().Should().Be(1790100000);
+    }
 }
