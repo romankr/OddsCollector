@@ -1,0 +1,87 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build",
+      "command": "dotnet",
+      "type": "process",
+      "args": ["build", "${workspaceFolder}/OddsCollector.slnx", "/property:GenerateFullPaths=true", "/consoleloggerparameters:NoSummary"],
+      "problemMatcher": "$msCompile",
+      "group": { "kind": "build", "isDefault": true }
+    },
+    {
+      "label": "clean",
+      "command": "dotnet",
+      "type": "process",
+      "args": ["clean", "${workspaceFolder}/OddsCollector.slnx"],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "test (unit)",
+      "command": "dotnet",
+      "type": "process",
+      "args": ["test", "${workspaceFolder}/OddsCollector.slnx", "--filter", "TestCategory!=Integration"],
+      "problemMatcher": "$msCompile",
+      "group": { "kind": "test", "isDefault": true }
+    },
+    {
+      "label": "test (integration)",
+      "detail": "Needs Docker, Azure Functions Core Tools, free port 8081 and the dev certificate.",
+      "command": "dotnet",
+      "type": "process",
+      "args": ["test", "${workspaceFolder}/OddsCollector.Functions.IntegrationTests"],
+      "problemMatcher": "$msCompile",
+      "group": "test"
+    },
+    {
+      "label": "test (all)",
+      "command": "dotnet",
+      "type": "process",
+      "args": ["test", "${workspaceFolder}/OddsCollector.slnx"],
+      "problemMatcher": "$msCompile",
+      "group": "test"
+    },
+    {
+      "label": "run AppHost (emulators)",
+      "detail": "Runs the app against the Cosmos DB, Service Bus and Azurite emulators via Aspire.",
+      "command": "dotnet",
+      "type": "process",
+      "args": ["run", "--project", "${workspaceFolder}/OddsCollector.AppHost"],
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "build (functions)",
+      "command": "dotnet",
+      "type": "process",
+      "args": ["build", "/property:GenerateFullPaths=true", "/consoleloggerparameters:NoSummary"],
+      "options": { "cwd": "${workspaceFolder}/OddsCollector.Functions" },
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "func: host start",
+      "detail": "Runs only the function app; needs OddsCollector.Functions/local.settings.json.",
+      "type": "func",
+      "command": "host start --port 7270",
+      "options": { "cwd": "${workspaceFolder}/OddsCollector.Functions/bin/Debug/net10.0" },
+      "dependsOn": "build (functions)",
+      "isBackground": true,
+      "problemMatcher": "$func-dotnet-watch"
+    },
+    {
+      "label": "publish (functions)",
+      "command": "dotnet",
+      "type": "process",
+      "args": ["publish", "--configuration", "Release", "/property:GenerateFullPaths=true", "/consoleloggerparameters:NoSummary"],
+      "options": { "cwd": "${workspaceFolder}/OddsCollector.Functions" },
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "PowerShell analysis",
+      "type": "shell",
+      "command": "pwsh",
+      "args": ["-NoProfile", "-File", "${workspaceFolder}/tools/Invoke-PowerShellAnalysis.ps1"],
+      "problemMatcher": []
+    }
+  ]
+}
