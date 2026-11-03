@@ -1,0 +1,18 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
+    "APPLICATIONINSIGHTS_CONNECTION_STRING": "<application insights connection string>",
+    "OddsApiClient:ApiKey": "<the odds api key>",
+    "OddsApiClient:Leagues": "soccer_epl;soccer_spain_la_liga",
+    "CosmosDb:Connection": "<cosmos db connection string>",
+    "CosmosDb:Database": "OddsCollector",
+    "CosmosDb:EventPredictionsContainer": "EventPredictions",
+    "CosmosDb:EventResultsContainer": "EventResults",
+    "ServiceBus:Connection": "<service bus connection string>",
+    "ServiceBus:Queue": "upcoming-events",
+    "UpcomingEventsFunction:TimerInterval": "0 0 */6 * * *",
+    "EventResultsFunction:TimerInterval": "0 0 6 * * *"
+  }
+}
