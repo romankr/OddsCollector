@@ -14,29 +14,33 @@ internal sealed class ScoreCalculator : IScoreCalculator
     {
         ArgumentNullException.ThrowIfNull(odds);
 
+        // A bookmaker with any unusable price is left out entirely, so that every outcome is averaged over the same
+        // bookmakers.
+        List<Odd> usableOdds = [.. odds.Where(IsUsable)];
+
         return
         [
-            Calculate(OutcomeType.Draw, odds, DrawAdjustment, x => x.Draw),
-            Calculate(OutcomeType.AwayTeam, odds, AwayTeamAdjustment, x => x.Away),
-            Calculate(OutcomeType.HomeTeam, odds, HomeTeamAdjustment, x => x.Home)
+            Calculate(OutcomeType.Draw, usableOdds, DrawAdjustment, x => x.Draw),
+            Calculate(OutcomeType.AwayTeam, usableOdds, AwayTeamAdjustment, x => x.Away),
+            Calculate(OutcomeType.HomeTeam, usableOdds, HomeTeamAdjustment, x => x.Home)
         ];
     }
 
-    private static OutcomeScore Calculate(OutcomeType outcome, IReadOnlyCollection<Odd> odds, double adjustment,
+    private static OutcomeScore Calculate(OutcomeType outcome, List<Odd> usableOdds, double adjustment,
         Func<Odd, double> valueExtractor)
     {
-        var probabilities = GetImpliedProbabilities(odds, valueExtractor);
-
-        var score = probabilities.Count == 0 ? 0 : probabilities.Average() - adjustment;
+        var score = usableOdds.Count == 0 ? 0 : usableOdds.Average(o => 1 / valueExtractor(o)) - adjustment;
 
         return new OutcomeScore { Outcome = outcome, Score = score };
     }
 
-    private static List<double> GetImpliedProbabilities(IReadOnlyCollection<Odd> odds, Func<Odd, double> valueExtractor)
+    private static bool IsUsable(Odd odd)
     {
-        return odds.Select(valueExtractor)
-            .Where(o => o > BreakEvenDecimalOdds)
-            .Select(o => 1 / o)
-            .ToList();
+        return IsUsablePrice(odd.Home) && IsUsablePrice(odd.Draw) && IsUsablePrice(odd.Away);
+    }
+
+    private static bool IsUsablePrice(double price)
+    {
+        return double.IsFinite(price) && price > BreakEvenDecimalOdds;
     }
 }

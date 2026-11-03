@@ -76,6 +76,42 @@ internal sealed class EndToEnd
 
     [Test]
     [CancelAfter(TestTimeoutMilliseconds)]
+    public async Task UpcomingEventsFunction_BookmakerWithUnusablePrice_PredictsFromTheOtherBookmakers(
+        CancellationToken cancellationToken)
+    {
+        // Arrange: bookmaker2 quotes the draw at 1.0, which pays nothing back. If its home and away prices counted,
+        // the away team would score highest ((1/4 + 1/1.25) / 2 - 0.037 = 0.488 against (1/2 + 1/10) / 2 - 0.034 =
+        // 0.266 for the home team). Left out entirely, bookmaker1 alone makes the home team the favourite.
+        var upcomingEvent = new OddsApiEvent(
+            TestData.NewId("unusable-price"),
+            TestData.KickOffInDays(2),
+            "Arsenal",
+            "Chelsea",
+            [
+                new OddsApiBookmaker("bookmaker1", Home: 2.0, Away: 4.0, Draw: 3.5),
+                new OddsApiBookmaker("bookmaker2", Home: 10.0, Away: 1.25, Draw: 1.0)
+            ]);
+
+        Environment.OddsApi.SetUpcomingEvents([upcomingEvent]);
+
+        // Act
+        await Environment.FunctionsHost.InvokeAsync(nameof(UpcomingEventsFunction), cancellationToken);
+
+        // Assert
+        var storedPrediction = await Environment.WaitForStoredPredictionAsync(upcomingEvent.Id, cancellationToken);
+
+        storedPrediction.Should().BeEquivalentTo(new EventPrediction
+        {
+            Id = upcomingEvent.Id,
+            HomeTeam = upcomingEvent.HomeTeam,
+            AwayTeam = upcomingEvent.AwayTeam,
+            CommenceTime = upcomingEvent.CommenceTime,
+            Outcome = OutcomeType.HomeTeam
+        });
+    }
+
+    [Test]
+    [CancelAfter(TestTimeoutMilliseconds)]
     public async Task EventResultsFunction_CompletedEventWonByHomeTeam_StoresHomeTeamAsOutcome(
         CancellationToken cancellationToken)
     {
@@ -306,6 +342,44 @@ internal sealed class EndToEnd
         storedPrediction.Should().BeNull();
         logLines.Where(l => l.Contains($"MessageId: {messageId},", StringComparison.Ordinal)).Should()
             .ContainSingle().Which.Should().Contain("DeliveryCount: 1,");
+    }
+
+    [Test]
+    [CancelAfter(TestTimeoutMilliseconds)]
+    public async Task PredictionFunction_EventWithBookmakerWithUnusablePrice_PredictsFromTheOtherBookmakers(
+        CancellationToken cancellationToken)
+    {
+        // Arrange: the same prices as in the UpcomingEventsFunction test above, but sent straight to the queue, so
+        // the prediction itself has to leave bookmaker2 out.
+        var messageId = TestData.NewId("unusable-price");
+        var upcomingEvent = new UpcomingEvent
+        {
+            Id = TestData.NewId("unusable-price"),
+            HomeTeam = "Arsenal",
+            AwayTeam = "Chelsea",
+            CommenceTime = TestData.KickOffInDays(2),
+            Odds =
+            [
+                new Odd { Bookmaker = "bookmaker1", Home = 2.0, Draw = 3.5, Away = 4.0 },
+                new Odd { Bookmaker = "bookmaker2", Home = 10.0, Draw = 1.0, Away = 1.25 }
+            ]
+        };
+
+        // Act
+        await Environment.ServiceBusQueue.SendAsync(messageId, JsonSerializer.Serialize(upcomingEvent),
+            cancellationToken);
+
+        // Assert
+        var storedPrediction = await Environment.WaitForStoredPredictionAsync(upcomingEvent.Id, cancellationToken);
+
+        storedPrediction.Should().BeEquivalentTo(new EventPrediction
+        {
+            Id = upcomingEvent.Id,
+            HomeTeam = upcomingEvent.HomeTeam,
+            AwayTeam = upcomingEvent.AwayTeam,
+            CommenceTime = upcomingEvent.CommenceTime,
+            Outcome = OutcomeType.HomeTeam
+        });
     }
 
     [Test]
