@@ -41,7 +41,7 @@ flowchart TB
 - `UpcomingEventsFunction` collects upcoming matches with their head-to-head odds for every configured league and
   sends them to the Service Bus queue.
 - `PredictionFunction` reads each event from the queue, skips matches that have already started, predicts the outcome
-  and stores the prediction in Cosmos DB. Messages that cannot be read are dead-lettered.
+  and stores the prediction in Cosmos DB. Messages that cannot be read, and messages that expire before they are processed, are dead-lettered.
 - `PredictionsHttpFunction` returns the next 100 stored predictions.
 - `EventResultsFunction` collects the scores of the matches completed in the last 3 days and stores them in Cosmos DB.
 - The OddsApi clients keep collecting when one league fails and throw only when every league fails. `HostProvider`
