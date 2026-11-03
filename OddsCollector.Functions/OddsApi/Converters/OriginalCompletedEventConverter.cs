@@ -4,7 +4,7 @@ using OddsCollector.Functions.OddsApi.WebApi;
 
 namespace OddsCollector.Functions.OddsApi.Converters;
 
-internal sealed class OriginalCompletedEventConverter(
+internal sealed partial class OriginalCompletedEventConverter(
     ILogger<OriginalCompletedEventConverter> logger,
     IOutcomeConverter converter) : IOriginalCompletedEventConverter
 {
@@ -36,7 +36,7 @@ internal sealed class OriginalCompletedEventConverter(
         }
         catch (Exception exception) when (exception is ArgumentException or InvalidOperationException)
         {
-            logger.LogWarning(exception, "Skipped event {Id}", originalEvent.Id);
+            LogEventSkipped(logger, exception, originalEvent.Id);
 
             return null;
         }
@@ -53,4 +53,7 @@ internal sealed class OriginalCompletedEventConverter(
                 awayTeam: originalEvent.Away_team)
         };
     }
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Skipped event {Id}")]
+    private static partial void LogEventSkipped(ILogger logger, Exception exception, string? id);
 }

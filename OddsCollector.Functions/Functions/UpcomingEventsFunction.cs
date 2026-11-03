@@ -5,7 +5,7 @@ using OddsCollector.Functions.OddsApi;
 
 namespace OddsCollector.Functions.Functions;
 
-internal sealed class UpcomingEventsFunction(ILogger<UpcomingEventsFunction> logger, IUpcomingEventsClient client)
+internal sealed partial class UpcomingEventsFunction(ILogger<UpcomingEventsFunction> logger, IUpcomingEventsClient client)
 {
     [Function(nameof(UpcomingEventsFunction))]
     [ServiceBusOutput("%ServiceBus:Queue%", Connection = "ServiceBus:Connection")]
@@ -20,16 +20,22 @@ internal sealed class UpcomingEventsFunction(ILogger<UpcomingEventsFunction> log
 
             if (events.Length == 0 && !cancellationToken.IsCancellationRequested)
             {
-                logger.LogWarning("No events received");
+                LogNoEventsReceived(logger);
             }
 
             return events;
         }
         catch (OperationCanceledException exception) when (cancellationToken.IsCancellationRequested)
         {
-            logger.LogInformation(exception, "Collection was cancelled");
+            LogCollectionCancelled(logger, exception);
         }
 
         return [];
     }
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "No events received")]
+    private static partial void LogNoEventsReceived(ILogger logger);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Collection was cancelled")]
+    private static partial void LogCollectionCancelled(ILogger logger, Exception exception);
 }
