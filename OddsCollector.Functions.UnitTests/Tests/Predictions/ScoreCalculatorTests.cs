@@ -59,14 +59,13 @@ internal sealed class ScoreCalculatorTests
     }
 
     [Test]
-    public void GetScores_WithOneUnusableQuote_LeavesItOutOfTheConsensus()
+    public void GetScores_WithOneUnusableQuote_LeavesTheWholeBookmakerOutOfTheConsensus()
     {
         // Arrange
         List<Odd> odds =
         [
             new() { Bookmaker = "bookmaker", Home = 2, Draw = 2, Away = 2 },
-            new() { Bookmaker = "bookmaker", Home = 2, Draw = 0, Away = 2 },
-            new() { Bookmaker = "bookmaker", Home = 2, Draw = 2, Away = 2 }
+            new() { Bookmaker = "bookmaker", Home = 10, Draw = 0, Away = 1.25 }
         ];
 
         var calculator = new ScoreCalculator();
@@ -74,9 +73,14 @@ internal sealed class ScoreCalculatorTests
         // Act
         var scores = calculator.GetScores(odds);
 
-        // Assert
-        scores.Should().ContainSingle(s => s.Outcome == OutcomeType.Draw)
-            .Which.Score.Should().BeApproximately(0.443, Precision);
+        // Assert: only the first bookmaker counts, 1 / 2 minus each outcome's adjustment.
+        scores.Should().BeEquivalentTo(
+        [
+            new { Outcome = OutcomeType.Draw, Score = 0.443 },
+            new { Outcome = OutcomeType.AwayTeam, Score = 0.463 },
+            new { Outcome = OutcomeType.HomeTeam, Score = 0.466 }
+        ], options => options.Using<double>(c => c.Subject.Should().BeApproximately(c.Expectation, Precision))
+            .WhenTypeIs<double>());
     }
 
     [Test]
@@ -96,6 +100,8 @@ internal sealed class ScoreCalculatorTests
     [TestCase(1e-300, TestName = "GetScores_WithNearZeroOdds_ScoresNothing")]
     [TestCase(0.5, TestName = "GetScores_WithOddsBelowOne_ScoresNothing")]
     [TestCase(1, TestName = "GetScores_WithOddsOfOne_ScoresNothing")]
+    [TestCase(double.NaN, TestName = "GetScores_WithNaNOdds_ScoresNothing")]
+    [TestCase(double.PositiveInfinity, TestName = "GetScores_WithInfiniteOdds_ScoresNothing")]
     public void GetScores_WithUnusableOdds_ScoresNothing(double value)
     {
         // Arrange
