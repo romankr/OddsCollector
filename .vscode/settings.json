@@ -1,0 +1,36 @@
+{
+  "dotnet.defaultSolution": "OddsCollector.slnx",
+  "dotnet.testWindow.useTestingPlatformProtocol": true,
+
+  "editor.formatOnSave": false,
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+  "files.exclude": {
+    "**/bin": true,
+    "**/obj": true,
+    ".vs": true,
+    ".idea": true
+  },
+  "search.exclude": {
+    "**/bin": true,
+    "**/obj": true,
+    "**/OddsApi/WebApi/WebApiClient.cs": true
+  },
+
+  "[csharp]": {
+    "editor.defaultFormatter": "ms-dotnettools.csharp"
+  },
+
+  "powershell.scriptAnalysis.settingsPath": "PSScriptAnalyzerSettings.psd1",
+  "powershell.codeFormatting.preset": "OTBS",
+  "[powershell]": {
+    "editor.defaultFormatter": "ms-vscode.powershell"
+  },
+
+  "azureFunctions.projectSubpath": "OddsCollector.Functions",
+  "azureFunctions.deploySubpath": "OddsCollector.Functions/bin/Release/net10.0/publish",
+  "azureFunctions.projectLanguage": "C#",
+  "azureFunctions.projectRuntime": "~4",
+  "azureFunctions.preDeployTask": "publish (functions)",
+  "debug.internalConsoleOptions": "neverOpen"
+}
