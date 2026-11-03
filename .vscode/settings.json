@@ -1,6 +1,6 @@
 {
   "dotnet.defaultSolution": "OddsCollector.slnx",
-  "dotnet.testWindow.useTestingPlatformProtocol": false,
+  "dotnet.testWindow.useTestingPlatformProtocol": true,
 
   "editor.formatOnSave": false,
   "files.trimTrailingWhitespace": true,
