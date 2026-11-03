@@ -33,15 +33,28 @@ internal sealed partial class BookmakerConverter(ILogger<BookmakerConverter> log
     {
         try
         {
-            return converter.ToOdd(bookmaker.Markets, bookmaker.Key, homeTeam: homeTeam, awayTeam: awayTeam);
+            if (converter.TryGetOdd(bookmaker.Markets, bookmaker.Key, homeTeam: homeTeam, awayTeam: awayTeam,
+                    out var odd))
+            {
+                return odd;
+            }
+
+            LogBookmakerWithoutHeadToHeadSkipped(logger, bookmaker.Key, homeTeam, awayTeam);
+
+            return null;
         }
-        catch (Exception exception) when (exception is ArgumentException or InvalidOperationException)
+        catch (ArgumentException exception)
         {
             LogBookmakerSkipped(logger, exception, bookmaker.Key, homeTeam, awayTeam);
 
             return null;
         }
     }
+
+    [LoggerMessage(Level = LogLevel.Warning,
+        Message = "Skipped bookmaker {Bookmaker} for {HomeTeam} - {AwayTeam}: no head-to-head market")]
+    private static partial void LogBookmakerWithoutHeadToHeadSkipped(ILogger logger, string? bookmaker,
+        string homeTeam, string awayTeam);
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "Skipped bookmaker {Bookmaker} for {HomeTeam} - {AwayTeam}")]
     private static partial void LogBookmakerSkipped(ILogger logger, Exception exception, string? bookmaker,

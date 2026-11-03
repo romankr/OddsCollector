@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Logging.Testing;
 using NSubstitute.ExceptionExtensions;
+using OddsCollector.Functions.Models;
 using OddsCollector.Functions.OddsApi.Converters;
 using OddsCollector.Functions.OddsApi.WebApi;
 
@@ -80,8 +81,8 @@ internal sealed class BookmakerConverterTests
 
         var record = loggerMock.Collector.GetSnapshot().Should().ContainSingle().Subject;
         record.Level.Should().Be(LogLevel.Warning);
-        record.Message.Should().Be($"Skipped bookmaker broken for {HomeTeam} - {AwayTeam}");
-        record.Exception.Should().BeOfType<InvalidOperationException>();
+        record.Message.Should().Be($"Skipped bookmaker broken for {HomeTeam} - {AwayTeam}: no head-to-head market");
+        record.Exception.Should().BeNull();
     }
 
     [Test]
@@ -147,7 +148,8 @@ internal sealed class BookmakerConverterTests
 
         var marketConverterStub = Substitute.For<IMarketConverter>();
         marketConverterStub
-            .ToOdd(Arg.Any<ICollection<Markets2>?>(), Arg.Any<string?>(), Arg.Any<string>(), Arg.Any<string>())
+            .TryGetOdd(Arg.Any<ICollection<Markets2>?>(), Arg.Any<string?>(), Arg.Any<string>(), Arg.Any<string>(),
+                out Arg.Any<Odd?>())
             .Throws(expectedException);
 
         var bookmakerConverter = CreateConverter(marketConverterStub);
