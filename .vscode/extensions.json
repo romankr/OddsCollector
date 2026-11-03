@@ -1,0 +1,15 @@
+{
+  "recommendations": [
+    "ms-dotnettools.csdevkit",
+    "ms-dotnettools.csharp",
+    "ms-dotnettools.vscode-dotnet-runtime",
+    "ms-azuretools.vscode-azurefunctions",
+    "ms-azuretools.vscode-bicep",
+    "ms-azuretools.vscode-cosmosdb",
+    "microsoft-aspire.aspire-vscode",
+    "ms-vscode.powershell",
+    "editorconfig.editorconfig",
+    "bierner.markdown-mermaid",
+    "github.vscode-github-actions"
+  ]
+}
