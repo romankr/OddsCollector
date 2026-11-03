@@ -19,6 +19,7 @@ internal sealed class FunctionsHost : IAsyncDisposable
 
     private static readonly TimeSpan StartupTimeout = TimeSpan.FromMinutes(3);
 
+    private readonly DistributedApplication _app;
     private readonly ConcurrentQueue<(long Number, string Line)> _logs = new();
     private readonly CancellationTokenSource _stopWatchingLogs = new();
     private readonly Task _watchingLogs;
@@ -26,6 +27,7 @@ internal sealed class FunctionsHost : IAsyncDisposable
 
     private FunctionsHost(DistributedApplication app)
     {
+        _app = app;
         Client = app.CreateHttpClient(AppHostSettings.FunctionsResource);
         Client.Timeout = TimeSpan.FromSeconds(30);
 
@@ -85,6 +87,24 @@ internal sealed class FunctionsHost : IAsyncDisposable
         }
     }
 
+    public async Task StopAsync(CancellationToken cancellationToken)
+    {
+        await ExecuteCommandAsync(KnownResourceCommands.StopCommand, cancellationToken);
+
+        await _app.ResourceNotifications.WaitForResourceAsync(AppHostSettings.FunctionsResource,
+            [KnownResourceStates.Exited, KnownResourceStates.Finished], cancellationToken);
+    }
+
+    public async Task ResumeAsync(CancellationToken cancellationToken)
+    {
+        await ExecuteCommandAsync(KnownResourceCommands.StartCommand, cancellationToken);
+
+        await _app.ResourceNotifications.WaitForResourceAsync(AppHostSettings.FunctionsResource,
+            KnownResourceStates.Running, cancellationToken);
+
+        await WaitUntilRunningAsync(cancellationToken);
+    }
+
     public IReadOnlyList<string> GetLogLinesAfter(long loggedLines)
     {
         return [.. _logs.Where(l => l.Number > loggedLines).Select(l => l.Line)];
@@ -97,6 +117,18 @@ internal sealed class FunctionsHost : IAsyncDisposable
         return response.StatusCode == HttpStatusCode.OK
             ? await response.Content.ReadFromJsonAsync<EventPrediction[]>(cancellationToken)
             : null;
+    }
+
+    private async Task ExecuteCommandAsync(string command, CancellationToken cancellationToken)
+    {
+        var result = await _app.ResourceCommands.ExecuteCommandAsync(AppHostSettings.FunctionsResource, command,
+            cancellationToken);
+
+        if (!result.Success)
+        {
+            throw new InvalidOperationException(
+                $"The {command} command failed for {AppHostSettings.FunctionsResource}: {result.Message}");
+        }
     }
 
     private async Task WaitUntilRunningAsync(CancellationToken cancellationToken)
