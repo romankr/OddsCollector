@@ -1,4 +1,4 @@
-<Project Sdk="Aspire.AppHost.Sdk/13.6.2">
+<Project Sdk="Aspire.AppHost.Sdk/13.6.4">
   <!--
     Runs the function app against Microsoft's emulators (Cosmos DB, Service Bus, Azurite) for local development
     and for OddsCollector.Functions.IntegrationTests. Needs Docker and Azure Functions Core Tools (func).
