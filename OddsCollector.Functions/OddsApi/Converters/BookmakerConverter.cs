@@ -4,7 +4,7 @@ using OddsCollector.Functions.OddsApi.WebApi;
 
 namespace OddsCollector.Functions.OddsApi.Converters;
 
-internal sealed class BookmakerConverter(ILogger<BookmakerConverter> logger, IMarketConverter converter)
+internal sealed partial class BookmakerConverter(ILogger<BookmakerConverter> logger, IMarketConverter converter)
     : IBookmakerConverter
 {
     public IEnumerable<Odd> ToOdds(ICollection<Bookmakers>? bookmakers, string? homeTeam, string? awayTeam)
@@ -37,10 +37,13 @@ internal sealed class BookmakerConverter(ILogger<BookmakerConverter> logger, IMa
         }
         catch (Exception exception) when (exception is ArgumentException or InvalidOperationException)
         {
-            logger.LogWarning(exception, "Skipped bookmaker {Bookmaker} for {HomeTeam} - {AwayTeam}",
-                bookmaker.Key, homeTeam, awayTeam);
+            LogBookmakerSkipped(logger, exception, bookmaker.Key, homeTeam, awayTeam);
 
             return null;
         }
     }
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Skipped bookmaker {Bookmaker} for {HomeTeam} - {AwayTeam}")]
+    private static partial void LogBookmakerSkipped(ILogger logger, Exception exception, string? bookmaker,
+        string homeTeam, string awayTeam);
 }
