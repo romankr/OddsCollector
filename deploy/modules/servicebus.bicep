@@ -10,6 +10,9 @@ param sku string
 
 param queueName string
 
+@description('How long a message waits in the queue before it expires and is dead-lettered (ISO 8601 duration).')
+param messageTimeToLive string
+
 resource namespace 'Microsoft.ServiceBus/namespaces@2022-10-01-preview' = {
   name: namespaceName
   location: location
@@ -30,7 +33,7 @@ resource queue 'Microsoft.ServiceBus/namespaces/queues@2022-10-01-preview' = {
   properties: {
     maxDeliveryCount: 3
     lockDuration: 'PT1M'
-    defaultMessageTimeToLive: 'PT1H'
+    defaultMessageTimeToLive: messageTimeToLive
     deadLetteringOnMessageExpiration: true
   }
 }

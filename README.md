@@ -42,6 +42,8 @@ flowchart TB
   sends them to the Service Bus queue.
 - `PredictionFunction` reads each event from the queue, skips matches that have already started, predicts the outcome
   and stores the prediction in Cosmos DB. Messages that cannot be read, and messages that expire before they are processed, are dead-lettered.
+  In Azure a message expires after 6 hours, the interval of `UpcomingEventsFunction`, whose next run publishes every
+  upcoming event again (with the emulators, after 1 hour: the longest time the Service Bus emulator allows).
 - `PredictionsHttpFunction` returns the next 100 stored predictions.
 - `EventResultsFunction` collects the scores of the matches completed in the last 3 days and stores them in Cosmos DB.
 - The OddsApi clients keep collecting when one league fails and throw only when every league fails. `HostProvider`
