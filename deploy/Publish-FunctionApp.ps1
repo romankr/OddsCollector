@@ -59,7 +59,7 @@ begin {
 
     Import-Module (Join-Path $PSScriptRoot 'OddsCollector.Deployment.psm1') -Verbose:$false
 
-    $projectFile = Join-Path (Split-Path $PSScriptRoot -Parent) 'OddsCollector.Functions/OddsCollector.Functions.csproj'
+    $projectFile = Join-Path (Split-Path $PSScriptRoot -Parent) 'src/OddsCollector.Functions/OddsCollector.Functions.csproj'
     $webApiVersion = '2024-04-01'
 
     $deploymentFailed = 3

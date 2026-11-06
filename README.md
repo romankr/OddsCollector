@@ -52,13 +52,13 @@ flowchart TB
 - [.NET 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0)
 - [Azure Functions Core Tools](https://learn.microsoft.com/en-us/azure/azure-functions/functions-run-local) (`func`)
 - [Docker](https://www.docker.com/), for the integration tests and for running the app locally with the emulators
-- (Optional) [NSwag Studio](https://github.com/RicoSuter/NSwag/wiki/NSwagStudio). The repository already has [The Odds API C# client](https://github.com/romankr/OddsCollector/blob/master/OddsCollector.Functions/OddsApi/WebApi/WebApiClient.cs). However, you can use [parameters.nswag](https://github.com/romankr/OddsCollector/blob/master/OddsCollector.Functions/OddsApi/WebApi/parameters.nswag) to modify it.
+- (Optional) [NSwag Studio](https://github.com/RicoSuter/NSwag/wiki/NSwagStudio). The repository already has [The Odds API C# client](https://github.com/romankr/OddsCollector/blob/master/src/OddsCollector.Functions/OddsApi/WebApi/WebApiClient.cs). However, you can use [parameters.nswag](https://github.com/romankr/OddsCollector/blob/master/src/OddsCollector.Functions/OddsApi/WebApi/parameters.nswag) to modify it.
 
 # Configuration
 
 ## Application settings
 
-Locally the settings go in `OddsCollector.Functions/local.settings.json` under `Values`; in Azure they are the
+Locally the settings go in `src/OddsCollector.Functions/local.settings.json` under `Values`; in Azure they are the
 function app's application settings. On a Linux plan, write `:` in a setting name as `__`
 (for example `OddsApiClient__ApiKey`). All settings are required.
 
@@ -117,8 +117,8 @@ and keep it set when running the app or the tests.
 
 ```
 dotnet dev-certs https --trust
-dotnet user-secrets --project OddsCollector.AppHost set "Parameters:odds-api-key" "<your key>"
-dotnet run --project OddsCollector.AppHost
+dotnet user-secrets --project src/OddsCollector.AppHost set "Parameters:odds-api-key" "<your key>"
+dotnet run --project src/OddsCollector.AppHost
 ```
 
 Optional settings (also set with `dotnet user-secrets`): `OddsCollector:Leagues`, `OddsCollector:OddsApiBaseUrl`,
@@ -137,7 +137,7 @@ Functions Core Tools, a free port 8081 and the development certificate.
 ```
 dotnet build
 dotnet test --filter "TestCategory!=Integration"
-dotnet test OddsCollector.Functions.IntegrationTests
+dotnet test src/OddsCollector.Functions.IntegrationTests
 ```
 
 The first integration test run downloads the emulator images, which takes a few minutes.

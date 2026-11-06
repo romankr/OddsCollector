@@ -6,8 +6,8 @@
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build",
-      "program": "${workspaceFolder}/OddsCollector.AppHost/bin/Debug/net10.0/OddsCollector.AppHost.dll",
-      "cwd": "${workspaceFolder}/OddsCollector.AppHost",
+      "program": "${workspaceFolder}/src/OddsCollector.AppHost/bin/Debug/net10.0/OddsCollector.AppHost.dll",
+      "cwd": "${workspaceFolder}/src/OddsCollector.AppHost",
       "launchSettingsProfile": "http",
       "console": "integratedTerminal",
       "stopAtEntry": false

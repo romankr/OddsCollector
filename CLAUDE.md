@@ -6,7 +6,7 @@
 - Build: `dotnet build`
 - Test: `dotnet test --no-build`
 - Unit tests only (no Docker / Azure Functions Core Tools needed): `dotnet test --no-build --filter "TestCategory!=Integration"`
-- Run with the emulators (Docker, Azure Functions Core Tools): `dotnet run --project OddsCollector.AppHost`
+- Run with the emulators (Docker, Azure Functions Core Tools): `dotnet run --project src/OddsCollector.AppHost`
 
 ## Workflow Rules
 - ALWAYS create a feature branch before making changes

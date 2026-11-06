@@ -29,7 +29,7 @@
       "detail": "Needs Docker, Azure Functions Core Tools, free port 8081 and the dev certificate.",
       "command": "dotnet",
       "type": "process",
-      "args": ["test", "${workspaceFolder}/OddsCollector.Functions.IntegrationTests"],
+      "args": ["test", "${workspaceFolder}/src/OddsCollector.Functions.IntegrationTests"],
       "problemMatcher": "$msCompile",
       "group": "test"
     },
@@ -46,7 +46,7 @@
       "detail": "Runs the app against the Cosmos DB, Service Bus and Azurite emulators via Aspire.",
       "command": "dotnet",
       "type": "process",
-      "args": ["run", "--project", "${workspaceFolder}/OddsCollector.AppHost"],
+      "args": ["run", "--project", "${workspaceFolder}/src/OddsCollector.AppHost"],
       "isBackground": true,
       "problemMatcher": []
     },
@@ -55,15 +55,15 @@
       "command": "dotnet",
       "type": "process",
       "args": ["build", "/property:GenerateFullPaths=true", "/consoleloggerparameters:NoSummary"],
-      "options": { "cwd": "${workspaceFolder}/OddsCollector.Functions" },
+      "options": { "cwd": "${workspaceFolder}/src/OddsCollector.Functions" },
       "problemMatcher": "$msCompile"
     },
     {
       "label": "func: host start",
-      "detail": "Runs only the function app; needs OddsCollector.Functions/local.settings.json.",
+      "detail": "Runs only the function app; needs src/OddsCollector.Functions/local.settings.json.",
       "type": "func",
       "command": "host start --port 7270",
-      "options": { "cwd": "${workspaceFolder}/OddsCollector.Functions/bin/Debug/net10.0" },
+      "options": { "cwd": "${workspaceFolder}/src/OddsCollector.Functions/bin/Debug/net10.0" },
       "dependsOn": "build (functions)",
       "isBackground": true,
       "problemMatcher": "$func-dotnet-watch"
@@ -73,7 +73,7 @@
       "command": "dotnet",
       "type": "process",
       "args": ["publish", "--configuration", "Release", "/property:GenerateFullPaths=true", "/consoleloggerparameters:NoSummary"],
-      "options": { "cwd": "${workspaceFolder}/OddsCollector.Functions" },
+      "options": { "cwd": "${workspaceFolder}/src/OddsCollector.Functions" },
       "problemMatcher": "$msCompile"
     },
     {
