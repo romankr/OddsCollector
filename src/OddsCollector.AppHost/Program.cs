@@ -22,6 +22,8 @@ serviceBus.AddServiceBusQueue("queue", AppHostSettings.Queue)
     {
         queue.MaxDeliveryCount = 3;
         queue.LockDuration = TimeSpan.FromMinutes(1);
+        // 1 hour is the longest time to live the Service Bus emulator allows. In Azure, messages live for the interval
+        // of UpcomingEventsFunction (upcomingEventTimeToLive in deploy/main.bicep).
         queue.DefaultMessageTimeToLive = TimeSpan.FromHours(1);
         queue.DeadLetteringOnMessageExpiration = true;
     });

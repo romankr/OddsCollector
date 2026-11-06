@@ -42,6 +42,8 @@ flowchart TB
   sends them to the Service Bus queue.
 - `PredictionFunction` reads each event from the queue, skips matches that have already started, predicts the outcome
   and stores the prediction in Cosmos DB. Messages that cannot be read, and messages that expire before they are processed, are dead-lettered.
+  In Azure a message expires after 6 hours, the interval of `UpcomingEventsFunction`, whose next run publishes every
+  upcoming event again (with the emulators, after 1 hour: the longest time the Service Bus emulator allows).
 - `PredictionsHttpFunction` returns the next 100 stored predictions as JSON, kick-off times as ISO 8601 UTC strings:
   `[{"AwayTeam":"Chelsea","CommenceTime":"2026-09-22T18:00:00Z","HomeTeam":"Arsenal","id":"...","Outcome":"HomeTeam"}]`.
   Cosmos DB keeps them in Unix seconds, so that queries compare them as numbers.

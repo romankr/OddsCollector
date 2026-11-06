@@ -49,6 +49,9 @@ param(
     [ValidateNotNullOrEmpty()]
     [string] $UpcomingEventsTimerInterval,
 
+    [ValidateScript({ $_ -gt [timespan]::Zero }, ErrorMessage = 'The time to live must be positive.')]
+    [timespan] $UpcomingEventTimeToLive,
+
     [ValidateNotNullOrEmpty()]
     [string] $EventResultsTimerInterval,
 
