@@ -342,18 +342,17 @@ internal sealed class EndToEnd
         // Act
         await Environment.ServiceBusQueue.SendAsync(messageId, body, cancellationToken);
 
-        var removed = await Environment.WaitForRemovedDeadLetterAsync(logStart, messageId, cancellationToken);
+        await Environment.WaitForDeadLetterFunctionAsync(logStart, messageId, cancellationToken);
         var executed = await Environment.WaitForLogLineAsync(logStart,
             $"Executed 'Functions.{nameof(PredictionFunction)}'", cancellationToken);
 
         await Task.Delay(SettlementGracePeriod, cancellationToken);
 
-        // Assert
+        // Assert: the dead-letter reason (JsonException) is covered by PredictionFunctionTests.
         var logLines = Environment.FunctionsHost.GetLogLinesAfter(logStart);
 
         using var scope = new AssertionScope();
 
-        removed.Should().Contain($"{messageId}: JsonException:");
         executed.Should().Contain("Succeeded");
         logLines.Should().ContainSingle(l => l.Contains(PredictionFunctionStarted, StringComparison.Ordinal));
         logLines.Should().NotContain(l => l.Contains("Message processing error", StringComparison.Ordinal));
@@ -396,8 +395,7 @@ internal sealed class EndToEnd
 
         executed.Should().Contain("Succeeded");
         pending.Should().BeNull();
-        logLines.Should().NotContain(l =>
-            l.Contains(IntegrationEnvironment.RemovedDeadLetterLogText(messageId), StringComparison.Ordinal));
+        Environment.TryFindDeadLetterFunctionInvocation(logStart, messageId).Should().BeNull();
         storedPrediction.Should().BeNull();
         logLines.Where(l => l.Contains($"MessageId: {messageId},", StringComparison.Ordinal)).Should()
             .ContainSingle().Which.Should().Contain("DeliveryCount: 1,");
@@ -476,15 +474,14 @@ internal sealed class EndToEnd
             await Environment.FunctionsHost.ResumeAsync(cancellationToken);
         }
 
-        var removed = await Environment.WaitForRemovedDeadLetterAsync(logStart, messageId, cancellationToken);
+        await Environment.WaitForDeadLetterFunctionAsync(logStart, messageId, cancellationToken);
         var storedPrediction = await Environment.TryReadPredictionAsync(upcomingEvent.Id, cancellationToken);
 
-        // Assert
+        // Assert: the message reached the dead-letter queue without PredictionFunction ever receiving it, so it expired.
         var logLines = Environment.FunctionsHost.GetLogLinesAfter(logStart);
 
         using var scope = new AssertionScope();
 
-        removed.Should().Contain($"{messageId}: TTLExpiredException:");
         storedPrediction.Should().BeNull();
         logLines.Should().NotContain(l => l.Contains(PredictionFunctionStarted, StringComparison.Ordinal));
     }
@@ -510,18 +507,17 @@ internal sealed class EndToEnd
         await Environment.ServiceBusQueue.SendAsync(messageId, JsonSerializer.Serialize(invalidEvent),
             cancellationToken);
 
-        var removed = await Environment.WaitForRemovedDeadLetterAsync(logStart, messageId, cancellationToken);
+        await Environment.WaitForDeadLetterFunctionAsync(logStart, messageId, cancellationToken);
         var executed = await Environment.WaitForLogLineAsync(logStart,
             $"Executed 'Functions.{nameof(PredictionFunction)}'", cancellationToken);
 
         var storedPrediction = await Environment.TryReadPredictionAsync(invalidEvent.Id, cancellationToken);
 
-        // Assert
+        // Assert: the dead-letter reason (ArgumentException) is covered by PredictionFunctionTests.
         var logLines = Environment.FunctionsHost.GetLogLinesAfter(logStart);
 
         using var scope = new AssertionScope();
 
-        removed.Should().Contain($"{messageId}: {nameof(ArgumentException)}: HomeTeam cannot be empty");
         executed.Should().Contain("Succeeded");
         storedPrediction.Should().BeNull();
         logLines.Should().ContainSingle(l => l.Contains(PredictionFunctionStarted, StringComparison.Ordinal));
@@ -529,7 +525,8 @@ internal sealed class EndToEnd
 
     [Test]
     [CancelAfter(TestTimeoutMilliseconds)]
-    public async Task DeadLetterFunction_DeadLetteredMessage_LogsAndRemovesIt(CancellationToken cancellationToken)
+    public async Task DeadLetterFunction_DeadLetteredMessage_RemovesItFromTheDeadLetterQueue(
+        CancellationToken cancellationToken)
     {
         // Arrange: PredictionFunction dead-letters a message it cannot read.
         var messageId = TestData.NewId("removed");
@@ -540,19 +537,15 @@ internal sealed class EndToEnd
         // Act
         await Environment.ServiceBusQueue.SendAsync(messageId, body, cancellationToken);
 
-        var removed = await Environment.WaitForRemovedDeadLetterAsync(logStart, messageId, cancellationToken);
-        var executed = await Environment.WaitForLogLineAsync(logStart,
-            $"Executed 'Functions.{nameof(DeadLetterFunction)}'", cancellationToken);
+        var invocationId = await Environment.WaitForDeadLetterFunctionAsync(logStart, messageId, cancellationToken);
+        await Environment.WaitForLogLineAsync(logStart,
+            $"Executed 'Functions.{nameof(DeadLetterFunction)}' (Succeeded, Id={invocationId}", cancellationToken);
 
         await Task.Delay(SettlementGracePeriod, cancellationToken);
 
         var deadLettered = await Environment.ServiceBusQueue.TryPeekDeadLetteredAsync(messageId, cancellationToken);
 
         // Assert
-        using var scope = new AssertionScope();
-
-        removed.Should().Contain($"{messageId}: JsonException:").And.Contain($"Body: {body}");
-        executed.Should().Contain("Succeeded");
         deadLettered.Should().BeNull();
     }
 

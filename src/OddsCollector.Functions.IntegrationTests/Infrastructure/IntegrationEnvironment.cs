@@ -1,7 +1,9 @@
 ﻿using System.Text.Json.Nodes;
+using System.Text.RegularExpressions;
 using Aspire.Hosting;
 using Aspire.Hosting.Testing;
 using OddsCollector.AppHost;
+using OddsCollector.Functions.Functions;
 using OddsCollector.Functions.IntegrationTests.Infrastructure.CosmosDb;
 using OddsCollector.Functions.IntegrationTests.Infrastructure.Functions;
 using OddsCollector.Functions.IntegrationTests.Infrastructure.OddsApi;
@@ -11,7 +13,7 @@ using OddsCollector.Functions.Models;
 
 namespace OddsCollector.Functions.IntegrationTests.Infrastructure;
 
-internal sealed class IntegrationEnvironment : IAsyncDisposable
+internal sealed partial class IntegrationEnvironment : IAsyncDisposable
 {
     public const string ApiKey = "integration-test-key";
     public const string League = "soccer_epl";
@@ -20,6 +22,8 @@ internal sealed class IntegrationEnvironment : IAsyncDisposable
     public const string EventResultsContainer = AppHostSettings.EventResultsContainer;
 
     private const string NeverDuringTests = "0 0 0 1 1 *";
+
+    private const string DeadLetterFunctionStarted = $"Executing 'Functions.{nameof(DeadLetterFunction)}'";
 
     private static readonly TimeSpan WaitTimeout = TimeSpan.FromMinutes(2);
 
@@ -147,17 +151,27 @@ internal sealed class IntegrationEnvironment : IAsyncDisposable
             $"PredictionsHttpFunction to return prediction {containingId}", cancellationToken);
     }
 
-    // DeadLetterFunction takes dead-lettered messages out of the dead-letter queue at once, so a test sees a
-    // dead-lettered message, with its reason and description, in the line DeadLetterFunction logs for it.
-    public Task<string> WaitForRemovedDeadLetterAsync(long afterLoggedLines, string messageId,
+    // DeadLetterFunction takes a dead-lettered message out of the dead-letter queue at once, and what the function app
+    // itself logs does not reach the console of the Functions host (host.json sets telemetryMode to OpenTelemetry).
+    // So a test sees that a message was dead-lettered in the host's own lines: the start of a DeadLetterFunction
+    // invocation, followed right away by the trigger details of the message. Returns the id of that invocation.
+    public Task<string> WaitForDeadLetterFunctionAsync(long afterLoggedLines, string messageId,
         CancellationToken cancellationToken)
     {
-        return WaitForLogLineAsync(afterLoggedLines, RemovedDeadLetterLogText(messageId), cancellationToken);
+        return WaitForAsync(
+            token => Task.FromResult(TryFindDeadLetterFunctionInvocation(afterLoggedLines, messageId)),
+            $"DeadLetterFunction to receive message {messageId}", cancellationToken);
     }
 
-    public static string RemovedDeadLetterLogText(string messageId)
+    public string? TryFindDeadLetterFunctionInvocation(long afterLoggedLines, string messageId)
     {
-        return $"Removed dead-lettered message {messageId}:";
+        var logLines = FunctionsHost.GetLogLinesAfter(afterLoggedLines);
+
+        return logLines.Zip(logLines.Skip(1))
+            .Where(pair => pair.First.Contains(DeadLetterFunctionStarted, StringComparison.Ordinal)
+                           && pair.Second.Contains($"MessageId: {messageId},", StringComparison.Ordinal))
+            .Select(pair => InvocationIdPattern().Match(pair.First).Groups["id"].Value)
+            .FirstOrDefault();
     }
 
     public Task<string> WaitForLogLineAsync(long afterLoggedLines, string text, CancellationToken cancellationToken)
@@ -213,6 +227,10 @@ internal sealed class IntegrationEnvironment : IAsyncDisposable
             $"{AppHostSettings.Section}:EventResultsTimerInterval={NeverDuringTests}"
         ];
     }
+
+    // For example: Executing 'Functions.DeadLetterFunction' (Reason='(null)', Id=8eee58c2-fcb5-4ca0-9549-cfc2e30b7acf)
+    [GeneratedRegex(@"Id=(?<id>[0-9a-f-]+)\)")]
+    private static partial Regex InvocationIdPattern();
 
     private static async Task<string> GetConnectionStringAsync(DistributedApplication app, string resourceName,
         CancellationToken cancellationToken)
