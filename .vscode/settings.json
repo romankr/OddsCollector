@@ -27,8 +27,8 @@
     "editor.defaultFormatter": "ms-vscode.powershell"
   },
 
-  "azureFunctions.projectSubpath": "OddsCollector.Functions",
-  "azureFunctions.deploySubpath": "OddsCollector.Functions/bin/Release/net10.0/publish",
+  "azureFunctions.projectSubpath": "src/OddsCollector.Functions",
+  "azureFunctions.deploySubpath": "src/OddsCollector.Functions/bin/Release/net10.0/publish",
   "azureFunctions.projectLanguage": "C#",
   "azureFunctions.projectRuntime": "~4",
   "azureFunctions.preDeployTask": "publish (functions)",

@@ -80,10 +80,10 @@ jobs:
         /p:Threshold=70
         /p:ThresholdType=line
     - name: Upload coverage to Codecov
-      if: ${{ !cancelled() && hashFiles('OddsCollector.Functions.UnitTests/lcov.info') != '' }}
+      if: ${{ !cancelled() && hashFiles('src/OddsCollector.Functions.UnitTests/lcov.info') != '' }}
       uses: codecov/codecov-action@v7
       with:
-        files: OddsCollector.Functions.UnitTests/lcov.info
+        files: src/OddsCollector.Functions.UnitTests/lcov.info
         token: ${{ secrets.CODECOV_TOKEN }}
 
     - name: Install Azure Functions Core Tools
@@ -95,4 +95,4 @@ jobs:
         dotnet dev-certs https --trust
         dotnet dev-certs https --check --trust
     - name: Run integration tests
-      run: dotnet test OddsCollector.Functions.IntegrationTests --no-build --verbosity normal
+      run: dotnet test src/OddsCollector.Functions.IntegrationTests --no-build --verbosity normal

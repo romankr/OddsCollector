@@ -132,7 +132,7 @@ module functionApp 'modules/functionapp.bicep' = {
     storageBlobEndpoint: storage.outputs.blobEndpoint
     deploymentContainerName: storage.outputs.deploymentContainerName
     applicationInsightsConnectionString: monitoring.outputs.applicationInsightsConnectionString
-    // Settings of the app, see README "Application settings" and OddsCollector.AppHost/Program.cs.
+    // Settings of the app, see README "Application settings" and src/OddsCollector.AppHost/Program.cs.
     appSettings: {
       CosmosDb__Connection__accountEndpoint: cosmos.outputs.endpoint
       CosmosDb__Database: databaseName
