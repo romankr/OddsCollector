@@ -3,6 +3,7 @@ using Aspire.Hosting;
 using Aspire.Hosting.Testing;
 using Azure.Messaging.ServiceBus;
 using OddsCollector.AppHost;
+using OddsCollector.Functions.Functions;
 using OddsCollector.Functions.IntegrationTests.Infrastructure.CosmosDb;
 using OddsCollector.Functions.IntegrationTests.Infrastructure.Functions;
 using OddsCollector.Functions.IntegrationTests.Infrastructure.OddsApi;
@@ -128,14 +129,15 @@ internal sealed class IntegrationEnvironment : IAsyncDisposable
             $"event result {id} in Cosmos DB", cancellationToken);
     }
 
-    public Task<EventPrediction> WaitForPublishedPredictionAsync(string id, CancellationToken cancellationToken)
+    public Task<EventPredictionResponse> WaitForPublishedPredictionAsync(string id,
+        CancellationToken cancellationToken)
     {
         return WaitForAsync(
             async token => (await FunctionsHost.TryGetPredictionsAsync(token))?.SingleOrDefault(p => p.Id == id),
             $"PredictionsHttpFunction to return prediction {id}", cancellationToken);
     }
 
-    public Task<EventPrediction[]> WaitForPublishedPredictionsAsync(string containingId,
+    public Task<EventPredictionResponse[]> WaitForPublishedPredictionsAsync(string containingId,
         CancellationToken cancellationToken)
     {
         return WaitForAsync(
@@ -146,6 +148,14 @@ internal sealed class IntegrationEnvironment : IAsyncDisposable
                 return predictions?.Any(p => p.Id == containingId) == true ? predictions : null;
             },
             $"PredictionsHttpFunction to return prediction {containingId}", cancellationToken);
+    }
+
+    public Task<JsonObject> WaitForPublishedPredictionJsonAsync(string id, CancellationToken cancellationToken)
+    {
+        return WaitForAsync(
+            async token => (await FunctionsHost.TryGetPredictionsJsonAsync(token))?.OfType<JsonObject>()
+                .SingleOrDefault(p => p["id"]?.GetValue<string>() == id),
+            $"PredictionsHttpFunction to return prediction {id}", cancellationToken);
     }
 
     public Task<ServiceBusReceivedMessage> WaitForDeadLetteredMessageAsync(string messageId,

@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using Aspire.Hosting;
 using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Testing;
@@ -110,12 +111,22 @@ internal sealed class FunctionsHost : IAsyncDisposable
         return [.. _logs.Where(l => l.Number > loggedLines).Select(l => l.Line)];
     }
 
-    public async Task<EventPrediction[]?> TryGetPredictionsAsync(CancellationToken cancellationToken)
+    public Task<EventPredictionResponse[]?> TryGetPredictionsAsync(CancellationToken cancellationToken)
+    {
+        return TryGetPredictionsAsync<EventPredictionResponse[]>(cancellationToken);
+    }
+
+    public Task<JsonArray?> TryGetPredictionsJsonAsync(CancellationToken cancellationToken)
+    {
+        return TryGetPredictionsAsync<JsonArray>(cancellationToken);
+    }
+
+    private async Task<T?> TryGetPredictionsAsync<T>(CancellationToken cancellationToken) where T : class
     {
         using var response = await Client.GetAsync($"api/{nameof(PredictionsHttpFunction)}", cancellationToken);
 
         return response.StatusCode == HttpStatusCode.OK
-            ? await response.Content.ReadFromJsonAsync<EventPrediction[]>(cancellationToken)
+            ? await response.Content.ReadFromJsonAsync<T>(cancellationToken)
             : null;
     }
 

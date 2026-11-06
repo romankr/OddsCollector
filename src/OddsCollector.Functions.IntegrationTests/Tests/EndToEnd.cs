@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Globalization;
+using System.Net;
 using System.Text.Json;
 using FluentAssertions.Execution;
 using OddsCollector.Functions.Functions;
@@ -219,6 +220,39 @@ internal sealed class EndToEnd
 
         // Assert
         publishedPrediction.Should().BeEquivalentTo(prediction);
+    }
+
+    [Test]
+    [CancelAfter(TestTimeoutMilliseconds)]
+    public async Task PredictionsHttpFunction_StoredPrediction_ReturnsCommenceTimeAsIsoUtcString(
+        CancellationToken cancellationToken)
+    {
+        // Arrange: the prediction is stored with its kick-off time in Unix seconds.
+        var prediction = new EventPrediction
+        {
+            Id = TestData.NewId("iso-date"),
+            HomeTeam = "Arsenal",
+            AwayTeam = "Chelsea",
+            CommenceTime = TestData.KickOffInDays(2),
+            Outcome = OutcomeType.HomeTeam
+        };
+
+        var expectedCommenceTime =
+            prediction.CommenceTime.ToString("yyyy-MM-ddTHH:mm:ssZ", CultureInfo.InvariantCulture);
+
+        await Environment.StorePredictionAsync(prediction, cancellationToken);
+
+        // Act
+        var publishedPrediction =
+            await Environment.WaitForPublishedPredictionJsonAsync(prediction.Id, cancellationToken);
+
+        // Assert
+        var commenceTime = publishedPrediction["CommenceTime"];
+
+        using var scope = new AssertionScope();
+
+        commenceTime!.GetValueKind().Should().Be(JsonValueKind.String);
+        commenceTime.GetValue<string>().Should().Be(expectedCommenceTime);
     }
 
     [Test]
