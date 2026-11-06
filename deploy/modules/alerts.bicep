@@ -87,12 +87,70 @@ resource leagueFailures 'Microsoft.Insights/scheduledQueryRules@2023-12-01' = {
   }
 }
 
-resource deadLetteredMessages 'Microsoft.Insights/metricAlerts@2018-03-01' = {
+// Fires on every message that is dead-lettered: DeadLetterFunction counts each one as it takes it out of the
+// dead-letter queue. Resolves by itself once an hour passes without new ones.
+resource deadLetteredMessages 'Microsoft.Insights/scheduledQueryRules@2023-12-01' = {
+  name: 'alert-oddscollector-${environmentName}-dead-lettered-messages'
+  location: location
+  tags: tags
+  kind: 'LogAlert'
+  properties: {
+    displayName: 'OddsCollector (${environmentName}): messages dead-lettered'
+    description: 'Messages of ${queueName} were dead-lettered: PredictionFunction could not read them, or they expired before it processed them. DeadLetterFunction logged each one ("Removed dead-lettered message ...", with the reason and the body) and removed it.'
+    severity: 2
+    enabled: true
+    scopes: [
+      applicationInsightsId
+    ]
+    evaluationFrequency: 'PT1H'
+    windowSize: 'PT1H'
+    criteria: {
+      allOf: [
+        {
+          query: '''
+            customMetrics
+            | where name == "oddscollector.servicebus.deadlettered"
+            | extend Reason = tostring(customDimensions.reason)
+            | summarize DeadLettered = sum(valueSum) by Reason
+            '''
+          timeAggregation: 'Total'
+          metricMeasureColumn: 'DeadLettered'
+          dimensions: [
+            {
+              name: 'Reason'
+              operator: 'Include'
+              values: [
+                '*'
+              ]
+            }
+          ]
+          operator: 'GreaterThan'
+          threshold: 0
+          failingPeriods: {
+            numberOfEvaluationPeriods: 1
+            minFailingPeriodsToAlert: 1
+          }
+        }
+      ]
+    }
+    autoMitigate: true
+    actions: {
+      actionGroups: [
+        actionGroup.id
+      ]
+    }
+  }
+}
+
+// DeadLetterFunction empties the dead-letter queue within seconds. If the queue stays non-empty for a whole hour,
+// the function is not running or keeps failing, and the alert above no longer sees new dead-lettered messages.
+// The name is the one the earlier alert on the dead-letter count had, so that deploying updates it in place.
+resource deadLetterQueueNotDrained 'Microsoft.Insights/metricAlerts@2018-03-01' = {
   name: 'alert-oddscollector-${environmentName}-dead-lettered'
   location: 'global'
   tags: tags
   properties: {
-    description: 'Messages in the dead-letter queue of ${queueName}: PredictionFunction could not read or process them.'
+    description: 'The dead-letter queue of ${queueName} has not been empty for an hour: DeadLetterFunction is not removing messages from it. Check the failures of DeadLetterFunction.'
     severity: 2
     enabled: true
     scopes: [
@@ -119,7 +177,7 @@ resource deadLetteredMessages 'Microsoft.Insights/metricAlerts@2018-03-01' = {
           ]
           operator: 'GreaterThan'
           threshold: 0
-          timeAggregation: 'Maximum'
+          timeAggregation: 'Minimum'
         }
       ]
     }

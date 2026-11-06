@@ -1,7 +1,6 @@
 ﻿using System.Text.Json.Nodes;
 using Aspire.Hosting;
 using Aspire.Hosting.Testing;
-using Azure.Messaging.ServiceBus;
 using OddsCollector.AppHost;
 using OddsCollector.Functions.IntegrationTests.Infrastructure.CosmosDb;
 using OddsCollector.Functions.IntegrationTests.Infrastructure.Functions;
@@ -148,11 +147,17 @@ internal sealed class IntegrationEnvironment : IAsyncDisposable
             $"PredictionsHttpFunction to return prediction {containingId}", cancellationToken);
     }
 
-    public Task<ServiceBusReceivedMessage> WaitForDeadLetteredMessageAsync(string messageId,
+    // DeadLetterFunction takes dead-lettered messages out of the dead-letter queue at once, so a test sees a
+    // dead-lettered message, with its reason and description, in the line DeadLetterFunction logs for it.
+    public Task<string> WaitForRemovedDeadLetterAsync(long afterLoggedLines, string messageId,
         CancellationToken cancellationToken)
     {
-        return WaitForAsync(token => ServiceBusQueue.TryPeekDeadLetteredAsync(messageId, token),
-            $"message {messageId} in the dead-letter queue", cancellationToken);
+        return WaitForLogLineAsync(afterLoggedLines, RemovedDeadLetterLogText(messageId), cancellationToken);
+    }
+
+    public static string RemovedDeadLetterLogText(string messageId)
+    {
+        return $"Removed dead-lettered message {messageId}:";
     }
 
     public Task<string> WaitForLogLineAsync(long afterLoggedLines, string text, CancellationToken cancellationToken)

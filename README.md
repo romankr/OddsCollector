@@ -18,6 +18,7 @@ flowchart TB
         upcoming["UpcomingEventsFunction<br/>timer trigger"]
         results["EventResultsFunction<br/>timer trigger"]
         prediction["PredictionFunction<br/>Service Bus trigger"]
+        deadLetter["DeadLetterFunction<br/>Service Bus trigger"]
         strategy["Predictions<br/>odds-based strategy"]
         http["PredictionsHttpFunction<br/>HTTP GET"]
     end
@@ -32,6 +33,7 @@ flowchart TB
     upcoming -->|upcoming events| queue
     results -->|completed results| resultsDb
     queue --> prediction
+    queue -->|dead-lettered messages| deadLetter
     prediction --> strategy
     prediction -->|predictions| predictionsDb
     predictionsDb -->|next 100 predictions| http
@@ -42,6 +44,9 @@ flowchart TB
   sends them to the Service Bus queue.
 - `PredictionFunction` reads each event from the queue, skips matches that have already started, predicts the outcome
   and stores the prediction in Cosmos DB. Messages that cannot be read, and messages that expire before they are processed, are dead-lettered.
+- `DeadLetterFunction` takes every message out of the dead-letter queue as soon as it gets there: it logs the message
+  with the dead-letter reason and the body, counts it in the `oddscollector.servicebus.deadlettered` metric and removes
+  it. The dead-lettered events are published again by the next run of `UpcomingEventsFunction`.
 - `PredictionsHttpFunction` returns the next 100 stored predictions.
 - `EventResultsFunction` collects the scores of the matches completed in the last 3 days and stores them in Cosmos DB.
 - The OddsApi clients keep collecting when one league fails and throw only when every league fails. `HostProvider`
