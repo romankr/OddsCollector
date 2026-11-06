@@ -7,9 +7,32 @@ namespace OddsCollector.Functions.UnitTests.Infrastructure.ServiceBus;
 
 internal static class ServiceBusReceivedMessageFactory
 {
+    // Service Bus keeps the dead-letter reason and description in these application properties.
+    private const string DeadLetterReasonProperty = "DeadLetterReason";
+    private const string DeadLetterErrorDescriptionProperty = "DeadLetterErrorDescription";
+
     public static ServiceBusReceivedMessage CreateFromObject(object obj, string? messageId = null)
     {
         return CreateFromText(JsonSerializer.Serialize(obj), messageId);
+    }
+
+    public static ServiceBusReceivedMessage CreateDeadLettered(string text, string messageId, string? reason,
+        string? description)
+    {
+        Dictionary<string, object> properties = [];
+
+        if (reason is not null)
+        {
+            properties[DeadLetterReasonProperty] = reason;
+        }
+
+        if (description is not null)
+        {
+            properties[DeadLetterErrorDescriptionProperty] = description;
+        }
+
+        return ServiceBusModelFactory.ServiceBusReceivedMessage(body: BinaryData.FromString(text),
+            messageId: messageId, properties: properties);
     }
 
     public static ServiceBusReceivedMessage CreateFromText(string text, string? messageId = null)
