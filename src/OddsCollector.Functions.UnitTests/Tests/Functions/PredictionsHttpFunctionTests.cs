@@ -18,9 +18,13 @@ internal sealed class PredictionsHttpFunctionTests
     private const string BrokenId = "broken";
 
     [Test]
-    public async Task Run_WithPredictions_ReturnsThemAsJson()
+    public async Task Run_WithPredictions_ReturnsThemAsJsonWithIsoCommenceTime()
     {
         // Arrange
+        const string expectedBody = """
+            [{"AwayTeam":"awayTeam","CommenceTime":"2026-09-22T18:00:00Z","HomeTeam":"homeTeam","id":"id","Outcome":"HomeTeam"}]
+            """;
+
         EventPrediction[] predictions =
         [
             new()
@@ -46,7 +50,7 @@ internal sealed class PredictionsHttpFunctionTests
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         response.Headers.GetValues("Content-Type").Should().ContainSingle()
             .Which.Should().StartWith("application/json");
-        response.ReadBodyAsString().Should().Be(JsonSerializer.Serialize(predictions));
+        response.ReadBodyAsString().Should().Be(expectedBody);
     }
 
     [Test]
@@ -110,7 +114,8 @@ internal sealed class PredictionsHttpFunctionTests
         using var scope = new AssertionScope();
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        response.ReadBodyAsString().Should().Be(JsonSerializer.Serialize(new[] { prediction }));
+        response.ReadBodyAsString().Should()
+            .Be(JsonSerializer.Serialize(new[] { EventPredictionResponse.FromPrediction(prediction) }));
 
         var record = loggerMock.Collector.GetSnapshot().Should().ContainSingle().Subject;
         record.Level.Should().Be(LogLevel.Warning);
@@ -196,7 +201,7 @@ internal sealed class PredictionsHttpFunctionTests
 
         private void ThrowIfPredictions(object? value)
         {
-            if (value is EventPrediction[])
+            if (value is EventPredictionResponse[])
             {
                 throw exception;
             }

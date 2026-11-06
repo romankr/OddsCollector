@@ -23,7 +23,8 @@ internal sealed partial class PredictionsHttpFunction(ILogger<PredictionsHttpFun
         JsonElement[] documents,
         CancellationToken cancellationToken)
     {
-        EventPrediction[] predictions = [.. ReadPredictions(documents)];
+        EventPredictionResponse[] predictions =
+            [.. ReadPredictions(documents).Select(EventPredictionResponse.FromPrediction)];
 
         var response = request.CreateResponse(HttpStatusCode.OK);
 
