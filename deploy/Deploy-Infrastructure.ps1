@@ -65,6 +65,9 @@ param(
     [ValidateNotNullOrEmpty()]
     [string] $UpcomingEventsTimerInterval = '0 0 */6 * * *',
 
+    [ValidateScript({ $_ -gt [timespan]::Zero }, ErrorMessage = 'The time to live must be positive.')]
+    [timespan] $UpcomingEventTimeToLive = [timespan]::FromHours(6),
+
     [ValidateNotNullOrEmpty()]
     [string] $EventResultsTimerInterval = '0 0 6 * * *',
 
@@ -203,6 +206,7 @@ $templateParameters = @{
     location                     = $Location
     leagues                      = $League -join ';'
     upcomingEventsTimerInterval  = $UpcomingEventsTimerInterval
+    upcomingEventTimeToLive      = [System.Xml.XmlConvert]::ToString($UpcomingEventTimeToLive)
     eventResultsTimerInterval    = $EventResultsTimerInterval
     serviceBusSku                = $ServiceBusSku
     maximumInstanceCount         = $MaximumInstanceCount

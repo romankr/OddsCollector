@@ -14,6 +14,9 @@ param leagues string = 'soccer_epl'
 @description('NCRONTAB schedule of UpcomingEventsFunction.')
 param upcomingEventsTimerInterval string = '0 0 */6 * * *'
 
+@description('How long an upcoming event waits in the queue before it expires and is dead-lettered (ISO 8601 duration). Keep it equal to the interval of upcomingEventsTimerInterval: the next run publishes every upcoming event again, so a shorter time only dead-letters events that would be published again anyway.')
+param upcomingEventTimeToLive string = 'PT6H'
+
 @description('NCRONTAB schedule of EventResultsFunction. Keep it under 3 days, or some results are never stored.')
 param eventResultsTimerInterval string = '0 0 6 * * *'
 
@@ -105,6 +108,7 @@ module serviceBus 'modules/servicebus.bicep' = {
     tags: tags
     sku: serviceBusSku
     queueName: queueName
+    messageTimeToLive: upcomingEventTimeToLive
   }
 }
 
