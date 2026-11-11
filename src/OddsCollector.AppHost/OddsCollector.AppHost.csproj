@@ -1,11 +1,11 @@
-<Project Sdk="Aspire.AppHost.Sdk/13.6.4">
+<Project Sdk="Aspire.AppHost.Sdk/13.6.5">
   <!--
     Runs the function app against Microsoft's emulators (Cosmos DB, Service Bus, Azurite) for local development
     and for OddsCollector.Functions.IntegrationTests. Needs Docker and Azure Functions Core Tools (func).
   -->
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework>net11.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>

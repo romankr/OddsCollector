@@ -13,7 +13,7 @@ The complete list of ~370 DO / CONSIDER / AVOID / DO NOT rules is in
 or when reviewing a specific kind of member (operators, indexers, events, serialization, finalizers).
 
 **Scope.** The guidelines target *reusable public libraries* and come from the 2008 book, so some rules are dated.
-OddsCollector is an application (.NET 10, nullable enabled, Azure Functions isolated worker) where almost every type
+OddsCollector is an application (.NET 11, nullable enabled, Azure Functions isolated worker) where almost every type
 is `internal`. Apply the rules to the *shape* of our internal APIs too — consumers are other classes and tests —
 but use the repo adaptations below where the library-oriented advice doesn't fit.
 

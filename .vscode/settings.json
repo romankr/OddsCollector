@@ -28,7 +28,7 @@
   },
 
   "azureFunctions.projectSubpath": "src/OddsCollector.Functions",
-  "azureFunctions.deploySubpath": "src/OddsCollector.Functions/bin/Release/net10.0/publish",
+  "azureFunctions.deploySubpath": "src/OddsCollector.Functions/bin/Release/net11.0/publish",
   "azureFunctions.projectLanguage": "C#",
   "azureFunctions.projectRuntime": "~4",
   "azureFunctions.preDeployTask": "publish (functions)",

@@ -56,7 +56,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v6
       with:
-        dotnet-version: 10.0.x
+        dotnet-version: 11.0.x
     - name: Cache NuGet packages
       uses: actions/cache@v4
       with:
@@ -64,11 +64,18 @@ jobs:
         key: nuget-${{ runner.os }}-${{ hashFiles('Directory.Packages.props', '**/*.csproj') }}
         restore-keys: nuget-${{ runner.os }}-
     - name: Restore dependencies
-      run: dotnet restore
+      # Azure.Functions.Sdk restores the Functions extensions project only when the function app project itself is
+      # the restore entry point, not through the solution; without the second restore the build reports AZFW0108
+      # (an error with -warnaserror).
+      run: |
+        dotnet restore
+        dotnet restore src/OddsCollector.Functions
     - name: Check C# code formatting
       run: dotnet format --no-restore --verify-no-changes
     - name: Build and run SonarAnalyzer.CSharp
-      run: dotnet build --no-restore --no-incremental -warnaserror
+      # No --no-incremental: a rebuild cleans the Functions extensions project restored above and brings AZFW0108
+      # back. The checkout is fresh, so the build is a full one anyway.
+      run: dotnet build --no-restore -warnaserror
 
     - name: Run unit tests and check coverage
       run: >

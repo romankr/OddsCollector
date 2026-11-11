@@ -63,7 +63,7 @@
       "detail": "Runs only the function app; needs src/OddsCollector.Functions/local.settings.json.",
       "type": "func",
       "command": "host start --port 7270",
-      "options": { "cwd": "${workspaceFolder}/src/OddsCollector.Functions/bin/Debug/net10.0" },
+      "options": { "cwd": "${workspaceFolder}/src/OddsCollector.Functions/bin/Debug/net11.0" },
       "dependsOn": "build (functions)",
       "isBackground": true,
       "problemMatcher": "$func-dotnet-watch"

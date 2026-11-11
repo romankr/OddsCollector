@@ -7,7 +7,7 @@ description: C# coding conventions for OddsCollector, adapted from Microsoft's .
 
 Based on Microsoft Learn, ".NET Coding Conventions"
 (https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/coding-style/coding-conventions),
-restated for this repo (.NET 10, nullable enabled, Azure Functions isolated worker).
+restated for this repo (.NET 11, nullable enabled, Azure Functions isolated worker).
 
 **Precedence:** the repo's `.editorconfig` and analyzers win over this skill; this skill wins over personal habit.
 Match the style of surrounding code when neither says anything. The Microsoft article targets docs samples,
