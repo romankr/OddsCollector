@@ -53,8 +53,8 @@ flowchart TB
 
 # Prerequisites
 
-- [.NET 10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0)
-- [Azure Functions Core Tools](https://learn.microsoft.com/en-us/azure/azure-functions/functions-run-local) (`func`)
+- [.NET 11.0](https://dotnet.microsoft.com/en-us/download/dotnet/11.0)
+- [Azure Functions Core Tools](https://learn.microsoft.com/en-us/azure/azure-functions/functions-run-local) (`func`), a version that supports .NET 11
 - [Docker](https://www.docker.com/), for the integration tests and for running the app locally with the emulators
 - (Optional) [NSwag Studio](https://github.com/RicoSuter/NSwag/wiki/NSwagStudio). The repository already has [The Odds API C# client](https://github.com/romankr/OddsCollector/blob/master/src/OddsCollector.Functions/OddsApi/WebApi/WebApiClient.cs). However, you can use [parameters.nswag](https://github.com/romankr/OddsCollector/blob/master/src/OddsCollector.Functions/OddsApi/WebApi/parameters.nswag) to modify it.
 
@@ -97,7 +97,7 @@ Instead of connection strings, turn on the function app's managed identity, gran
 
 Needs PowerShell 7.4+, [Az PowerShell](https://learn.microsoft.com/powershell/azure/install-azure-powershell),
 the [Bicep CLI](https://learn.microsoft.com/azure/azure-resource-manager/bicep/install) and Owner (or Contributor and
-Role Based Access Control Administrator) on the subscription. The region must offer Flex Consumption with .NET 10
+Role Based Access Control Administrator) on the subscription. The region must offer Flex Consumption with .NET 11
 (`az functionapp list-flexconsumption-runtimes --location <region> --runtime dotnet-isolated`).
 
 ```powershell

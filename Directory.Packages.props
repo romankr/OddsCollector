@@ -26,30 +26,29 @@
     <PackageVersion Include="Microsoft.Azure.Functions.Worker.Extensions.ServiceBus" Version="5.24.0"/>
     <PackageVersion Include="Microsoft.Azure.Functions.Worker.Extensions.Timer" Version="4.3.1"/>
     <PackageVersion Include="Microsoft.Azure.Functions.Worker.OpenTelemetry" Version="1.2.0"/>
-    <PackageVersion Include="Microsoft.Azure.Functions.Worker.Sdk" Version="2.1.0"/>
-    <PackageVersion Include="Microsoft.Extensions.Http" Version="10.0.13"/>
-    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="10.11.0"/>
+    <PackageVersion Include="Microsoft.Extensions.Http" Version="11.0.0"/>
+    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="11.0.0"/>
     <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.18.0"/>
     <PackageVersion Include="SonarAnalyzer.CSharp" Version="10.32.0.713"/>
   </ItemGroup>
 
   <!-- OddsCollector.AppHost (the Aspire.AppHost.Sdk version is set in its project file) -->
   <ItemGroup>
-    <PackageVersion Include="Aspire.Hosting.Azure.CosmosDB" Version="13.6.4"/>
-    <PackageVersion Include="Aspire.Hosting.Azure.Functions" Version="13.6.4"/>
-    <PackageVersion Include="Aspire.Hosting.Azure.ServiceBus" Version="13.6.4"/>
+    <PackageVersion Include="Aspire.Hosting.Azure.CosmosDB" Version="13.6.5"/>
+    <PackageVersion Include="Aspire.Hosting.Azure.Functions" Version="13.6.5"/>
+    <PackageVersion Include="Aspire.Hosting.Azure.ServiceBus" Version="13.6.5"/>
   </ItemGroup>
 
   <!-- OddsCollector.Functions.UnitTests -->
   <ItemGroup>
     <PackageVersion Include="coverlet.msbuild" Version="10.1.0"/>
-    <PackageVersion Include="Microsoft.Extensions.Diagnostics.Testing" Version="10.11.0"/>
+    <PackageVersion Include="Microsoft.Extensions.Diagnostics.Testing" Version="11.0.0"/>
     <PackageVersion Include="NSubstitute" Version="6.2.0"/>
   </ItemGroup>
 
   <!-- OddsCollector.Functions.IntegrationTests -->
   <ItemGroup>
-    <PackageVersion Include="Aspire.Hosting.Testing" Version="13.6.4"/>
+    <PackageVersion Include="Aspire.Hosting.Testing" Version="13.6.5"/>
     <PackageVersion Include="Azure.Messaging.ServiceBus" Version="7.21.0"/>
     <PackageVersion Include="Microsoft.Azure.Cosmos" Version="3.63.2"/>
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.4"/>

@@ -47,47 +47,50 @@ internal sealed class ServiceCollectionExtensionsTests
     }
 
     [Test]
-    public void AddOddsApiClientWithDependencies_WithAllSettings_PassesStartupValidation()
+    public async Task AddOddsApiClientWithDependencies_WithAllSettings_PassesStartupValidation()
     {
         // Arrange
         using var provider = BuildProvider();
 
         // Act
-        var action = () => provider.GetRequiredService<IStartupValidator>().Validate();
+        var action = async () => await provider.GetRequiredService<IAsyncStartupValidator>()
+            .ValidateAsync(CancellationToken.None);
 
         // Assert
-        action.Should().NotThrow();
+        await action.Should().NotThrowAsync();
     }
 
     [TestCase(null, "key", "OddsApiClient:Leagues",
         TestName = "AddOddsApiClientWithDependencies_WithoutLeagues_FailsStartupValidation")]
     [TestCase("soccer_epl", null, "OddsApiClient:ApiKey",
         TestName = "AddOddsApiClientWithDependencies_WithoutApiKey_FailsStartupValidation")]
-    public void AddOddsApiClientWithDependencies_WithMissingSetting_FailsStartupValidation(string? leagues,
+    public async Task AddOddsApiClientWithDependencies_WithMissingSetting_FailsStartupValidation(string? leagues,
         string? apiKey, string setting)
     {
         // Arrange
         using var provider = BuildProvider(leagues, apiKey);
 
         // Act
-        var action = () => provider.GetRequiredService<IStartupValidator>().Validate();
+        var action = async () => await provider.GetRequiredService<IAsyncStartupValidator>()
+            .ValidateAsync(CancellationToken.None);
 
         // Assert
-        action.Should().Throw<OptionsValidationException>()
+        (await action.Should().ThrowAsync<OptionsValidationException>())
             .Which.Failures.Should().ContainSingle().Which.Should().StartWith(setting);
     }
 
     [Test]
-    public void AddOddsApiClientWithDependencies_WithEverySettingInvalid_ReportsEveryFailureAtOnce()
+    public async Task AddOddsApiClientWithDependencies_WithEverySettingInvalid_ReportsEveryFailureAtOnce()
     {
         // Arrange
         using var provider = BuildProvider(leagues: null, apiKey: null, baseUrl: "not a url");
 
         // Act
-        var action = () => provider.GetRequiredService<IStartupValidator>().Validate();
+        var action = async () => await provider.GetRequiredService<IAsyncStartupValidator>()
+            .ValidateAsync(CancellationToken.None);
 
         // Assert
-        action.Should().Throw<OptionsValidationException>().Which.Failures.Should().HaveCount(3);
+        (await action.Should().ThrowAsync<OptionsValidationException>()).Which.Failures.Should().HaveCount(3);
     }
 
     [Test]
@@ -178,16 +181,17 @@ internal sealed class ServiceCollectionExtensionsTests
     }
 
     [Test]
-    public void AddOddsApiClientWithDependencies_WithInvalidBaseUrl_FailsStartupValidation()
+    public async Task AddOddsApiClientWithDependencies_WithInvalidBaseUrl_FailsStartupValidation()
     {
         // Arrange
         using var provider = BuildProvider(baseUrl: "not a url");
 
         // Act
-        var action = () => provider.GetRequiredService<IStartupValidator>().Validate();
+        var action = async () => await provider.GetRequiredService<IAsyncStartupValidator>()
+            .ValidateAsync(CancellationToken.None);
 
         // Assert
-        action.Should().Throw<OptionsValidationException>()
+        (await action.Should().ThrowAsync<OptionsValidationException>())
             .Which.Failures.Should().ContainSingle().Which.Should().StartWith("OddsApiClient:BaseUrl");
     }
 

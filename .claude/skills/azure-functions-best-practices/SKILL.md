@@ -7,7 +7,7 @@ description: Code-level rules for reliable Azure Functions (isolated worker, C#)
 
 Derived from Microsoft Learn, "Best practices for reliable Azure Functions"
 (https://learn.microsoft.com/en-us/azure/azure-functions/functions-best-practices?tabs=csharp),
-applied to this repo: .NET 10 isolated worker, timer + Service Bus triggers, Service Bus and Cosmos DB
+applied to this repo: .NET 11 isolated worker, timer + Service Bus triggers, Service Bus and Cosmos DB
 output bindings, HTTP calls to The Odds API. For architecture/platform decisions see the
 `azure-functions-well-architected` skill.
 
