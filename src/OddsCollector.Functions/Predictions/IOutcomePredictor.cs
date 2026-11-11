@@ -4,5 +4,5 @@ namespace OddsCollector.Functions.Predictions;
 
 internal interface IOutcomePredictor
 {
-    bool TryGetOutcome(IReadOnlyCollection<Odd> odds, out OutcomeType outcome);
+    OutcomeResult GetOutcome(IReadOnlyCollection<Odd> odds);
 }

@@ -1,6 +1,5 @@
 ﻿using System.Collections.Concurrent;
 using System.Net;
-using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Aspire.Hosting;
@@ -10,7 +9,6 @@ using Microsoft.Extensions.DependencyInjection;
 using OddsCollector.AppHost;
 using OddsCollector.Functions.Functions;
 using OddsCollector.Functions.IntegrationTests.Infrastructure.Polling;
-using OddsCollector.Functions.Models;
 
 namespace OddsCollector.Functions.IntegrationTests.Infrastructure.Functions;
 

@@ -4,15 +4,13 @@ namespace OddsCollector.Functions.Predictions;
 
 internal sealed class OutcomePredictor(IScoreCalculator calculator) : IOutcomePredictor
 {
-    public bool TryGetOutcome(IReadOnlyCollection<Odd> odds, out OutcomeType outcome)
+    public OutcomeResult GetOutcome(IReadOnlyCollection<Odd> odds)
     {
         ArgumentNullException.ThrowIfNull(odds);
 
-        outcome = default;
-
         if (odds.Count == 0)
         {
-            return false;
+            return new NoUsableOdds();
         }
 
         var best = calculator.GetScores(odds)
@@ -22,11 +20,9 @@ internal sealed class OutcomePredictor(IScoreCalculator calculator) : IOutcomePr
 
         if (best.Score <= 0)
         {
-            return false;
+            return new NoUsableOdds();
         }
 
-        outcome = best.Outcome;
-
-        return true;
+        return best.Outcome;
     }
 }

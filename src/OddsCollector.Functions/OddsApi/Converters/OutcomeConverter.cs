@@ -5,30 +5,39 @@ namespace OddsCollector.Functions.OddsApi.Converters;
 
 internal sealed class OutcomeConverter(IScoreModelsConverter converter) : IOutcomeConverter
 {
-    public OutcomeType GetOutcome(ICollection<ScoreModel>? scores, string? homeTeam, string? awayTeam)
+    public Conversion<OutcomeType> GetOutcome(ICollection<ScoreModel>? scores, string homeTeam, string awayTeam)
     {
-        ArgumentNullException.ThrowIfNull(scores);
         ArgumentException.ThrowIfNullOrWhiteSpace(homeTeam);
         ArgumentException.ThrowIfNullOrWhiteSpace(awayTeam);
 
-        var eventScores = converter.Convert(scores).ToList();
+        return converter.Convert(scores) switch
+        {
+            EventScore[] eventScores => GetOutcome(eventScores, homeTeam, awayTeam),
+            Rejection rejection => rejection
+        };
+    }
 
-        var homeScore = GetScore(eventScores, homeTeam, nameof(scores));
-        var awayScore = GetScore(eventScores, awayTeam, nameof(scores));
+    private static Conversion<OutcomeType> GetOutcome(EventScore[] eventScores, string homeTeam, string awayTeam)
+    {
+        var homeScore = eventScores.FirstOrDefault(s => s.Name == homeTeam);
 
-        if (homeScore == awayScore)
+        if (homeScore is null)
+        {
+            return new Rejection($"no score of {homeTeam}");
+        }
+
+        var awayScore = eventScores.FirstOrDefault(s => s.Name == awayTeam);
+
+        if (awayScore is null)
+        {
+            return new Rejection($"no score of {awayTeam}");
+        }
+
+        if (homeScore.Score == awayScore.Score)
         {
             return OutcomeType.Draw;
         }
 
-        return homeScore > awayScore ? OutcomeType.HomeTeam : OutcomeType.AwayTeam;
-    }
-
-    private static int GetScore(IEnumerable<EventScore> eventScores, string team, string paramName)
-    {
-        var eventScore = eventScores.FirstOrDefault(s => s.Name == team)
-                         ?? throw new ArgumentException($"Score of {team} is missing", paramName);
-
-        return eventScore.Score;
+        return homeScore.Score > awayScore.Score ? OutcomeType.HomeTeam : OutcomeType.AwayTeam;
     }
 }

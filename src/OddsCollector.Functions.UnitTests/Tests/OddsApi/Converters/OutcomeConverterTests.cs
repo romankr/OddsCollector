@@ -21,10 +21,10 @@ internal sealed class OutcomeConverterTests
             new EventScore { Name = AwayTeam, Score = awayScore });
 
         // Act
-        var outcome = converter.GetOutcome([], HomeTeam, AwayTeam);
+        var conversion = converter.GetOutcome([], HomeTeam, AwayTeam);
 
         // Assert
-        outcome.Should().Be(expectedOutcome);
+        conversion.Value.Should().Be(expectedOutcome);
     }
 
     [Test]
@@ -36,17 +36,17 @@ internal sealed class OutcomeConverterTests
             new EventScore { Name = HomeTeam, Score = 3 });
 
         // Act
-        var outcome = converter.GetOutcome([], HomeTeam, AwayTeam);
+        var conversion = converter.GetOutcome([], HomeTeam, AwayTeam);
 
         // Assert
-        outcome.Should().Be(OutcomeType.HomeTeam);
+        conversion.Value.Should().Be(OutcomeType.HomeTeam);
     }
 
     [TestCase(HomeTeam, "otherTeam", AwayTeam,
-        TestName = "GetOutcome_WithoutAwayTeamScore_ThrowsArgumentExceptionNamingIt")]
+        TestName = "GetOutcome_WithoutAwayTeamScore_ReturnsRejectionNamingIt")]
     [TestCase("otherTeam", AwayTeam, HomeTeam,
-        TestName = "GetOutcome_WithoutHomeTeamScore_ThrowsArgumentExceptionNamingIt")]
-    public void GetOutcome_WithoutTeamScore_ThrowsArgumentExceptionNamingIt(string firstScoredTeam,
+        TestName = "GetOutcome_WithoutHomeTeamScore_ReturnsRejectionNamingIt")]
+    public void GetOutcome_WithoutTeamScore_ReturnsRejectionNamingIt(string firstScoredTeam,
         string secondScoredTeam, string missingTeam)
     {
         // Arrange
@@ -55,24 +55,30 @@ internal sealed class OutcomeConverterTests
             new EventScore { Name = secondScoredTeam, Score = 0 });
 
         // Act
-        var action = () => converter.GetOutcome([], HomeTeam, AwayTeam);
+        var conversion = converter.GetOutcome([], HomeTeam, AwayTeam);
 
         // Assert
-        action.Should().ThrowExactly<ArgumentException>()
-            .WithMessage($"Score of {missingTeam} is missing*").And.ParamName.Should().Be("scores");
+        conversion.Value.Should().Be(new Rejection($"no score of {missingTeam}"));
     }
 
     [Test]
-    public void GetOutcome_WithNullScores_ThrowsArgumentNullException()
+    public void GetOutcome_WithRejectedScores_ReturnsTheirRejection()
     {
         // Arrange
-        var converter = CreateConverter();
+        var expectedRejection = new Rejection("reason");
+
+        Conversion<EventScore[]> rejected = expectedRejection;
+
+        var scoreModelsConverterStub = Substitute.For<IScoreModelsConverter>();
+        scoreModelsConverterStub.Convert(Arg.Any<ICollection<ScoreModel>?>()).Returns(rejected);
+
+        var converter = new OutcomeConverter(scoreModelsConverterStub);
 
         // Act
-        var action = () => converter.GetOutcome(null, HomeTeam, AwayTeam);
+        var conversion = converter.GetOutcome(null, HomeTeam, AwayTeam);
 
         // Assert
-        action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("scores");
+        conversion.Value.Should().BeSameAs(expectedRejection);
     }
 
     [TestCase(null, TestName = "GetOutcome_WithNullAwayTeam_ThrowsArgumentException")]
@@ -83,7 +89,7 @@ internal sealed class OutcomeConverterTests
         var converter = CreateConverter();
 
         // Act
-        var action = () => converter.GetOutcome([], HomeTeam, awayTeam);
+        var action = () => converter.GetOutcome([], HomeTeam, awayTeam!);
 
         // Assert
         action.Should().Throw<ArgumentException>().WithParameterName(nameof(awayTeam));
@@ -97,7 +103,7 @@ internal sealed class OutcomeConverterTests
         var converter = CreateConverter();
 
         // Act
-        var action = () => converter.GetOutcome([], homeTeam, AwayTeam);
+        var action = () => converter.GetOutcome([], homeTeam!, AwayTeam);
 
         // Assert
         action.Should().Throw<ArgumentException>().WithParameterName(nameof(homeTeam));
@@ -105,8 +111,10 @@ internal sealed class OutcomeConverterTests
 
     private static OutcomeConverter CreateConverter(params EventScore[] eventScores)
     {
+        Conversion<EventScore[]> converted = eventScores;
+
         var scoreModelsConverterStub = Substitute.For<IScoreModelsConverter>();
-        scoreModelsConverterStub.Convert(Arg.Any<ICollection<ScoreModel>?>()).Returns(eventScores);
+        scoreModelsConverterStub.Convert(Arg.Any<ICollection<ScoreModel>?>()).Returns(converted);
 
         return new OutcomeConverter(scoreModelsConverterStub);
     }

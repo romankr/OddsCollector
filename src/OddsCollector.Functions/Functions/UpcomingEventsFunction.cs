@@ -1,5 +1,4 @@
 ﻿using Microsoft.Azure.Functions.Worker;
-using Microsoft.Extensions.Logging;
 using OddsCollector.Functions.Models;
 using OddsCollector.Functions.OddsApi;
 

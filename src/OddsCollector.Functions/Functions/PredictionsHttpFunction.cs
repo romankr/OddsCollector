@@ -2,7 +2,6 @@
 using System.Text.Json;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
-using Microsoft.Extensions.Logging;
 using OddsCollector.Functions.Models;
 
 namespace OddsCollector.Functions.Functions;

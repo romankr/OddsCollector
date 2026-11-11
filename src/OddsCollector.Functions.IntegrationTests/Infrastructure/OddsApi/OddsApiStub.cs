@@ -115,20 +115,3 @@ internal sealed class OddsApiStub(string league, string apiKey) : IDisposable
         return value.ToUniversalTime().ToString("yyyy-MM-dd'T'HH:mm:ss'Z'", CultureInfo.InvariantCulture);
     }
 }
-
-internal sealed record OddsApiEvent(
-    string Id,
-    DateTime CommenceTime,
-    string HomeTeam,
-    string AwayTeam,
-    IReadOnlyCollection<OddsApiBookmaker> Bookmakers);
-
-internal sealed record OddsApiBookmaker(string Key, double Home, double Away, double Draw);
-
-internal sealed record OddsApiCompletedEvent(
-    string Id,
-    DateTime CommenceTime,
-    string HomeTeam,
-    string AwayTeam,
-    int HomeScore,
-    int AwayScore);

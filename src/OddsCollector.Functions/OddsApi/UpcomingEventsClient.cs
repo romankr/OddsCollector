@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using OddsCollector.Functions.Models;
 using OddsCollector.Functions.OddsApi.Configuration;
 using OddsCollector.Functions.OddsApi.Converters;

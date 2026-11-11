@@ -28,7 +28,7 @@ but use the repo adaptations below where the library-oriented advice doesn't fit
 | DO NOT seal classes without a good reason; unsealed is the default | Default to `internal sealed` (classes and records). Nothing here is designed for inheritance; sealing enables devirtualization and matches CA1852. Unseal only with a real extensibility need. |
 | Prefer classes over interfaces; avoid interfaces with one implementation | Interfaces (`IUpcomingEventsClient`, `IOutcomePredictor`, converters…) are our DI and test seams — keep one interface per injectable service. Still: no marker interfaces, keep them small, and every interface must have an implementation **and** a consumer. |
 | Use overloads rather than default (optional) arguments (CLS) | CLS compliance doesn't matter for internal code. Optional parameters are fine; avoid them on interface members (defaults are taken from the static type). Prefer overloads when defaults would change meaning. |
-| Avoid `out`/`ref` parameters | Allowed only for the Try pattern (`bool TryX(..., out T result)`). Otherwise return a record or tuple. |
+| Avoid `out`/`ref` parameters | Don't use them in our APIs. For expected failures return a C# 15 `union` (see Exceptions); otherwise return a record or tuple. A private Try helper is fine. |
 | Return `Collection<T>` / `ReadOnlyCollection<T>` | Return `IReadOnlyList<T>` / `IReadOnlyCollection<T>` / `IEnumerable<T>` (or arrays for small immutable results). Never expose `List<T>` / `Dictionary<,>` as a parameter or return type of a service interface. |
 | Data Contract / XML / Runtime (`BinaryFormatter`) serialization | Use `System.Text.Json` only. `BinaryFormatter` is removed in modern .NET; don't add `[Serializable]`/`ISerializable`. |
 | Dependency properties (WPF) | Not applicable. |
@@ -130,10 +130,13 @@ but use the repo adaptations below where the library-oriented advice doesn't fit
 
 - Report failures by throwing; never return error codes, `null`-as-error, or exception objects. A member that can't
   do what its name promises has failed.
-- Don't use exceptions for normal control flow. For failures that are common and expected, provide a
-  **Tester-Doer** (`CanX` / `X`) or **Try** pattern (`bool TryParse(string s, out T result)`, prefix `Try`, `bool`
-  return, and keep a throwing counterpart). The Try method returns `false` only for its well-defined failure case
-  and still throws for anything else.
+- Don't use exceptions for normal control flow. For failures that are common and expected (gaps in The Odds API
+  data, an event nothing can be predicted from), return a C# 15 **union** of the result and a type that says why
+  there is none, instead of the book's Try pattern: `Conversion<T>(T, Rejection)` in `OddsApi.Converters`,
+  `PredictionResult(EventPrediction, NoUsableOdds)` in `Predictions`. Consume it with an exhaustive `switch`
+  (no discard arm, so adding a case is a compile error). The union covers only the well-defined failure; anything
+  else (null arguments, programming errors) still throws. Model invariants (`Guard` in `init`) stay exceptions:
+  converters check the data before they build a model.
 - Throw the most specific standard exception: `ArgumentNullException` / `ArgumentOutOfRangeException` /
   `ArgumentException` (always with `paramName`; `value` for property setters), `InvalidOperationException` for wrong
   object state, `ObjectDisposedException` after dispose, `NotSupportedException` for unsupported operations.
@@ -205,7 +208,7 @@ but use the repo adaptations below where the library-oriented advice doesn't fit
 - [ ] Parameters: least derived types, validated with `ThrowIf…`/`Guard`, `CancellationToken` last, names match
       across interface and implementation
 - [ ] Collections: read-only interfaces in signatures, never `null`, no settable collection properties
-- [ ] Exceptions: specific standard types with `paramName`; no error codes; Try pattern for expected failures;
+- [ ] Exceptions: specific standard types with `paramName`; no error codes; a union result for expected failures;
       `catch (Exception)` only at entry points or with a filter + `throw;`
 - [ ] Equality operators paired and consistent with `Equals`/`GetHashCode`
 - [ ] Disposables owned → type is disposable; injected ones are not disposed

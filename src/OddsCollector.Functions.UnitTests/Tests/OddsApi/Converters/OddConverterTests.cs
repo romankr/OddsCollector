@@ -14,35 +14,35 @@ internal sealed class OddConverterTests
     private const double Price = 1.1;
 
     [Test]
-    public void ToOdd_WithNullOutcomes_ThrowsArgumentNullException()
+    public void ToOdd_WithNullOutcomes_ReturnsRejection()
     {
         // Arrange
         var converter = new OddConverter();
 
         // Act
-        var action = () => converter.ToOdd(null, Bookmaker, HomeTeam, AwayTeam);
+        var conversion = converter.ToOdd(null, Bookmaker, HomeTeam, AwayTeam);
 
         // Assert
-        action.Should().Throw<ArgumentNullException>().WithParameterName("outcomes");
+        conversion.Value.Should().Be(new Rejection("no outcomes"));
     }
 
-    [TestCase("", TestName = "ToOdd_WithEmptyBookmaker_ThrowsArgumentException")]
-    [TestCase(null, TestName = "ToOdd_WithNullBookmaker_ThrowsArgumentException")]
-    [TestCase(" ", TestName = "ToOdd_WithWhitespaceBookmaker_ThrowsArgumentException")]
-    public void ToOdd_WithNullOrEmptyBookmaker_ThrowsArgumentException(string? bookmaker)
+    [TestCase("", TestName = "ToOdd_WithEmptyBookmaker_ReturnsRejection")]
+    [TestCase(null, TestName = "ToOdd_WithNullBookmaker_ReturnsRejection")]
+    [TestCase(" ", TestName = "ToOdd_WithWhitespaceBookmaker_ReturnsRejection")]
+    public void ToOdd_WithNullOrEmptyBookmaker_ReturnsRejection(string? bookmaker)
     {
         // Arrange
         var converter = new OddConverter();
 
         // Act
-        var action = () => converter.ToOdd([], bookmaker, HomeTeam, AwayTeam);
+        var conversion = converter.ToOdd([], bookmaker, HomeTeam, AwayTeam);
 
         // Assert
-        action.Should().Throw<ArgumentException>().WithParameterName(nameof(bookmaker));
+        conversion.Value.Should().Be(new Rejection("no bookmaker key"));
     }
 
     [Test]
-    public void ToOdd_WithoutAwayTeamOutcome_ThrowsArgumentExceptionNamingIt()
+    public void ToOdd_WithoutAwayTeamOutcome_ReturnsRejectionNamingIt()
     {
         // Arrange
         var converter = new OddConverter();
@@ -54,15 +54,14 @@ internal sealed class OddConverterTests
         ];
 
         // Act
-        var action = () => converter.ToOdd(outcomes, Bookmaker, HomeTeam, AwayTeam);
+        var conversion = converter.ToOdd(outcomes, Bookmaker, HomeTeam, AwayTeam);
 
         // Assert
-        action.Should().Throw<ArgumentException>()
-            .WithMessage($"Outcome {AwayTeam} is missing*").And.ParamName.Should().Be("outcomes");
+        conversion.Value.Should().Be(new Rejection($"no {AwayTeam} outcome"));
     }
 
     [Test]
-    public void ToOdd_WithoutHomeTeamOutcome_ThrowsArgumentExceptionNamingIt()
+    public void ToOdd_WithoutHomeTeamOutcome_ReturnsRejectionNamingIt()
     {
         // Arrange
         var converter = new OddConverter();
@@ -74,15 +73,14 @@ internal sealed class OddConverterTests
         ];
 
         // Act
-        var action = () => converter.ToOdd(outcomes, Bookmaker, HomeTeam, AwayTeam);
+        var conversion = converter.ToOdd(outcomes, Bookmaker, HomeTeam, AwayTeam);
 
         // Assert
-        action.Should().Throw<ArgumentException>()
-            .WithMessage($"Outcome {HomeTeam} is missing*").And.ParamName.Should().Be("outcomes");
+        conversion.Value.Should().Be(new Rejection($"no {HomeTeam} outcome"));
     }
 
     [Test]
-    public void ToOdd_WithoutDrawOutcome_ThrowsArgumentExceptionNamingIt()
+    public void ToOdd_WithoutDrawOutcome_ReturnsRejectionNamingIt()
     {
         // Arrange
         var converter = new OddConverter();
@@ -94,15 +92,14 @@ internal sealed class OddConverterTests
         ];
 
         // Act
-        var action = () => converter.ToOdd(outcomes, Bookmaker, HomeTeam, AwayTeam);
+        var conversion = converter.ToOdd(outcomes, Bookmaker, HomeTeam, AwayTeam);
 
         // Assert
-        action.Should().Throw<ArgumentException>()
-            .WithMessage($"Outcome {DrawOutcomeName} is missing*").And.ParamName.Should().Be("outcomes");
+        conversion.Value.Should().Be(new Rejection($"no {DrawOutcomeName} outcome"));
     }
 
     [Test]
-    public void ToOdd_WithOutcomeWithoutPrice_ThrowsArgumentExceptionNamingIt()
+    public void ToOdd_WithOutcomeWithoutPrice_ReturnsRejectionNamingIt()
     {
         // Arrange
         var converter = new OddConverter();
@@ -115,20 +112,19 @@ internal sealed class OddConverterTests
         ];
 
         // Act
-        var action = () => converter.ToOdd(outcomes, Bookmaker, HomeTeam, AwayTeam);
+        var conversion = converter.ToOdd(outcomes, Bookmaker, HomeTeam, AwayTeam);
 
         // Assert
-        action.Should().Throw<ArgumentException>()
-            .WithMessage($"Outcome {DrawOutcomeName} has no price*").And.ParamName.Should().Be("outcomes");
+        conversion.Value.Should().Be(new Rejection($"no price for {DrawOutcomeName}"));
     }
 
-    [TestCase(1, TestName = "ToOdd_WithPriceOfOne_ThrowsArgumentExceptionNamingIt")]
-    [TestCase(0.5, TestName = "ToOdd_WithPriceBelowOne_ThrowsArgumentExceptionNamingIt")]
-    [TestCase(0, TestName = "ToOdd_WithZeroPrice_ThrowsArgumentExceptionNamingIt")]
-    [TestCase(-2, TestName = "ToOdd_WithNegativePrice_ThrowsArgumentExceptionNamingIt")]
-    [TestCase(double.NaN, TestName = "ToOdd_WithNaNPrice_ThrowsArgumentExceptionNamingIt")]
-    [TestCase(double.PositiveInfinity, TestName = "ToOdd_WithInfinitePrice_ThrowsArgumentExceptionNamingIt")]
-    public void ToOdd_WithUnusablePrice_ThrowsArgumentExceptionNamingIt(double drawPrice)
+    [TestCase(1, TestName = "ToOdd_WithPriceOfOne_ReturnsRejectionNamingIt")]
+    [TestCase(0.5, TestName = "ToOdd_WithPriceBelowOne_ReturnsRejectionNamingIt")]
+    [TestCase(0, TestName = "ToOdd_WithZeroPrice_ReturnsRejectionNamingIt")]
+    [TestCase(-2, TestName = "ToOdd_WithNegativePrice_ReturnsRejectionNamingIt")]
+    [TestCase(double.NaN, TestName = "ToOdd_WithNaNPrice_ReturnsRejectionNamingIt")]
+    [TestCase(double.PositiveInfinity, TestName = "ToOdd_WithInfinitePrice_ReturnsRejectionNamingIt")]
+    public void ToOdd_WithUnusablePrice_ReturnsRejectionNamingIt(double drawPrice)
     {
         // Arrange
         var converter = new OddConverter();
@@ -141,11 +137,11 @@ internal sealed class OddConverterTests
         ];
 
         // Act
-        var action = () => converter.ToOdd(outcomes, Bookmaker, HomeTeam, AwayTeam);
+        var conversion = converter.ToOdd(outcomes, Bookmaker, HomeTeam, AwayTeam);
 
         // Assert
-        action.Should().Throw<ArgumentException>()
-            .WithMessage($"Outcome {DrawOutcomeName} has an unusable price*").And.ParamName.Should().Be("outcomes");
+        conversion.Value.Should().BeOfType<Rejection>()
+            .Which.Reason.Should().StartWith($"unusable price for {DrawOutcomeName}: ");
     }
 
     [Test]
@@ -166,9 +162,9 @@ internal sealed class OddConverterTests
         ];
 
         // Act
-        var odd = converter.ToOdd(outcomes, Bookmaker, HomeTeam, AwayTeam);
+        var conversion = converter.ToOdd(outcomes, Bookmaker, HomeTeam, AwayTeam);
 
         // Assert
-        odd.Should().Be(new Odd { Bookmaker = Bookmaker, Home = homePrice, Draw = drawPrice, Away = awayPrice });
+        conversion.Value.Should().Be(new Odd { Bookmaker = Bookmaker, Home = homePrice, Draw = drawPrice, Away = awayPrice });
     }
 }

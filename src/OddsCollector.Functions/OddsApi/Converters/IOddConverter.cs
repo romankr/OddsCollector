@@ -5,5 +5,5 @@ namespace OddsCollector.Functions.OddsApi.Converters;
 
 internal interface IOddConverter
 {
-    Odd ToOdd(ICollection<Outcome>? outcomes, string? bookmaker, string homeTeam, string awayTeam);
+    Conversion<Odd> ToOdd(ICollection<Outcome>? outcomes, string? bookmaker, string homeTeam, string awayTeam);
 }

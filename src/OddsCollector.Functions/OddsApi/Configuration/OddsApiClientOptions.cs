@@ -13,7 +13,8 @@ internal sealed class OddsApiClientOptions
 
     public static readonly string DefaultBaseUrl = OddsApiUrl.AbsoluteUri;
 
-    private readonly HashSet<string> _leagues = [];
+    // Sport keys of The Odds API are case-sensitive.
+    private readonly HashSet<string> _leagues = [with(StringComparer.Ordinal)];
 
     [AllowNull]
     public string ApiKey { get; set => field = value ?? string.Empty; } = string.Empty;

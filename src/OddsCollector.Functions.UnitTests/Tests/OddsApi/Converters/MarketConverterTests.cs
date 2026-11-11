@@ -12,36 +12,33 @@ internal sealed class MarketConverterTests
     private const string HomeTeam = "homeTeam";
 
     [Test]
-    public void TryGetOdd_WithNullMarkets_ThrowsArgumentNullException()
+    public void GetOdd_WithNullMarkets_ReturnsRejection()
     {
         // Arrange
         var marketConverter = new MarketConverter(Substitute.For<IOddConverter>());
 
         // Act
-        var action = () => marketConverter.TryGetOdd(null, Bookmaker, HomeTeam, AwayTeam, out _);
+        var conversion = marketConverter.GetOdd(null, Bookmaker, HomeTeam, AwayTeam);
 
         // Assert
-        action.Should().Throw<ArgumentNullException>().WithParameterName("markets");
+        conversion.Value.Should().Be(new Rejection("no head-to-head market"));
     }
 
     [Test]
-    public void TryGetOdd_WithEmptyMarkets_ReturnsFalse()
+    public void GetOdd_WithEmptyMarkets_ReturnsRejection()
     {
         // Arrange
         var marketConverter = new MarketConverter(Substitute.For<IOddConverter>());
 
         // Act
-        var found = marketConverter.TryGetOdd([], Bookmaker, HomeTeam, AwayTeam, out var odd);
+        var conversion = marketConverter.GetOdd([], Bookmaker, HomeTeam, AwayTeam);
 
         // Assert
-        using var scope = new AssertionScope();
-
-        found.Should().BeFalse();
-        odd.Should().BeNull();
+        conversion.Value.Should().Be(new Rejection("no head-to-head market"));
     }
 
     [Test]
-    public void TryGetOdd_WithoutHeadToHeadMarket_ReturnsFalseWithoutConvertingOutcomes()
+    public void GetOdd_WithoutHeadToHeadMarket_ReturnsRejectionWithoutConvertingOutcomes()
     {
         // Arrange
         var oddConverterMock = Substitute.For<IOddConverter>();
@@ -51,26 +48,27 @@ internal sealed class MarketConverterTests
         Markets2[] markets = [new() { Key = Markets2Key.Totals, Outcomes = [] }];
 
         // Act
-        var found = marketConverter.TryGetOdd(markets, Bookmaker, HomeTeam, AwayTeam, out var odd);
+        var conversion = marketConverter.GetOdd(markets, Bookmaker, HomeTeam, AwayTeam);
 
         // Assert
         using var scope = new AssertionScope();
 
-        found.Should().BeFalse();
-        odd.Should().BeNull();
+        conversion.Value.Should().Be(new Rejection("no head-to-head market"));
         oddConverterMock.ReceivedCalls().Should().BeEmpty();
     }
 
     [Test]
-    public void TryGetOdd_WithHeadToHeadMarket_ReturnsOddOfItsOutcomes()
+    public void GetOdd_WithHeadToHeadMarket_ReturnsOddOfItsOutcomes()
     {
         // Arrange
         var expectedOdd = new Odd { Bookmaker = Bookmaker, Home = 1.5, Draw = 3.5, Away = 4.0 };
 
+        Conversion<Odd> converted = expectedOdd;
+
         Outcome[] headToHeadOutcomes = [new() { Name = HomeTeam, Price = 1.5 }];
 
         var oddConverterStub = Substitute.For<IOddConverter>();
-        oddConverterStub.ToOdd(headToHeadOutcomes, Bookmaker, HomeTeam, AwayTeam).Returns(expectedOdd);
+        oddConverterStub.ToOdd(headToHeadOutcomes, Bookmaker, HomeTeam, AwayTeam).Returns(converted);
 
         var marketConverter = new MarketConverter(oddConverterStub);
 
@@ -81,12 +79,9 @@ internal sealed class MarketConverterTests
         ];
 
         // Act
-        var found = marketConverter.TryGetOdd(markets, Bookmaker, HomeTeam, AwayTeam, out var odd);
+        var conversion = marketConverter.GetOdd(markets, Bookmaker, HomeTeam, AwayTeam);
 
         // Assert
-        using var scope = new AssertionScope();
-
-        found.Should().BeTrue();
-        odd.Should().BeSameAs(expectedOdd);
+        conversion.Value.Should().BeSameAs(expectedOdd);
     }
 }

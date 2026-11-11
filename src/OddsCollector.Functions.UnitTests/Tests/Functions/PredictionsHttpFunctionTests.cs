@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using Azure.Core.Serialization;
 using FluentAssertions.Execution;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -168,43 +167,5 @@ internal sealed class PredictionsHttpFunctionTests
     private static JsonElement[] ToDocuments(params EventPrediction[] predictions)
     {
         return [.. predictions.Select(p => JsonSerializer.SerializeToElement(p))];
-    }
-
-    private sealed class PredictionsThrowingSerializer(Exception exception) : ObjectSerializer
-    {
-        private readonly JsonObjectSerializer _inner = new();
-
-        public override void Serialize(Stream stream, object? value, Type inputType,
-            CancellationToken cancellationToken)
-        {
-            ThrowIfPredictions(value);
-            _inner.Serialize(stream, value, inputType, cancellationToken);
-        }
-
-        public override ValueTask SerializeAsync(Stream stream, object? value, Type inputType,
-            CancellationToken cancellationToken)
-        {
-            ThrowIfPredictions(value);
-            return _inner.SerializeAsync(stream, value, inputType, cancellationToken);
-        }
-
-        public override object? Deserialize(Stream stream, Type returnType, CancellationToken cancellationToken)
-        {
-            return _inner.Deserialize(stream, returnType, cancellationToken);
-        }
-
-        public override ValueTask<object?> DeserializeAsync(Stream stream, Type returnType,
-            CancellationToken cancellationToken)
-        {
-            return _inner.DeserializeAsync(stream, returnType, cancellationToken);
-        }
-
-        private void ThrowIfPredictions(object? value)
-        {
-            if (value is EventPredictionResponse[])
-            {
-                throw exception;
-            }
-        }
     }
 }

@@ -102,8 +102,8 @@ internal sealed class OriginalCompletedEventConverterTests
 
         var record = loggerMock.Collector.GetSnapshot().Should().ContainSingle().Subject;
         record.Level.Should().Be(LogLevel.Warning);
-        record.Message.Should().Be("Skipped event broken");
-        record.Exception.Should().BeAssignableTo<ArgumentException>();
+        record.Message.Should().Be($"Skipped event broken: the score of {AwayTeam} is not an integer: {score}");
+        record.Exception.Should().BeNull();
     }
 
     [Test]
@@ -130,8 +130,8 @@ internal sealed class OriginalCompletedEventConverterTests
 
         eventResults.Should().ContainSingle().Which.Id.Should().Be("working");
         loggerMock.Collector.GetSnapshot().Select(r => r.Message).Should().Equal(
-            "Skipped event withoutScores",
-            "Skipped event withOneScore");
+            "Skipped event withoutScores: no scores",
+            "Skipped event withOneScore: expected 2 scores, got 1");
     }
 
     [Test]
@@ -159,7 +159,31 @@ internal sealed class OriginalCompletedEventConverterTests
 
         eventResults.Should().ContainSingle().Which.Id.Should().Be("working");
         loggerMock.Collector.GetSnapshot().Should().ContainSingle()
-            .Which.Message.Should().Be("Skipped event mismatched");
+            .Which.Message.Should().Be($"Skipped event mismatched: no score of {AwayTeam}");
+    }
+
+    [TestCase(null, AwayTeam, TestName = "ToEventResults_WithoutHomeTeam_SkipsIt")]
+    [TestCase(HomeTeam, " ", TestName = "ToEventResults_WithBlankAwayTeam_SkipsIt")]
+    public void ToEventResults_WithoutBothTeams_SkipsIt(string? homeTeam, string? awayTeam)
+    {
+        // Arrange
+        var loggerMock = new FakeLogger<OriginalCompletedEventConverter>();
+
+        var converter = CreateConverter(loggerMock);
+
+        var withoutTeam = CreateCompletedEvent("withoutTeam", awayScore: "1", homeScore: "2");
+        withoutTeam.Home_team = homeTeam;
+        withoutTeam.Away_team = awayTeam;
+
+        // Act
+        var eventResults = converter.ToEventResults([withoutTeam]).ToList();
+
+        // Assert
+        using var scope = new AssertionScope();
+
+        eventResults.Should().BeEmpty();
+        loggerMock.Collector.GetSnapshot().Should().ContainSingle()
+            .Which.Message.Should().Be("Skipped event withoutTeam: no home or away team");
     }
 
     private static OriginalCompletedEventConverter CreateConverter(

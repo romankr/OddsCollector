@@ -3,7 +3,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Logging.Testing;
 using NSubstitute.ExceptionExtensions;
-using OddsCollector.Functions.Models;
 using OddsCollector.Functions.OddsApi.Converters;
 using OddsCollector.Functions.OddsApi.WebApi;
 
@@ -20,7 +19,7 @@ internal sealed class BookmakerConverterTests
         var bookmakerConverter = CreateConverter(Substitute.For<IMarketConverter>());
 
         // Act
-        var action = () => bookmakerConverter.ToOdds(null, HomeTeam, AwayTeam);
+        var action = () => bookmakerConverter.ToOdds(null!, HomeTeam, AwayTeam);
 
         // Assert
         action.Should().Throw<ArgumentNullException>().WithParameterName("bookmakers");
@@ -35,7 +34,7 @@ internal sealed class BookmakerConverterTests
         var bookmakerConverter = CreateConverter(Substitute.For<IMarketConverter>());
 
         // Act
-        var action = () => bookmakerConverter.ToOdds([], HomeTeam, awayTeam);
+        var action = () => bookmakerConverter.ToOdds([], HomeTeam, awayTeam!);
 
         // Assert
         action.Should().Throw<ArgumentException>().WithParameterName(nameof(awayTeam));
@@ -50,7 +49,7 @@ internal sealed class BookmakerConverterTests
         var bookmakerConverter = CreateConverter(Substitute.For<IMarketConverter>());
 
         // Act
-        var action = () => bookmakerConverter.ToOdds([], homeTeam, AwayTeam);
+        var action = () => bookmakerConverter.ToOdds([], homeTeam!, AwayTeam);
 
         // Assert
         action.Should().Throw<ArgumentException>().WithParameterName(nameof(homeTeam));
@@ -107,9 +106,12 @@ internal sealed class BookmakerConverterTests
         using var scope = new AssertionScope();
 
         odds.Should().ContainSingle().Which.Bookmaker.Should().Be("working");
-        loggerMock.Collector.GetSnapshot().Should().ContainSingle()
-            .Which.Exception.Should().BeOfType<ArgumentException>()
-            .Which.Message.Should().StartWith($"Outcome {DrawOutcomeName} is missing");
+        loggerMock.Collector.GetSnapshot().Should().ContainSingle().Which.Should().BeEquivalentTo(new
+        {
+            Level = LogLevel.Warning,
+            Message = $"Skipped bookmaker broken for {HomeTeam} - {AwayTeam}: no {DrawOutcomeName} outcome",
+            Exception = (Exception?)null
+        });
     }
 
     [Test]
@@ -135,9 +137,12 @@ internal sealed class BookmakerConverterTests
         using var scope = new AssertionScope();
 
         odds.Should().ContainSingle().Which.Bookmaker.Should().Be("working");
-        loggerMock.Collector.GetSnapshot().Should().ContainSingle()
-            .Which.Exception.Should().BeOfType<ArgumentException>()
-            .Which.Message.Should().StartWith($"Outcome {HomeTeam} has no price");
+        loggerMock.Collector.GetSnapshot().Should().ContainSingle().Which.Should().BeEquivalentTo(new
+        {
+            Level = LogLevel.Warning,
+            Message = $"Skipped bookmaker broken for {HomeTeam} - {AwayTeam}: no price for {HomeTeam}",
+            Exception = (Exception?)null
+        });
     }
 
     [Test]
@@ -148,8 +153,7 @@ internal sealed class BookmakerConverterTests
 
         var marketConverterStub = Substitute.For<IMarketConverter>();
         marketConverterStub
-            .TryGetOdd(Arg.Any<ICollection<Markets2>?>(), Arg.Any<string?>(), Arg.Any<string>(), Arg.Any<string>(),
-                out Arg.Any<Odd?>())
+            .GetOdd(Arg.Any<ICollection<Markets2>?>(), Arg.Any<string?>(), Arg.Any<string>(), Arg.Any<string>())
             .Throws(expectedException);
 
         var bookmakerConverter = CreateConverter(marketConverterStub);

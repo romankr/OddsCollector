@@ -1,24 +1,18 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using OddsCollector.Functions.Models;
+﻿using OddsCollector.Functions.Models;
 
 namespace OddsCollector.Functions.Predictions;
 
 internal sealed class PredictionStrategy(IOutcomePredictor predictor) : IPredictionStrategy
 {
-    public bool TryGetPrediction(UpcomingEvent upcomingEvent, [NotNullWhen(true)] out EventPrediction? prediction)
+    public PredictionResult GetPrediction(UpcomingEvent upcomingEvent)
     {
         ArgumentNullException.ThrowIfNull(upcomingEvent);
 
-        if (!predictor.TryGetOutcome(upcomingEvent.Odds, out var outcome))
+        return predictor.GetOutcome(upcomingEvent.Odds) switch
         {
-            prediction = null;
-
-            return false;
-        }
-
-        prediction = ToEventPrediction(outcome, upcomingEvent);
-
-        return true;
+            OutcomeType outcome => ToEventPrediction(outcome, upcomingEvent),
+            NoUsableOdds noUsableOdds => noUsableOdds
+        };
     }
 
     private static EventPrediction ToEventPrediction(OutcomeType outcome, UpcomingEvent upcomingEvent)

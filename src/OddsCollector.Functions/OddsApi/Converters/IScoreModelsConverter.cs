@@ -4,5 +4,5 @@ namespace OddsCollector.Functions.OddsApi.Converters;
 
 internal interface IScoreModelsConverter
 {
-    IEnumerable<EventScore> Convert(ICollection<ScoreModel>? scores);
+    Conversion<EventScore[]> Convert(ICollection<ScoreModel>? scores);
 }
