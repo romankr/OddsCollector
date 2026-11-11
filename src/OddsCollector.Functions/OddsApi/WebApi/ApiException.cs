@@ -6,8 +6,3 @@ namespace OddsCollector.Functions.OddsApi.WebApi;
 public partial class ApiException
 {
 }
-
-[ExcludeFromCodeCoverage]
-public partial class ApiException<TResult>
-{
-}
