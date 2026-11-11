@@ -16,7 +16,7 @@ internal sealed class ScoreCalculator : IScoreCalculator
 
         // A bookmaker with any unusable price is left out entirely, so that every outcome is averaged over the same
         // bookmakers.
-        List<Odd> usableOdds = [.. odds.Where(IsUsable)];
+        List<Odd> usableOdds = [with(capacity: odds.Count), .. odds.Where(IsUsable)];
 
         return
         [

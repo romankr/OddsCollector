@@ -30,61 +30,65 @@ internal sealed partial class OriginalUpcomingEventConverter(
                 continue;
             }
 
-            var upcomingEvent = TryToUpcomingEvent(originalEvent);
-
-            if (upcomingEvent is not null)
+            switch (ToUpcomingEvent(originalEvent))
             {
-                yield return upcomingEvent;
+                case UpcomingEvent upcomingEvent:
+                    yield return upcomingEvent;
+                    break;
+                case Rejection rejection:
+                    LogEventSkipped(logger, originalEvent.Id, rejection.Reason);
+                    break;
             }
         }
     }
 
-    private UpcomingEvent? TryToUpcomingEvent(Anonymous2 originalEvent)
+    private Conversion<UpcomingEvent> ToUpcomingEvent(Anonymous2 originalEvent)
     {
-        try
+        if (string.IsNullOrWhiteSpace(originalEvent.Id))
         {
-            var upcomingEvent = ToUpcomingEvent(originalEvent);
-
-            if (upcomingEvent.Odds.Count == 0)
-            {
-                LogEventWithoutOddsSkipped(logger, originalEvent.Id);
-
-                return null;
-            }
-
-            return upcomingEvent;
+            return new Rejection("no id");
         }
-        catch (Exception exception) when (exception is ArgumentException or InvalidOperationException)
+
+        if (string.IsNullOrWhiteSpace(originalEvent.Home_team) || string.IsNullOrWhiteSpace(originalEvent.Away_team))
         {
-            LogMalformedEventSkipped(logger, exception, originalEvent.Id);
-
-            return null;
+            return new Rejection("no home or away team");
         }
-    }
 
-    private UpcomingEvent ToUpcomingEvent(Anonymous2 originalEvent)
-    {
+        if (originalEvent.Commence_time.Kind != DateTimeKind.Utc)
+        {
+            return new Rejection($"commence time is not UTC: {originalEvent.Commence_time.Kind}");
+        }
+
+        if (originalEvent.Bookmakers is null)
+        {
+            return new Rejection("no bookmakers");
+        }
+
+        IReadOnlyList<Odd> odds =
+        [
+            .. bookmakerConverter.ToOdds(originalEvent.Bookmakers,
+                homeTeam: originalEvent.Home_team,
+                awayTeam: originalEvent.Away_team)
+        ];
+
+        if (odds.Count == 0)
+        {
+            return new Rejection("no usable odds");
+        }
+
         return new UpcomingEvent
         {
-            AwayTeam = originalEvent.Away_team ?? string.Empty,
-            HomeTeam = originalEvent.Home_team ?? string.Empty,
-            Id = originalEvent.Id ?? string.Empty,
+            AwayTeam = originalEvent.Away_team,
+            HomeTeam = originalEvent.Home_team,
+            Id = originalEvent.Id,
             CommenceTime = originalEvent.Commence_time,
-            Odds =
-            [
-                .. bookmakerConverter.ToOdds(originalEvent.Bookmakers,
-                    homeTeam: originalEvent.Home_team,
-                    awayTeam: originalEvent.Away_team)
-            ]
+            Odds = odds
         };
     }
 
     [LoggerMessage(Level = LogLevel.Debug, Message = "Skipped event {Id}: already started")]
     private static partial void LogStartedEventSkipped(ILogger logger, string? id);
 
-    [LoggerMessage(Level = LogLevel.Warning, Message = "Skipped event {Id}: no usable odds")]
-    private static partial void LogEventWithoutOddsSkipped(ILogger logger, string? id);
-
-    [LoggerMessage(Level = LogLevel.Warning, Message = "Skipped event {Id}")]
-    private static partial void LogMalformedEventSkipped(ILogger logger, Exception exception, string? id);
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Skipped event {Id}: {Reason}")]
+    private static partial void LogEventSkipped(ILogger logger, string? id, string reason);
 }

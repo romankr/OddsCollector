@@ -25,14 +25,10 @@ internal sealed class PredictionFunctionTests
         // Arrange
         var expectedPrediction = ValidModels.CreateEventPrediction() with { Id = EventId };
 
-        var strategyStub = Substitute.For<IPredictionStrategy>();
-        strategyStub.TryGetPrediction(Arg.Any<UpcomingEvent>(), out Arg.Any<EventPrediction?>())
-            .Returns(call =>
-            {
-                call[1] = expectedPrediction;
+        PredictionResult result = expectedPrediction;
 
-                return true;
-            });
+        var strategyStub = Substitute.For<IPredictionStrategy>();
+        strategyStub.GetPrediction(Arg.Any<UpcomingEvent>()).Returns(result);
 
         var messageActionsMock = Substitute.For<ServiceBusMessageActions>();
 
@@ -54,8 +50,10 @@ internal sealed class PredictionFunctionTests
     public async Task Run_WithEventNothingCanBePredictedFrom_SkipsItWithoutDeadLettering()
     {
         // Arrange
+        PredictionResult noUsableOdds = new NoUsableOdds();
+
         var strategyStub = Substitute.For<IPredictionStrategy>();
-        strategyStub.TryGetPrediction(Arg.Any<UpcomingEvent>(), out Arg.Any<EventPrediction?>()).Returns(false);
+        strategyStub.GetPrediction(Arg.Any<UpcomingEvent>()).Returns(noUsableOdds);
 
         var messageActionsMock = Substitute.For<ServiceBusMessageActions>();
 
@@ -141,8 +139,7 @@ internal sealed class PredictionFunctionTests
         var expectedException = new InvalidOperationException();
 
         var strategyStub = Substitute.For<IPredictionStrategy>();
-        strategyStub.TryGetPrediction(Arg.Any<UpcomingEvent>(), out Arg.Any<EventPrediction?>())
-            .Throws(expectedException);
+        strategyStub.GetPrediction(Arg.Any<UpcomingEvent>()).Throws(expectedException);
 
         var messageActionsMock = Substitute.For<ServiceBusMessageActions>();
 
@@ -167,8 +164,7 @@ internal sealed class PredictionFunctionTests
         var expectedException = (Exception)Activator.CreateInstance(exceptionType)!;
 
         var strategyStub = Substitute.For<IPredictionStrategy>();
-        strategyStub.TryGetPrediction(Arg.Any<UpcomingEvent>(), out Arg.Any<EventPrediction?>())
-            .Throws(expectedException);
+        strategyStub.GetPrediction(Arg.Any<UpcomingEvent>()).Throws(expectedException);
 
         var messageActionsMock = Substitute.For<ServiceBusMessageActions>();
 

@@ -48,14 +48,18 @@ internal sealed partial class PredictionFunction(
             return null;
         }
 
-        if (!strategy.TryGetPrediction(@event, out var prediction))
+        return strategy.GetPrediction(@event) switch
         {
-            LogUnpredictableEventSkipped(logger, @event.Id);
+            EventPrediction prediction => prediction,
+            NoUsableOdds => SkipUnpredictableEvent(@event)
+        };
+    }
 
-            return null;
-        }
+    private EventPrediction? SkipUnpredictableEvent(UpcomingEvent @event)
+    {
+        LogUnpredictableEventSkipped(logger, @event.Id);
 
-        return prediction;
+        return null;
     }
 
     [LoggerMessage(Level = LogLevel.Information, Message = "Skipped event {Id}: already started")]

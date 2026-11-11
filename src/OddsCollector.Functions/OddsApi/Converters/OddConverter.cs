@@ -11,32 +11,50 @@ internal sealed class OddConverter : IOddConverter
     // Decimal odds of 1 or less pay back nothing over the stake, so they are not real quotes.
     private const double BreakEvenDecimalOdds = 1;
 
-    public Odd ToOdd(ICollection<Outcome>? outcomes, string? bookmaker, string homeTeam, string awayTeam)
+    public Conversion<Odd> ToOdd(ICollection<Outcome>? outcomes, string? bookmaker, string homeTeam,
+        string awayTeam)
     {
-        ArgumentNullException.ThrowIfNull(outcomes);
-        ArgumentException.ThrowIfNullOrWhiteSpace(bookmaker);
-
-        return new Odd
+        if (string.IsNullOrWhiteSpace(bookmaker))
         {
-            Bookmaker = bookmaker,
-            Home = GetPrice(outcomes, homeTeam),
-            Away = GetPrice(outcomes, awayTeam),
-            Draw = GetPrice(outcomes, DrawOutcomeName)
+            return new Rejection("no bookmaker key");
+        }
+
+        if (outcomes is null)
+        {
+            return new Rejection("no outcomes");
+        }
+
+        var homePrice = GetPrice(outcomes, homeTeam);
+        var drawPrice = GetPrice(outcomes, DrawOutcomeName);
+        var awayPrice = GetPrice(outcomes, awayTeam);
+
+        return (homePrice, drawPrice, awayPrice) switch
+        {
+            (Rejection rejection, _, _) => rejection,
+            (_, Rejection rejection, _) => rejection,
+            (_, _, Rejection rejection) => rejection,
+            (double home, double draw, double away) =>
+                new Odd { Bookmaker = bookmaker, Home = home, Draw = draw, Away = away }
         };
     }
 
-    private static double GetPrice(IEnumerable<Outcome> outcomes, string name)
+    private static Conversion<double> GetPrice(IEnumerable<Outcome> outcomes, string name)
     {
-        var outcome = outcomes.FirstOrDefault(o => o.Name == name)
-                      ?? throw new ArgumentException($"Outcome {name} is missing", nameof(outcomes));
+        var outcome = outcomes.FirstOrDefault(o => o.Name == name);
 
-        var price = outcome.Price ?? throw new ArgumentException($"Outcome {name} has no price", nameof(outcomes));
+        if (outcome is null)
+        {
+            return new Rejection($"no {name} outcome");
+        }
+
+        if (outcome.Price is not { } price)
+        {
+            return new Rejection($"no price for {name}");
+        }
 
         if (!double.IsFinite(price) || price <= BreakEvenDecimalOdds)
         {
-            throw new ArgumentException(
-                $"Outcome {name} has an unusable price: {price.ToString(CultureInfo.InvariantCulture)}",
-                nameof(outcomes));
+            return new Rejection($"unusable price for {name}: {price.ToString(CultureInfo.InvariantCulture)}");
         }
 
         return price;

@@ -19,41 +19,47 @@ internal sealed partial class OriginalCompletedEventConverter(
     {
         foreach (var originalEvent in originalEvents.Where(e => e.Completed == true))
         {
-            var eventResult = TryToEventResult(originalEvent);
-
-            if (eventResult is not null)
+            switch (ToEventResult(originalEvent))
             {
-                yield return eventResult;
+                case EventResult eventResult:
+                    yield return eventResult;
+                    break;
+                case Rejection rejection:
+                    LogEventSkipped(logger, originalEvent.Id, rejection.Reason);
+                    break;
             }
         }
     }
 
-    private EventResult? TryToEventResult(Anonymous3 originalEvent)
+    private Conversion<EventResult> ToEventResult(Anonymous3 originalEvent)
     {
-        try
+        if (string.IsNullOrWhiteSpace(originalEvent.Id))
         {
-            return ToEventResult(originalEvent);
+            return new Rejection("no id");
         }
-        catch (Exception exception) when (exception is ArgumentException or InvalidOperationException)
-        {
-            LogEventSkipped(logger, exception, originalEvent.Id);
 
-            return null;
+        if (string.IsNullOrWhiteSpace(originalEvent.Home_team) || string.IsNullOrWhiteSpace(originalEvent.Away_team))
+        {
+            return new Rejection("no home or away team");
         }
-    }
 
-    private EventResult ToEventResult(Anonymous3 originalEvent)
-    {
-        return new EventResult
+        if (originalEvent.Commence_time.Kind != DateTimeKind.Utc)
         {
-            Id = originalEvent.Id ?? string.Empty,
-            CommenceTime = originalEvent.Commence_time,
-            Outcome = converter.GetOutcome(originalEvent.Scores,
-                homeTeam: originalEvent.Home_team,
-                awayTeam: originalEvent.Away_team)
+            return new Rejection($"commence time is not UTC: {originalEvent.Commence_time.Kind}");
+        }
+
+        return converter.GetOutcome(originalEvent.Scores, originalEvent.Home_team, originalEvent.Away_team) switch
+        {
+            OutcomeType outcome => new EventResult
+            {
+                Id = originalEvent.Id,
+                CommenceTime = originalEvent.Commence_time,
+                Outcome = outcome
+            },
+            Rejection rejection => rejection
         };
     }
 
-    [LoggerMessage(Level = LogLevel.Warning, Message = "Skipped event {Id}")]
-    private static partial void LogEventSkipped(ILogger logger, Exception exception, string? id);
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Skipped event {Id}: {Reason}")]
+    private static partial void LogEventSkipped(ILogger logger, string? id, string reason);
 }

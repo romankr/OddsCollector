@@ -7,7 +7,7 @@ namespace OddsCollector.Functions.OddsApi.Converters;
 internal sealed partial class BookmakerConverter(ILogger<BookmakerConverter> logger, IMarketConverter converter)
     : IBookmakerConverter
 {
-    public IEnumerable<Odd> ToOdds(ICollection<Bookmakers>? bookmakers, string? homeTeam, string? awayTeam)
+    public IEnumerable<Odd> ToOdds(IEnumerable<Bookmakers> bookmakers, string homeTeam, string awayTeam)
     {
         ArgumentNullException.ThrowIfNull(bookmakers);
         ArgumentException.ThrowIfNullOrWhiteSpace(homeTeam);
@@ -16,47 +16,24 @@ internal sealed partial class BookmakerConverter(ILogger<BookmakerConverter> log
         return Iterate(bookmakers, homeTeam, awayTeam);
     }
 
-    private IEnumerable<Odd> Iterate(ICollection<Bookmakers> bookmakers, string homeTeam, string awayTeam)
+    private IEnumerable<Odd> Iterate(IEnumerable<Bookmakers> bookmakers, string homeTeam, string awayTeam)
     {
         foreach (var bookmaker in bookmakers)
         {
-            var odd = TryToOdd(bookmaker, homeTeam, awayTeam);
-
-            if (odd is not null)
+            switch (converter.GetOdd(bookmaker.Markets, bookmaker.Key, homeTeam: homeTeam, awayTeam: awayTeam))
             {
-                yield return odd;
+                case Odd odd:
+                    yield return odd;
+                    break;
+                case Rejection rejection:
+                    LogBookmakerSkipped(logger, bookmaker.Key, homeTeam, awayTeam, rejection.Reason);
+                    break;
             }
-        }
-    }
-
-    private Odd? TryToOdd(Bookmakers bookmaker, string homeTeam, string awayTeam)
-    {
-        try
-        {
-            if (converter.TryGetOdd(bookmaker.Markets, bookmaker.Key, homeTeam: homeTeam, awayTeam: awayTeam,
-                    out var odd))
-            {
-                return odd;
-            }
-
-            LogBookmakerWithoutHeadToHeadSkipped(logger, bookmaker.Key, homeTeam, awayTeam);
-
-            return null;
-        }
-        catch (ArgumentException exception)
-        {
-            LogBookmakerSkipped(logger, exception, bookmaker.Key, homeTeam, awayTeam);
-
-            return null;
         }
     }
 
     [LoggerMessage(Level = LogLevel.Warning,
-        Message = "Skipped bookmaker {Bookmaker} for {HomeTeam} - {AwayTeam}: no head-to-head market")]
-    private static partial void LogBookmakerWithoutHeadToHeadSkipped(ILogger logger, string? bookmaker,
-        string homeTeam, string awayTeam);
-
-    [LoggerMessage(Level = LogLevel.Warning, Message = "Skipped bookmaker {Bookmaker} for {HomeTeam} - {AwayTeam}")]
-    private static partial void LogBookmakerSkipped(ILogger logger, Exception exception, string? bookmaker,
-        string homeTeam, string awayTeam);
+        Message = "Skipped bookmaker {Bookmaker} for {HomeTeam} - {AwayTeam}: {Reason}")]
+    private static partial void LogBookmakerSkipped(ILogger logger, string? bookmaker, string homeTeam,
+        string awayTeam, string reason);
 }

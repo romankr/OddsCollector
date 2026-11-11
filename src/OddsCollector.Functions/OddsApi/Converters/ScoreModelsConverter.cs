@@ -6,23 +6,32 @@ internal sealed class ScoreModelsConverter(IScoreModelConverter converter) : ISc
 {
     private const int ExpectedScoreCount = 2;
 
-    public IEnumerable<EventScore> Convert(ICollection<ScoreModel>? scores)
+    public Conversion<EventScore[]> Convert(ICollection<ScoreModel>? scores)
     {
-        ArgumentNullException.ThrowIfNull(scores);
+        if (scores is null)
+        {
+            return new Rejection("no scores");
+        }
 
         if (scores.Count != ExpectedScoreCount)
         {
-            throw new ArgumentException($"{nameof(scores)} must have {ExpectedScoreCount} elements", nameof(scores));
+            return new Rejection($"expected {ExpectedScoreCount} scores, got {scores.Count}");
         }
 
-        return Iterate(scores);
-    }
+        List<EventScore> eventScores = [with(capacity: ExpectedScoreCount)];
 
-    private IEnumerable<EventScore> Iterate(ICollection<ScoreModel> scores)
-    {
         foreach (var scoreModel in scores)
         {
-            yield return converter.ToEventScore(scoreModel);
+            switch (converter.ToEventScore(scoreModel))
+            {
+                case EventScore eventScore:
+                    eventScores.Add(eventScore);
+                    break;
+                case Rejection rejection:
+                    return rejection;
+            }
         }
+
+        return eventScores.ToArray();
     }
 }

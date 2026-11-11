@@ -93,8 +93,8 @@ internal sealed class OriginalUpcomingEventConverterTests
 
         var record = loggerMock.Collector.GetSnapshot().Should().ContainSingle().Subject;
         record.Level.Should().Be(LogLevel.Warning);
-        record.Message.Should().Be("Skipped event malformed");
-        record.Exception.Should().BeAssignableTo<ArgumentException>();
+        record.Message.Should().Be("Skipped event malformed: no home or away team");
+        record.Exception.Should().BeNull();
     }
 
     [Test]
@@ -121,6 +121,28 @@ internal sealed class OriginalUpcomingEventConverterTests
         loggerMock.Collector.GetSnapshot().Select(r => r.Message).Should().Equal(
             "Skipped event withoutBookmakers: no usable odds",
             "Skipped event withBrokenBookmaker: no usable odds");
+    }
+
+    [Test]
+    public void ToUpcomingEvents_WithNullBookmakers_SkipsEvent()
+    {
+        // Arrange
+        var loggerMock = new FakeLogger<OriginalUpcomingEventConverter>();
+
+        var converter = CreateConverter(loggerMock);
+
+        var withoutBookmakers = CreateEvent("withoutBookmakers");
+        withoutBookmakers.Bookmakers = null;
+
+        // Act
+        var upcomingEvents = converter.ToUpcomingEvents([withoutBookmakers]).ToList();
+
+        // Assert
+        using var scope = new AssertionScope();
+
+        upcomingEvents.Should().BeEmpty();
+        loggerMock.Collector.GetSnapshot().Should().ContainSingle()
+            .Which.Message.Should().Be("Skipped event withoutBookmakers: no bookmakers");
     }
 
     [Test]
@@ -188,8 +210,8 @@ internal sealed class OriginalUpcomingEventConverterTests
         upcomingEvents.Should().ContainSingle().Which.Id.Should().Be("upcoming");
         var record = loggerMock.Collector.GetSnapshot().Should().ContainSingle().Subject;
         record.Level.Should().Be(LogLevel.Warning);
-        record.Message.Should().Be("Skipped event nonUtc");
-        record.Exception.Should().BeOfType<ArgumentException>();
+        record.Message.Should().Be($"Skipped event nonUtc: commence time is not UTC: {kind}");
+        record.Exception.Should().BeNull();
     }
 
     private static OriginalUpcomingEventConverter CreateConverter(

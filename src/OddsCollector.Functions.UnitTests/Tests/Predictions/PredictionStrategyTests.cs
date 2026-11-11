@@ -1,5 +1,4 @@
-﻿using FluentAssertions.Execution;
-using OddsCollector.Functions.Models;
+﻿using OddsCollector.Functions.Models;
 using OddsCollector.Functions.Predictions;
 using OddsCollector.Functions.UnitTests.Infrastructure.Models;
 
@@ -8,7 +7,7 @@ namespace OddsCollector.Functions.UnitTests.Tests.Predictions;
 internal sealed class PredictionStrategyTests
 {
     [Test]
-    public void TryGetPrediction_WithPredictableEvent_ReturnsPredictionForIt()
+    public void GetPrediction_WithPredictableEvent_ReturnsPredictionForIt()
     {
         // Arrange
         var upcomingEvent = new UpcomingEvent
@@ -23,13 +22,10 @@ internal sealed class PredictionStrategyTests
         var strategy = new PredictionStrategy(CreatePredictorStub(OutcomeType.HomeTeam));
 
         // Act
-        var predicted = strategy.TryGetPrediction(upcomingEvent, out var prediction);
+        var result = strategy.GetPrediction(upcomingEvent);
 
         // Assert
-        using var scope = new AssertionScope();
-
-        predicted.Should().BeTrue();
-        prediction.Should().BeEquivalentTo(new EventPrediction
+        result.Value.Should().BeEquivalentTo(new EventPrediction
         {
             Id = upcomingEvent.Id,
             AwayTeam = upcomingEvent.AwayTeam,
@@ -40,7 +36,7 @@ internal sealed class PredictionStrategyTests
     }
 
     [Test]
-    public void TryGetPrediction_WithUpcomingEvent_PassesItsOddsToThePredictor()
+    public void GetPrediction_WithUpcomingEvent_PassesItsOddsToThePredictor()
     {
         // Arrange
         var upcomingEvent = ValidModels.CreateUpcomingEvent();
@@ -50,39 +46,38 @@ internal sealed class PredictionStrategyTests
         var strategy = new PredictionStrategy(predictorMock);
 
         // Act
-        strategy.TryGetPrediction(upcomingEvent, out _);
+        strategy.GetPrediction(upcomingEvent);
 
         // Assert
-        predictorMock.Received(1).TryGetOutcome(upcomingEvent.Odds, out Arg.Any<OutcomeType>());
+        predictorMock.Received(1).GetOutcome(upcomingEvent.Odds);
     }
 
     [Test]
-    public void TryGetPrediction_WithEventNothingCanBePredictedFrom_ReturnsFalse()
+    public void GetPrediction_WithEventNothingCanBePredictedFrom_ReturnsNoUsableOdds()
     {
         // Arrange
+        OutcomeResult noUsableOdds = new NoUsableOdds();
+
         var predictorStub = Substitute.For<IOutcomePredictor>();
-        predictorStub.TryGetOutcome(Arg.Any<IReadOnlyCollection<Odd>>(), out Arg.Any<OutcomeType>()).Returns(false);
+        predictorStub.GetOutcome(Arg.Any<IReadOnlyCollection<Odd>>()).Returns(noUsableOdds);
 
         var strategy = new PredictionStrategy(predictorStub);
 
         // Act
-        var predicted = strategy.TryGetPrediction(ValidModels.CreateUpcomingEvent(), out var prediction);
+        var result = strategy.GetPrediction(ValidModels.CreateUpcomingEvent());
 
         // Assert
-        using var scope = new AssertionScope();
-
-        predicted.Should().BeFalse();
-        prediction.Should().BeNull();
+        result.Value.Should().BeOfType<NoUsableOdds>();
     }
 
     [Test]
-    public void TryGetPrediction_WithNullUpcomingEvent_ThrowsArgumentNullException()
+    public void GetPrediction_WithNullUpcomingEvent_ThrowsArgumentNullException()
     {
         // Arrange
         var strategy = new PredictionStrategy(Substitute.For<IOutcomePredictor>());
 
         // Act
-        var action = () => strategy.TryGetPrediction(null!, out _);
+        var action = () => strategy.GetPrediction(null!);
 
         // Assert
         action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("upcomingEvent");
@@ -90,14 +85,10 @@ internal sealed class PredictionStrategyTests
 
     private static IOutcomePredictor CreatePredictorStub(OutcomeType outcome)
     {
-        var predictorStub = Substitute.For<IOutcomePredictor>();
-        predictorStub.TryGetOutcome(Arg.Any<IReadOnlyCollection<Odd>>(), out Arg.Any<OutcomeType>())
-            .Returns(call =>
-            {
-                call[1] = outcome;
+        OutcomeResult result = outcome;
 
-                return true;
-            });
+        var predictorStub = Substitute.For<IOutcomePredictor>();
+        predictorStub.GetOutcome(Arg.Any<IReadOnlyCollection<Odd>>()).Returns(result);
 
         return predictorStub;
     }
