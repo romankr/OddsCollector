@@ -3,9 +3,6 @@ using OddsCollector.Functions.Models;
 
 namespace OddsCollector.Functions.Functions;
 
-// A prediction as PredictionsHttpFunction returns it. The kick-off time is an ISO 8601 UTC string
-// (2026-09-22T18:00:00Z): the Unix seconds of the stored EventPrediction are a storage format for Cosmos DB queries,
-// not part of the API.
 internal sealed record EventPredictionResponse
 {
     public required string AwayTeam { get; init; }

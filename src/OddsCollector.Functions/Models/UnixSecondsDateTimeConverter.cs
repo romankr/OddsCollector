@@ -3,9 +3,6 @@ using System.Text.Json.Serialization;
 
 namespace OddsCollector.Functions.Models;
 
-// Dates are stored in Cosmos DB as Unix seconds, so that queries compare them as numbers
-// (for example with GetCurrentTimestamp() / 1000) rather than as strings. Fractions of a second are dropped:
-// The Odds API gives kick-off times in whole seconds.
 internal sealed class UnixSecondsDateTimeConverter : JsonConverter<DateTime>
 {
     public override DateTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)

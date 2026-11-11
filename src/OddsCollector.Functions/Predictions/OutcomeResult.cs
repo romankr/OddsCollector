@@ -2,4 +2,4 @@
 
 namespace OddsCollector.Functions.Predictions;
 
-internal union OutcomeResult(OutcomeType, NoUsableOdds);
+internal readonly union OutcomeResult(OutcomeType, NoUsableOdds);

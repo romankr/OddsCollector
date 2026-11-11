@@ -2,8 +2,6 @@
 
 namespace OddsCollector.Functions.UnitTests.Infrastructure.Metrics;
 
-// Meters are scoped to the factory, so a MetricCollector created with it sees only the measurements of one test,
-// even while fixtures run in parallel.
 internal sealed class TestMeterFactory : IMeterFactory
 {
     private readonly List<Meter> _meters = [];

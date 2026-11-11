@@ -73,7 +73,7 @@ internal sealed class ScoreCalculatorTests
         // Act
         var scores = calculator.GetScores(odds);
 
-        // Assert: only the first bookmaker counts, 1 / 2 minus each outcome's adjustment.
+        // Assert
         scores.Should().BeEquivalentTo(
         [
             new { Outcome = OutcomeType.Draw, Score = 0.443 },

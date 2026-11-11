@@ -4,8 +4,7 @@ internal sealed class StubHttpMessageHandler(HttpResponseMessage response) : Htt
 {
     public int CallCount { get; private set; }
 
-    protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
-        System.Threading.CancellationToken cancellationToken)
+    protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
         CallCount++;
 

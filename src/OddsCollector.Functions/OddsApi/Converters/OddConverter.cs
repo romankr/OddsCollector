@@ -8,7 +8,6 @@ internal sealed class OddConverter : IOddConverter
 {
     private const string DrawOutcomeName = "Draw";
 
-    // Decimal odds of 1 or less pay back nothing over the stake, so they are not real quotes.
     private const double BreakEvenDecimalOdds = 1;
 
     public Conversion<Odd> ToOdd(ICollection<Outcome>? outcomes, string? bookmaker, string homeTeam,
